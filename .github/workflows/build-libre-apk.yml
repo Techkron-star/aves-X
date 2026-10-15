@@ -44,14 +44,16 @@ jobs:
           export ANDROID_NDK_HOME=$ANDROID_NDK
           export ANDROID_NDK_ROOT=$ANDROID_NDK
           set -o pipefail
-          # the flavor files of the repository pin an older Flutter version than the main `pubspec.yaml`,
-          # so align them with the Flutter version used by the project
-          FLUTTER_VERSION=$(grep -m1 -E '^  flutter: [0-9]' pubspec.yaml | awk '{print $2}')
-          echo "Flutter version from pubspec.yaml: $FLUTTER_VERSION"
-          sed -i -E "s/^  flutter: [0-9]+\.[0-9]+\.[0-9]+/  flutter: $FLUTTER_VERSION/" flavors/pubspec_libre.yaml
-          sed -i -E "s/^  flutter: \"[0-9]+\.[0-9]+\.[0-9]+\"/  flutter: \"$FLUTTER_VERSION\"/" flavors/pubspec_libre.lock
+          # the files in `flavors/` are older than the main `pubspec.yaml` (different Flutter and package versions),
+          # so the libre variant is derived from the main pubspec instead, as `scripts/apply_flavor_libre.sh` would do:
+          # no crash reporting service and no Google services
+          prepare_libre() {
+            ./flutterw clean &&
+            sed -i -e 's#plugins/aves_report_crashlytics#plugins/aves_report_console#g' -e 's#plugins/aves_services_google#plugins/aves_services_none#g' pubspec.yaml &&
+            ./flutterw pub get
+          }
           # on failure, the end of the log is published as error annotations (readable without downloading logs)
-          if ! { scripts/apply_flavor_libre.sh && ./flutterw gen-l10n && ./flutterw build apk -t lib/main_libre.dart --flavor libre --split-per-abi; } 2>&1 | tee build.log; then
+          if ! { prepare_libre && ./flutterw gen-l10n && ./flutterw build apk -t lib/main_libre.dart --flavor libre --split-per-abi; } 2>&1 | tee build.log; then
             encode() { sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g'; }
             echo "::error title=Build log tail::$(tail -c 3500 build.log | encode)"
             echo "::error title=Build log errors::$(grep -iE -B1 -A3 'error|what went wrong|exception|failed' build.log | head -c 3500 | encode)"
