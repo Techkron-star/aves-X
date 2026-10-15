@@ -43,9 +43,14 @@ jobs:
           export ANDROID_NDK=$ANDROID_SDK_ROOT/ndk/$NDK_VERSION
           export ANDROID_NDK_HOME=$ANDROID_NDK
           export ANDROID_NDK_ROOT=$ANDROID_NDK
-          scripts/apply_flavor_libre.sh
-          ./flutterw gen-l10n
-          ./flutterw build apk -t lib/main_libre.dart --flavor libre --split-per-abi
+          set -o pipefail
+          # on failure, the end of the log is published as error annotations (readable without downloading logs)
+          if ! { scripts/apply_flavor_libre.sh && ./flutterw gen-l10n && ./flutterw build apk -t lib/main_libre.dart --flavor libre --split-per-abi; } 2>&1 | tee build.log; then
+            encode() { sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g'; }
+            echo "::error title=Build log tail::$(tail -c 3500 build.log | encode)"
+            echo "::error title=Build log errors::$(grep -iE -B1 -A3 'error|what went wrong|exception|failed' build.log | head -c 3500 | encode)"
+            exit 1
+          fi
         env:
           AVES_STORE_FILE: ${{ github.workspace }}/key.jks
           AVES_STORE_PASSWORD: avesfork
