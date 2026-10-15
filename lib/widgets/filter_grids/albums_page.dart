@@ -7,6 +7,7 @@ import 'package:aves/model/filters/container/dynamic_album.dart';
 import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/filters/filters.dart';
 import 'package:aves/model/grouping/common.dart';
+import 'package:aves/model/secret_reveal.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/album.dart';
 import 'package:aves/model/source/collection_source.dart';
@@ -56,7 +57,7 @@ class AlbumListPage extends StatelessWidget {
                 listenable: appInventory.areAppNamesReadyNotifier,
                 builder: (context, child) {
                   return ListenableBuilder(
-                    listenable: Listenable.merge({albumGrouping, dynamicAlbums}),
+                    listenable: Listenable.merge({albumGrouping, dynamicAlbums, secretReveal}),
                     builder: (context, child) => StreamBuilder<AlbumsChangedEvent>(
                       stream: source.eventBus.on<AlbumsChangedEvent>(),
                       builder: (context, _) {
@@ -108,9 +109,9 @@ class AlbumListPage extends StatelessWidget {
       };
     }
 
-    // show hidden filters when they are pinned
+    // show hidden filters when they are pinned, or when the secret reveal is active
     final pinned = settings.pinnedFilters.whereType<AlbumBaseFilter>();
-    final hidden = settings.hiddenFilters.whereNot(pinned.contains).toSet();
+    final hidden = secretReveal.active ? <CollectionFilter>{} : settings.hiddenFilters.whereNot(pinned.contains).toSet();
 
     final listedStoredAlbumPaths = <String>{};
     if (albumChipTypes.contains(AlbumChipType.stored)) {

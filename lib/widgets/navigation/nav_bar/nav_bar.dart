@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:aves/app_mode.dart';
+import 'package:aves/model/filters/favourite.dart';
+import 'package:aves/model/secret_reveal.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_lens.dart';
 import 'package:aves/widgets/collection/collection_page.dart';
@@ -145,7 +147,16 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
 
   void _goTo(BuildContext context, List<AvesNavItem> items, int index) {
     final item = items[index];
+    // the tap still navigates as usual, it is only counted on the side
+    if (_isSecretRevealTrigger(item)) {
+      secretReveal.registerTap();
+    }
     item.goTo(context, topLevel: null);
+  }
+
+  // item to tap repeatedly to toggle the secret reveal (here, the favourites item)
+  bool _isSecretRevealTrigger(AvesNavItem item) {
+    return item.route == CollectionPage.routeName && (item.filters?.contains(FavouriteFilter.instance) ?? false);
   }
 }
 

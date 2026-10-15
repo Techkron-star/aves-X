@@ -17,6 +17,7 @@ import 'package:aves/model/filters/trash.dart';
 import 'package:aves/model/grouping/common.dart';
 import 'package:aves/model/grouping/convert.dart';
 import 'package:aves/model/metadata/trash.dart';
+import 'package:aves/model/secret_reveal.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/album.dart';
 import 'package:aves/model/source/analysis_controller.dart';
@@ -93,6 +94,7 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
       }
     });
     vaults.lockStateChangeNotifier.addListener(_onVaultsChanged);
+    secretReveal.addListener(_onSecretRevealChanged);
   }
 
   @mustCallSuper
@@ -103,6 +105,7 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
     stateNotifier.dispose();
     progressNotifier.dispose();
     vaults.lockStateChangeNotifier.removeListener(_onVaultsChanged);
+    secretReveal.removeListener(_onSecretRevealChanged);
     _disposeAllEntries();
   }
 
@@ -151,7 +154,8 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
   }
 
   Set<CollectionFilter> _getAppHiddenFilters() => {
-    ...settings.hiddenFilters,
+    // user hidden filters are suspended while the secret reveal is active
+    if (!secretReveal.active) ...settings.hiddenFilters,
     ...vaults.vaultDirectories.where(vaults.isLocked).map((v) => StoredAlbumFilter(v, null)),
   };
 
@@ -647,6 +651,12 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
       final candidateEntries = visibleEntries.where((entry) => newlyVisibleFilters.any((f) => f.test(entry))).toSet();
       analyze(null, entries: candidateEntries);
     }
+  }
+
+  void _onSecretRevealChanged() {
+    // revealing makes user hidden filters visible without removing them from the settings,
+    // so they are handled like any other newly visible filters
+    _onFilterVisibilityChanged(secretReveal.active ? settings.hiddenFilters : <CollectionFilter>{});
   }
 
   void _onVaultsChanged() {

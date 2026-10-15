@@ -481,6 +481,8 @@
 
   "authenticateToConfigureVault": "Authenticate to configure vault",
   "authenticateToUnlockVault": "Authenticate to unlock vault",
+  "authenticateToOpenBin": "Authenticate to open the recycle bin",
+  "authenticateToConfigureBinLock": "Authenticate to configure the recycle bin lock",
 
   "vaultBinUsageDialogMessage": "Some vaults are using the recycle bin.",
 
@@ -1006,6 +1008,8 @@
   "settingsAllowErrorReporting": "Anonymous error reporting",
   "settingsAutoExportSettings": "Auto settings export",
   "settingsSaveSearchHistory": "Save search history",
+  "settingsBinLock": "Recycle bin lock",
+  "settingsBinLockOff": "Off",
   "settingsEnableBin": "Use recycle bin",
   "settingsEnableBinSubtitle": "Keep deleted items for 30 days",
   "settingsDisablingBinWarningDialogMessage": "Items in the recycle bin will be deleted forever.",

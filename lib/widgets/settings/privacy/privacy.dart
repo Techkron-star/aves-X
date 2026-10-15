@@ -6,9 +6,12 @@ import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/theme/colors.dart';
 import 'package:aves/theme/icons.dart';
+import 'package:aves/view/view.dart';
 import 'package:aves/widgets/collection/entry_set_action_delegate.dart';
+import 'package:aves/widgets/common/action_mixins/bin_lock.dart';
 import 'package:aves/widgets/common/action_mixins/permission_aware.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
+import 'package:aves/widgets/common/identity/aves_list_subtitle.dart';
 import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/dialogs/aves_dialog.dart';
 import 'package:aves/widgets/settings/common/tile_leading.dart';
@@ -42,6 +45,7 @@ class PrivacySection extends SettingsSection {
       SettingsTilePrivacyHiddenItems(),
       if (!settings.useTvLayout) SettingsTilePrivacyStorageAccess(),
       if (!settings.useTvLayout) SettingsTilePrivacyEnableBin(),
+      if (!settings.useTvLayout) SettingsTilePrivacyBinLock(),
       SettingsTilePrivacySaveSearchHistory(),
       if (!settings.useTvLayout) SettingsTilePrivacyAutoExportSettings(),
     ];
@@ -148,6 +152,56 @@ class SettingsTilePrivacyEnableBin extends SettingsTile {
 
     settings.enableBin = enabled;
     return true;
+  }
+}
+
+class SettingsTilePrivacyBinLock extends SettingsTile {
+  @override
+  List<String> get settingKeys => []; // kept in the secure store, not in the settings
+
+  @override
+  String title(BuildContext context) => context.l10n.settingsBinLock;
+
+  @override
+  Widget build(BuildContext context) => _BinLockListTile(title: title(context));
+}
+
+class _BinLockListTile extends StatefulWidget {
+  final String title;
+
+  const _BinLockListTile({required this.title});
+
+  @override
+  State<_BinLockListTile> createState() => _BinLockListTileState();
+}
+
+class _BinLockListTileState extends State<_BinLockListTile> {
+  late Future<VaultLockType?> _lockTypeLoader;
+
+  @override
+  void initState() {
+    super.initState();
+    _lockTypeLoader = BinLock.getLockType();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<VaultLockType?>(
+      future: _lockTypeLoader,
+      builder: (context, snapshot) {
+        final lockType = snapshot.data;
+        return ListTile(
+          title: Text(widget.title),
+          subtitle: AvesListSubtitle(lockType?.getText(context) ?? context.l10n.settingsBinLockOff),
+          onTap: () async {
+            await BinLock.configure(context);
+            if (!mounted) return;
+
+            setState(() => _lockTypeLoader = BinLock.getLockType());
+          },
+        );
+      },
+    );
   }
 }
 

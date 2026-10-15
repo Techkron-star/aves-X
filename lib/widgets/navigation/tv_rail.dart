@@ -3,12 +3,14 @@ import 'dart:math';
 import 'package:aves/model/filters/container/dynamic_album.dart';
 import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/filters/filters.dart';
+import 'package:aves/model/filters/trash.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_lens.dart';
 import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/theme/styles.dart';
 import 'package:aves/widgets/about/about_page.dart';
 import 'package:aves/widgets/collection/collection_page.dart';
+import 'package:aves/widgets/common/action_mixins/bin_lock.dart';
 import 'package:aves/widgets/common/basic/insets.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/identity/aves_logo.dart';
@@ -267,7 +269,13 @@ class _TvRailState extends State<TvRail> {
     );
   }
 
-  void _goToCollection(BuildContext context, CollectionFilter? filter) {
+  Future<void> _goToCollection(BuildContext context, CollectionFilter? filter) async {
+    // the recycle bin may have its own lock
+    if (filter is TrashFilter) {
+      if (!await BinLock.authenticate(context)) return;
+      if (!context.mounted) return;
+    }
+
     Navigator.maybeOf(context)?.pushAndRemoveUntil(
       MaterialPageRoute(
         settings: const RouteSettings(name: CollectionPage.routeName),

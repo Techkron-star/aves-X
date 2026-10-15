@@ -1,8 +1,10 @@
 import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/filters/filters.dart';
+import 'package:aves/model/filters/trash.dart';
 import 'package:aves/model/vaults/details.dart';
 import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/services/common/services.dart';
+import 'package:aves/widgets/common/action_mixins/bin_lock.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/dialogs/aves_dialog.dart';
@@ -77,7 +79,18 @@ mixin VaultAwareMixin on FeedbackMixin {
     return success;
   }
 
+  Future<bool> unlockBin(BuildContext context) async {
+    final success = await BinLock.authenticate(context);
+    if (!success && context.mounted) {
+      showFeedback(context, FeedbackType.warn, context.l10n.genericFailureFeedback);
+    }
+    return success;
+  }
+
   Future<bool> unlockFilter(BuildContext context, CollectionFilter filter) {
+    // the recycle bin may have its own lock
+    if (filter is TrashFilter) return unlockBin(context);
+
     return filter is StoredAlbumFilter ? unlockAlbum(context, filter.album) : Future.value(true);
   }
 
