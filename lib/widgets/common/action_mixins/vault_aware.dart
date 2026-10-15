@@ -1,10 +1,11 @@
+import 'package:aves/model/advanced_privacy.dart';
 import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/filters/filters.dart';
 import 'package:aves/model/filters/trash.dart';
 import 'package:aves/model/vaults/details.dart';
 import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/services/common/services.dart';
-import 'package:aves/widgets/common/action_mixins/bin_lock.dart';
+import 'package:aves/widgets/common/action_mixins/secret_lock.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/dialogs/aves_dialog.dart';
@@ -67,6 +68,19 @@ mixin VaultAwareMixin on FeedbackMixin {
 
     if (confirmed == null || !confirmed) return false;
 
+    // optional second lock, from the advanced vault security
+    final secondLockType = advancedPrivacy.secondLockType(details.name);
+    if (secondLockType != null) {
+      if (!context.mounted) return false;
+      final secondConfirmed = await SecretLock.challenge(
+        context,
+        secondLockType,
+        context.l10n.authenticateToUnlockVault,
+        AdvancedPrivacy.secondPassKey(details.name),
+      );
+      if (!secondConfirmed) return false;
+    }
+
     await vaults.unlock(context, dirPath);
     return true;
   }
@@ -80,7 +94,7 @@ mixin VaultAwareMixin on FeedbackMixin {
   }
 
   Future<bool> unlockBin(BuildContext context) async {
-    final success = await BinLock.authenticate(context);
+    final success = await SecretLock.bin.authenticate(context);
     if (!success && context.mounted) {
       showFeedback(context, FeedbackType.warn, context.l10n.genericFailureFeedback);
     }

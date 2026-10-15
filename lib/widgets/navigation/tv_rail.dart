@@ -10,7 +10,7 @@ import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/theme/styles.dart';
 import 'package:aves/widgets/about/about_page.dart';
 import 'package:aves/widgets/collection/collection_page.dart';
-import 'package:aves/widgets/common/action_mixins/bin_lock.dart';
+import 'package:aves/widgets/common/action_mixins/secret_lock.dart';
 import 'package:aves/widgets/common/basic/insets.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/identity/aves_logo.dart';
@@ -272,7 +272,7 @@ class _TvRailState extends State<TvRail> {
   Future<void> _goToCollection(BuildContext context, CollectionFilter? filter) async {
     // the recycle bin may have its own lock
     if (filter is TrashFilter) {
-      if (!await BinLock.authenticate(context)) return;
+      if (!await SecretLock.bin.authenticate(context)) return;
       if (!context.mounted) return;
     }
 

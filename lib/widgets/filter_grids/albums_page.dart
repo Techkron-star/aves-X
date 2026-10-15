@@ -1,3 +1,4 @@
+import 'package:aves/model/advanced_privacy.dart';
 import 'package:aves/model/app_inventory.dart';
 import 'package:aves/model/covers.dart';
 import 'package:aves/model/dynamic_albums.dart';
@@ -11,6 +12,7 @@ import 'package:aves/model/secret_reveal.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/album.dart';
 import 'package:aves/model/source/collection_source.dart';
+import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/identity/empty.dart';
@@ -57,7 +59,7 @@ class AlbumListPage extends StatelessWidget {
                 listenable: appInventory.areAppNamesReadyNotifier,
                 builder: (context, child) {
                   return ListenableBuilder(
-                    listenable: Listenable.merge({albumGrouping, dynamicAlbums, secretReveal}),
+                    listenable: Listenable.merge({albumGrouping, dynamicAlbums, secretReveal, advancedPrivacy}),
                     builder: (context, child) => StreamBuilder<AlbumsChangedEvent>(
                       stream: source.eventBus.on<AlbumsChangedEvent>(),
                       builder: (context, _) {
@@ -124,7 +126,9 @@ class AlbumListPage extends StatelessWidget {
         listedStoredAlbumPaths.addAll(groupContent.whereType<StoredAlbumFilter>().map((v) => v.album).where(allAlbums.contains));
       }
     }
-    final listedStoredAlbums = listedStoredAlbumPaths.map((album) => StoredAlbumFilter(album, source.getStoredAlbumDisplayName(context, album))).whereNot(hidden.contains).toSet();
+    // vaults can be hidden from the list, until hidden items are revealed
+    final hideVaults = advancedPrivacy.hideVaults && !secretReveal.active;
+    final listedStoredAlbums = listedStoredAlbumPaths.where((album) => !(hideVaults && vaults.isVault(album))).map((album) => StoredAlbumFilter(album, source.getStoredAlbumDisplayName(context, album))).whereNot(hidden.contains).toSet();
 
     final listedDynamicAlbums = <DynamicAlbumFilter>{};
     if (albumChipTypes.contains(AlbumChipType.dynamic)) {

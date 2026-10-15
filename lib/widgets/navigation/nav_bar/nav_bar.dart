@@ -1,15 +1,17 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:aves/app_mode.dart';
-import 'package:aves/model/filters/favourite.dart';
 import 'package:aves/model/secret_reveal.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_lens.dart';
 import 'package:aves/widgets/collection/collection_page.dart';
 import 'package:aves/widgets/common/bars/floating_bar.dart';
+import 'package:aves/widgets/common/action_mixins/secret_lock.dart';
 import 'package:aves/widgets/common/basic/draggable_scrollbar/notifications.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/extensions/media_query.dart';
+import 'package:aves/widgets/filter_grids/albums_page.dart';
 import 'package:aves/widgets/navigation/nav_bar/floating.dart';
 import 'package:aves/widgets/navigation/nav_item.dart';
 import 'package:collection/collection.dart';
@@ -36,6 +38,9 @@ class const AppBottomNavBar({
 
 class _AppBottomNavBarState extends State<AppBottomNavBar> {
   String? _lastRoute;
+  Timer? _holdTimer;
+  Offset? _holdOrigin;
+  bool _holdFired = false;
 
   @override
   void initState() {
@@ -52,6 +57,7 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
 
   @override
   void dispose() {
+    _holdTimer?.cancel();
     _unregisterWidget(widget);
     super.dispose();
   }
@@ -83,21 +89,34 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
           removeBottom: true,
           child: AvesFloatingBar(
             margin: AppBottomNavBar.getMargin(safeBottomPadding),
-            builder: (context, backgroundColor, child) => BottomNavigationBar(
-              items: items.map((item) {
-                final label = item.getText(context);
-                return BottomNavigationBarItem(
-                  icon: item.getIcon(context),
-                  label: label,
-                  tooltip: label,
+            builder: (context, backgroundColor, child) => LayoutBuilder(
+              builder: (context, constraints) {
+                final isRtl = Directionality.of(context) == TextDirection.rtl;
+                // the pointer is only observed, so taps are handled as usual by the bar
+                return Listener(
+                  behavior: HitTestBehavior.translucent,
+                  onPointerDown: (event) => _onPointerDown(context, event, items, context.size?.width ?? constraints.maxWidth, isRtl),
+                  onPointerMove: _onPointerMove,
+                  onPointerUp: (_) => _cancelHold(),
+                  onPointerCancel: (_) => _cancelHold(),
+                  child: BottomNavigationBar(
+                    items: items.map((item) {
+                      final label = item.getText(context);
+                      return BottomNavigationBarItem(
+                        icon: item.getIcon(context),
+                        label: label,
+                        tooltip: label,
+                      );
+                    }).toList(),
+                    onTap: (index) => _goTo(context, items, index),
+                    currentIndex: _getCurrentIndex(context, items),
+                    type: BottomNavigationBarType.fixed,
+                    backgroundColor: backgroundColor,
+                    showSelectedLabels: false,
+                    showUnselectedLabels: false,
+                  ),
                 );
-              }).toList(),
-              onTap: (index) => _goTo(context, items, index),
-              currentIndex: _getCurrentIndex(context, items),
-              type: BottomNavigationBarType.fixed,
-              backgroundColor: backgroundColor,
-              showSelectedLabels: false,
-              showUnselectedLabels: false,
+              },
             ),
           ),
         ),
@@ -146,17 +165,64 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
   }
 
   void _goTo(BuildContext context, List<AvesNavItem> items, int index) {
-    final item = items[index];
-    // the tap still navigates as usual, it is only counted on the side
-    if (_isSecretRevealTrigger(item)) {
-      secretReveal.registerTap();
+    // the release of a long hold on the Albums item should not navigate,
+    // as it would cover the lock dialog that was just shown
+    if (_holdFired) {
+      _holdFired = false;
+      return;
     }
-    item.goTo(context, topLevel: null);
+    items[index].goTo(context, topLevel: null);
   }
 
-  // item to tap repeatedly to toggle the secret reveal (here, the favourites item)
-  bool _isSecretRevealTrigger(AvesNavItem item) {
-    return item.route == CollectionPage.routeName && (item.filters?.contains(FavouriteFilter.instance) ?? false);
+  // holding the Albums item toggles the reveal of hidden items
+  void _onPointerDown(BuildContext context, PointerDownEvent event, List<AvesNavItem> items, double barWidth, bool isRtl) {
+    _holdFired = false;
+    _cancelHold();
+    if (items.isEmpty || barWidth <= 0) return;
+
+    final rawIndex = (event.localPosition.dx / barWidth * items.length).floor();
+    var index = max(0, min(rawIndex, items.length - 1));
+    if (isRtl) index = items.length - 1 - index;
+    if (items[index].route != AlbumListPage.routeName) return;
+
+    _holdOrigin = event.position;
+    _holdTimer = Timer(SecretReveal.holdDuration, () {
+      _holdTimer = null;
+      _holdFired = true;
+      if (context.mounted) {
+        unawaited(_toggleReveal(context));
+      }
+    });
+  }
+
+  void _onPointerMove(PointerMoveEvent event) {
+    final origin = _holdOrigin;
+    if (origin != null && (event.position - origin).distance > 32) {
+      _cancelHold();
+    }
+  }
+
+  void _cancelHold() {
+    _holdTimer?.cancel();
+    _holdTimer = null;
+    _holdOrigin = null;
+  }
+
+  Future<void> _toggleReveal(BuildContext context) async {
+    // hiding does not need any confirmation
+    if (secretReveal.active) {
+      secretReveal.active = false;
+      return;
+    }
+
+    // without a configured reveal lock, nothing happens
+    final lock = SecretLock.reveal;
+    if (await lock.getLockType() == null) return;
+    if (!context.mounted) return;
+
+    if (await lock.authenticate(context)) {
+      secretReveal.active = true;
+    }
   }
 }
 

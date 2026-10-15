@@ -2,10 +2,19 @@ import 'dart:ui';
 
 import 'package:material_ui/material_ui.dart';
 
-const _blurConfig = ImageFilterConfig.blur(sigmaX: 4, sigmaY: 4);
+// stronger blur than before, for a frosted "liquid glass" look
+const _blurConfig = ImageFilterConfig.blur(sigmaX: 14, sigmaY: 14);
 // do not use `ColorFilter.matrix` for identity,
 // as it yields performance issues when there are other layers on top
 final _identity = ImageFilter.matrix(Matrix4.identity().storage);
+
+// subtle light reflection and edge highlight painted over the blurred content
+const _glassHighlight = LinearGradient(
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+  colors: [Color(0x2EFFFFFF), Color(0x05FFFFFF)],
+);
+const _glassEdgeColor = Color(0x38FFFFFF);
 
 class BlurredRect extends StatelessWidget {
   final bool enabled;
@@ -64,7 +73,18 @@ class BlurredRRect extends StatelessWidget {
         // do not modify tree when disabling filter
         filter: enabled ? null : _identity,
         filterConfig: enabled ? _blurConfig : null,
-        child: child,
+        child: DecoratedBox(
+          // the decoration is always present so that the tree does not change when toggling the effect
+          position: DecorationPosition.foreground,
+          decoration: enabled
+              ? BoxDecoration(
+                  borderRadius: borderRadius,
+                  gradient: _glassHighlight,
+                  border: Border.all(color: _glassEdgeColor, width: .8),
+                )
+              : const BoxDecoration(),
+          child: child,
+        ),
       ),
     );
   }
@@ -87,7 +107,18 @@ class BlurredOval extends StatelessWidget {
         // do not modify tree when disabling filter
         filter: enabled ? null : _identity,
         filterConfig: enabled ? _blurConfig : null,
-        child: child,
+        child: DecoratedBox(
+          // the decoration is always present so that the tree does not change when toggling the effect
+          position: DecorationPosition.foreground,
+          decoration: enabled
+              ? const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: _glassHighlight,
+                  border: Border.fromBorderSide(BorderSide(color: _glassEdgeColor, width: .8)),
+                )
+              : const BoxDecoration(),
+          child: child,
+        ),
       ),
     );
   }

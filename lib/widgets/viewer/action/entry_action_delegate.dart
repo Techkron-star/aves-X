@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:aves/app_mode.dart';
 import 'package:aves/model/device.dart';
+import 'package:aves/model/advanced_privacy.dart';
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/entry/extensions/favourites.dart';
 import 'package:aves/model/entry/extensions/location.dart';
@@ -53,10 +54,32 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
 
   new(this.mainEntry, this.pageEntry, this.collection);
 
+  // actions sending an item to another app, or out of the app, which can be blocked for items in a vault
+  static const _sharingActions = {
+    EntryAction.share,
+    EntryAction.open,
+    EntryAction.openVideoPlayer,
+    EntryAction.setAs,
+    EntryAction.cast,
+    EntryAction.print,
+    EntryAction.copyToClipboard,
+    EntryAction.edit,
+    EntryAction.convert,
+  };
+
+  bool _isSharingBlocked(EntryAction action) {
+    if (!_sharingActions.contains(action)) return false;
+
+    final targetEntry = EntryActions.pageActions.contains(action) ? pageEntry : mainEntry;
+    return targetEntry.isInSharingBlockedVault;
+  }
+
   bool isVisible({
     required AppMode appMode,
     required EntryAction action,
   }) {
+    if (_isSharingBlocked(action)) return false;
+
     if (mainEntry.trashed) {
       switch (action) {
         case .delete:
@@ -148,6 +171,8 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
   }
 
   bool canApply(EntryAction action) {
+    if (_isSharingBlocked(action)) return false;
+
     final targetEntry = EntryActions.pageActions.contains(action) ? pageEntry : mainEntry;
     switch (action) {
       case .rotateCCW:

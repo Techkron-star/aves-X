@@ -27,7 +27,7 @@ class SettingsDefaults {
   static const displayRefreshRateMode = DisplayRefreshRateMode.auto;
   static const themeBrightness = AvesThemeBrightness.system;
   static const themeColorMode = AvesThemeColorMode.polychrome;
-  static const enableDynamicColor = false;
+  static const enableDynamicColor = true;
   static const enableBlurEffect = true; // `enableBlurEffect` has a contextual default value
   static const maxBrightness = MaxBrightness.never;
   static const forceTvLayout = false;

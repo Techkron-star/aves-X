@@ -8,7 +8,7 @@ import 'package:aves/theme/colors.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/view/view.dart';
 import 'package:aves/widgets/collection/entry_set_action_delegate.dart';
-import 'package:aves/widgets/common/action_mixins/bin_lock.dart';
+import 'package:aves/widgets/common/action_mixins/secret_lock.dart';
 import 'package:aves/widgets/common/action_mixins/permission_aware.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/identity/aves_list_subtitle.dart';
@@ -18,6 +18,7 @@ import 'package:aves/widgets/settings/common/tile_leading.dart';
 import 'package:aves/widgets/settings/common/tiles/sub_page.dart';
 import 'package:aves/widgets/settings/common/tiles/switch_list.dart';
 import 'package:aves/widgets/settings/privacy/access_grants_page.dart';
+import 'package:aves/widgets/settings/privacy/advanced_vault_security_page.dart';
 import 'package:aves/widgets/settings/privacy/hidden_items_page.dart';
 import 'package:aves/widgets/settings/privacy/permissions/permissions_tile.dart';
 import 'package:aves/widgets/settings/settings_definition.dart';
@@ -46,6 +47,8 @@ class PrivacySection extends SettingsSection {
       if (!settings.useTvLayout) SettingsTilePrivacyStorageAccess(),
       if (!settings.useTvLayout) SettingsTilePrivacyEnableBin(),
       if (!settings.useTvLayout) SettingsTilePrivacyBinLock(),
+      if (!settings.useTvLayout) SettingsTilePrivacyRevealLock(),
+      if (!settings.useTvLayout) SettingsTilePrivacyAdvancedVaults(),
       SettingsTilePrivacySaveSearchHistory(),
       if (!settings.useTvLayout) SettingsTilePrivacyAutoExportSettings(),
     ];
@@ -160,28 +163,54 @@ class SettingsTilePrivacyBinLock extends SettingsTile {
   List<String> get settingKeys => []; // kept in the secure store, not in the settings
 
   @override
-  String title(BuildContext context) => context.l10n.settingsBinLock;
+  String title(BuildContext context) => SecretLock.bin.title(context);
 
   @override
-  Widget build(BuildContext context) => _BinLockListTile(title: title(context));
+  Widget build(BuildContext context) => _SecretLockListTile(lock: SecretLock.bin);
 }
 
-class _BinLockListTile extends StatefulWidget {
-  final String title;
-
-  const _BinLockListTile({required this.title});
+class SettingsTilePrivacyRevealLock extends SettingsTile {
+  @override
+  List<String> get settingKeys => []; // kept in the secure store, not in the settings
 
   @override
-  State<_BinLockListTile> createState() => _BinLockListTileState();
+  String title(BuildContext context) => SecretLock.reveal.title(context);
+
+  @override
+  Widget build(BuildContext context) => _SecretLockListTile(lock: SecretLock.reveal);
 }
 
-class _BinLockListTileState extends State<_BinLockListTile> {
+class SettingsTilePrivacyAdvancedVaults extends SettingsTile {
+  @override
+  List<String> get settingKeys => []; // kept in the secure store, not in the settings
+
+  @override
+  String title(BuildContext context) => context.l10n.settingsAdvancedVaultSecurity;
+
+  @override
+  Widget build(BuildContext context) => SettingsSubPageTile(
+    title: title,
+    routeName: AdvancedVaultSecurityPage.routeName,
+    builder: (context) => const AdvancedVaultSecurityPage(),
+  );
+}
+
+class _SecretLockListTile extends StatefulWidget {
+  final SecretLock lock;
+
+  const _SecretLockListTile({required this.lock});
+
+  @override
+  State<_SecretLockListTile> createState() => _SecretLockListTileState();
+}
+
+class _SecretLockListTileState extends State<_SecretLockListTile> {
   late Future<VaultLockType?> _lockTypeLoader;
 
   @override
   void initState() {
     super.initState();
-    _lockTypeLoader = BinLock.getLockType();
+    _lockTypeLoader = widget.lock.getLockType();
   }
 
   @override
@@ -191,13 +220,13 @@ class _BinLockListTileState extends State<_BinLockListTile> {
       builder: (context, snapshot) {
         final lockType = snapshot.data;
         return ListTile(
-          title: Text(widget.title),
+          title: Text(widget.lock.title(context)),
           subtitle: AvesListSubtitle(lockType?.getText(context) ?? context.l10n.settingsBinLockOff),
           onTap: () async {
-            await BinLock.configure(context);
+            await widget.lock.configure(context);
             if (!mounted) return;
 
-            setState(() => _lockTypeLoader = BinLock.getLockType());
+            setState(() => _lockTypeLoader = widget.lock.getLockType());
           },
         );
       },

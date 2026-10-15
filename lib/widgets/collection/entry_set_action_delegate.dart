@@ -5,6 +5,7 @@ import 'package:aves/app_mode.dart';
 import 'package:aves/locale/intl.dart';
 import 'package:aves/model/device.dart';
 import 'package:aves/model/dynamic_albums.dart';
+import 'package:aves/model/advanced_privacy.dart';
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/entry/extensions/favourites.dart';
 import 'package:aves/model/entry/extensions/location.dart';
@@ -293,8 +294,19 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
     return groupedEntries.expand((entry) => entry.stackedEntries ?? {entry}).toSet();
   }
 
+  // items of vaults can be protected from being sent to other apps
+  bool _checkSharingAllowed(BuildContext context, Set<AvesEntry> entries) {
+    if (entries.any((entry) => entry.isInSharingBlockedVault)) {
+      showFeedback(context, FeedbackType.warn, context.l10n.vaultSharingBlockedFeedback);
+      return false;
+    }
+    return true;
+  }
+
   Future<void> _share(BuildContext context) async {
     final entries = _getTargetItems(context);
+    if (!_checkSharingAllowed(context, entries)) return;
+
     try {
       if (!await appService.shareEntries(entries)) {
         await showNoMatchingAppDialog(context);
@@ -444,6 +456,8 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
 
   Future<void> _copyToClipboard(BuildContext context) async {
     final entries = _getTargetItems(context);
+    if (!_checkSharingAllowed(context, entries)) return;
+
     final success = entries.isNotEmpty && await appService.copyToClipboard(label: entries.first.bestTitle, uris: entries.map((entry) => entry.uri).toList());
     if (success) {
       showFeedback(context, FeedbackType.info, context.l10n.genericSuccessFeedback);

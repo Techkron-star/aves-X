@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:aves/model/advanced_privacy.dart';
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/entry/origins.dart';
 import 'package:aves/model/source/collection_source.dart';
@@ -28,6 +29,7 @@ class Vaults {
 
   Future<void> init() async {
     _rows = await localMediaDb.loadAllVaults();
+    await advancedPrivacy.init(_rows.map((v) => v.name));
     _vaultDirPaths = null;
     final screenStateStream = Platform.isAndroid ? AvesScreenState().screenStateStream : null;
     if (screenStateStream != null) {
@@ -66,6 +68,7 @@ class Vaults {
     await localMediaDb.removeVaults(details);
 
     await Future.forEach(details, (v) => securityService.writeValue(v.passKey, null));
+    await Future.forEach(details, (v) => advancedPrivacy.remove(v.name));
 
     _rows.removeAll(details);
     _vaultDirPaths = null;
@@ -89,6 +92,7 @@ class Vaults {
     if (pass != null) {
       await securityService.writeValue(newDetails.passKey, pass);
     }
+    await advancedPrivacy.rename(oldDetails.name, newName);
 
     _rows
       ..remove(oldDetails)

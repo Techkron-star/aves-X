@@ -7,7 +7,7 @@ import 'package:aves/model/source/collection_lens.dart';
 import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/widgets/about/about_page.dart';
 import 'package:aves/widgets/collection/collection_page.dart';
-import 'package:aves/widgets/common/action_mixins/bin_lock.dart';
+import 'package:aves/widgets/common/action_mixins/secret_lock.dart';
 import 'package:aves/widgets/common/search/page.dart';
 import 'package:aves/widgets/debug/app_debug_page.dart';
 import 'package:aves/widgets/explorer/explorer_page.dart';
@@ -60,7 +60,7 @@ class AvesNavItem extends Equatable {
   Future<void> goTo(BuildContext context, {bool? topLevel}) async {
     // the recycle bin may have its own lock
     if (_opensBin) {
-      if (!await BinLock.authenticate(context)) return;
+      if (!await SecretLock.bin.authenticate(context)) return;
       if (!context.mounted) return;
     }
 

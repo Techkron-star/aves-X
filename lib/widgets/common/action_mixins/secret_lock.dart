@@ -6,7 +6,6 @@ import 'package:aves/widgets/dialogs/aves_dialog.dart';
 import 'package:aves/widgets/dialogs/filter_editors/password_dialog.dart';
 import 'package:aves/widgets/dialogs/filter_editors/pattern_dialog.dart';
 import 'package:aves/widgets/dialogs/filter_editors/pin_dialog.dart';
-import 'package:aves/widgets/dialogs/selection_dialogs/common.dart';
 import 'package:aves/widgets/dialogs/selection_dialogs/single_selection.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:aves_utils/aves_utils.dart';
@@ -14,74 +13,104 @@ import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:material_ui/material_ui.dart';
 
-// Optional lock for the recycle bin, with the same lock types as vaults.
+// Optional lock with the same lock types as vaults (system, pattern, PIN, password).
 // The lock type and its secret are kept in the secure store (like vault secrets),
 // so that they are neither part of the regular settings nor of their export.
-class BinLock {
-  static const _lockTypeKey = 'bin_lock_type';
-  static const _passKey = 'bin_lock_pass';
+class SecretLock {
+  // locks the recycle bin
+  static final bin = SecretLock._(
+    id: 'bin_lock',
+    authReason: (context) => context.l10n.authenticateToOpenBin,
+    configReason: (context) => context.l10n.authenticateToConfigureBinLock,
+    title: (context) => context.l10n.settingsBinLock,
+  );
+
+  // protects the reveal of hidden items
+  static final reveal = SecretLock._(
+    id: 'reveal_lock',
+    authReason: (context) => context.l10n.authenticateToRevealHidden,
+    configReason: (context) => context.l10n.authenticateToConfigureRevealLock,
+    title: (context) => context.l10n.settingsRevealLock,
+  );
+
   static const _offOption = 'off';
 
-  const BinLock._();
+  final String id;
+  final String Function(BuildContext context) authReason, configReason, title;
 
-  // `null` when the bin is not locked
-  static Future<VaultLockType?> getLockType() async {
-    final name = await securityService.readValue<String>(_lockTypeKey);
+  SecretLock._({
+    required this.id,
+    required this.authReason,
+    required this.configReason,
+    required this.title,
+  });
+
+  String get _typeKey => '${id}_type';
+
+  String get _passKey => '${id}_pass';
+
+  // `null` when there is no lock
+  Future<VaultLockType?> getLockType() async {
+    final name = await securityService.readValue<String>(_typeKey);
     return VaultLockType.values.safeByName(name);
   }
 
-  // returns `true` when the bin is not locked, or when the user passed the lock
-  static Future<bool> authenticate(BuildContext context) async {
+  // returns `true` when there is no lock, or when the user passed the lock
+  Future<bool> authenticate(BuildContext context) async {
     final lockType = await getLockType();
     if (lockType == null) return true;
     if (!context.mounted) return false;
 
-    return _challenge(context, lockType, context.l10n.authenticateToOpenBin);
+    return challenge(context, lockType, authReason(context), _passKey);
   }
 
   // let the user choose the lock type, and set the secret if needed
-  static Future<void> configure(BuildContext context) async {
+  Future<void> configure(BuildContext context) async {
     final l10n = context.l10n;
     final currentType = await getLockType();
     if (!context.mounted) return;
 
     // changing or removing an existing lock requires to pass it first
-    if (currentType != null && !await _challenge(context, currentType, l10n.authenticateToConfigureBinLock)) return;
+    if (currentType != null && !await challenge(context, currentType, configReason(context), _passKey)) return;
     if (!context.mounted) return;
 
     final options = <String, String>{
       _offOption: l10n.settingsBinLockOff,
-      if (device.canAuthenticateUser) VaultLockType.system.name: VaultLockType.system.getText(context),
-      VaultLockType.pattern.name: VaultLockType.pattern.getText(context),
-      VaultLockType.pin.name: VaultLockType.pin.getText(context),
-      VaultLockType.password.name: VaultLockType.password.getText(context),
+      ...lockTypeOptions(context),
     };
-    await showSelectionDialog<String>(
+    final choice = await showAvesDialog<String>(
       context: context,
       builder: (context) => AvesSingleSelectionDialog<String>(
         initialValue: currentType?.name ?? _offOption,
         options: options,
-        title: l10n.settingsBinLock,
+        title: title(context),
       ),
-      onSelection: (choice) async {
-        if (!context.mounted) return;
-
-        if (choice == _offOption) {
-          await securityService.writeValue<String>(_lockTypeKey, null);
-          await securityService.writeValue<String>(_passKey, null);
-          return;
-        }
-
-        final lockType = VaultLockType.values.safeByName(choice);
-        if (lockType == null) return;
-
-        if (!await _setPass(context, lockType)) return;
-        await securityService.writeValue<String>(_lockTypeKey, lockType.name);
-      },
+      routeSettings: const RouteSettings(name: AvesSingleSelectionDialog.routeName),
     );
+    if (choice == null || !context.mounted) return;
+
+    if (choice == _offOption) {
+      await securityService.writeValue<String>(_typeKey, null);
+      await securityService.writeValue<String>(_passKey, null);
+      return;
+    }
+
+    final lockType = VaultLockType.values.safeByName(choice);
+    if (lockType == null) return;
+
+    if (!await setPass(context, lockType, _passKey, configReason(context))) return;
+    await securityService.writeValue<String>(_typeKey, lockType.name);
   }
 
-  static Future<bool> _challenge(BuildContext context, VaultLockType lockType, String reason) async {
+  // lock types available on this device, by name
+  static Map<String, String> lockTypeOptions(BuildContext context, {Set<VaultLockType> exclude = const {}}) {
+    return {
+      for (final type in VaultLockType.values)
+        if (!exclude.contains(type) && (type != VaultLockType.system || device.canAuthenticateUser)) type.name: type.getText(context),
+    };
+  }
+
+  static Future<bool> challenge(BuildContext context, VaultLockType lockType, String reason, String passKey) async {
     switch (lockType) {
       case VaultLockType.system:
         try {
@@ -100,35 +129,34 @@ class BinLock {
           builder: (context) => const PatternDialog(needConfirmation: false),
           routeSettings: const RouteSettings(name: PatternDialog.routeName),
         );
-        return pattern != null && pattern == await securityService.readValue<String>(_passKey);
+        return pattern != null && pattern == await securityService.readValue<String>(passKey);
       case VaultLockType.pin:
         final pin = await showAvesDialog<String>(
           context: context,
           builder: (context) => const PinDialog(needConfirmation: false),
           routeSettings: const RouteSettings(name: PinDialog.routeName),
         );
-        return pin != null && pin == await securityService.readValue<String>(_passKey);
+        return pin != null && pin == await securityService.readValue<String>(passKey);
       case VaultLockType.password:
         final password = await showAvesDialog<String>(
           context: context,
           builder: (context) => const PasswordDialog(needConfirmation: false),
           routeSettings: const RouteSettings(name: PasswordDialog.routeName),
         );
-        return password != null && password == await securityService.readValue<String>(_passKey);
+        return password != null && password == await securityService.readValue<String>(passKey);
     }
   }
 
-  static Future<bool> _setPass(BuildContext context, VaultLockType lockType) async {
+  static Future<bool> setPass(BuildContext context, VaultLockType lockType, String passKey, String reason) async {
     switch (lockType) {
       case VaultLockType.system:
-        final l10n = context.l10n;
         try {
-          return await LocalAuthentication().authenticate(localizedReason: l10n.authenticateToConfigureBinLock);
+          return await LocalAuthentication().authenticate(localizedReason: reason);
         } on PlatformException catch (e, stack) {
           if (context.mounted) {
             await showWarningDialog(
               context: context,
-              message: e.message ?? l10n.genericFailureFeedback,
+              message: e.message ?? context.l10n.genericFailureFeedback,
             );
           }
           await reportService.recordError(e, stack);
@@ -140,21 +168,21 @@ class BinLock {
           builder: (context) => const PatternDialog(needConfirmation: true),
           routeSettings: const RouteSettings(name: PatternDialog.routeName),
         );
-        return pattern != null && await securityService.writeValue<String>(_passKey, pattern);
+        return pattern != null && await securityService.writeValue<String>(passKey, pattern);
       case VaultLockType.pin:
         final pin = await showAvesDialog<String>(
           context: context,
           builder: (context) => const PinDialog(needConfirmation: true),
           routeSettings: const RouteSettings(name: PinDialog.routeName),
         );
-        return pin != null && await securityService.writeValue<String>(_passKey, pin);
+        return pin != null && await securityService.writeValue<String>(passKey, pin);
       case VaultLockType.password:
         final password = await showAvesDialog<String>(
           context: context,
           builder: (context) => const PasswordDialog(needConfirmation: true),
           routeSettings: const RouteSettings(name: PasswordDialog.routeName),
         );
-        return password != null && await securityService.writeValue<String>(_passKey, password);
+        return password != null && await securityService.writeValue<String>(passKey, password);
     }
   }
 }
