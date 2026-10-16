@@ -35,7 +35,6 @@ class DisplaySection extends SettingsSection {
     SettingsTileDisplayThemeColorMode(),
     if (device.isDynamicColorAvailable) SettingsTileDisplayEnableDynamicColor(),
     SettingsTileDisplayEnableBlurEffect(),
-    SettingsTileDisplayBatGlass(),
     if (!settings.useTvLayout) SettingsTileDisplayMaxBrightness(),
     if (!settings.useTvLayout) SettingsTileDisplayRefreshRateMode(),
     if (!device.isTelevision) SettingsTileDisplayForceTvLayout(),

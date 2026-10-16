@@ -1208,5 +1208,11 @@
   "appLockPanicWarning": "Entering the panic PIN shows a fake error and wipes ALL the app data in the background. Use it with care.",
   "settingsBatGlass": "Bat glass",
   "settingsBatGlassSubtitle": "Black and ruby red liquid glass theme",
-  "experimentalLabel": "EXPERIMENTAL"
+  "experimentalLabel": "EXPERIMENTAL",
+  "settingsExperimentalSectionTitle": "Experimental",
+  "experimentalWarningMessage": "These options are experimental. They may cause performance issues, higher battery use or instability. Enable them at your own risk.",
+  "settingsGlassEverywhere": "Glass effect everywhere",
+  "settingsGlassEverywhereSubtitle": "Frosted glass on dialogs and the side menu. May reduce performance.",
+  "itemLockLockedFeedback": "Locked",
+  "itemLockUnlockedFeedback": "Unlocked"
 }

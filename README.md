@@ -34,17 +34,18 @@ Aves-X conserva todo lo que hace Aves (galería, visor de imágenes y vídeo, ma
 - **Vaults avanzadas**: segundo bloqueo opcional, bloqueo de compartir y opción de ocultarlas de la lista de álbumes.
 - **Bloqueo de la papelera** y **gesto secreto** (mantener 5 s el botón Álbumes) para mostrar elementos ocultos.
 - **Confirmación estricta de borrado**: botón rojo con espera, mantenerlo pulsado y escribir `BORRAR`.
-- Todas las opciones se pueden activar/desactivar, agrupadas por secciones en Ajustes → Privacidad (desactivar una protección pide el Código Maestro).
+- **Todo es opt-in**: nada viene activado por defecto. Las opciones se activan/desactivan por separado, agrupadas por secciones en Ajustes → Privacidad (desactivar una protección pide el Código Maestro). Bloquear/desbloquear da respuesta háptica y visual.
 
 ### Apariencia
 - Cristal líquido más translúcido en barras, botones, diálogos y menú lateral.
 - Color rojo por defecto (Material You sigue disponible).
 - Logo y nombre propios.
+- Sección **EXPERIMENTAL** en Ajustes (con aviso previo): tema **Bat glass** (cristal rubí sobre negro) y efecto cristal en diálogos y menú lateral. Pueden afectar al rendimiento.
 
 > Estado: **alpha**. Compila, pero se está probando en dispositivo real. Úsalo con copias de tus fotos importantes, **no** como único lugar donde guardas algo irreemplazable. Un nuke es irreversible por diseño.
 
 ## Próximamente
-Cifrado de los archivos de las vaults, tema "Bat glass" (cristal rubí sobre negro), soporte de `.nomedia`, límites de intentos para papelera y bloqueo de elementos. Ver [ROADMAP.md](ROADMAP.md).
+Cifrado de los archivos de las vaults, pulir Bat glass, soporte de `.nomedia`, límites de intentos para papelera y bloqueo de elementos. Ver [ROADMAP.md](ROADMAP.md).
 
 ## Créditos y licencia
 

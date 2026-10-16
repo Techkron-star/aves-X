@@ -1,3 +1,6 @@
+import 'package:aves/widgets/common/extensions/build_context.dart';
+import 'package:flutter/services.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/security/privacy_options.dart';
 import 'package:aves/services/common/services.dart';
@@ -75,6 +78,7 @@ class ItemLocks extends ChangeNotifier {
     _favourites = value;
     await securityService.writeValue<String>(_favouritesKey, value ? '1' : null);
     notifyListeners();
+    if (context.mounted) _feedback(context, value);
   }
 
   void closeAll() {
@@ -87,6 +91,25 @@ class ItemLocks extends ChangeNotifier {
     await securityService.writeValue<String>(_albumsKey, _albums.isEmpty ? null : _albums.join('\n'));
     await securityService.writeValue<String>(_itemsKey, _items.isEmpty ? null : _items.join('\n'));
     notifyListeners();
+  }
+
+  // haptic and visual feedback after locking or unlocking
+  void _feedback(BuildContext context, bool locked) {
+    HapticFeedback.mediumImpact();
+    if (!context.mounted) return;
+    final l10n = context.l10n;
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(locked ? Icons.lock : Icons.lock_open, size: 18),
+            const SizedBox(width: 12),
+            Text(locked ? l10n.itemLockLockedFeedback : l10n.itemLockUnlockedFeedback),
+          ],
+        ),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   // asks for the items lock; the user can open the item if there is no lock at all
@@ -135,6 +158,7 @@ class ItemLocks extends ChangeNotifier {
       _items.addAll(entries.map(entryKey));
     }
     await _save();
+    if (context.mounted) _feedback(context, !allMarked);
   }
 
   Future<void> toggleAlbums(BuildContext context, Set<String> dirPaths) async {
@@ -150,5 +174,6 @@ class ItemLocks extends ChangeNotifier {
       _albums.addAll(dirPaths);
     }
     await _save();
+    if (context.mounted) _feedback(context, !allMarked);
   }
 }

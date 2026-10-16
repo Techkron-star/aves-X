@@ -31,6 +31,11 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 - [x] Bloquear la página de Favoritos. Cristal en diálogos, menú lateral y menús. Color por defecto rojo. Avisos de riesgo (botón rojo con espera) al activar nuke, bloqueo de app y PIN de pánico.
 - [ ] Al deslizar en el visor, las fotos bloqueadas vecinas aún podrían verse (pendiente).
 
+## Principios
+- **Todo es opt-in**: ninguna función nueva de privacidad ni experimental viene activada por defecto.
+- Sección **EXPERIMENTAL** en Ajustes (con aviso al abrirla): Bat glass y efecto cristal en diálogos/menú lateral.
+- Feedback háptico y visual al bloquear/desbloquear álbumes, fotos y favoritos.
+
 ## 0.3 — Destrucción (nuke) y Master Code
 - [x] **Master Code** de 6 dígitos: se crea antes de cualquier PIN/contraseña, obligatorio para cambiar o quitar cualquier credencial (vaults, papelera, revelado, bloqueo de app, seguridad avanzada) y para el nuke manual. Sin recuperación.
 - [x] Contadores de intentos independientes (App PIN, Master Code, cada vault), guardados en disco tras cada fallo (almacén seguro).

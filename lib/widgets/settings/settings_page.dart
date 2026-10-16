@@ -1,3 +1,4 @@
+import 'package:aves/widgets/settings/experimental/experimental.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/durations.dart';
 import 'package:aves/widgets/common/extensions/media_query.dart';
@@ -29,6 +30,7 @@ class SettingsPage extends StatelessWidget {
     AccessibilitySection(),
     DisplaySection(),
     LanguageSection(),
+    ExperimentalSection(),
   ];
 
   const new({super.key});

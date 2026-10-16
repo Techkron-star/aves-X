@@ -133,10 +133,13 @@ class _AppDrawerState extends State<AppDrawer> with WidgetsBindingObserver {
       ],
     ];
 
+    // experimental glass effect (opt-in)
+    final glass = settings.enableBlurEffect && settings.glassEverywhere;
     return Drawer(
+      backgroundColor: glass ? Theme.of(context).colorScheme.surfaceContainerHigh.withValues(alpha: .6) : null,
       child: ClipRect(
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+          filter: glass ? ImageFilter.blur(sigmaX: 14, sigmaY: 14) : ImageFilter.matrix(Matrix4.identity().storage),
           child: ListTileTheme.merge(
         selectedColor: Theme.of(context).colorScheme.primary,
         horizontalTitleGap: 20,

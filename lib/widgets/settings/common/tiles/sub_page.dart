@@ -6,12 +6,14 @@ class const SettingsSubPageTile({
   super.key,
   required final TitleBuilder title,
   final WidgetBuilder? subtitle,
+  final Widget? leading,
   required final String routeName,
   required final WidgetBuilder builder,
 }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      leading: leading,
       title: Text(title(context) ?? AText.valueNotAvailable),
       subtitle: subtitle?.call(context),
       onTap: () {

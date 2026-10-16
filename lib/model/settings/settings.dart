@@ -360,6 +360,7 @@ class Settings
           case SettingKeys.enableDynamicColorKey:
           case SettingKeys.enableBlurEffectKey:
           case SettingKeys.batGlassKey:
+          case SettingKeys.glassEverywhereKey:
           case SettingKeys.mustBackTwiceToExitKey:
           case SettingKeys.confirmCreateVaultKey:
           case SettingKeys.confirmDeleteForeverKey:

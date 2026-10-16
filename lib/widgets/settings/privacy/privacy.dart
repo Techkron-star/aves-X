@@ -1,3 +1,4 @@
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:aves/model/item_locks.dart';
 import 'package:aves/widgets/dialogs/danger_confirmation.dart';
 import 'package:aves/l10n/l10n.dart';
@@ -198,6 +199,7 @@ class SettingsTilePrivacyAdvancedVaults extends SettingsTile {
 
   @override
   Widget build(BuildContext context) => SettingsSubPageTile(
+    leading: SettingsTileLeading(icon: Symbols.shield_lock, color: context.select<AvesColorsData, Color>((v) => v.privacy)),
     title: title,
     routeName: AdvancedVaultSecurityPage.routeName,
     builder: (context) => const AdvancedVaultSecurityPage(),
@@ -254,8 +256,22 @@ class SettingsTilePrivacyGroup extends SettingsTile {
     }
   }
 
+  IconData get _icon {
+    switch (group) {
+      case PrivacyGroup.locks:
+        return Symbols.lock;
+      case PrivacyGroup.vaults:
+        return Symbols.shield_lock;
+      case PrivacyGroup.appLock:
+        return Symbols.phonelink_lock;
+      case PrivacyGroup.destruction:
+        return Symbols.delete_forever;
+    }
+  }
+
   @override
   Widget build(BuildContext context) => SettingsSubPageTile(
+    leading: SettingsTileLeading(icon: _icon, color: context.select<AvesColorsData, Color>((v) => v.privacy)),
     title: title,
     routeName: '/settings/privacy/${group.name}',
     builder: (context) => _PrivacyGroupPage(title: title(context), tiles: _tiles()),
@@ -343,6 +359,7 @@ class SettingsTilePrivacyAppLock extends SettingsTile {
 
   @override
   Widget build(BuildContext context) => SettingsSubPageTile(
+    leading: SettingsTileLeading(icon: Symbols.phonelink_lock, color: context.select<AvesColorsData, Color>((v) => v.privacy)),
     title: title,
     routeName: AppLockPage.routeName,
     builder: (context) => const AppLockPage(),

@@ -136,6 +136,8 @@ abstract class AvesColorsData {
 
   Color get display => fromHue(50);
 
+  Color get experimental => fromHue(8);
+
   Color get language => fromHue(264);
 
   Color get navigation => fromHue(140);

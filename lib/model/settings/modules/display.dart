@@ -19,6 +19,10 @@ mixin DisplaySettings on SettingsAccess {
 
   set enableDynamicColor(bool newValue) => set(SettingKeys.enableDynamicColorKey, newValue);
 
+  bool get glassEverywhere => getBool(SettingKeys.glassEverywhereKey) ?? SettingsDefaults.glassEverywhere;
+
+  set glassEverywhere(bool newValue) => set(SettingKeys.glassEverywhereKey, newValue);
+
   bool get batGlass => getBool(SettingKeys.batGlassKey) ?? SettingsDefaults.batGlass;
 
   set batGlass(bool newValue) => set(SettingKeys.batGlassKey, newValue);
