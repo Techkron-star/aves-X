@@ -1,3 +1,4 @@
+import 'package:aves/model/settings/enums/nav_bar_style.dart';
 import 'dart:async';
 
 import 'package:aves/model/device.dart';
@@ -35,6 +36,7 @@ class DisplaySection extends SettingsSection {
     SettingsTileDisplayThemeColorMode(),
     if (device.isDynamicColorAvailable) SettingsTileDisplayEnableDynamicColor(),
     SettingsTileDisplayEnableBlurEffect(),
+    if (!settings.useTvLayout) SettingsTileDisplayNavBarStyle(),
     if (!settings.useTvLayout) SettingsTileDisplayMaxBrightness(),
     if (!settings.useTvLayout) SettingsTileDisplayRefreshRateMode(),
     if (!device.isTelevision) SettingsTileDisplayForceTvLayout(),
@@ -196,5 +198,23 @@ class SettingsTileDisplayBatGlass extends SettingsTile {
         style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
       ),
     ),
+  );
+}
+
+class SettingsTileDisplayNavBarStyle extends SettingsTile {
+  @override
+  List<String> get settingKeys => [SettingKeys.navBarStyleKey];
+
+  @override
+  String title(BuildContext context) => context.l10n.settingsNavBarStyle;
+
+  @override
+  Widget build(BuildContext context) => SettingsSelectionListTile<NavBarStyle>(
+    values: NavBarStyle.values,
+    getName: (context, v) => v.getName(context),
+    selector: (context, s) => s.navBarStyle,
+    onSelection: (v) => settings.navBarStyle = v,
+    tileTitle: title,
+    dialogTitle: context.l10n.settingsNavBarStyle,
   );
 }

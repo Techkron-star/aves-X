@@ -1,3 +1,4 @@
+import 'package:aves/model/settings/enums/nav_bar_style.dart';
 import 'package:aves/model/security/privacy_options.dart';
 import 'dart:async';
 import 'dart:math';
@@ -26,7 +27,7 @@ class const AppBottomNavBar({
   final CollectionLens? currentCollection,
 }) extends StatefulWidget {
   static EdgeInsets getMargin(double safeBottomPadding) {
-    return EdgeInsets.only(left: 8, top: 8, right: 8, bottom: max(8, safeBottomPadding + 4));
+    return settings.navBarStyle.margin(safeBottomPadding);
   }
 
   static double getHeightWithMargin(double safeBottomPadding) {
@@ -76,6 +77,7 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
     final items = context.select<Settings, List<AvesNavItem>>((v) => v.bottomNavigationActions);
     if (items.length < 2) return const SizedBox();
 
+    final navBarStyle = context.select<Settings, NavBarStyle>((v) => v.navBarStyle);
     final safeBottomPadding = context.select<MediaQueryData, double>((mq) => mq.safeBottomPadding);
     Widget child = FloatingNavBar(
       scrollController: PrimaryScrollController.of(context),
@@ -90,6 +92,7 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
           removeBottom: true,
           child: AvesFloatingBar(
             margin: AppBottomNavBar.getMargin(safeBottomPadding),
+            borderRadius: navBarStyle.borderRadius,
             builder: (context, backgroundColor, child) => LayoutBuilder(
               builder: (context, constraints) {
                 final isRtl = Directionality.of(context) == TextDirection.rtl;

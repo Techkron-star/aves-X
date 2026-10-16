@@ -36,6 +36,8 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 - Sección **EXPERIMENTAL** en Ajustes (con aviso al abrirla): Bat glass y efecto cristal en diálogos/menú lateral.
 - Feedback háptico y visual al bloquear/desbloquear álbumes, fotos y favoritos.
 
+- [x] Estilo de la barra de navegación (clásica, redondeada, flotante, rectangular). Botones sólidos → cristal rubí translúcido con Bat glass / cristal en todas partes. Acerca de actualizado (Aves-X alpha, basado en Aves).
+
 ## 0.3 — Destrucción (nuke) y Master Code
 - [x] **Master Code** de 6 dígitos: se crea antes de cualquier PIN/contraseña, obligatorio para cambiar o quitar cualquier credencial (vaults, papelera, revelado, bloqueo de app, seguridad avanzada) y para el nuke manual. Sin recuperación.
 - [x] Contadores de intentos independientes (App PIN, Master Code, cada vault), guardados en disco tras cada fallo (almacén seguro).

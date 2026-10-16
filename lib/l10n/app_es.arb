@@ -814,5 +814,11 @@
   "settingsGlassEverywhere": "Efecto cristal en todas partes",
   "settingsGlassEverywhereSubtitle": "Cristal esmerilado en diálogos y menú lateral. Puede reducir el rendimiento.",
   "itemLockLockedFeedback": "Bloqueado",
-  "itemLockUnlockedFeedback": "Desbloqueado"
+  "itemLockUnlockedFeedback": "Desbloqueado",
+  "settingsNavBarStyle": "Estilo de la barra de navegación",
+  "navBarStyleClassic": "Clásica",
+  "navBarStyleRounded": "Redondeada",
+  "navBarStyleFloating": "Flotante",
+  "navBarStyleRectangular": "Rectangular",
+  "aboutBasedOnAves": "Un tributo personal a Aves, basado en Aves {version} de Thibault Deckers"
 }

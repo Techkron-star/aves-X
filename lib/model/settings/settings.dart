@@ -416,6 +416,7 @@ class Settings
           case SettingKeys.calendarKey:
           case SettingKeys.displayRefreshRateModeKey:
           case SettingKeys.themeBrightnessKey:
+          case SettingKeys.navBarStyleKey:
           case SettingKeys.themeColorModeKey:
           case SettingKeys.maxBrightnessKey:
           case SettingKeys.keepScreenOnKey:

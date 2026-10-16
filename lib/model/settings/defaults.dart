@@ -1,3 +1,4 @@
+import 'package:aves/model/settings/enums/nav_bar_style.dart';
 import 'package:aves/locale/aves_locale.dart';
 import 'package:aves/model/filters/favourite.dart';
 import 'package:aves/model/filters/filters.dart';
@@ -29,6 +30,7 @@ class SettingsDefaults {
   static const themeColorMode = AvesThemeColorMode.polychrome;
   static const enableDynamicColor = true;
   static const glassEverywhere = false; // experimental glass on dialogs and drawer
+  static const navBarStyle = NavBarStyle.classic;
   static const batGlass = false; // experimental ruby glass theme
   static const enableBlurEffect = true; // `enableBlurEffect` has a contextual default value
   static const maxBrightness = MaxBrightness.never;

@@ -1,3 +1,4 @@
+import 'package:aves/model/settings/enums/nav_bar_style.dart';
 import 'package:aves/model/device.dart';
 import 'package:aves/model/settings/defaults.dart';
 import 'package:aves_model/aves_model.dart';
@@ -22,6 +23,10 @@ mixin DisplaySettings on SettingsAccess {
   bool get glassEverywhere => getBool(SettingKeys.glassEverywhereKey) ?? SettingsDefaults.glassEverywhere;
 
   set glassEverywhere(bool newValue) => set(SettingKeys.glassEverywhereKey, newValue);
+
+  NavBarStyle get navBarStyle => getEnumOrDefault(SettingKeys.navBarStyleKey, SettingsDefaults.navBarStyle, NavBarStyle.values);
+
+  set navBarStyle(NavBarStyle newValue) => set(SettingKeys.navBarStyleKey, newValue.name);
 
   bool get batGlass => getBool(SettingKeys.batGlassKey) ?? SettingsDefaults.batGlass;
 

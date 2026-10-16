@@ -1214,5 +1214,12 @@
   "settingsGlassEverywhere": "Glass effect everywhere",
   "settingsGlassEverywhereSubtitle": "Frosted glass on dialogs and the side menu. May reduce performance.",
   "itemLockLockedFeedback": "Locked",
-  "itemLockUnlockedFeedback": "Unlocked"
+  "itemLockUnlockedFeedback": "Unlocked",
+  "settingsNavBarStyle": "Navigation bar style",
+  "navBarStyleClassic": "Classic",
+  "navBarStyleRounded": "Rounded",
+  "navBarStyleFloating": "Floating",
+  "navBarStyleRectangular": "Rectangular",
+  "aboutBasedOnAves": "A personal tribute to Aves, based on Aves {version} by Thibault Deckers",
+  "@aboutBasedOnAves": {"placeholders": {"version": {"type": "String"}}}
 }

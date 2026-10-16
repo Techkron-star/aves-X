@@ -1,3 +1,4 @@
+import 'package:aves/model/settings/settings.dart';
 import 'dart:async';
 
 import 'package:aves/model/security/privacy_options.dart';
@@ -68,23 +69,15 @@ class _DelayedDangerDialogState extends State<_DelayedDangerDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final ready = _remaining <= 0;
     return AvesDialog(
       content: Text(widget.message),
       actions: [
         const CancelButton<bool>(result: false),
-        if (ready)
-          _HoldToConfirmButton(
-            label: widget.confirmLabel,
-            onConfirmed: () => Navigator.maybeOf(context)?.pop<bool>(true),
-          )
-        else
-          FilledButton(
-            style: FilledButton.styleFrom(disabledBackgroundColor: scheme.surfaceContainerHighest),
-            onPressed: null,
-            child: Text('${widget.confirmLabel} ($_remaining)'),
-          ),
+        _HoldToConfirmButton(
+          label: widget.confirmLabel,
+          remaining: _remaining,
+          onConfirmed: () => Navigator.maybeOf(context)?.pop<bool>(true),
+        ),
       ],
     );
   }
@@ -127,7 +120,11 @@ class _TypeWordDialogState extends State<_TypeWordDialog> {
       actions: [
         const CancelButton<bool>(result: false),
         FilledButton(
-          style: FilledButton.styleFrom(backgroundColor: Colors.red.shade700, foregroundColor: Colors.white),
+          style: FilledButton.styleFrom(
+            backgroundColor: _crystal ? const Color(0xB3C4122F) : Colors.red.shade700,
+            foregroundColor: Colors.white,
+            side: _crystal ? const BorderSide(color: Color(0x99FFB3BF)) : null,
+          ),
           onPressed: matches ? () => Navigator.maybeOf(context)?.pop<bool>(true) : null,
           child: Text(dangerWord),
         ),
@@ -160,12 +157,23 @@ Future<bool> showRiskWarning(BuildContext context, String message) async {
   return confirmed == true;
 }
 
-// red button that has to be held for 2 seconds, with a fill animation
+// with the glass options, solid buttons become translucent red crystal
+bool get _crystal => settings.glassEverywhere || settings.batGlass;
+
+const _crystalGradient = LinearGradient(
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+  colors: [Color(0xE6FF6A80), Color(0xCCC4122F), Color(0xE67A0A1E)],
+);
+
+// red button that has to be held for 2 seconds, with a fill animation covering the whole pill;
+// disabled (with the remaining seconds) while `remaining` is positive
 class _HoldToConfirmButton extends StatefulWidget {
   final String label;
+  final int remaining;
   final VoidCallback onConfirmed;
 
-  const _HoldToConfirmButton({required this.label, required this.onConfirmed});
+  const _HoldToConfirmButton({required this.label, required this.remaining, required this.onConfirmed});
 
   @override
   State<_HoldToConfirmButton> createState() => _HoldToConfirmButtonState();
@@ -173,6 +181,8 @@ class _HoldToConfirmButton extends StatefulWidget {
 
 class _HoldToConfirmButtonState extends State<_HoldToConfirmButton> with SingleTickerProviderStateMixin {
   static const _holdDuration = Duration(seconds: 2);
+  static const _width = 128.0;
+  static const _height = 40.0;
 
   late final AnimationController _controller = AnimationController(vsync: this, duration: _holdDuration)
     ..addStatusListener((status) {
@@ -196,32 +206,56 @@ class _HoldToConfirmButtonState extends State<_HoldToConfirmButton> with SingleT
 
   @override
   Widget build(BuildContext context) {
+    final enabled = widget.remaining <= 0;
     final red = Colors.red.shade700;
+    final scheme = Theme.of(context).colorScheme;
+    final crystal = _crystal;
+    final label = enabled ? widget.label : '${widget.label} (${widget.remaining})';
+
     return GestureDetector(
-      onTapDown: (_) => _controller.forward(),
-      onTapUp: (_) => _release(),
-      onTapCancel: _release,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          height: 40,
-          constraints: const BoxConstraints(minWidth: 140),
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          alignment: Alignment.center,
-          color: red.withValues(alpha: .3),
+      onTapDown: enabled ? (_) => _controller.forward() : null,
+      onTapUp: enabled ? (_) => _release() : null,
+      onTapCancel: enabled ? _release : null,
+      child: Container(
+        width: _width,
+        height: _height,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(_height / 2),
+          border: crystal && enabled ? Border.all(color: const Color(0x99FFB3BF)) : null,
+        ),
+        // the clip covers the whole pill, including the fill animation
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(_height / 2),
           child: Stack(
             alignment: Alignment.center,
             children: [
-              Positioned.fill(
-                child: AnimatedBuilder(
-                  animation: _controller,
-                  builder: (context, _) => Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: FractionallySizedBox(widthFactor: _controller.value, child: ColoredBox(color: red, child: const SizedBox.expand())),
+              Positioned.fill(child: ColoredBox(color: enabled ? red.withValues(alpha: .3) : scheme.surfaceContainerHighest)),
+              if (enabled)
+                Positioned.fill(
+                  child: AnimatedBuilder(
+                    animation: _controller,
+                    builder: (context, _) => Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: FractionallySizedBox(
+                        widthFactor: _controller.value,
+                        heightFactor: 1,
+                        child: DecoratedBox(
+                          decoration: crystal ? const BoxDecoration(gradient: _crystalGradient) : BoxDecoration(color: red),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    style: TextStyle(color: enabled ? Colors.white : scheme.onSurface.withValues(alpha: .5), fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
-              Text(widget.label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
             ],
           ),
         ),

@@ -9,6 +9,7 @@ import 'package:material_ui/material_ui.dart';
 
 class AppReference extends StatelessWidget {
   static const avesGithub = 'https://github.com/deckerst/aves';
+  static const avesXGithub = 'https://github.com/Techkron-star/aves-X';
   static const avesFaq = '$avesGithub/wiki/FAQ';
 
   const new({super.key});
@@ -19,6 +20,12 @@ class AppReference extends StatelessWidget {
       child: Column(
         children: [
           _buildAvesLine(context),
+          const SizedBox(height: 8),
+          Text(
+            context.l10n.aboutBasedOnAves(device.packageVersion),
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
           const SizedBox(height: 16),
           Wrap(
             alignment: .center,
@@ -52,7 +59,7 @@ class AppReference extends StatelessWidget {
           style: appTitleStyle,
         ),
         Text(
-          device.packageVersion,
+          'alpha',
           style: appTitleStyle,
         ),
       ],
@@ -67,7 +74,15 @@ class AppReference extends StatelessWidget {
           AIcons.github,
           size: 24,
         ),
-        text: 'GitHub',
+        text: 'Aves-X',
+        urlString: AppReference.avesXGithub,
+      ),
+      const LinkChip(
+        leading: Icon(
+          AIcons.github,
+          size: 24,
+        ),
+        text: 'Aves',
         urlString: AppReference.avesGithub,
       ),
       LinkChip(
@@ -76,7 +91,7 @@ class AppReference extends StatelessWidget {
           size: 22,
         ),
         text: l10n.aboutLinkLicense,
-        urlString: '${AppReference.avesGithub}/blob/main/LICENSE',
+        urlString: '${AppReference.avesXGithub}/blob/develop/LICENSE',
       ),
       LinkChip(
         leading: const Icon(

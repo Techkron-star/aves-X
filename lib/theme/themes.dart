@@ -296,7 +296,16 @@ class Themes {
       surfaceContainerHighest: const Color(0xFF2A0D16),
       outlineVariant: const Color(0xFF5A1626),
     );
-    return _baseDarkTheme(colors, deviceInitialized, locale);
+    return _baseDarkTheme(colors, deviceInitialized, locale).copyWith(
+      // translucent ruby "crystal" instead of solid fills
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: const Color(0xB3C4122F),
+          foregroundColor: Colors.white,
+          side: const BorderSide(color: Color(0x99FFB3BF)),
+        ),
+      ),
+    );
   }
 
   static ThemeData blackTheme(Color accentColor, bool deviceInitialized, KnownLocale locale) {
