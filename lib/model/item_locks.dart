@@ -13,6 +13,9 @@ final ItemLocks itemLocks = ItemLocks._private();
 class ItemLocks extends ChangeNotifier {
   static const _albumsKey = 'locked_albums';
   static const _itemsKey = 'locked_items';
+  static const _favouritesKey = 'locked_favourites';
+
+  bool _favourites = false;
 
   ItemLocks._private();
 
@@ -27,6 +30,7 @@ class ItemLocks extends ChangeNotifier {
     _items
       ..clear()
       ..addAll(_decode(await securityService.readValue<String>(_itemsKey)));
+    _favourites = await securityService.readValue<String>(_favouritesKey) == '1';
     notifyListeners();
   }
 
@@ -47,6 +51,31 @@ class ItemLocks extends ChangeNotifier {
   bool isAlbumMarked(String dirPath) => _albums.contains(dirPath);
 
   bool isEntryMarked(AvesEntry entry) => _items.contains(entryKey(entry)) || _albums.contains(entry.directory);
+
+  bool get favouritesMarked => _favourites;
+
+  bool get isFavouritesLocked => privacyOptions.itemLocks && _favourites && !_open.contains('fav');
+
+  Future<bool> unlockFavourites(BuildContext context) async {
+    if (!isFavouritesLocked) return true;
+    if (!await SecretLock.items.authenticate(context)) return false;
+
+    _open.add('fav');
+    notifyListeners();
+    return true;
+  }
+
+  Future<void> setFavouritesLocked(BuildContext context, bool value) async {
+    if (value) {
+      if (!await _ensureLock(context)) return;
+    } else {
+      if (!await SecretLock.items.authenticate(context)) return;
+      _open.remove('fav');
+    }
+    _favourites = value;
+    await securityService.writeValue<String>(_favouritesKey, value ? '1' : null);
+    notifyListeners();
+  }
 
   void closeAll() {
     if (_open.isEmpty) return;

@@ -54,7 +54,7 @@ class AvesColorsProvider extends StatelessWidget {
 }
 
 abstract class AvesColorsData {
-  static const defaultAccent = Colors.indigoAccent;
+  static const defaultAccent = Color(0xFFC62828);
   static const _neutralOnDark = Colors.white;
   static const _neutralOnLight = Color(0xAA000000);
 

@@ -1,3 +1,5 @@
+import 'package:aves/model/filters/favourite.dart';
+import 'package:aves/model/item_locks.dart';
 import 'dart:convert';
 
 import 'package:aves/model/filters/filters.dart';
@@ -61,6 +63,11 @@ class AvesNavItem extends Equatable {
     // the recycle bin may have its own lock
     if (_opensBin) {
       if (!await SecretLock.bin.authenticate(context)) return;
+      if (!context.mounted) return;
+    }
+
+    if (route == CollectionPage.routeName && (filters?.any((v) => v is FavouriteFilter) ?? false)) {
+      if (!await itemLocks.unlockFavourites(context)) return;
       if (!context.mounted) return;
     }
 

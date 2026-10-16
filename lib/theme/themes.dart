@@ -92,7 +92,7 @@ class Themes {
   );
 
   static DrawerThemeData _drawerTheme(ColorScheme colors) => DrawerThemeData(
-    backgroundColor: _schemeSecondLayer(colors),
+    backgroundColor: _schemeSecondLayer(colors).withValues(alpha: .6),
   );
 
   static IconThemeData _iconTheme(ColorScheme colors) => IconThemeData(
@@ -111,7 +111,7 @@ class Themes {
 
   static PopupMenuThemeData _popupMenuTheme(ColorScheme colors, TextTheme textTheme) {
     return PopupMenuThemeData(
-      color: _schemeSecondLayer(colors),
+      color: _schemeSecondLayer(colors).withValues(alpha: .88),
       labelTextStyle: WidgetStateProperty.resolveWith((states) {
         // adapted from M3 defaults
         final TextStyle style = textTheme.labelLarge!;

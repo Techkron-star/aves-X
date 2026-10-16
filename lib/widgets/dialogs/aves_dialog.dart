@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/themes.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
@@ -90,6 +92,7 @@ class _AvesDialogState extends State<AvesDialog> {
       // clipping to prevent highlighted material to bleed through rounded corners
       clipBehavior: Clip.antiAlias,
       shape: AvesDialog.shape(context),
+      backgroundColor: settings.enableBlurEffect ? Theme.of(context).colorScheme.surfaceContainerHigh.withValues(alpha: .8) : null,
     );
   }
 
@@ -206,7 +209,8 @@ Future<T?> showAvesDialog<T>({
 
   return showDialog<T>(
     context: context,
-    builder: builder,
+    // frosted background behind dialogs
+    builder: settings.enableBlurEffect ? (context) => BackdropFilter(filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8), child: builder(context)) : builder,
     barrierDismissible: barrierDismissible,
     barrierColor: barrierColor,
     barrierLabel: barrierLabel,

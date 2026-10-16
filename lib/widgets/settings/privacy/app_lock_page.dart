@@ -1,3 +1,4 @@
+import 'package:aves/widgets/dialogs/danger_confirmation.dart';
 import 'package:aves/model/device.dart';
 import 'package:aves/model/security/app_lock.dart';
 import 'package:aves/model/security/master_code.dart';
@@ -72,7 +73,8 @@ class AppLockPage extends StatelessWidget {
 
   Future<void> _setPin(BuildContext context) async {
     // the Master Code is created first if needed, and required to change an existing PIN
-    if (!await MasterCode.require(context) || !context.mounted) return;
+    if (!appLock.enabled && !await showRiskWarning(context, context.l10n.appLockEnableWarning)) return;
+    if (!context.mounted || !await MasterCode.require(context) || !context.mounted) return;
     final code = await _newCode(context);
     if (code != null) await appLock.setPin(code);
   }
@@ -82,6 +84,7 @@ class AppLockPage extends StatelessWidget {
   }
 
   Future<void> _setPanic(BuildContext context) async {
+    if (!await showRiskWarning(context, context.l10n.appLockPanicWarning) || !context.mounted) return;
     if (!await MasterCode.require(context) || !context.mounted) return;
     final code = await _newCode(context);
     if (code == null) return;

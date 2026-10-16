@@ -1,3 +1,4 @@
+import 'package:aves/model/filters/favourite.dart';
 import 'package:aves/model/item_locks.dart';
 import 'package:aves/model/advanced_privacy.dart';
 import 'package:aves/model/filters/covered/stored_album.dart';
@@ -85,6 +86,7 @@ mixin VaultAwareMixin on FeedbackMixin {
   Future<bool> unlockFilter(BuildContext context, CollectionFilter filter) {
     // the recycle bin may have its own lock
     if (filter is TrashFilter) return unlockBin(context);
+    if (filter is FavouriteFilter) return itemLocks.unlockFavourites(context);
 
     return filter is StoredAlbumFilter ? unlockAlbum(context, filter.album) : Future.value(true);
   }

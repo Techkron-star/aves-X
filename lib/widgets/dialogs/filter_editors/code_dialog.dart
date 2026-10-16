@@ -34,19 +34,27 @@ class _CodeDialogState extends State<CodeDialog> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (widget.message != null) Padding(padding: const EdgeInsets.only(bottom: 8), child: Text(widget.message!)),
-          Text(_confirming ? context.l10n.pinDialogConfirm : context.l10n.pinDialogEnter),
+          if (widget.message != null) Padding(padding: const EdgeInsets.only(bottom: 8), child: Text(widget.message!, textAlign: TextAlign.center)),
+          Text(_confirming ? context.l10n.pinDialogConfirm : context.l10n.pinDialogEnter, textAlign: TextAlign.center),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16),
-            child: MaterialPinField(
-              length: CodeDialog.length,
-              pinController: _controller,
-              keyboardType: TextInputType.number,
-              autoFocus: true,
-              autoDismissKeyboard: !widget.needConfirmation || _confirming,
-              obscureText: true,
-              onChanged: (v) {},
-              onCompleted: _submit,
+            child: Center(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: SizedBox(
+                  width: CodeDialog.length * 48.0,
+                  child: MaterialPinField(
+                    length: CodeDialog.length,
+                    pinController: _controller,
+                    keyboardType: TextInputType.number,
+                    autoFocus: true,
+                    autoDismissKeyboard: !widget.needConfirmation || _confirming,
+                    obscureText: true,
+                    onChanged: (v) {},
+                    onCompleted: _submit,
+                  ),
+                ),
+              ),
             ),
           ),
         ],

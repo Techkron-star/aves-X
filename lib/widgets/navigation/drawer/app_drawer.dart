@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:aves/model/filters/container/album_group.dart';
 import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/filters/trash.dart';
@@ -133,7 +134,10 @@ class _AppDrawerState extends State<AppDrawer> with WidgetsBindingObserver {
     ];
 
     return Drawer(
-      child: ListTileTheme.merge(
+      child: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+          child: ListTileTheme.merge(
         selectedColor: Theme.of(context).colorScheme.primary,
         horizontalTitleGap: 20,
         visualDensity: VisualDensity.comfortable,
@@ -157,6 +161,8 @@ class _AppDrawerState extends State<AppDrawer> with WidgetsBindingObserver {
               ),
             );
           },
+        ),
+      ),,
         ),
       ),
     );

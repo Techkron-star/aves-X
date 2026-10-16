@@ -143,3 +143,13 @@ Future<bool> confirmDeleteForever({
     regular: () => showSkippableConfirmationDialog(context: context, type: ConfirmationDialog.deleteForever, message: message, confirmationButtonLabel: confirmLabel),
   );
 }
+
+// warning before enabling a risky option: red button, disabled for a few seconds
+Future<bool> showRiskWarning(BuildContext context, String message) async {
+  final confirmed = await showAvesDialog<bool>(
+    context: context,
+    builder: (context) => _DelayedDangerDialog(message: message, confirmLabel: context.l10n.riskWarningContinue),
+    routeSettings: const RouteSettings(name: AvesDialog.confirmationRouteName),
+  );
+  return confirmed == true;
+}

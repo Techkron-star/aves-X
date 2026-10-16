@@ -1199,5 +1199,11 @@
   "privacyOptionRevealGesture": "Secret gesture to reveal hidden items",
   "privacyOptionRevealGestureSubtitle": "Hold the Albums button for 5 seconds",
   "privacyOptionStrictDelete": "Strict delete confirmation",
-  "privacyOptionStrictDeleteSubtitle": "Red button with a delay, then type the word to confirm"
+  "privacyOptionStrictDeleteSubtitle": "Red button with a delay, then type the word to confirm",
+  "privacyOptionLockFavourites": "Lock favourites",
+  "privacyOptionLockFavouritesSubtitle": "Opening the Favourites page requires the lock",
+  "riskWarningContinue": "I understand",
+  "nukeVaultsWarning": "This will permanently delete ALL vaults and everything inside them. It cannot be undone.",
+  "appLockEnableWarning": "With the app lock, 4 wrong PINs wipe ALL the app data (vaults included). If you lose the Master Code, there is no recovery.",
+  "appLockPanicWarning": "Entering the panic PIN shows a fake error and wipes ALL the app data in the background. Use it with care."
 }

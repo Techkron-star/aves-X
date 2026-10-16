@@ -1,3 +1,5 @@
+import 'package:aves/model/item_locks.dart';
+import 'package:aves/widgets/dialogs/danger_confirmation.dart';
 import 'package:aves/l10n/l10n.dart';
 import 'dart:async';
 
@@ -234,6 +236,7 @@ class SettingsTilePrivacyGroup extends SettingsTile {
         return [
           _OptionSwitchTile(PrivacyOptions.itemLocksKey, (l10n) => l10n.privacyOptionItemLocks, (l10n) => l10n.privacyOptionItemLocksSubtitle, (o) => o.itemLocks),
           SettingsTilePrivacyItemsLock(),
+          _FavouritesLockTile(),
           SettingsTilePrivacyBinLock(),
           _OptionSwitchTile(PrivacyOptions.revealGestureKey, (l10n) => l10n.privacyOptionRevealGesture, (l10n) => l10n.privacyOptionRevealGestureSubtitle, (o) => o.revealGesture),
           SettingsTilePrivacyRevealLock(),
@@ -301,6 +304,25 @@ class _OptionSwitchTile extends SettingsTile {
   );
 }
 
+class _FavouritesLockTile extends SettingsTile {
+  @override
+  List<String> get settingKeys => [];
+
+  @override
+  String title(BuildContext context) => context.l10n.privacyOptionLockFavourites;
+
+  @override
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: itemLocks,
+    builder: (context, _) => SwitchListTile(
+      value: itemLocks.favouritesMarked,
+      onChanged: (v) => itemLocks.setFavouritesLocked(context, v),
+      title: Text(title(context)),
+      subtitle: Text(context.l10n.privacyOptionLockFavouritesSubtitle),
+    ),
+  );
+}
+
 class SettingsTilePrivacyItemsLock extends SettingsTile {
   @override
   List<String> get settingKeys => [];
@@ -360,9 +382,10 @@ class SettingsTilePrivacyNukeVaults extends SettingsTile {
     title: Text(title(context), style: TextStyle(color: Theme.of(context).colorScheme.error)),
     subtitle: Text(context.l10n.settingsNukeVaultsSubtitle),
     onTap: () async {
-      // the Master Code is the confirmation: no extra step once it is correct
       final source = context.read<CollectionSource>();
-      if (!await MasterCode.require(context)) return;
+      // warning against mistakes; then the Master Code is the confirmation
+      if (!await showRiskWarning(context, context.l10n.nukeVaultsWarning)) return;
+      if (!context.mounted || !await MasterCode.require(context)) return;
       await Nuke.nukeAllVaults(source: source);
     },
   );

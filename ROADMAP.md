@@ -28,6 +28,7 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 - [x] Confirmación estricta de borrado: botón rojo con espera de 5 s y después escribir BORRAR.
 - [x] Ajustes de privacidad por secciones (Bloqueos y ocultos, Vaults, Bloqueo de la app, Seguridad y destrucción), con interruptores; desactivar una protección pide el Master Code.
 - [x] Durante el cooldown de 5 min no se puede escribir ninguna credencial.
+- [x] Bloquear la página de Favoritos. Cristal en diálogos, menú lateral y menús. Color por defecto rojo. Avisos de riesgo (botón rojo con espera) al activar nuke, bloqueo de app y PIN de pánico.
 - [ ] Al deslizar en el visor, las fotos bloqueadas vecinas aún podrían verse (pendiente).
 
 ## 0.3 — Destrucción (nuke) y Master Code
