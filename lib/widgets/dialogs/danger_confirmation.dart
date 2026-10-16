@@ -74,11 +74,17 @@ class _DelayedDangerDialogState extends State<_DelayedDangerDialog> {
       content: Text(widget.message),
       actions: [
         const CancelButton<bool>(result: false),
-        FilledButton(
-          style: FilledButton.styleFrom(backgroundColor: Colors.red.shade700, foregroundColor: Colors.white, disabledBackgroundColor: scheme.surfaceContainerHighest),
-          onPressed: ready ? () => Navigator.maybeOf(context)?.pop<bool>(true) : null,
-          child: Text(ready ? widget.confirmLabel : '${widget.confirmLabel} ($_remaining)'),
-        ),
+        if (ready)
+          _HoldToConfirmButton(
+            label: widget.confirmLabel,
+            onConfirmed: () => Navigator.maybeOf(context)?.pop<bool>(true),
+          )
+        else
+          FilledButton(
+            style: FilledButton.styleFrom(disabledBackgroundColor: scheme.surfaceContainerHighest),
+            onPressed: null,
+            child: Text('${widget.confirmLabel} ($_remaining)'),
+          ),
       ],
     );
   }
@@ -152,4 +158,74 @@ Future<bool> showRiskWarning(BuildContext context, String message) async {
     routeSettings: const RouteSettings(name: AvesDialog.confirmationRouteName),
   );
   return confirmed == true;
+}
+
+// red button that has to be held for 2 seconds, with a fill animation
+class _HoldToConfirmButton extends StatefulWidget {
+  final String label;
+  final VoidCallback onConfirmed;
+
+  const _HoldToConfirmButton({required this.label, required this.onConfirmed});
+
+  @override
+  State<_HoldToConfirmButton> createState() => _HoldToConfirmButtonState();
+}
+
+class _HoldToConfirmButtonState extends State<_HoldToConfirmButton> with SingleTickerProviderStateMixin {
+  static const _holdDuration = Duration(seconds: 2);
+
+  late final AnimationController _controller = AnimationController(vsync: this, duration: _holdDuration)
+    ..addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        HapticFeedback.heavyImpact();
+        widget.onConfirmed();
+      }
+    });
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _release() {
+    if (_controller.status != AnimationStatus.completed) {
+      _controller.reverse();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final red = Colors.red.shade700;
+    return GestureDetector(
+      onTapDown: (_) => _controller.forward(),
+      onTapUp: (_) => _release(),
+      onTapCancel: _release,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          height: 40,
+          constraints: const BoxConstraints(minWidth: 140),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          alignment: Alignment.center,
+          color: red.withValues(alpha: .3),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Positioned.fill(
+                child: AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, _) => Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: FractionallySizedBox(widthFactor: _controller.value, child: ColoredBox(color: red, child: const SizedBox.expand())),
+                  ),
+                ),
+              ),
+              Text(widget.label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
