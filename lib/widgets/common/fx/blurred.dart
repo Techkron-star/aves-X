@@ -12,7 +12,7 @@ final _identity = ImageFilter.matrix(Matrix4.identity().storage);
 const _glassHighlight = LinearGradient(
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
-  colors: [Color(0x2EFFFFFF), Color(0x05FFFFFF)],
+  colors: [Color(0x26FFFFFF), Color(0x03FFFFFF)],
 );
 const _glassEdgeColor = Color(0x38FFFFFF);
 

@@ -14,9 +14,11 @@ class const AvesLogo({
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    Widget child = CustomPaint(
-      size: Size(size / 1.4, size / 1.4),
-      painter: AvesLogoPainter(),
+    Widget child = Image.asset(
+      'assets/aves_x_logo.png',
+      width: size / 1.3,
+      height: size / 1.3,
+      filterQuality: FilterQuality.medium,
     );
     if (context.select<Settings, bool>((v) => v.themeColorMode == AvesThemeColorMode.monochrome)) {
       final tint = Color.lerp(theme.colorScheme.primary, Colors.white, .5)!;

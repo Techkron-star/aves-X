@@ -33,7 +33,11 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 - [x] PIN de pánico opcional: pantalla falsa "PIN incorrecto" y borrado total en segundo plano.
 - [ ] Contadores de intentos también para papelera y bloqueo de revelado (hoy sin límite).
 - [ ] Root shredder opcional, registro local del resultado.
-- [ ] **Cifrado de los archivos de las vaults** (para que con root en `data/data` no se puedan abrir): clave en Android Keystore, cifrado/descifrado en streaming, migración de vaults existentes, miniaturas.
+- [ ] **Cifrado de los archivos de las vaults** (para que con root en `data/data` no se puedan abrir). Plan por fases:
+  1. Fase 1 (at-rest): AES-256-GCM por archivo (streaming, `javax.crypto`), clave maestra aleatoria guardada en Android Keystore (mejor StrongBox/TEE; no exportable). Al desbloquear una vault se descifra a una carpeta temporal privada (`cacheDir/vault_tmp/<vault>`) y al bloquear / cerrar / arrancar se borra y sobrescribe. Mantiene compatible todo el visor (rutas de archivo, vídeo, EXIF). Límite: mientras la vault está abierta, el texto plano existe en disco.
+  2. Fase 2 (clave ligada a la credencial): derivar la clave con PBKDF2/Argon2 desde PIN/contraseña de la vault, de modo que ni con root + app abierta se lean cerradas.
+  3. Fase 3 (sin texto plano en disco): descifrado en memoria (proveedor de datos propio para imágenes y ExoPlayer `DataSource`), cifrado de miniaturas y de la base de datos de entradas de vault.
+  4. Migración de vaults existentes (cifrar en segundo plano con marca de progreso reanudable) y limpieza segura al hacer nuke.
 
 ## 0.4 — Metadatos
 - [~] Borrar metadatos desde el visor y desde selección múltiple (por lotes): **ya incluido en Aves** (menú ⋮ → quitar metadatos).
@@ -54,6 +58,8 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 
 ## 0.8 — Interfaz
 - [~] Monet / Material You: ya incluido en Aves; ahora **activado por defecto**.
+- [x] Cristal más transparente (barras y botones con fondo casi translúcido).
+- [x] Logo de murciélago como icono y logo dentro de la app; nombre "Aves-X".
 - [x] Blur más fuerte y reutilizable (`Blurred*`) con reflejo y borde de cristal en barras y botones flotantes.
 - [ ] Liquid glass avanzado (saturación y refracción del fondo), blur específico en el visor, animaciones.
 - [ ] Rediseño de Ajustes en niveles (básico / avanzado / experimental), gestos configurables.

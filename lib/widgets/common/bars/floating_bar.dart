@@ -84,7 +84,7 @@ class _AvesFloatingBarState extends State<AvesFloatingBar> with RouteAware {
             borderRadius: AvesFloatingBar.borderRadius,
             child: widget.builder(
               context,
-              blurred ? backgroundColor.withValues(alpha: .85) : backgroundColor,
+              blurred ? backgroundColor.withValues(alpha: .4) : backgroundColor,
               widget.child,
             ),
           ),

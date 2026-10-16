@@ -16,9 +16,9 @@ class Themes {
   }) {
     switch (brightness) {
       case .dark:
-        return blurred ? Colors.black26 : Colors.black45;
+        return blurred ? const Color(0x14000000) : Colors.black45;
       case .light:
-        return blurred ? Colors.white54 : const Color(0xCCFFFFFF);
+        return blurred ? const Color(0x2EFFFFFF) : const Color(0xCCFFFFFF);
     }
   }
 
