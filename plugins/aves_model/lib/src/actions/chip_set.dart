@@ -22,6 +22,7 @@ enum ChipSetAction {
   unpin,
   group,
   lockVault,
+  toggleItemLock,
   showCountryStates,
   showCollection,
   // selecting (single filter)
@@ -70,5 +71,6 @@ class ChipSetActions {
     null,
     .configureVault,
     .lockVault,
+    .toggleItemLock,
   ];
 }

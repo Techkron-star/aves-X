@@ -35,6 +35,14 @@ class SecretLock {
     title: (context) => context.l10n.settingsRevealLock,
   );
 
+  // locks albums and items (not vaults)
+  static final items = SecretLock._(
+    id: 'items_lock',
+    authReason: (context) => context.l10n.authenticateToOpenLockedItem,
+    configReason: (context) => context.l10n.authenticateToConfigureItemLock,
+    title: (context) => context.l10n.settingsItemLock,
+  );
+
   static const _offOption = 'off';
 
   final String id;

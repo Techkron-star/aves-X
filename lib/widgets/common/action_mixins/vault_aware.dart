@@ -1,3 +1,4 @@
+import 'package:aves/model/item_locks.dart';
 import 'package:aves/model/advanced_privacy.dart';
 import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/filters/filters.dart';
@@ -22,7 +23,8 @@ import 'package:provider/provider.dart';
 
 mixin VaultAwareMixin on FeedbackMixin {
   Future<bool> _tryUnlock(BuildContext context, String dirPath) async {
-    if (!vaults.isVault(dirPath) || !vaults.isLocked(dirPath)) return true;
+    if (!vaults.isVault(dirPath)) return itemLocks.unlockAlbum(context, dirPath);
+    if (!vaults.isLocked(dirPath)) return true;
 
     final details = vaults.detailsForPath(dirPath);
     if (details == null) return false;

@@ -116,6 +116,7 @@ abstract class ChipSetActionDelegate<T extends CollectionFilter> with FeedbackMi
       case .remove:
       case .group:
       case .lockVault:
+      case .toggleItemLock:
       case .showCountryStates:
         return false;
       // selecting (single filter)
@@ -164,6 +165,7 @@ abstract class ChipSetActionDelegate<T extends CollectionFilter> with FeedbackMi
       case .unpin:
       case .group:
       case .lockVault:
+      case .toggleItemLock:
       case .showCountryStates:
       case .showCollection:
         return hasSelection;
@@ -220,6 +222,7 @@ abstract class ChipSetActionDelegate<T extends CollectionFilter> with FeedbackMi
       case .remove:
       case .group:
       case .lockVault:
+      case .toggleItemLock:
       case .showCountryStates:
         break;
       // selecting (single filter)

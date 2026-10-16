@@ -1,3 +1,6 @@
+import 'package:aves/model/item_locks.dart';
+import 'package:aves/model/security/privacy_options.dart';
+import 'package:aves/widgets/dialogs/danger_confirmation.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -115,6 +118,8 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
       case .share:
       case .toggleFavourite:
         return isMain && isSelecting && !isTrash;
+      case .toggleItemLock:
+        return isMain && isSelecting && !isTrash && privacyOptions.itemLocks;
       case .copyToClipboard:
         return isMain && isSelecting && !isTrash && !useTvLayout;
       case .delete:
@@ -189,6 +194,7 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
       case .copyToClipboard:
       case .exportGpx:
       case .toggleFavourite:
+      case .toggleItemLock:
       case .rotateCCW:
       case .rotateCW:
       case .flip:
@@ -254,6 +260,8 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
         _move(context, moveType: MoveType.move);
       case .rename:
         _rename(context);
+      case .toggleItemLock:
+        itemLocks.toggleEntries(context, _getTargetItems(context));
       case .convert:
         _convert(context);
       case .copyToClipboard:
@@ -358,11 +366,10 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
     final storageDirs = entries.map((entry) => entry.storageDirectory).nonNulls.toSet();
     final todoCount = entries.length;
 
-    if (!await showSkippableConfirmationDialog(
+    if (!await confirmDeleteForever(
       context: context,
-      type: ConfirmationDialog.deleteForever,
       message: l10n.deleteEntriesConfirmationDialogMessage(todoCount),
-      confirmationButtonLabel: l10n.deleteButtonLabel,
+      confirmLabel: l10n.deleteButtonLabel,
     )) {
       return false;
     }

@@ -1,3 +1,4 @@
+import 'package:aves/model/security/privacy_options.dart';
 import 'dart:async';
 import 'dart:math';
 
@@ -178,6 +179,7 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
   void _onPointerDown(BuildContext context, PointerDownEvent event, List<AvesNavItem> items, double barWidth, bool isRtl) {
     _holdFired = false;
     _cancelHold();
+    if (!privacyOptions.revealGesture) return;
     if (items.isEmpty || barWidth <= 0) return;
 
     final rawIndex = (event.localPosition.dx / barWidth * items.length).floor();

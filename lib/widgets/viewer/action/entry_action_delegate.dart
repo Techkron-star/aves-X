@@ -1,3 +1,6 @@
+import 'package:aves/model/item_locks.dart';
+import 'package:aves/model/security/privacy_options.dart';
+import 'package:aves/widgets/dialogs/danger_confirmation.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -96,6 +99,8 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
       switch (action) {
         case .toggleFavourite:
           return collection != null;
+        case .toggleItemLock:
+          return privacyOptions.itemLocks && appMode == .main;
         case .delete:
         case .rename:
         case .move:
@@ -226,6 +231,8 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
         _copyToClipboard(context, targetEntry);
       case .delete:
         _delete(context, targetEntry);
+      case .toggleItemLock:
+        itemLocks.toggleEntries(context, {targetEntry});
       case .restore:
         _move(context, targetEntry, moveType: MoveType.fromBin);
       case .convert:
@@ -455,11 +462,10 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
     }
 
     final l10n = context.l10n;
-    if (!await showSkippableConfirmationDialog(
+    if (!await confirmDeleteForever(
       context: context,
-      type: ConfirmationDialog.deleteForever,
       message: l10n.deleteEntriesConfirmationDialogMessage(1),
-      confirmationButtonLabel: l10n.deleteButtonLabel,
+      confirmLabel: l10n.deleteButtonLabel,
     )) {
       return;
     }

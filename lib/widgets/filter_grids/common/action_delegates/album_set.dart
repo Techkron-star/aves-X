@@ -1,3 +1,6 @@
+import 'package:aves/model/item_locks.dart';
+import 'package:aves/model/security/privacy_options.dart';
+import 'package:aves/widgets/dialogs/danger_confirmation.dart';
 import 'dart:collection';
 import 'dart:io';
 
@@ -120,6 +123,8 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
         return isMain && selectedSingleItem && isVault(selectedFilters.first);
       case .lockVault:
         return isMain && selectedFilters.any(isVault);
+      case .toggleItemLock:
+        return isMain && isSelecting && privacyOptions.itemLocks && selectedFilters.isNotEmpty && selectedFilters.every((v) => v is StoredAlbumFilter && !v.isVault);
       default:
         return super.isVisible(
           action,
@@ -148,6 +153,8 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
         return true;
       case .lockVault:
         return selectedFilters.whereType<StoredAlbumFilter>().map((v) => v.album).any((v) => vaults.isVault(v) && !vaults.isLocked(v));
+      case .toggleItemLock:
+        return selectedFilters.isNotEmpty;
       case .configureVault:
         return true;
       default:
@@ -179,6 +186,8 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
       case .lockVault:
         lockFilters(_getSelectedStoredAlbumFilters(context));
         browse(context);
+      case .toggleItemLock:
+        _toggleItemLock(context);
       // single filter
       case .rename:
         _rename(context);
@@ -188,6 +197,12 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
         break;
     }
     super.onActionSelected(context, action);
+  }
+
+  Future<void> _toggleItemLock(BuildContext context) async {
+    final dirPaths = _getSelectedStoredAlbumFilters(context).map((v) => v.album).toSet();
+    await itemLocks.toggleAlbums(context, dirPaths);
+    if (context.mounted) browse(context);
   }
 
   Set<StoredAlbumFilter> _getSelectedStoredAlbumFilters(BuildContext context) {
@@ -323,10 +338,12 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
     final l10n = context.l10n;
     final todoCount = todoEntries.length;
 
-    if (!await showConfirmationDialog(
+    final deleteMessage = filters.length == 1 ? l10n.deleteSingleAlbumConfirmationDialogMessage(todoCount) : l10n.deleteMultiAlbumConfirmationDialogMessage(todoCount);
+    if (!await confirmDangerousDelete(
       context: context,
-      message: filters.length == 1 ? l10n.deleteSingleAlbumConfirmationDialogMessage(todoCount) : l10n.deleteMultiAlbumConfirmationDialogMessage(todoCount),
-      ok: l10n.deleteButtonLabel,
+      message: deleteMessage,
+      confirmLabel: l10n.deleteButtonLabel,
+      regular: () => showConfirmationDialog(context: context, message: deleteMessage, ok: l10n.deleteButtonLabel),
     )) {
       return;
     }

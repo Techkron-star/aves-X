@@ -86,6 +86,7 @@ class _LockScreenState extends State<_LockScreen> {
       setState(() => _message = context.l10n.appLockCooldownMessage('$m:$s'));
     }
 
+    FocusManager.instance.primaryFocus?.unfocus();
     update();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       seconds--;
@@ -160,7 +161,7 @@ class _LockScreenState extends State<_LockScreen> {
                 const SizedBox(height: 16),
                 Text(_fake ? l10n.appLockWrongPin : l10n.appLockTitle, style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 24),
-                if (!_fake)
+                if (!_fake && !_blocked)
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 320),
                     child: MaterialPinField(

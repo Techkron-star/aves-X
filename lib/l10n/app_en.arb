@@ -1184,5 +1184,20 @@
   "appLockCooldownMessage": "Too many failed attempts. Try again in {time}.",
   "@appLockCooldownMessage": {"placeholders": {"time": {"type": "String"}}},
   "settingsNukeVaults": "Nuke all vaults",
-  "settingsNukeVaultsSubtitle": "Deletes all vaults and their content. Requires the Master Code. Irreversible."
+  "settingsNukeVaultsSubtitle": "Deletes all vaults and their content. Requires the Master Code. Irreversible.",
+  "authenticateToOpenLockedItem": "Authenticate to open this locked item",
+  "authenticateToConfigureItemLock": "Authenticate to configure the lock of items",
+  "settingsItemLock": "Lock for albums and items",
+  "actionToggleItemLock": "Lock / unlock",
+  "dangerTypeWordMessage": "To confirm, type {word}",
+  "@dangerTypeWordMessage": {"placeholders": {"word": {"type": "String"}}},
+  "privacyGroupLocks": "Locks and hidden items",
+  "privacyGroupVaults": "Vaults",
+  "privacyGroupDestruction": "Security and destruction",
+  "privacyOptionItemLocks": "Lock albums and items",
+  "privacyOptionItemLocksSubtitle": "Locked albums and items are blurred and need the lock to open",
+  "privacyOptionRevealGesture": "Secret gesture to reveal hidden items",
+  "privacyOptionRevealGestureSubtitle": "Hold the Albums button for 5 seconds",
+  "privacyOptionStrictDelete": "Strict delete confirmation",
+  "privacyOptionStrictDeleteSubtitle": "Red button with a delay, then type the word to confirm"
 }

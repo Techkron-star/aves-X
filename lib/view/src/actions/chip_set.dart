@@ -32,6 +32,7 @@ extension ExtraChipSetActionView on ChipSetAction {
       .unpin => l10n.chipActionUnpin,
       .group => l10n.chipActionGroup,
       .lockVault => l10n.chipActionLock,
+      .toggleItemLock => l10n.actionToggleItemLock,
       .showCountryStates => l10n.chipActionShowCountryStates,
       .showCollection => l10n.chipActionShowCollection,
       // selecting (single filter)
@@ -70,6 +71,7 @@ extension ExtraChipSetActionView on ChipSetAction {
       .unpin => AIcons.unpin,
       .group => AIcons.group,
       .lockVault => AIcons.vaultLock,
+      .toggleItemLock => AIcons.vaultLock,
       .showCountryStates => AIcons.state,
       .showCollection => AIcons.allCollection,
       // selecting (single filter)

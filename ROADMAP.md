@@ -23,6 +23,13 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 - [ ] Limpieza de sesión al salir, protección de thumbnails, contenido en recientes, comportamiento tras reinicio / al quitar de recientes.
 - [ ] Separar conceptualmente "Ocultos" y "Vaults" en la interfaz.
 
+## 0.2b — Bloqueos de álbumes/fotos y confirmaciones
+- [x] Bloquear álbumes normales y fotos sueltas (acción "Bloquear / desbloquear" en selección, álbumes y visor): miniaturas borrosas con candado, y para abrirlos se pide el bloqueo (biometría, PIN, patrón…). Se vuelven a cerrar al pasar a segundo plano.
+- [x] Confirmación estricta de borrado: botón rojo con espera de 5 s y después escribir BORRAR.
+- [x] Ajustes de privacidad por secciones (Bloqueos y ocultos, Vaults, Bloqueo de la app, Seguridad y destrucción), con interruptores; desactivar una protección pide el Master Code.
+- [x] Durante el cooldown de 5 min no se puede escribir ninguna credencial.
+- [ ] Al deslizar en el visor, las fotos bloqueadas vecinas aún podrían verse (pendiente).
+
 ## 0.3 — Destrucción (nuke) y Master Code
 - [x] **Master Code** de 6 dígitos: se crea antes de cualquier PIN/contraseña, obligatorio para cambiar o quitar cualquier credencial (vaults, papelera, revelado, bloqueo de app, seguridad avanzada) y para el nuke manual. Sin recuperación.
 - [x] Contadores de intentos independientes (App PIN, Master Code, cada vault), guardados en disco tras cada fallo (almacén seguro).

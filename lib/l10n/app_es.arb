@@ -785,5 +785,19 @@
   "appLockWrongPin": "PIN incorrecto",
   "appLockCooldownMessage": "Demasiados intentos fallidos. Inténtalo de nuevo en {time}.",
   "settingsNukeVaults": "Nukear todas las vaults",
-  "settingsNukeVaultsSubtitle": "Borra todas las vaults y su contenido. Requiere el Código Maestro. Irreversible."
+  "settingsNukeVaultsSubtitle": "Borra todas las vaults y su contenido. Requiere el Código Maestro. Irreversible.",
+  "authenticateToOpenLockedItem": "Autentícate para abrir este elemento bloqueado",
+  "authenticateToConfigureItemLock": "Autentícate para configurar el bloqueo de elementos",
+  "settingsItemLock": "Bloqueo de álbumes y fotos",
+  "actionToggleItemLock": "Bloquear / desbloquear",
+  "dangerTypeWordMessage": "Para confirmar, escribe {word}",
+  "privacyGroupLocks": "Bloqueos y ocultos",
+  "privacyGroupVaults": "Cajas fuertes",
+  "privacyGroupDestruction": "Seguridad y destrucción",
+  "privacyOptionItemLocks": "Bloquear álbumes y fotos",
+  "privacyOptionItemLocksSubtitle": "Lo bloqueado se ve borroso y requiere el bloqueo para abrirlo",
+  "privacyOptionRevealGesture": "Gesto secreto para mostrar ocultos",
+  "privacyOptionRevealGestureSubtitle": "Mantener pulsado el botón Álbumes 5 segundos",
+  "privacyOptionStrictDelete": "Confirmación estricta de borrado",
+  "privacyOptionStrictDeleteSubtitle": "Botón rojo con espera y luego escribir la palabra"
 }

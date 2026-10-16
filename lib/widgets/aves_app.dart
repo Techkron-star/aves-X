@@ -1,3 +1,5 @@
+import 'package:aves/model/item_locks.dart';
+import 'package:aves/model/security/privacy_options.dart';
 import 'dart:async';
 
 import 'package:aves/model/security/app_lock.dart';
@@ -392,6 +394,7 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
         // hidden items are revealed for the current foreground session only
         secretReveal.active = false;
         appLock.onPaused();
+        itemLocks.closeAll();
       default:
         break;
     }
@@ -457,6 +460,8 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
     // pending total wipe is executed before showing any UI
     await Nuke.runPendingTotal();
     await appLock.init();
+    await privacyOptions.init();
+    await itemLocks.init();
     await device.init();
     await mobileServices.init();
     await settings.init(monitorPlatformSettings: true, shouldSanitize: true);

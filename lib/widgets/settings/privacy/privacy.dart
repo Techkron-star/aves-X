@@ -1,6 +1,9 @@
+import 'package:aves/l10n/l10n.dart';
 import 'dart:async';
 
 import 'package:aves/model/security/master_code.dart';
+import 'package:aves/model/security/privacy_options.dart';
+import 'package:aves/widgets/common/basic/scaffold.dart';
 import 'package:aves/model/security/nuke.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/widgets/settings/privacy/app_lock_page.dart';
@@ -49,12 +52,10 @@ class PrivacySection extends SettingsSection {
       SettingsTilePrivacyHiddenItems(),
       if (!settings.useTvLayout) SettingsTilePrivacyStorageAccess(),
       if (!settings.useTvLayout) SettingsTilePrivacyEnableBin(),
-      if (!settings.useTvLayout) SettingsTilePrivacyBinLock(),
-      if (!settings.useTvLayout) SettingsTilePrivacyRevealLock(),
-      if (!settings.useTvLayout) SettingsTilePrivacyAdvancedVaults(),
-      if (!settings.useTvLayout) SettingsTilePrivacyAppLock(),
-      if (!settings.useTvLayout) SettingsTilePrivacyMasterCode(),
-      if (!settings.useTvLayout) SettingsTilePrivacyNukeVaults(),
+      if (!settings.useTvLayout) SettingsTilePrivacyGroup(PrivacyGroup.locks),
+      if (!settings.useTvLayout) SettingsTilePrivacyGroup(PrivacyGroup.vaults),
+      if (!settings.useTvLayout) SettingsTilePrivacyGroup(PrivacyGroup.appLock),
+      if (!settings.useTvLayout) SettingsTilePrivacyGroup(PrivacyGroup.destruction),
       SettingsTilePrivacySaveSearchHistory(),
       if (!settings.useTvLayout) SettingsTilePrivacyAutoExportSettings(),
     ];
@@ -199,6 +200,116 @@ class SettingsTilePrivacyAdvancedVaults extends SettingsTile {
     routeName: AdvancedVaultSecurityPage.routeName,
     builder: (context) => const AdvancedVaultSecurityPage(),
   );
+}
+
+enum PrivacyGroup { locks, vaults, appLock, destruction }
+
+// privacy features are grouped in sub pages, each feature having its own switch where it makes sense
+class SettingsTilePrivacyGroup extends SettingsTile {
+  final PrivacyGroup group;
+
+  SettingsTilePrivacyGroup(this.group);
+
+  @override
+  List<String> get settingKeys => [];
+
+  @override
+  String title(BuildContext context) {
+    final l10n = context.l10n;
+    switch (group) {
+      case PrivacyGroup.locks:
+        return l10n.privacyGroupLocks;
+      case PrivacyGroup.vaults:
+        return l10n.privacyGroupVaults;
+      case PrivacyGroup.appLock:
+        return l10n.settingsAppLock;
+      case PrivacyGroup.destruction:
+        return l10n.privacyGroupDestruction;
+    }
+  }
+
+  List<SettingsTile> _tiles() {
+    switch (group) {
+      case PrivacyGroup.locks:
+        return [
+          _OptionSwitchTile(PrivacyOptions.itemLocksKey, (l10n) => l10n.privacyOptionItemLocks, (l10n) => l10n.privacyOptionItemLocksSubtitle, (o) => o.itemLocks),
+          SettingsTilePrivacyItemsLock(),
+          SettingsTilePrivacyBinLock(),
+          _OptionSwitchTile(PrivacyOptions.revealGestureKey, (l10n) => l10n.privacyOptionRevealGesture, (l10n) => l10n.privacyOptionRevealGestureSubtitle, (o) => o.revealGesture),
+          SettingsTilePrivacyRevealLock(),
+        ];
+      case PrivacyGroup.vaults:
+        return [SettingsTilePrivacyAdvancedVaults()];
+      case PrivacyGroup.appLock:
+        return [SettingsTilePrivacyAppLock()];
+      case PrivacyGroup.destruction:
+        return [
+          SettingsTilePrivacyMasterCode(),
+          _OptionSwitchTile(PrivacyOptions.strictDeleteKey, (l10n) => l10n.privacyOptionStrictDelete, (l10n) => l10n.privacyOptionStrictDeleteSubtitle, (o) => o.strictDelete),
+          SettingsTilePrivacyNukeVaults(),
+        ];
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => SettingsSubPageTile(
+    title: title,
+    routeName: '/settings/privacy/${group.name}',
+    builder: (context) => _PrivacyGroupPage(title: title(context), tiles: _tiles()),
+  );
+}
+
+class _PrivacyGroupPage extends StatelessWidget {
+  final String title;
+  final List<SettingsTile> tiles;
+
+  const _PrivacyGroupPage({required this.title, required this.tiles});
+
+  @override
+  Widget build(BuildContext context) {
+    return AvesScaffold(
+      appBar: AppBar(title: Text(title)),
+      body: SafeArea(
+        child: ListView(children: tiles.map((tile) => tile.build(context)).toList()),
+      ),
+    );
+  }
+}
+
+class _OptionSwitchTile extends SettingsTile {
+  final String key;
+  final String Function(AppLocalizations l10n) _title, _subtitle;
+  final bool Function(PrivacyOptions options) _value;
+
+  _OptionSwitchTile(this.key, this._title, this._subtitle, this._value);
+
+  @override
+  List<String> get settingKeys => [];
+
+  @override
+  String title(BuildContext context) => _title(context.l10n);
+
+  @override
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: privacyOptions,
+    builder: (context, _) => SwitchListTile(
+      value: _value(privacyOptions),
+      onChanged: (v) => privacyOptions.change(context, key, v),
+      title: Text(title(context)),
+      subtitle: Text(_subtitle(context.l10n)),
+    ),
+  );
+}
+
+class SettingsTilePrivacyItemsLock extends SettingsTile {
+  @override
+  List<String> get settingKeys => [];
+
+  @override
+  String title(BuildContext context) => SecretLock.items.title(context);
+
+  @override
+  Widget build(BuildContext context) => _SecretLockListTile(lock: SecretLock.items);
 }
 
 class SettingsTilePrivacyAppLock extends SettingsTile {

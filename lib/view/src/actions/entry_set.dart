@@ -37,6 +37,7 @@ extension ExtraEntrySetActionView on EntrySetAction {
       .move => l10n.collectionActionMove,
       .rename => l10n.entryActionRename,
       .convert => l10n.entryActionConvert,
+      .toggleItemLock => l10n.actionToggleItemLock,
       .copyToClipboard => l10n.entryActionCopyToClipboard,
       .exportGpx => l10n.collectionActionExportGpx,
       .toggleFavourite =>
@@ -91,6 +92,7 @@ extension ExtraEntrySetActionView on EntrySetAction {
       .move => AIcons.move,
       .rename => AIcons.rename,
       .convert => AIcons.convert,
+      .toggleItemLock => AIcons.vaultLock,
       .copyToClipboard => AIcons.clipboard,
       .exportGpx => AIcons.route,
       .toggleFavourite =>

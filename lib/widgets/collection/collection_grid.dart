@@ -1,3 +1,4 @@
+import 'package:aves/model/item_locks.dart';
 import 'dart:async';
 
 import 'package:aves/app_mode.dart';
@@ -267,6 +268,9 @@ class _CollectionGridContentState extends State<_CollectionGridContent> {
   }
 
   Future<void> _goToViewer(CollectionLens collection, AvesEntry entry) async {
+    // locked items need the items lock
+    if (!await itemLocks.unlockEntry(context, entry) || !mounted) return;
+
     // track viewer entry for dynamic hero placeholder
     final viewerEntryNotifier = context.read<ViewerEntryNotifier>();
 

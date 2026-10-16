@@ -1,3 +1,7 @@
+import 'dart:ui';
+
+import 'package:aves/model/item_locks.dart';
+import 'package:aves/model/security/privacy_options.dart';
 import 'dart:math';
 
 import 'package:aves/image_providers/thumbnail_provider.dart';
@@ -182,6 +186,35 @@ class _ThumbnailImageState extends State<ThumbnailImage> {
 
   @override
   Widget build(BuildContext context) {
+    // locked items (see `ItemLocks`) are blurred and marked, until they are opened
+    return ListenableBuilder(
+      listenable: Listenable.merge([itemLocks, privacyOptions]),
+      builder: (context, _) {
+        final child = _buildThumbnail(context);
+        if (!itemLocks.isEntryLocked(entry)) return child;
+
+        return ClipRect(
+          child: Stack(
+            fit: StackFit.passthrough,
+            children: [
+              ImageFiltered(
+                imageFilter: ImageFilter.blur(sigmaX: 24, sigmaY: 24, tileMode: TileMode.decal),
+                child: child,
+              ),
+              const Positioned.fill(
+                child: ColoredBox(
+                  color: Colors.black26,
+                  child: Center(child: Icon(Icons.lock, color: Colors.white70)),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildThumbnail(BuildContext context) {
     final animate = context.select<Settings, bool>((v) => v.animate);
     if (!entry.isDecodingSupported || _lastException != null) {
       return _buildError(context, animate);
