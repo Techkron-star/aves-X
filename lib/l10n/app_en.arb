@@ -1164,5 +1164,25 @@
   "panoramaEnableSensorControl": "Enable sensor control",
   "panoramaDisableSensorControl": "Disable sensor control",
 
-  "sourceViewerPageTitle": "Source"
+  "sourceViewerPageTitle": "Source",
+  "masterCodeCreateMessage": "Create a 6-digit Master Code. It is required to change or remove any PIN or password, and it cannot be recovered if lost.",
+  "masterCodeEnterMessage": "Enter the Master Code",
+  "settingsMasterCode": "Master Code",
+  "settingsMasterCodeSubtitle": "6-digit code required to change security settings",
+  "attemptsCooldownMessage": "Too many failed attempts. Try again in {minutes, plural, =1{1 minute} other{{minutes} minutes}}.",
+  "@attemptsCooldownMessage": {"placeholders": {"minutes": {"type": "int"}}},
+  "settingsAppLock": "App lock",
+  "settingsAppLockSubtitle": "Ask for a PIN when opening the app",
+  "appLockChangePin": "Change app PIN",
+  "appLockUseBiometric": "Use biometrics",
+  "appLockBiometricReason": "Authenticate to open the app",
+  "appLockPanicPin": "Panic PIN",
+  "appLockPanicPinSubtitle": "Shows a fake \"wrong PIN\" screen and wipes everything",
+  "appLockPanicSameAsPin": "The panic PIN must be different from the app PIN.",
+  "appLockTitle": "Enter PIN",
+  "appLockWrongPin": "Wrong PIN",
+  "appLockCooldownMessage": "Too many failed attempts. Try again in {time}.",
+  "@appLockCooldownMessage": {"placeholders": {"time": {"type": "String"}}},
+  "settingsNukeVaults": "Nuke all vaults",
+  "settingsNukeVaultsSubtitle": "Deletes all vaults and their content. Requires the Master Code. Irreversible."
 }

@@ -1,0 +1,107 @@
+import 'package:aves/services/common/services.dart';
+import 'package:flutter/services.dart';
+
+enum AttemptOutcome { failed, cooldown, nuke }
+
+// Persistent counter of failed attempts for one kind of secret (app PIN, Master Code, or one vault).
+// - state is written to the secure store right after each failure (survives killing the app and clearing the cache)
+// - 3 failures start a 5 minute cooldown (with vibration), the 4th failure triggers a nuke
+// - the cooldown uses the monotonic clock of the device, so that changing the system date does not skip it;
+//   after a reboot (or if the monotonic clock goes backwards), the cooldown restarts from the beginning
+class AttemptGuard {
+  static const cooldownFailures = 3;
+  static const nukeFailures = 4;
+  static const cooldownDuration = Duration(minutes: 5);
+
+  static final app = AttemptGuard._('app');
+  static final master = AttemptGuard._('master');
+
+  static AttemptGuard vault(String name) => AttemptGuard._('vault_$name');
+
+  final String id;
+
+  AttemptGuard._(this.id);
+
+  String get _failsKey => 'att_${id}_fails';
+
+  String get _cooldownKey => 'att_${id}_cooldown';
+
+  Future<int> failures() async => int.tryParse(await securityService.readValue<String>(_failsKey) ?? '') ?? 0;
+
+  // `null` when there is no cooldown
+  Future<Duration?> remainingCooldown() async {
+    final raw = await securityService.readValue<String>(_cooldownKey);
+    if (raw == null) return null;
+
+    // `elapsedRealtime|bootCount|wallClockMillis`
+    final parts = raw.split('|');
+    if (parts.length != 3) return cooldownDuration;
+    final startElapsed = int.tryParse(parts[0]);
+    final startBoot = int.tryParse(parts[1]);
+    final startWall = int.tryParse(parts[2]);
+    if (startElapsed == null || startBoot == null || startWall == null) return cooldownDuration;
+
+    final clock = await securityService.getClockInfo();
+    int elapsedSinceStart;
+    if (clock == null) {
+      // no monotonic clock available, fall back to the system clock, but never trust a clock set in the past
+      elapsedSinceStart = DateTime.now().millisecondsSinceEpoch - startWall;
+      if (elapsedSinceStart < 0) {
+        await _startCooldown();
+        return cooldownDuration;
+      }
+    } else {
+      final rebooted = (startBoot >= 0 && clock.bootCount >= 0 && clock.bootCount != startBoot) || clock.elapsedRealtimeMillis < startElapsed;
+      if (rebooted) {
+        // cannot tell how long the device was off: restart the cooldown
+        await _startCooldown();
+        return cooldownDuration;
+      }
+      elapsedSinceStart = clock.elapsedRealtimeMillis - startElapsed;
+    }
+
+    final remaining = cooldownDuration - Duration(milliseconds: elapsedSinceStart);
+    if (remaining <= Duration.zero) {
+      // keep the marker: the failure counter stays at its value, and the next failure will nuke
+      await securityService.writeValue<String>(_cooldownKey, null);
+      return null;
+    }
+    return remaining;
+  }
+
+  Future<void> _startCooldown() async {
+    final clock = await securityService.getClockInfo();
+    final value = '${clock?.elapsedRealtimeMillis ?? 0}|${clock?.bootCount ?? -1}|${DateTime.now().millisecondsSinceEpoch}';
+    await securityService.writeValue<String>(_cooldownKey, value);
+  }
+
+  // to be called after each failed attempt (the counter is persisted before returning)
+  Future<AttemptOutcome> registerFailure() async {
+    final count = await failures() + 1;
+    await securityService.writeValue<String>(_failsKey, count.toString());
+    if (count >= nukeFailures) {
+      return AttemptOutcome.nuke;
+    }
+    if (count >= cooldownFailures) {
+      await _startCooldown();
+      await HapticFeedback.vibrate();
+      return AttemptOutcome.cooldown;
+    }
+    return AttemptOutcome.failed;
+  }
+
+  Future<void> reset() async {
+    await securityService.writeValue<String>(_failsKey, null);
+    await securityService.writeValue<String>(_cooldownKey, null);
+    await securityService.writeValue<String>('att_${id}_bio', null);
+  }
+
+  // biometric failures add to the same counter, but after 3 of them the PIN is mandatory
+  Future<int> biometricFailures() async => int.tryParse(await securityService.readValue<String>('att_${id}_bio') ?? '') ?? 0;
+
+  Future<AttemptOutcome> registerBiometricFailure() async {
+    final count = await biometricFailures() + 1;
+    await securityService.writeValue<String>('att_${id}_bio', count.toString());
+    return registerFailure();
+  }
+}

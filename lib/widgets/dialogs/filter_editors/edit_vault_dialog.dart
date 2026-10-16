@@ -1,3 +1,4 @@
+import 'package:aves/model/security/master_code.dart';
 import 'package:aves/model/device.dart';
 import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/settings/settings.dart';
@@ -180,6 +181,10 @@ class _EditVaultDialogState extends State<EditVaultDialog> with FeedbackMixin, V
       useBin: _useBin,
       lockType: _lockType,
     );
+    // the Master Code is created before the first secret, and required to change one
+    final allowed = initialDetails == null ? await MasterCode.ensure(context) : await MasterCode.require(context);
+    if (!allowed || !context.mounted) return;
+
     if (!await setVaultPass(context, details)) return;
 
     Navigator.maybeOf(context)?.pop<VaultDetails>(details);

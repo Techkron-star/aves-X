@@ -2,6 +2,9 @@ import 'package:aves/model/advanced_privacy.dart';
 import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/filters/filters.dart';
 import 'package:aves/model/filters/trash.dart';
+import 'package:aves/model/security/attempt_guard.dart';
+import 'package:aves/model/security/nuke.dart';
+import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/model/vaults/details.dart';
 import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/services/common/services.dart';
@@ -15,6 +18,7 @@ import 'package:aves/widgets/dialogs/filter_editors/pin_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:provider/provider.dart';
 
 mixin VaultAwareMixin on FeedbackMixin {
   Future<bool> _tryUnlock(BuildContext context, String dirPath) async {
@@ -23,53 +27,26 @@ mixin VaultAwareMixin on FeedbackMixin {
     final details = vaults.detailsForPath(dirPath);
     if (details == null) return false;
 
-    bool? confirmed;
-    switch (details.lockType) {
-      case .system:
-        try {
-          confirmed = await LocalAuthentication().authenticate(
-            localizedReason: context.l10n.authenticateToUnlockVault,
-          );
-        } on PlatformException catch (e, stack) {
-          if (!{'auth_in_progress', 'NotAvailable'}.contains(e.code)) {
-            // `auth_in_progress`: `Authentication in progress`
-            // `NotAvailable`: `Required security features not enabled`
-            await reportService.recordError(e, stack);
-          }
-        }
-      case .pattern:
-        final pattern = await showAvesDialog<String>(
-          context: context,
-          builder: (context) => const PatternDialog(needConfirmation: false),
-          routeSettings: const RouteSettings(name: PatternDialog.routeName),
-        );
-        if (pattern != null) {
-          confirmed = pattern == await securityService.readValue(details.passKey);
-        }
-      case .pin:
-        final pin = await showAvesDialog<String>(
-          context: context,
-          builder: (context) => const PinDialog(needConfirmation: false),
-          routeSettings: const RouteSettings(name: PinDialog.routeName),
-        );
-        if (pin != null) {
-          confirmed = pin == await securityService.readValue(details.passKey);
-        }
-      case .password:
-        final password = await showAvesDialog<String>(
-          context: context,
-          builder: (context) => const PasswordDialog(needConfirmation: false),
-          routeSettings: const RouteSettings(name: PasswordDialog.routeName),
-        );
-        if (password != null) {
-          confirmed = password == await securityService.readValue(details.passKey);
-        }
+    final guard = AttemptGuard.vault(details.name);
+    final secondLockType = advancedPrivacy.secondLockType(details.name);
+    final source = context.read<CollectionSource>();
+    Future<void> onNuke() async {
+      await Nuke.markVault(details.name);
+      await Nuke.nukeVaultContent(details.name, source: source);
     }
 
-    if (confirmed == null || !confirmed) return false;
+    final confirmed = await SecretLock.challenge(
+      context,
+      details.lockType,
+      context.l10n.authenticateToUnlockVault,
+      details.passKey,
+      guard: guard,
+      onNuke: onNuke,
+      resetOnSuccess: secondLockType == null,
+    );
+    if (!confirmed) return false;
 
     // optional second lock, from the advanced vault security
-    final secondLockType = advancedPrivacy.secondLockType(details.name);
     if (secondLockType != null) {
       if (!context.mounted) return false;
       final secondConfirmed = await SecretLock.challenge(
@@ -77,6 +54,8 @@ mixin VaultAwareMixin on FeedbackMixin {
         secondLockType,
         context.l10n.authenticateToUnlockVault,
         AdvancedPrivacy.secondPassKey(details.name),
+        guard: guard,
+        onNuke: onNuke,
       );
       if (!secondConfirmed) return false;
     }

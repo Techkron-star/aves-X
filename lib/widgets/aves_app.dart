@@ -1,4 +1,8 @@
 import 'dart:async';
+
+import 'package:aves/model/security/app_lock.dart';
+import 'package:aves/model/security/nuke.dart';
+import 'package:aves/widgets/security/app_lock_gate.dart';
 import 'dart:math';
 
 import 'package:aves/app_flavor.dart';
@@ -312,10 +316,12 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
                                   );
                                 },
                                 navigatorObservers: _navigatorObservers,
-                                builder: (context, child) => AvesAppContentDecorator(
-                                  initialized: initialized,
-                                  source: _mediaStoreSource,
-                                  child: child,
+                                builder: (context, child) => AppLockGate(
+                                  child: AvesAppContentDecorator(
+                                    initialized: initialized,
+                                    source: _mediaStoreSource,
+                                    child: child,
+                                  ),
                                 ),
                                 onGenerateTitle: (context) => context.l10n.appName,
                                 theme: lightTheme,
@@ -378,12 +384,14 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
             break;
         }
       case .resumed:
+        appLock.onResumed();
         availability.onResume();
         RecentlyAddedFilter.updateNow();
         _mediaStoreSource.checkForChanges();
       case .paused:
         // hidden items are revealed for the current foreground session only
         secretReveal.active = false;
+        appLock.onPaused();
       default:
         break;
     }
@@ -446,6 +454,9 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
   Future<void> _setup() async {
     final stopwatch = Stopwatch()..start();
 
+    // pending total wipe is executed before showing any UI
+    await Nuke.runPendingTotal();
+    await appLock.init();
     await device.init();
     await mobileServices.init();
     await settings.init(monitorPlatformSettings: true, shouldSanitize: true);

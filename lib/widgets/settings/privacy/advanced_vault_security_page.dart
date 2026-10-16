@@ -1,3 +1,4 @@
+import 'package:aves/model/security/master_code.dart';
 import 'package:aves/model/advanced_privacy.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/vaults/details.dart';
@@ -76,9 +77,10 @@ class AdvancedVaultSecurityPage extends StatelessWidget {
     final l10n = context.l10n;
     final name = details.name;
 
-    // changing these options requires to pass every lock of the vault first
+    // changing these options requires the Master Code, then every lock of the vault
+    if (!await MasterCode.require(context) || !context.mounted) return;
     final reason = l10n.authenticateToConfigureVault;
-    if (!await SecretLock.challenge(context, details.lockType, reason, details.passKey)) return;
+    if (!await SecretLock.challenge(context, details.lockType, reason, details.passKey, resetOnSuccess: false)) return;
     final currentSecondLock = advancedPrivacy.secondLockType(name);
     if (currentSecondLock != null) {
       if (!context.mounted) return;

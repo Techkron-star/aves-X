@@ -1,6 +1,9 @@
 import 'dart:async';
 
+import 'package:aves/model/security/master_code.dart';
+import 'package:aves/model/security/nuke.dart';
 import 'package:aves/model/settings/settings.dart';
+import 'package:aves/widgets/settings/privacy/app_lock_page.dart';
 import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/services/common/services.dart';
@@ -49,6 +52,9 @@ class PrivacySection extends SettingsSection {
       if (!settings.useTvLayout) SettingsTilePrivacyBinLock(),
       if (!settings.useTvLayout) SettingsTilePrivacyRevealLock(),
       if (!settings.useTvLayout) SettingsTilePrivacyAdvancedVaults(),
+      if (!settings.useTvLayout) SettingsTilePrivacyAppLock(),
+      if (!settings.useTvLayout) SettingsTilePrivacyMasterCode(),
+      if (!settings.useTvLayout) SettingsTilePrivacyNukeVaults(),
       SettingsTilePrivacySaveSearchHistory(),
       if (!settings.useTvLayout) SettingsTilePrivacyAutoExportSettings(),
     ];
@@ -192,6 +198,62 @@ class SettingsTilePrivacyAdvancedVaults extends SettingsTile {
     title: title,
     routeName: AdvancedVaultSecurityPage.routeName,
     builder: (context) => const AdvancedVaultSecurityPage(),
+  );
+}
+
+class SettingsTilePrivacyAppLock extends SettingsTile {
+  @override
+  List<String> get settingKeys => [];
+
+  @override
+  String title(BuildContext context) => context.l10n.settingsAppLock;
+
+  @override
+  Widget build(BuildContext context) => SettingsSubPageTile(
+    title: title,
+    routeName: AppLockPage.routeName,
+    builder: (context) => const AppLockPage(),
+  );
+}
+
+class SettingsTilePrivacyMasterCode extends SettingsTile {
+  @override
+  List<String> get settingKeys => [];
+
+  @override
+  String title(BuildContext context) => context.l10n.settingsMasterCode;
+
+  @override
+  Widget build(BuildContext context) => ListTile(
+    title: Text(title(context)),
+    subtitle: Text(context.l10n.settingsMasterCodeSubtitle),
+    onTap: () async {
+      if (await MasterCode.isSet) {
+        if (context.mounted) await MasterCode.change(context);
+      } else {
+        await MasterCode.ensure(context);
+      }
+    },
+  );
+}
+
+class SettingsTilePrivacyNukeVaults extends SettingsTile {
+  @override
+  List<String> get settingKeys => [];
+
+  @override
+  String title(BuildContext context) => context.l10n.settingsNukeVaults;
+
+  @override
+  Widget build(BuildContext context) => ListTile(
+    title: Text(title(context), style: TextStyle(color: Theme.of(context).colorScheme.error)),
+    subtitle: Text(context.l10n.settingsNukeVaultsSubtitle),
+    onTap: () async {
+      // the Master Code is the confirmation: no extra step once it is correct
+      final source = context.read<CollectionSource>();
+      if (!await MasterCode.require(context)) return;
+      await Nuke.nukeAllVaults(source: source);
+    },
   );
 }
 

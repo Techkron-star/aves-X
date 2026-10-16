@@ -1,3 +1,4 @@
+import 'package:aves/model/security/nuke.dart';
 import 'dart:async';
 
 import 'package:aves/model/covers.dart';
@@ -61,6 +62,7 @@ class MediaStoreSource extends CollectionSource {
     state = SourceState.loading;
     await localMediaDb.init();
     await vaults.init();
+    await Nuke.runPendingVaults();
     await favourites.init();
     albumGrouping.init();
     albumGrouping.setGroups(settings.albumGroups);

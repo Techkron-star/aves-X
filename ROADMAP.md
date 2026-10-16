@@ -23,11 +23,17 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 - [ ] Limpieza de sesión al salir, protección de thumbnails, contenido en recientes, comportamiento tras reinicio / al quitar de recientes.
 - [ ] Separar conceptualmente "Ocultos" y "Vaults" en la interfaz.
 
-## 0.3 — Destrucción (nuke + root shredder)
-- [ ] Nuke global de vaults protegido solo por PIN (nunca solo biometría), con doble confirmación y aviso de irreversibilidad.
-- [ ] Limpieza de archivos, referencias, thumbnails, cachés e índices; comprobar que no queda nada visible.
-- [ ] Detección opcional de root, shredder con root, fallback a borrado normal si no hay root o falla.
-- [ ] Registro local del resultado.
+## 0.3 — Destrucción (nuke) y Master Code
+- [x] **Master Code** de 6 dígitos: se crea antes de cualquier PIN/contraseña, obligatorio para cambiar o quitar cualquier credencial (vaults, papelera, revelado, bloqueo de app, seguridad avanzada) y para el nuke manual. Sin recuperación.
+- [x] Contadores de intentos independientes (App PIN, Master Code, cada vault), guardados en disco tras cada fallo (almacén seguro).
+- [x] 3 fallos → espera de 5 min + vibración; 4º fallo → nuke automático (App PIN y Master Code: todo; vault: solo su contenido). Cooldown con reloj monotónico (resiste cambiar la hora; un reinicio lo reinicia).
+- [x] Bandera de nuke pendiente: se ejecuta al iniciar, antes de mostrar la interfaz.
+- [x] Nuke manual: Ajustes > Privacidad > "Nukear todas las vaults" (pide Master Code, sin más confirmación; fallo = intento de Master Code). No toca archivos fuera de las vaults.
+- [x] Biometría en el bloqueo de inicio: cada fallo cuenta en el mismo contador; tras 3 fallos biométricos se exige el PIN.
+- [x] PIN de pánico opcional: pantalla falsa "PIN incorrecto" y borrado total en segundo plano.
+- [ ] Contadores de intentos también para papelera y bloqueo de revelado (hoy sin límite).
+- [ ] Root shredder opcional, registro local del resultado.
+- [ ] **Cifrado de los archivos de las vaults** (para que con root en `data/data` no se puedan abrir): clave en Android Keystore, cifrado/descifrado en streaming, migración de vaults existentes, miniaturas.
 
 ## 0.4 — Metadatos
 - [~] Borrar metadatos desde el visor y desde selección múltiple (por lotes): **ya incluido en Aves** (menú ⋮ → quitar metadatos).
@@ -39,8 +45,8 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 - [ ] Filtro global de visibilidad y reglas por carpeta (mostrar, ocultar, ocultar de álbumes, proteger, enviar a vault, política de metadatos), herencia y prioridad.
 
 ## 0.6 — App lock
-- [ ] Contraseña / PIN / biometría / credencial del sistema para entrar a la app; bloqueo inmediato, tras X minutos, al apagar pantalla o al salir.
-- [ ] Ocultar contenido en multitarea y notificaciones; integrar con `SecretLock`.
+- [x] Pantalla de bloqueo al abrir la app (App PIN de 6 dígitos + biometría opcional) antes de mostrar contenido; se reactiva tras 30 s en segundo plano.
+- [ ] Bloqueo inmediato / por tiempo configurable, ocultar contenido en multitarea y notificaciones.
 
 ## 0.7 — Privacidad avanzada (hardening)
 - [ ] Revisar todas las rutas de compartir e intents externos, previews, thumbnails, cachés, logs, archivos temporales, backups, recientes, rotación, pantalla dividida, grabación de pantalla y reinicio.

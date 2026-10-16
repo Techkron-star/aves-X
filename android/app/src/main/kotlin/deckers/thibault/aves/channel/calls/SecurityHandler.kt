@@ -1,7 +1,11 @@
 package deckers.thibault.aves.channel.calls
 
+import android.app.ActivityManager
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
+import android.os.SystemClock
+import android.provider.Settings
 import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
@@ -17,6 +21,8 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
         when (call.method) {
             "writeValue" -> safe(call, result, ::writeValue)
             "readValue" -> safe(call, result, ::readValue)
+            "getClockInfo" -> safe(call, result, ::getClockInfo)
+            "wipeAppData" -> safe(call, result, ::wipeAppData)
             else -> result.notImplemented()
         }
     }
@@ -71,6 +77,31 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
         }
 
         result.success(getStore().all[key])
+    }
+
+    // monotonic clock (not affected by changes of the system date and time)
+    // and boot count (`-1` when unavailable), to detect reboots
+    private fun getClockInfo(@Suppress("unused_parameter") call: MethodCall, result: MethodChannel.Result) {
+        val bootCount = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Settings.Global.getInt(context.contentResolver, Settings.Global.BOOT_COUNT, -1)
+        } else {
+            -1
+        }
+        result.success(
+            hashMapOf(
+                "elapsedRealtimeMillis" to SystemClock.elapsedRealtime(),
+                "bootCount" to bootCount,
+            )
+        )
+    }
+
+    // same effect as clearing the data of the app from the system settings:
+    // removes the app files (including vaults), databases, preferences and caches,
+    // and stops the app process
+    private fun wipeAppData(@Suppress("unused_parameter") call: MethodCall, result: MethodChannel.Result) {
+        val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val success = activityManager.clearApplicationUserData()
+        result.success(success)
     }
 
     companion object {

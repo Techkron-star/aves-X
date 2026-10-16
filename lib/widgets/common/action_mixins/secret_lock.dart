@@ -1,4 +1,6 @@
 import 'package:aves/model/device.dart';
+import 'package:aves/model/security/attempt_guard.dart';
+import 'package:aves/model/security/master_code.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/view/view.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
@@ -70,8 +72,8 @@ class SecretLock {
     final currentType = await getLockType();
     if (!context.mounted) return;
 
-    // changing or removing an existing lock requires to pass it first
-    if (currentType != null && !await challenge(context, currentType, configReason(context), _passKey)) return;
+    // changing, removing or creating a lock requires the Master Code (created at the first use)
+    if (!await MasterCode.require(context)) return;
     if (!context.mounted) return;
 
     final options = <String, String>{
@@ -110,18 +112,50 @@ class SecretLock {
     };
   }
 
-  static Future<bool> challenge(BuildContext context, VaultLockType lockType, String reason, String passKey) async {
+  // `guard` counts the failed attempts (and handles cooldown and nuke);
+  // `resetOnSuccess` should be `false` when another factor has to be passed afterwards
+  static Future<bool> challenge(
+    BuildContext context,
+    VaultLockType lockType,
+    String reason,
+    String passKey, {
+    AttemptGuard? guard,
+    Future<void> Function()? onNuke,
+    bool resetOnSuccess = true,
+  }) async {
+    if (guard != null) {
+      final remaining = await guard.remainingCooldown();
+      if (remaining != null) {
+        if (context.mounted) await MasterCode.showCooldownMessage(context, remaining);
+        return false;
+      }
+      if (!context.mounted) return false;
+    }
+
+    final result = await _attempt(context, lockType, reason, passKey);
+    if (result == null) return false;
+
+    if (result) {
+      if (guard != null && resetOnSuccess) await guard.reset();
+      return true;
+    }
+    if (guard != null && context.mounted) {
+      await MasterCode.handleFailure(context, guard, onNuke ?? () async {});
+    }
+    return false;
+  }
+
+  // `null` when cancelled or unavailable (not counted as a failure)
+  static Future<bool?> _attempt(BuildContext context, VaultLockType lockType, String reason, String passKey) async {
     switch (lockType) {
       case VaultLockType.system:
         try {
           return await LocalAuthentication().authenticate(localizedReason: reason);
         } on PlatformException catch (e, stack) {
           if (!{'auth_in_progress', 'NotAvailable'}.contains(e.code)) {
-            // `auth_in_progress`: `Authentication in progress`
-            // `NotAvailable`: `Required security features not enabled`
             await reportService.recordError(e, stack);
           }
-          return false;
+          return null;
         }
       case VaultLockType.pattern:
         final pattern = await showAvesDialog<String>(
@@ -129,21 +163,21 @@ class SecretLock {
           builder: (context) => const PatternDialog(needConfirmation: false),
           routeSettings: const RouteSettings(name: PatternDialog.routeName),
         );
-        return pattern != null && pattern == await securityService.readValue<String>(passKey);
+        return pattern == null ? null : pattern == await securityService.readValue<String>(passKey);
       case VaultLockType.pin:
         final pin = await showAvesDialog<String>(
           context: context,
           builder: (context) => const PinDialog(needConfirmation: false),
           routeSettings: const RouteSettings(name: PinDialog.routeName),
         );
-        return pin != null && pin == await securityService.readValue<String>(passKey);
+        return pin == null ? null : pin == await securityService.readValue<String>(passKey);
       case VaultLockType.password:
         final password = await showAvesDialog<String>(
           context: context,
           builder: (context) => const PasswordDialog(needConfirmation: false),
           routeSettings: const RouteSettings(name: PasswordDialog.routeName),
         );
-        return password != null && password == await securityService.readValue<String>(passKey);
+        return password == null ? null : password == await securityService.readValue<String>(passKey);
     }
   }
 
