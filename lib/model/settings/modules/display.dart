@@ -32,7 +32,12 @@ mixin DisplaySettings on SettingsAccess {
 
   set batGlass(bool newValue) => set(SettingKeys.batGlassKey, newValue);
 
-  bool get enableBlurEffect => getBool(SettingKeys.enableBlurEffectKey) ?? SettingsDefaults.enableBlurEffect;
+  bool get performanceMode => getBool(SettingKeys.performanceModeKey) ?? SettingsDefaults.performanceMode;
+
+  set performanceMode(bool newValue) => set(SettingKeys.performanceModeKey, newValue);
+
+  // performance mode replaces blur with solid colors
+  bool get enableBlurEffect => !performanceMode && (getBool(SettingKeys.enableBlurEffectKey) ?? SettingsDefaults.enableBlurEffect);
 
   set enableBlurEffect(bool newValue) => set(SettingKeys.enableBlurEffectKey, newValue);
 

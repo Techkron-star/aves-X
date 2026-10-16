@@ -50,6 +50,7 @@ class SettingKeys {
   static const enableDynamicColorKey = 'dynamic_color';
   static const enableBlurEffectKey = 'enable_overlay_blur_effect';
   static const batGlassKey = 'bat_glass';
+  static const performanceModeKey = 'performance_mode';
   static const navBarStyleKey = 'nav_bar_style';
   static const glassEverywhereKey = 'glass_everywhere';
   static const maxBrightnessKey = 'max_brightness';

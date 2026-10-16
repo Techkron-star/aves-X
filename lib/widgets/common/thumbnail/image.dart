@@ -193,6 +193,14 @@ class _ThumbnailImageState extends State<ThumbnailImage> {
         final child = _buildThumbnail(context);
         if (!itemLocks.isEntryLocked(entry)) return child;
 
+        // performance mode: solid color instead of blurring the image
+        if (settings.performanceMode) {
+          return const ColoredBox(
+            color: Color(0xFF2A2A2A),
+            child: Center(child: Icon(Icons.lock, color: Colors.white70)),
+          );
+        }
+
         return ClipRect(
           child: Stack(
             fit: StackFit.passthrough,

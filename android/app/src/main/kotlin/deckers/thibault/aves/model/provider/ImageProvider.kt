@@ -1891,7 +1891,29 @@ abstract class ImageProvider {
                 outputStream().use { output ->
                     // reopen input to read from start
                     StorageUtils.openInputStream(context, uri)?.use { input ->
-                        PixyMetaHelper.removeMetadata(input, output, types)
+                        if (mimeType == MimeTypes.PNG || mimeType == MimeTypes.WEBP) {
+                            // Aves-X: PixyMeta cannot clean these formats, so the pixels are re-encoded,
+                            // which drops every metadata block (animated files are not supported, as they would be flattened)
+                            val bytes = input.readBytes()
+                            val head = String(bytes, 0, minOf(bytes.size, 262144), Charsets.ISO_8859_1)
+                            if (head.contains("acTL") || head.contains("ANIM")) {
+                                throw UnsupportedOperationException("animated image")
+                            }
+                            val bitmap = android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                                ?: throw Exception("failed to decode image")
+                            val format = if (mimeType == MimeTypes.PNG) {
+                                Bitmap.CompressFormat.PNG
+                            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                                Bitmap.CompressFormat.WEBP_LOSSLESS
+                            } else {
+                                @Suppress("DEPRECATION")
+                                Bitmap.CompressFormat.WEBP
+                            }
+                            bitmap.compress(format, 100, output)
+                            bitmap.recycle()
+                        } else {
+                            PixyMetaHelper.removeMetadata(input, output, types)
+                        }
                     }
                 }
             } catch (ex: Exception) {

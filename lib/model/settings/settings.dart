@@ -257,7 +257,7 @@ class Settings
 
   AccessibilityAnimations get accessibilityAnimations => getEnumOrDefault(SettingKeys.accessibilityAnimationsKey, SettingsDefaults.accessibilityAnimations, AccessibilityAnimations.values);
 
-  bool get animate => accessibilityAnimations.animate;
+  bool get animate => !performanceMode && accessibilityAnimations.animate;
 
   set accessibilityAnimations(AccessibilityAnimations newValue) => set(SettingKeys.accessibilityAnimationsKey, newValue.name);
 
@@ -360,6 +360,7 @@ class Settings
           case SettingKeys.enableDynamicColorKey:
           case SettingKeys.enableBlurEffectKey:
           case SettingKeys.batGlassKey:
+          case SettingKeys.performanceModeKey:
           case SettingKeys.glassEverywhereKey:
           case SettingKeys.mustBackTwiceToExitKey:
           case SettingKeys.confirmCreateVaultKey:

@@ -1221,5 +1221,19 @@
   "navBarStyleFloating": "Floating",
   "navBarStyleRectangular": "Rectangular",
   "aboutBasedOnAves": "A personal tribute to Aves, based on Aves {version} by Thibault Deckers",
-  "@aboutBasedOnAves": {"placeholders": {"version": {"type": "String"}}}
+  "@aboutBasedOnAves": {"placeholders": {"version": {"type": "String"}}},
+  "itemLocksEnablePrompt": "Locking albums and items is turned off. Turn it on now?",
+  "settingsPerformanceMode": "Performance mode",
+  "settingsPerformanceModeSubtitle": "No animations and no blur (solid colors instead), for smoother use on slower devices",
+  "settingsAutoDelete": "Automatic deletion",
+  "autoDeleteExplanation": "Delete old items automatically, to free space or to wipe information if you stay away for a long time. Deleted items cannot be recovered.",
+  "autoDeleteBin": "Recycle bin: keep items for",
+  "autoDeleteOff": "Off",
+  "autoDeleteMinutes": "{count, plural, =1{1 minute} other{{count} minutes}}",
+  "@autoDeleteMinutes": {"placeholders": {"count": {"type": "int"}}},
+  "autoDeleteHours": "{count, plural, =1{1 hour} other{{count} hours}}",
+  "@autoDeleteHours": {"placeholders": {"count": {"type": "int"}}},
+  "autoDeleteDays": "{count, plural, =1{1 day} other{{count} days}}",
+  "@autoDeleteDays": {"placeholders": {"count": {"type": "int"}}},
+  "autoDeleteShortWarning": "This delay is shorter than 48 hours: you could lose important files very quickly. Only continue if you know exactly what you are doing."
 }

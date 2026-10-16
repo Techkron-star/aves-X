@@ -1,3 +1,4 @@
+import 'package:aves/widgets/settings/privacy/auto_delete_page.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:aves/model/item_locks.dart';
 import 'package:aves/widgets/dialogs/danger_confirmation.dart';
@@ -59,6 +60,7 @@ class PrivacySection extends SettingsSection {
       if (!settings.useTvLayout) SettingsTilePrivacyGroup(PrivacyGroup.vaults),
       if (!settings.useTvLayout) SettingsTilePrivacyGroup(PrivacyGroup.appLock),
       if (!settings.useTvLayout) SettingsTilePrivacyGroup(PrivacyGroup.destruction),
+      if (!settings.useTvLayout) SettingsTilePrivacyAutoDelete(),
       SettingsTilePrivacySaveSearchHistory(),
       if (!settings.useTvLayout) SettingsTilePrivacyAutoExportSettings(),
     ];
@@ -348,6 +350,22 @@ class SettingsTilePrivacyItemsLock extends SettingsTile {
 
   @override
   Widget build(BuildContext context) => _SecretLockListTile(lock: SecretLock.items);
+}
+
+class SettingsTilePrivacyAutoDelete extends SettingsTile {
+  @override
+  List<String> get settingKeys => [];
+
+  @override
+  String title(BuildContext context) => context.l10n.settingsAutoDelete;
+
+  @override
+  Widget build(BuildContext context) => SettingsSubPageTile(
+    leading: SettingsTileLeading(icon: Symbols.auto_delete, color: context.select<AvesColorsData, Color>((v) => v.privacy)),
+    title: title,
+    routeName: AutoDeletePage.routeName,
+    builder: (context) => const AutoDeletePage(),
+  );
 }
 
 class SettingsTilePrivacyAppLock extends SettingsTile {

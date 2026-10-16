@@ -30,6 +30,7 @@ class _ViewerActionEditorPageState extends State<ViewerActionEditorPage> {
       .copy,
       .move,
       .toggleFavourite,
+      .toggleItemLock,
       .rotateScreen,
       .viewSource,
       .rotateCCW,

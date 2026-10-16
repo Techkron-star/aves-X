@@ -1,3 +1,4 @@
+import 'package:aves/model/security/auto_delete.dart';
 import 'package:aves/model/item_locks.dart';
 import 'package:aves/model/security/privacy_options.dart';
 import 'dart:async';
@@ -463,6 +464,7 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
     await appLock.init();
     await privacyOptions.init();
     await itemLocks.init();
+    await autoDelete.init();
     await device.init();
     await mobileServices.init();
     await settings.init(monitorPlatformSettings: true, shouldSanitize: true);

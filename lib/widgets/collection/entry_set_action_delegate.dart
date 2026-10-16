@@ -119,7 +119,7 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
       case .toggleFavourite:
         return isMain && isSelecting && !isTrash;
       case .toggleItemLock:
-        return isMain && isSelecting && !isTrash && privacyOptions.itemLocks;
+        return isMain && isSelecting && !isTrash;
       case .copyToClipboard:
         return isMain && isSelecting && !isTrash && !useTvLayout;
       case .delete:

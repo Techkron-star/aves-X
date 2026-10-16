@@ -1,3 +1,4 @@
+import 'package:aves/model/security/auto_delete.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -12,7 +13,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
 mixin TrashMixin on SourceBase {
-  static const Duration binKeepDuration = Duration(days: 30);
+  // configurable, 30 days by default (see `AutoDelete`)
+  static Duration get binKeepDuration => autoDelete.binRetention;
 
   Future<void> loadTrashDetails() async {
     final saved = await localMediaDb.loadAllTrashDetails();

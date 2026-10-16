@@ -142,6 +142,8 @@ object MimeTypes {
     fun canRemoveMetadata(mimeType: String) = when (mimeType) {
         // as of latest PixyMeta
         JPEG, TIFF -> true
+        // Aves-X: other raster formats are cleaned by re-encoding the pixels (see `ImageProvider.removeMetadataTypes`)
+        PNG, WEBP -> true
         else -> false
     }
 

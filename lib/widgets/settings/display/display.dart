@@ -35,6 +35,7 @@ class DisplaySection extends SettingsSection {
     if (!settings.useTvLayout) SettingsTileDisplayThemeBrightness(),
     SettingsTileDisplayThemeColorMode(),
     if (device.isDynamicColorAvailable) SettingsTileDisplayEnableDynamicColor(),
+    SettingsTileDisplayPerformanceMode(),
     SettingsTileDisplayEnableBlurEffect(),
     if (!settings.useTvLayout) SettingsTileDisplayNavBarStyle(),
     if (!settings.useTvLayout) SettingsTileDisplayMaxBrightness(),
@@ -216,5 +217,21 @@ class SettingsTileDisplayNavBarStyle extends SettingsTile {
     onSelection: (v) => settings.navBarStyle = v,
     tileTitle: title,
     dialogTitle: context.l10n.settingsNavBarStyle,
+  );
+}
+
+class SettingsTileDisplayPerformanceMode extends SettingsTile {
+  @override
+  List<String> get settingKeys => [SettingKeys.performanceModeKey];
+
+  @override
+  String title(BuildContext context) => context.l10n.settingsPerformanceMode;
+
+  @override
+  Widget build(BuildContext context) => SettingsSwitchListTile(
+    selector: (context, s) => s.performanceMode,
+    onChanged: (v) => settings.performanceMode = v,
+    title: title,
+    subtitle: (context) => context.l10n.settingsPerformanceModeSubtitle,
   );
 }

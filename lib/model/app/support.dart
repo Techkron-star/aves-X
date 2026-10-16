@@ -92,6 +92,10 @@ class AppSupport {
       case MimeTypes.jpeg:
       case MimeTypes.tiff:
         return true;
+      // Aves-X: cleaned by re-encoding the pixels (not for animated files)
+      case MimeTypes.png:
+      case MimeTypes.webp:
+        return true;
       default:
         return false;
     }

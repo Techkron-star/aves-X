@@ -820,5 +820,16 @@
   "navBarStyleRounded": "Redondeada",
   "navBarStyleFloating": "Flotante",
   "navBarStyleRectangular": "Rectangular",
-  "aboutBasedOnAves": "Un tributo personal a Aves, basado en Aves {version} de Thibault Deckers"
+  "aboutBasedOnAves": "Un tributo personal a Aves, basado en Aves {version} de Thibault Deckers",
+  "itemLocksEnablePrompt": "El bloqueo de álbumes y fotos está desactivado. ¿Activarlo ahora?",
+  "settingsPerformanceMode": "Modo rendimiento",
+  "settingsPerformanceModeSubtitle": "Sin animaciones ni desenfoque (colores sólidos), para ir más fluido en equipos lentos",
+  "settingsAutoDelete": "Borrado automático",
+  "autoDeleteExplanation": "Borra automáticamente los elementos antiguos, para liberar espacio o para volatilizar información si pasas mucho tiempo sin entrar. Lo borrado no se puede recuperar.",
+  "autoDeleteBin": "Cesto: conservar elementos durante",
+  "autoDeleteOff": "Desactivado",
+  "autoDeleteMinutes": "{count, plural, =1{1 minuto} other{{count} minutos}}",
+  "autoDeleteHours": "{count, plural, =1{1 hora} other{{count} horas}}",
+  "autoDeleteDays": "{count, plural, =1{1 día} other{{count} días}}",
+  "autoDeleteShortWarning": "Este plazo es menor de 48 horas: podrías perder archivos importantes muy rápido. Continúa solo si sabes exactamente lo que haces."
 }

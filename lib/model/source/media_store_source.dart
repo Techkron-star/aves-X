@@ -1,3 +1,4 @@
+import 'package:aves/model/security/auto_delete.dart';
 import 'package:aves/model/security/nuke.dart';
 import 'dart:async';
 
@@ -151,6 +152,8 @@ class MediaStoreSource extends CollectionSource {
 
       // trash
       await loadTrashDetails();
+      // automatic deletion of old items (bin, and albums configured by the user)
+      autoDelete.start(this);
       unawaited(
         deleteExpiredTrash().then(
           (deletedUris) {

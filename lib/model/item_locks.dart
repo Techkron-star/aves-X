@@ -1,3 +1,4 @@
+import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
@@ -70,7 +71,7 @@ class ItemLocks extends ChangeNotifier {
 
   Future<void> setFavouritesLocked(BuildContext context, bool value) async {
     if (value) {
-      if (!await _ensureLock(context)) return;
+      if (!await _ensureEnabled(context) || !context.mounted || !await _ensureLock(context)) return;
     } else {
       if (!await SecretLock.items.authenticate(context)) return;
       _open.remove('fav');
@@ -135,6 +136,19 @@ class ItemLocks extends ChangeNotifier {
     return true;
   }
 
+  // item locks are opt-in: ask to enable them the first time the user wants to lock something
+  Future<bool> _ensureEnabled(BuildContext context) async {
+    if (privacyOptions.itemLocks) return true;
+    final accepted = await showConfirmationDialog(
+      context: context,
+      message: context.l10n.itemLocksEnablePrompt,
+      ok: context.l10n.applyButtonLabel,
+    );
+    if (!accepted || !context.mounted) return false;
+
+    return privacyOptions.change(context, PrivacyOptions.itemLocksKey, true);
+  }
+
   // the lock must exist before locking anything: creates it if needed (requires the Master Code)
   Future<bool> _ensureLock(BuildContext context) async {
     if (await SecretLock.items.getLockType() != null) return true;
@@ -154,7 +168,7 @@ class ItemLocks extends ChangeNotifier {
       _items.removeAll(entries.map(entryKey));
       _open.removeWhere((v) => v.startsWith('i:'));
     } else {
-      if (!await _ensureLock(context)) return;
+      if (!await _ensureEnabled(context) || !context.mounted || !await _ensureLock(context)) return;
       _items.addAll(entries.map(entryKey));
     }
     await _save();
@@ -170,7 +184,7 @@ class ItemLocks extends ChangeNotifier {
       _albums.removeAll(dirPaths);
       _open.removeWhere((v) => v.startsWith('a:'));
     } else {
-      if (!await _ensureLock(context)) return;
+      if (!await _ensureEnabled(context) || !context.mounted || !await _ensureLock(context)) return;
       _albums.addAll(dirPaths);
     }
     await _save();

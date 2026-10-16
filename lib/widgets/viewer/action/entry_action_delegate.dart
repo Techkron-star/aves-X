@@ -100,7 +100,7 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
         case .toggleFavourite:
           return collection != null;
         case .toggleItemLock:
-          return privacyOptions.itemLocks && appMode == .main;
+          return appMode == .main;
         case .delete:
         case .rename:
         case .move:

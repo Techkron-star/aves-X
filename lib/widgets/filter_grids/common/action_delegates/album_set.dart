@@ -124,7 +124,7 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
       case .lockVault:
         return isMain && selectedFilters.any(isVault);
       case .toggleItemLock:
-        return isMain && isSelecting && privacyOptions.itemLocks && selectedFilters.isNotEmpty && selectedFilters.every((v) => v is StoredAlbumFilter && !v.isVault);
+        return isMain && isSelecting && selectedFilters.isNotEmpty && selectedFilters.every((v) => v is StoredAlbumFilter && !v.isVault);
       default:
         return super.isVisible(
           action,

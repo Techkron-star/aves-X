@@ -84,7 +84,9 @@ class _DelayedDangerDialogState extends State<_DelayedDangerDialog> {
 }
 
 class _TypeWordDialog extends StatefulWidget {
-  const _TypeWordDialog();
+  final String word;
+
+  const _TypeWordDialog({this.word = dangerWord});
 
   @override
   State<_TypeWordDialog> createState() => _TypeWordDialogState();
@@ -101,12 +103,12 @@ class _TypeWordDialogState extends State<_TypeWordDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final matches = _controller.text == dangerWord;
+    final matches = _controller.text == widget.word;
     return AvesDialog(
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(context.l10n.dangerTypeWordMessage(dangerWord)),
+          Text(context.l10n.dangerTypeWordMessage(widget.word)),
           const SizedBox(height: 12),
           TextField(
             controller: _controller,
@@ -126,7 +128,7 @@ class _TypeWordDialogState extends State<_TypeWordDialog> {
             side: _crystal ? const BorderSide(color: Color(0x99FFB3BF)) : null,
           ),
           onPressed: matches ? () => Navigator.maybeOf(context)?.pop<bool>(true) : null,
-          child: Text(dangerWord),
+          child: Text(widget.word),
         ),
       ],
     );
@@ -262,4 +264,16 @@ class _HoldToConfirmButtonState extends State<_HoldToConfirmButton> with SingleT
       ),
     );
   }
+}
+
+// risk confirmation in two steps: the delayed warning, then typing a word (e.g. `ENTIENDO`)
+Future<bool> confirmTypedRisk(BuildContext context, String message, String word) async {
+  if (!await showRiskWarning(context, message) || !context.mounted) return false;
+
+  final typed = await showAvesDialog<bool>(
+    context: context,
+    builder: (context) => _TypeWordDialog(word: word),
+    routeSettings: const RouteSettings(name: AvesDialog.confirmationRouteName),
+  );
+  return typed == true;
 }
