@@ -69,7 +69,7 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 - [x] Cristal más transparente (barras y botones con fondo casi translúcido).
 - [x] Logo de murciélago como icono y logo dentro de la app; nombre "Aves-X".
 - [x] Blur más fuerte y reutilizable (`Blurred*`) con reflejo y borde de cristal en barras y botones flotantes.
-- [ ] **Tema "Bat glass"**: cristal líquido de rubí (transparencias rojas) sobre fondos negros en toda la app, como opción de apariencia.
+- [~] **Tema "Bat glass"** (experimental, Ajustes → Pantalla): negro con cristal líquido rubí. Primera versión: esquema oscuro negro/rubí y reflejos rojos en las superficies de cristal; falta pulir.
 - [ ] Liquid glass avanzado (saturación y refracción del fondo), blur específico en el visor, animaciones.
 - [ ] Rediseño de Ajustes en niveles (básico / avanzado / experimental), gestos configurables.
 - [ ] Indicadores visuales de oculto / vault / bloqueado / protegido.

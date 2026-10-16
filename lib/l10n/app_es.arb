@@ -805,5 +805,8 @@
   "riskWarningContinue": "Lo entiendo",
   "nukeVaultsWarning": "Esto borrará PERMANENTEMENTE TODAS las vaults y todo su contenido. No se puede deshacer.",
   "appLockEnableWarning": "Con el bloqueo de la app, 4 PIN incorrectos borran TODOS los datos de la app (vaults incluidas). Si pierdes el Código Maestro no hay recuperación.",
-  "appLockPanicWarning": "Al introducir el PIN de pánico se muestra un error falso y se borran TODOS los datos de la app en segundo plano. Úsalo con cuidado."
+  "appLockPanicWarning": "Al introducir el PIN de pánico se muestra un error falso y se borran TODOS los datos de la app en segundo plano. Úsalo con cuidado.",
+  "settingsBatGlass": "Bat glass",
+  "settingsBatGlassSubtitle": "Tema de cristal líquido negro y rojo rubí",
+  "experimentalLabel": "EXPERIMENTAL"
 }

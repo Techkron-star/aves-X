@@ -262,14 +262,15 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
                   : AvesScaffold(
                       body: snapshot.hasError ? _buildError(snapshot.error!) : const SizedBox(),
                     );
-              return Selector<Settings, (Locale?, AvesThemeBrightness, bool)>(
+              return Selector<Settings, (Locale?, AvesThemeBrightness, bool, bool)>(
                 selector: (context, s) => (
                   s.basicLocale,
                   s.initialized ? s.themeBrightness : SettingsDefaults.themeBrightness,
                   s.initialized ? s.enableDynamicColor : SettingsDefaults.enableDynamicColor,
+                  s.initialized ? s.batGlass : SettingsDefaults.batGlass,
                 ),
                 builder: (context, s, child) {
-                  final (settingsLocale, themeBrightness, enableDynamicColor) = s;
+                  final (settingsLocale, themeBrightness, enableDynamicColor, batGlass) = s;
                   return DynamicColorBuilder(
                     builder: (lightScheme, darkScheme) {
                       const defaultAccent = AvesColorsData.defaultAccent;
@@ -279,8 +280,8 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
                         darkAccent = darkScheme?.primary ?? darkAccent;
                       }
                       final knownLocale = KnownLocale.fromBcp47(settingsLocale?.toLanguageTag()) ?? KnownLocale.english;
-                      final lightTheme = Themes.lightTheme(lightAccent, initialized, knownLocale);
-                      final darkTheme = themeBrightness == AvesThemeBrightness.black ? Themes.blackTheme(darkAccent, initialized, knownLocale) : Themes.darkTheme(darkAccent, initialized, knownLocale);
+                      final lightTheme = batGlass ? Themes.batGlassTheme(initialized, knownLocale) : Themes.lightTheme(lightAccent, initialized, knownLocale);
+                      final darkTheme = batGlass ? Themes.batGlassTheme(initialized, knownLocale) : (themeBrightness == AvesThemeBrightness.black ? Themes.blackTheme(darkAccent, initialized, knownLocale) : Themes.darkTheme(darkAccent, initialized, knownLocale));
                       return Shortcuts(
                         shortcuts: {
                           // handle Android TV remote `select` button (KEYCODE_DPAD_CENTER)
@@ -328,7 +329,7 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
                                 onGenerateTitle: (context) => context.l10n.appName,
                                 theme: lightTheme,
                                 darkTheme: darkTheme,
-                                themeMode: themeBrightness.appThemeMode,
+                                themeMode: batGlass ? ThemeMode.dark : themeBrightness.appThemeMode,
                                 locale: settingsLocale,
                                 localizationsDelegates: const [
                                   // order matters for resolution of sublocales (e.g. `en_Shaw` before `en`)

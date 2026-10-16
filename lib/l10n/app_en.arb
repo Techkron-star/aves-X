@@ -1205,5 +1205,8 @@
   "riskWarningContinue": "I understand",
   "nukeVaultsWarning": "This will permanently delete ALL vaults and everything inside them. It cannot be undone.",
   "appLockEnableWarning": "With the app lock, 4 wrong PINs wipe ALL the app data (vaults included). If you lose the Master Code, there is no recovery.",
-  "appLockPanicWarning": "Entering the panic PIN shows a fake error and wipes ALL the app data in the background. Use it with care."
+  "appLockPanicWarning": "Entering the panic PIN shows a fake error and wipes ALL the app data in the background. Use it with care.",
+  "settingsBatGlass": "Bat glass",
+  "settingsBatGlassSubtitle": "Black and ruby red liquid glass theme",
+  "experimentalLabel": "EXPERIMENTAL"
 }

@@ -28,6 +28,7 @@ class SettingsDefaults {
   static const themeBrightness = AvesThemeBrightness.system;
   static const themeColorMode = AvesThemeColorMode.polychrome;
   static const enableDynamicColor = true;
+  static const batGlass = false; // experimental ruby glass theme
   static const enableBlurEffect = true; // `enableBlurEffect` has a contextual default value
   static const maxBrightness = MaxBrightness.never;
   static const forceTvLayout = false;

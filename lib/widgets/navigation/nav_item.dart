@@ -66,7 +66,7 @@ class AvesNavItem extends Equatable {
       if (!context.mounted) return;
     }
 
-    if (route == CollectionPage.routeName && (filters?.any((v) => v is FavouriteFilter) ?? false)) {
+    if (this.route == CollectionPage.routeName && (filters?.any((v) => v is FavouriteFilter) ?? false)) {
       if (!await itemLocks.unlockFavourites(context)) return;
       if (!context.mounted) return;
     }

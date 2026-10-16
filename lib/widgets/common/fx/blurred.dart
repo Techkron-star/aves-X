@@ -1,6 +1,8 @@
 import 'dart:ui';
 
+import 'package:aves/model/settings/settings.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:provider/provider.dart';
 
 // stronger blur than before, for a frosted "liquid glass" look
 const _blurConfig = ImageFilterConfig.blur(sigmaX: 14, sigmaY: 14);
@@ -15,6 +17,13 @@ const _glassHighlight = LinearGradient(
   colors: [Color(0x26FFFFFF), Color(0x03FFFFFF)],
 );
 const _glassEdgeColor = Color(0x38FFFFFF);
+// "Bat glass" ruby variant
+const _rubyHighlight = LinearGradient(
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+  colors: [Color(0x55E0183E), Color(0x14400010)],
+);
+const _rubyEdgeColor = Color(0x80FF3B5C);
 
 class BlurredRect extends StatelessWidget {
   final bool enabled;
@@ -79,8 +88,8 @@ class BlurredRRect extends StatelessWidget {
           decoration: enabled
               ? BoxDecoration(
                   borderRadius: borderRadius,
-                  gradient: _glassHighlight,
-                  border: Border.all(color: _glassEdgeColor, width: .8),
+                  gradient: context.select<Settings, bool>((v) => v.batGlass) ? _rubyHighlight : _glassHighlight,
+                  border: Border.all(color: context.select<Settings, bool>((v) => v.batGlass) ? _rubyEdgeColor : _glassEdgeColor, width: .8),
                 )
               : const BoxDecoration(),
           child: child,
@@ -111,10 +120,10 @@ class BlurredOval extends StatelessWidget {
           // the decoration is always present so that the tree does not change when toggling the effect
           position: DecorationPosition.foreground,
           decoration: enabled
-              ? const BoxDecoration(
+              ? BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: _glassHighlight,
-                  border: Border.fromBorderSide(BorderSide(color: _glassEdgeColor, width: .8)),
+                  gradient: context.select<Settings, bool>((v) => v.batGlass) ? _rubyHighlight : _glassHighlight,
+                  border: Border.fromBorderSide(BorderSide(color: context.select<Settings, bool>((v) => v.batGlass) ? _rubyEdgeColor : _glassEdgeColor, width: .8)),
                 )
               : const BoxDecoration(),
           child: child,

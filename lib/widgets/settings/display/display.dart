@@ -35,6 +35,7 @@ class DisplaySection extends SettingsSection {
     SettingsTileDisplayThemeColorMode(),
     if (device.isDynamicColorAvailable) SettingsTileDisplayEnableDynamicColor(),
     SettingsTileDisplayEnableBlurEffect(),
+    SettingsTileDisplayBatGlass(),
     if (!settings.useTvLayout) SettingsTileDisplayMaxBrightness(),
     if (!settings.useTvLayout) SettingsTileDisplayRefreshRateMode(),
     if (!device.isTelevision) SettingsTileDisplayForceTvLayout(),
@@ -169,5 +170,32 @@ class SettingsTileDisplayForceTvLayout extends SettingsTile {
       settings.forceTvLayout = v;
     },
     title: title,
+  );
+}
+
+class SettingsTileDisplayBatGlass extends SettingsTile {
+  @override
+  List<String> get settingKeys => [SettingKeys.batGlassKey];
+
+  @override
+  String title(BuildContext context) => context.l10n.settingsBatGlass;
+
+  @override
+  Widget build(BuildContext context) => SettingsSwitchListTile(
+    selector: (context, s) => s.batGlass,
+    onChanged: (v) => settings.batGlass = v,
+    title: title,
+    subtitle: (context) => context.l10n.settingsBatGlassSubtitle,
+    trailing: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE0183E),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        context.l10n.experimentalLabel,
+        style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
+      ),
+    ),
   );
 }

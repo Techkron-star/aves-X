@@ -359,6 +359,7 @@ class Settings
           case SettingKeys.forceWesternArabicNumeralsKey:
           case SettingKeys.enableDynamicColorKey:
           case SettingKeys.enableBlurEffectKey:
+          case SettingKeys.batGlassKey:
           case SettingKeys.mustBackTwiceToExitKey:
           case SettingKeys.confirmCreateVaultKey:
           case SettingKeys.confirmDeleteForeverKey:

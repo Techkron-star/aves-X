@@ -19,6 +19,10 @@ mixin DisplaySettings on SettingsAccess {
 
   set enableDynamicColor(bool newValue) => set(SettingKeys.enableDynamicColorKey, newValue);
 
+  bool get batGlass => getBool(SettingKeys.batGlassKey) ?? SettingsDefaults.batGlass;
+
+  set batGlass(bool newValue) => set(SettingKeys.batGlassKey, newValue);
+
   bool get enableBlurEffect => getBool(SettingKeys.enableBlurEffectKey) ?? SettingsDefaults.enableBlurEffect;
 
   set enableBlurEffect(bool newValue) => set(SettingKeys.enableBlurEffectKey, newValue);

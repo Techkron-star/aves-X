@@ -283,6 +283,22 @@ class Themes {
 
   // black
 
+  // experimental "Bat glass": black backgrounds with ruby red translucent glass
+  static const batGlassRuby = Color(0xFFE0183E);
+
+  static ThemeData batGlassTheme(bool deviceInitialized, KnownLocale locale) {
+    final colors = _darkColorScheme(batGlassRuby).copyWith(
+      surface: Colors.black,
+      surfaceContainerLowest: Colors.black,
+      surfaceContainerLow: const Color(0xFF0E0407),
+      surfaceContainer: const Color(0xFF16060B),
+      surfaceContainerHigh: const Color(0xFF1F0910),
+      surfaceContainerHighest: const Color(0xFF2A0D16),
+      outlineVariant: const Color(0xFF5A1626),
+    );
+    return _baseDarkTheme(colors, deviceInitialized, locale);
+  }
+
   static ThemeData blackTheme(Color accentColor, bool deviceInitialized, KnownLocale locale) {
     final colors = _darkColorScheme(accentColor).copyWith(
       surface: Colors.black,

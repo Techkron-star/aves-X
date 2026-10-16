@@ -162,7 +162,7 @@ class _AppDrawerState extends State<AppDrawer> with WidgetsBindingObserver {
             );
           },
         ),
-      ),,
+      ),
         ),
       ),
     );

@@ -49,6 +49,7 @@ class SettingKeys {
   static const themeColorModeKey = 'theme_color_mode';
   static const enableDynamicColorKey = 'dynamic_color';
   static const enableBlurEffectKey = 'enable_overlay_blur_effect';
+  static const batGlassKey = 'bat_glass';
   static const maxBrightnessKey = 'max_brightness';
   static const forceTvLayoutKey = 'force_tv_layout';
 
