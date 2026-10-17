@@ -5,6 +5,7 @@ import 'package:aves/model/settings/enums/accessibility_timeout.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/colors.dart';
 import 'package:aves/theme/durations.dart';
+import 'package:aves/theme/themes.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/widgets/common/action_mixins/overlay_snack_bar.dart';
 import 'package:aves/widgets/common/basic/circle.dart';
@@ -13,6 +14,8 @@ import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/extensions/media_query.dart';
 import 'package:aves/widgets/common/extensions/theme.dart';
 import 'package:aves/widgets/dialogs/aves_dialog.dart';
+import 'package:flutter/foundation.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -134,6 +137,7 @@ mixin FeedbackMixin {
   }
 
   // report overlay for multiple operations
+  // the user can send it to the background (the operation goes on, with a small progress message)
 
   Future<void> showOpReport<T>({
     required BuildContext context,
@@ -142,32 +146,96 @@ mixin FeedbackMixin {
     VoidCallback? onCancel,
     Future<void> Function(Set<T> processed)? onDone,
   }) async {
-    final opCompleter = Completer();
-    await showAvesDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => ReportOverlay<T>(
-        opStream: opStream,
-        itemCount: itemCount,
-        onCancel: onCancel,
-        onDone: (processed) async {
-          Navigator.maybeOf(context)?.pop();
-          await onDone?.call(processed);
-          opCompleter.complete();
-        },
+    final processed = <T>{};
+    final progress = ValueNotifier<int>(0);
+    final finished = ValueNotifier<bool>(false);
+    final opCompleter = Completer<void>();
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    final l10n = context.l10n;
+    var minimized = false;
+    ScaffoldFeatureController<SnackBar, SnackBarClosedReason>? snackBar;
+
+    Future<void> complete() async {
+      snackBar?.close();
+      await onDone?.call(processed);
+      if (!opCompleter.isCompleted) opCompleter.complete();
+    }
+
+    opStream.listen(
+      (event) {
+        processed.add(event);
+        progress.value = processed.length;
+      },
+      onError: (error) => debugPrint('_showOpReport error=$error'),
+      onDone: () {
+        if (minimized) {
+          complete();
+        } else {
+          finished.value = true;
+        }
+      },
+    );
+
+    unawaited(
+      showAvesDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) => ReportOverlay(
+          progress: progress,
+          finished: finished,
+          itemCount: itemCount,
+          onCancel: onCancel,
+          onMinimize: () {
+            minimized = true;
+            Navigator.maybeOf(dialogContext)?.pop();
+            snackBar = messenger?.showSnackBar(
+              SnackBar(
+                duration: const Duration(days: 1),
+                behavior: SnackBarBehavior.floating,
+                content: ValueListenableBuilder<int>(
+                  valueListenable: progress,
+                  builder: (context, count, _) {
+                    final total = itemCount;
+                    return Row(
+                      children: [
+                        SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            value: total != null && total > 0 ? min(1.0, count / total) : null,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(total != null ? '$count/$total' : '$count'),
+                      ],
+                    );
+                  },
+                ),
+                action: onCancel != null ? SnackBarAction(label: l10n.cancelTooltip, onPressed: onCancel) : null,
+              ),
+            );
+          },
+          onClosed: () {
+            Navigator.maybeOf(dialogContext)?.pop();
+            complete();
+          },
+        ),
+        routeSettings: const RouteSettings(name: ReportOverlay.routeName),
       ),
-      routeSettings: const RouteSettings(name: ReportOverlay.routeName),
     );
     return opCompleter.future;
   }
 }
 
-class const ReportOverlay<T>({
+class const ReportOverlay({
   super.key,
-  required final Stream<T> opStream,
+  required final ValueListenable<int> progress,
+  required final ValueListenable<bool> finished,
   required final int? itemCount,
   required final VoidCallback? onCancel,
-  required final void Function(Set<T> processed) onDone,
+  required final VoidCallback onMinimize,
+  required final VoidCallback onClosed,
 }) extends StatefulWidget {
   static const routeName = '/dialog/report_overlay';
 
@@ -175,15 +243,12 @@ class const ReportOverlay<T>({
   static const double strokeWidth = 8.0;
 
   @override
-  State<ReportOverlay<T>> createState() => _ReportOverlayState<T>();
+  State<ReportOverlay> createState() => _ReportOverlayState();
 }
 
-class _ReportOverlayState<T> extends State<ReportOverlay<T>> with SingleTickerProviderStateMixin {
-  final processed = <T>{};
+class _ReportOverlayState extends State<ReportOverlay> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late CurvedAnimation _animation;
-
-  Stream<T> get opStream => widget.opStream;
 
   static const double fontSize = 18.0;
 
@@ -200,19 +265,18 @@ class _ReportOverlayState<T> extends State<ReportOverlay<T>> with SingleTickerPr
       curve: Curves.easeOutQuad,
     );
     _animationController.forward();
+    widget.finished.addListener(_onFinished);
+    if (widget.finished.value) _onFinished();
+  }
 
-    // do not handle completion inside `StreamBuilder`
-    // as it could be called multiple times
-    Future<void> onComplete() => _animationController.reverse().then((_) => widget.onDone(processed));
-    opStream.listen(
-      processed.add,
-      onError: (error) => debugPrint('_showOpReport error=$error'),
-      onDone: onComplete,
-    );
+  void _onFinished() {
+    if (!widget.finished.value) return;
+    _animationController.reverse().then((_) => widget.onClosed());
   }
 
   @override
   void dispose() {
+    widget.finished.removeListener(_onFinished);
     _animation.dispose();
     _animationController.dispose();
     super.dispose();
@@ -226,14 +290,15 @@ class _ReportOverlayState<T> extends State<ReportOverlay<T>> with SingleTickerPr
 
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final progressColor = colorScheme.primary;
+    final bat = settings.batGlass;
+    final glass = bat || settings.glassEverywhere;
+    final progressColor = bat ? Themes.batGlassRuby : colorScheme.primary;
     final animate = context.select<Settings, bool>((v) => v.animate);
     return PopScope(
       canPop: false,
-      child: StreamBuilder<T>(
-        stream: opStream,
-        builder: (context, _) {
-          final processedCount = processed.length;
+      child: ValueListenableBuilder<int>(
+        valueListenable: widget.progress,
+        builder: (context, processedCount, _) {
           final total = widget.itemCount;
           final double percent;
           final String text;
@@ -257,11 +322,20 @@ class _ReportOverlayState<T> extends State<ReportOverlay<T>> with SingleTickerPr
                   width: diameter + 2,
                   height: diameter + 2,
                   decoration: BoxDecoration(
-                    color: theme.isDark ? const Color(0xBB000000) : const Color(0xEEFFFFFF),
+                    // glass look in Bat-Glass and Glass everywhere
+                    color: bat ? const Color(0xCC14030A) : (theme.isDark ? const Color(0xBB000000) : const Color(0xEEFFFFFF)),
+                    gradient: glass
+                        ? LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: bat ? const [Color(0x66E0183E), Color(0xCC14030A)] : const [Color(0x33FFFFFF), Color(0x99000000)],
+                          )
+                        : null,
+                    border: glass ? Border.all(color: bat ? const Color(0x99FF6A80) : const Color(0x55FFFFFF), width: 1.2) : null,
                     shape: BoxShape.circle,
                   ),
                 ),
-                if (animate) const ReportProgressIndicator(opacity: .1),
+                if (animate) ReportProgressIndicator(opacity: .1, color: progressColor),
                 CircularPercentIndicator(
                   percent: percent,
                   lineWidth: strokeWidth,
@@ -276,6 +350,24 @@ class _ReportOverlayState<T> extends State<ReportOverlay<T>> with SingleTickerPr
                         )
                       : null,
                   animateFromLastPercent: true,
+                ),
+                // send to the background: the operation goes on
+                Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    width: diameter,
+                    height: diameter,
+                    alignment: const FractionalOffset(0.5, 0.13),
+                    child: Tooltip(
+                      message: context.l10n.operationBackgroundTooltip,
+                      preferBelow: false,
+                      child: IconButton(
+                        visualDensity: VisualDensity.compact,
+                        icon: const Icon(Symbols.close_fullscreen),
+                        onPressed: widget.onMinimize,
+                      ),
+                    ),
+                  ),
                 ),
                 if (widget.onCancel != null)
                   Material(
@@ -307,12 +399,13 @@ class _ReportOverlayState<T> extends State<ReportOverlay<T>> with SingleTickerPr
 class const ReportProgressIndicator({
   super.key,
   final double opacity = 1,
+  final Color? color,
 }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const diameter = ReportOverlay.diameter;
     const strokeWidth = ReportOverlay.strokeWidth;
-    final progressColor = Theme.of(context).colorScheme.primary;
+    final progressColor = color ?? Theme.of(context).colorScheme.primary;
 
     return Container(
       width: diameter,

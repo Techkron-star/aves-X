@@ -845,5 +845,6 @@
   "batCurityVaultEncDisableFailed": "Algunos archivos de las vaults no se pudieron descifrar, así que el cifrado sigue activado.",
   "settingsNavLens": "Bat-Lens",
   "settingsNavLensSubtitle": "Lente de cristal que se desliza sobre el elemento seleccionado de la barra de navegación (no en el estilo clásico). Si está desactivada, la pestaña actual brilla.",
-  "aboutForkedBy": "Fork por"
+  "aboutForkedBy": "Fork por",
+  "operationBackgroundTooltip": "Continuar en segundo plano"
 }

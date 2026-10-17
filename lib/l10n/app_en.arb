@@ -1138,5 +1138,6 @@
   "batCurityVaultEncDisableFailed": "Some vault files could not be decrypted, so encryption stays on.",
   "settingsNavLens": "Bat-Lens",
   "settingsNavLensSubtitle": "Glass lens that slides over the selected item of the navigation bar (not on the classic style). When off, the current tab glows instead.",
-  "aboutForkedBy": "Fork by"
+  "aboutForkedBy": "Fork by",
+  "operationBackgroundTooltip": "Continue in the background"
 }

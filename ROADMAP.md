@@ -112,13 +112,14 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 
 ## Next
 
-- [ ] `.nomedia` support: create/remove `.nomedia` in an album to hide it from other gallery apps, and show/respect existing ones
+- [ ] `.nomedia`: a toggle to show folders that contain no media, and creating/removing `.nomedia` files so other apps do not see chosen folders
 - [ ] Stickers: small labels next to feature names (e.g. "experimental") in Settings
 - [ ] Custom tags/captions for photos and videos (e.g. "foto madre 17/11/2017") searchable instead of the file name
 - [ ] Faster media transfer between albums (check what is a platform limit and what can be optimized)
 - [ ] Optional root mode: real secure destruction for the nuke (overwrite/shred instead of a normal delete) and other root-only improvements
 - [ ] Fix: the media scan notification sometimes never goes away
-- [ ] Glass-Everywhere 2.0: glass look for every screen, dialog and control, with a lower cost
+- [x] Operation progress (move/delete/copy) can be sent to the background (`close_fullscreen` button) and uses the Bat-Glass / glass look; more dialogs and animations to follow
+- [ ] Glass-Everywhere 2.0 (to be renamed **Bat-Cave**): glass look for every screen, dialog and control, with a lower cost
 - [ ] Bat-Curity: encryption of individually locked photos and albums
 - [ ] Attempt counters for bin / hidden-items / item locks
 - [ ] Metadata removal for HEIC, AVIF and GIF
