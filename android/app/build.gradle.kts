@@ -33,7 +33,6 @@ if (keystorePropertiesFile.exists()) {
     getEnv("storePassword", "AVES_STORE_PASSWORD")
     getEnv("keyAlias", "AVES_KEY_ALIAS")
     getEnv("keyPassword", "AVES_KEY_PASSWORD")
-    getEnv("googleApiKey", "AVES_GOOGLE_API_KEY")
 }
 
 android {
@@ -65,7 +64,6 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        manifestPlaceholders["googleApiKey"] = keystoreProperties["googleApiKey"] ?: "NONE"
         multiDexEnabled = true
     }
 
@@ -253,12 +251,4 @@ dependencies {
     ksp(libs.glideKsp)
 
     compileOnly(rootProject.findProject(":streams_channel")!!)
-}
-
-if (rootProject.extra["aves_useCrashlytics"] as Boolean) {
-    println("Building flavor with Crashlytics plugin")
-    apply(plugin = "com.google.gms.google-services")
-    apply(plugin = "com.google.firebase.crashlytics")
-} else {
-    println("Building flavor without reporting plugin")
 }

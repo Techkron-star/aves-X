@@ -12,9 +12,7 @@ androidxMedia = "1.8.0"
 androidxSecurity = "1.1.0"
 androidxWork = "2.12.0"
 commonswareCwac = "0.5.0"
-firebase = "3.0.8"
 glide = "5.0.9"
-gms = "4.5.0"
 jspecify = "1.0.1"
 junit = "6.1.3"
 kotlin = "2.4.20"
@@ -46,8 +44,6 @@ deckerst-pixymeta = { module = "com.github.deckerst:pixymeta-android", version.r
 deckerst-tiffbitmapfactory = { module = "com.github.deckerst:Android-TiffBitmapFactory", version.ref = "tiffBitmapFactory" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 glideKsp = { module = "com.github.bumptech.glide:ksp", version.ref = "glide" }
-google-firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics-gradle", version.ref = "firebase" }
-google-gms = { module = "com.google.gms:google-services", version.ref = "gms" }
 google-material = { module = "com.google.android.material:material", version.ref = "material" }
 gradle = { module = "com.android.tools.build:gradle", version.ref = "androidGradlePlugin" }
 jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }

@@ -19,7 +19,6 @@ class SettingsDefaults {
   static const hasAcceptedTerms = false;
   static const canUseAnalysisService = true;
   static const isInstalledAppAccessAllowed = false;
-  static const isErrorReportingAllowed = false;
   static const calendar = ACalendar.gregorian;
   static const tileLayout = TileLayout.grid;
   static const entryRenamingPattern = '<${DateNamingProcessor.key}, yyyyMMdd-HHmmss> <${NameNamingProcessor.key}>';

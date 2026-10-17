@@ -391,7 +391,6 @@ class Settings
               debugPrint('failed to import key=$key, value=$newValue is not a double');
             }
           case SettingKeys.isInstalledAppAccessAllowedKey:
-          case SettingKeys.isErrorReportingAllowedKey:
           case SettingKeys.forceWesternArabicNumeralsKey:
           case SettingKeys.enableDynamicColorKey:
           case SettingKeys.enableBlurEffectKey:

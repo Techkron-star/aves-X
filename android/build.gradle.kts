@@ -1,17 +1,5 @@
 buildscript {
-    extra["aves_useCrashlytics"] = gradle.startParameter.taskNames.any { it.contains("play", ignoreCase = true) }
-
     println("Tasks=${gradle.startParameter.taskNames}")
-    println("Extra=\n${extra.properties.entries.map { kv -> "  ${kv.key}=${kv.value}" }.sorted().joinToString("\n")}")
-
-    // conditional dependencies cannot be moved to the static `plugins` block
-    if (rootProject.extra["aves_useCrashlytics"] as Boolean) {
-        dependencies {
-            // GMS & Firebase Crashlytics (used by some flavors only)
-            classpath(libs.google.gms)
-            classpath(libs.google.firebase.crashlytics)
-        }
-    }
 }
 
 plugins {

@@ -16,13 +16,11 @@ class const PermissionsPage({super.key}) extends StatelessWidget {
 
   static const List<String> settingKeys = [
     SettingKeys.isInstalledAppAccessAllowedKey,
-    SettingKeys.isErrorReportingAllowedKey,
   ];
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final canEnableErrorReporting = context.select<AppFlavor, bool>((v) => v.canEnableErrorReporting);
     return AvesScaffold(
       appBar: AppBar(
         title: Text(l10n.settingsPermissionsPageTitle),
@@ -37,13 +35,6 @@ class const PermissionsPage({super.key}) extends StatelessWidget {
               title: (context) => context.l10n.settingsAllowInstalledAppAccess,
               subtitle: (context) => context.l10n.settingsAllowInstalledAppAccessSubtitle,
             ),
-            if (canEnableErrorReporting)
-              SettingsSwitchListTile(
-                selector: (context, s) => s.isErrorReportingAllowed,
-                onChanged: (v) => settings.isErrorReportingAllowed = v,
-                leading: const Icon(AIcons.bugReport),
-                title: (context) => context.l10n.settingsAllowErrorReporting,
-              ),
             const NotificationPermissionTile(),
             if (!settings.useTvLayout && device.canRequestMediaManagementPermission) const ManageMediaTile(),
           ],

@@ -79,9 +79,6 @@ class _SettingsTilePermissionsSubtitleState extends State<SettingsTilePermission
 
             final permissions = <(IconData, bool)>[];
             permissions.add((AIcons.app, context.select<Settings, bool>((s) => s.isInstalledAppAccessAllowed)));
-            if (context.select<AppFlavor, bool>((v) => v.canEnableErrorReporting)) {
-              permissions.add((AIcons.bugReport, context.select<Settings, bool>((s) => s.isErrorReportingAllowed)));
-            }
             permissions.add((AIcons.notifications, areNotificationsEnabled));
             if (!settings.useTvLayout && device.canRequestMediaManagementPermission) {
               permissions.add((AIcons.allCollection, isMediaManagementGranted));

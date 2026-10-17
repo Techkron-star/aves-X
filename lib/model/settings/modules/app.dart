@@ -19,10 +19,6 @@ mixin AppSettings on SettingsAccess {
 
   set isInstalledAppAccessAllowed(bool newValue) => set(SettingKeys.isInstalledAppAccessAllowedKey, newValue);
 
-  bool get isErrorReportingAllowed => getBool(SettingKeys.isErrorReportingAllowedKey) ?? SettingsDefaults.isErrorReportingAllowed;
-
-  set isErrorReportingAllowed(bool newValue) => set(SettingKeys.isErrorReportingAllowedKey, newValue);
-
   String? get autoExportPath => getString(SettingKeys.autoExportPathKey);
 
   set autoExportPath(String? newValue) => set(SettingKeys.autoExportPathKey, newValue);

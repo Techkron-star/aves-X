@@ -141,7 +141,7 @@ class PlatformMetadataEditService implements MetadataEditService {
     }
   }
 
-  // distinct exceptions to convince Crashlytics to split reports into distinct issues
+  // distinct exceptions to split reports into distinct issues
   // The distinct debug statement is there to make the body unique, so that the methods are not merged at compile time.
 
   Future<void> exifInterface(CustomPlatformException e) {

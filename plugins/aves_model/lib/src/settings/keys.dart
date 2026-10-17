@@ -22,7 +22,6 @@ class SettingKeys {
   static const hasAcceptedTermsKey = 'has_accepted_terms';
   static const canUseAnalysisServiceKey = 'can_use_analysis_service';
   static const isInstalledAppAccessAllowedKey = 'is_installed_app_access_allowed';
-  static const isErrorReportingAllowedKey = 'is_crashlytics_enabled';
   static const autoExportPathKey = 'auto_export_path';
   static const localeKey = 'locale';
   static const calendarKey = 'calendar';

@@ -162,11 +162,6 @@ class Dependencies {
 
   static const List<Dependency> _flutterPluginsPlayOnly = [
     ..._googleMobileServices,
-    Dependency(
-      name: 'FlutterFire (Core, Crashlytics)',
-      license: bsd3,
-      sourceUrl: 'https://github.com/FirebaseExtended/flutterfire',
-    ),
   ];
 
   static List<Dependency> flutterPlugins(AppFlavor flavor) => [

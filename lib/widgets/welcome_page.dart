@@ -45,7 +45,6 @@ class _WelcomePageState extends State<WelcomePage> {
     // explicitly set consent values to current defaults
     // so they are not subject to future default changes
     settings.isInstalledAppAccessAllowed = SettingsDefaults.isInstalledAppAccessAllowed;
-    settings.isErrorReportingAllowed = SettingsDefaults.isErrorReportingAllowed;
   }
 
   @override
@@ -162,7 +161,6 @@ class _WelcomePageState extends State<WelcomePage> {
 
   List<Widget> _buildControls(BuildContext context) {
     final l10n = context.l10n;
-    final canEnableErrorReporting = context.select<AppFlavor, bool>((v) => v.canEnableErrorReporting);
     const contentPadding = EdgeInsets.symmetric(horizontal: 8);
     final switches = ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: MarkdownContainer.mobileMaxWidth),
@@ -177,14 +175,6 @@ class _WelcomePageState extends State<WelcomePage> {
             subtitle: Text([l10n.welcomeOptional, l10n.settingsAllowInstalledAppAccessSubtitle].join(AText.separator)),
             contentPadding: contentPadding,
           ),
-          if (canEnableErrorReporting)
-            SwitchListTile(
-              value: settings.isErrorReportingAllowed,
-              onChanged: (v) => setState(() => settings.isErrorReportingAllowed = v),
-              title: Text(l10n.settingsAllowErrorReporting),
-              subtitle: Text(l10n.welcomeOptional),
-              contentPadding: contentPadding,
-            ),
           SwitchListTile(
             // key is expected by test driver
             key: const Key('terms-checkbox'),

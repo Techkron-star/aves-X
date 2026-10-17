@@ -545,12 +545,8 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
 
   Future<void> _setupErrorReporting() async {
     await reportService.init();
-    settings.updateStream
-        .where((event) => event.key == SettingKeys.isErrorReportingAllowedKey)
-        .listen(
-          (_) => reportService.setCollectionEnabled(settings.isErrorReportingAllowed),
-        );
-    await reportService.setCollectionEnabled(settings.isErrorReportingAllowed);
+    // nothing is ever sent anywhere: errors are only logged on the device
+    await reportService.setCollectionEnabled(false);
 
     FlutterError.onError = reportService.recordFlutterError;
     final now = DateTime.now();

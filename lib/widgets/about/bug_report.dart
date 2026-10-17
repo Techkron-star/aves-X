@@ -173,7 +173,6 @@ class _BugReportContentState extends State<BugReportContent> with FeedbackMixin 
       'System locales: ${WidgetsBinding.instance.platformDispatcher.locales.join(', ')}',
       'Storage volumes: ${storageVolumes.map((v) => v.path).join(', ')}',
       'SAF grants: ${safGrants.join(', ')}',
-      'Error reporting: ${settings.isErrorReportingAllowed}',
       'Collection: $entryCount items, $albumCount albums, $tagCount tags',
     ].join('\n');
   }
