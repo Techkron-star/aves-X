@@ -95,3 +95,17 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 - No se compila en el entorno de Claude: se sube a `develop`, se lanza el workflow *Build libre APK* y los errores se leen de las anotaciones.
 - Los archivos de `flavors/` del proyecto original están desactualizados; el workflow genera la variante libre a partir de `pubspec.yaml`.
 - El chequeo `Quality check` del fork marca avisos de estilo en análisis estático (no afectan al APK).
+
+## Bat-curity (in progress)
+
+- [x] "Security" settings category (App lock, Master Code, nuke, hashing)
+- [x] Argon2id + random salt hashing of all credentials (opt-in, only the Master Code can disable it; offered after creating the Master Code)
+- [ ] Encryption of vault files with an Android Keystore key
+- [ ] Encryption of individually locked photos and albums (moved to app-private storage)
+
+## Other recent additions
+
+- [x] Lock animation (chains + padlock; ruby chains + bat padlock in Bat glass)
+- [x] Nav bar lens (rounded/rectangular), liquid icons in Bat glass, glass controls
+- [x] Performance mode, automatic deletion, PNG/WebP metadata removal, lock from the viewer
+- [x] Fix: nav bar vanishing after turning the TV layout off (inherited from Aves)
