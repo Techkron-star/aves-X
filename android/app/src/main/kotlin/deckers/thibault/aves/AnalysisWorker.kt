@@ -34,6 +34,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -46,11 +48,16 @@ class AnalysisWorker(context: Context, parameters: WorkerParameters) : Coroutine
     private var flutterEngine: FlutterEngine? = null
     private var backgroundChannel: MethodChannel? = null
 
+    // set when the work is over, so that no late update can bring the notification back
+    @Volatile
+    private var finished = false
+
     override suspend fun doWork(): Result {
         Log.i(LOG_TAG, "Start analysis worker $id")
         createNotificationChannel()
         val foregroundInfo = createForegroundInfo()
         if (!isStopped) {
+          try {
             setForeground(foregroundInfo)
             suspendCancellableCoroutine { cont ->
                 workCont = cont
@@ -70,7 +77,12 @@ class AnalysisWorker(context: Context, parameters: WorkerParameters) : Coroutine
                 }
                 onStart()
             }
-            dispose()
+          } finally {
+            // also when cancelled or failed: the notification must never stay behind
+            finished = true
+            NotificationManagerCompat.from(applicationContext).cancel(NOTIFICATION_ID)
+            withContext(NonCancellable) { dispose() }
+          }
         }
         return Result.success()
     }
@@ -163,6 +175,7 @@ class AnalysisWorker(context: Context, parameters: WorkerParameters) : Coroutine
             "updateNotification" -> defaultScope.launch { safeSuspend(call, result, ::updateNotification) }
 
             "stop" -> {
+                finished = true
                 workCont?.takeIf { it.isActive }?.resume(null)
                 result.success(null)
             }
@@ -212,7 +225,7 @@ class AnalysisWorker(context: Context, parameters: WorkerParameters) : Coroutine
         val title = call.argument<String>("title")
         val message = call.argument<String>("message")
         val foregroundInfo = createForegroundInfo(title, message)
-        if (!isStopped) {
+        if (!isStopped && !finished) {
             try {
                 setForeground(foregroundInfo)
             } catch (ex: Exception) {
