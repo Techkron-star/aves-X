@@ -30,12 +30,16 @@ abstract class SecurityService {
 
   // same for all the vaults
   Future<VaultCryptoReport?> cryptAllVaults({required bool encrypt});
+
+  // `null` when the encryption key works, the error otherwise
+  Future<String?> cryptSelfTest();
 }
 
 class VaultCryptoReport {
   final int done, skipped, failed;
+  final List<String> errors;
 
-  const VaultCryptoReport({required this.done, required this.skipped, required this.failed});
+  const VaultCryptoReport({required this.done, required this.skipped, required this.failed, this.errors = const []});
 
   bool get success => failed == 0;
 }
@@ -111,11 +115,22 @@ class PlatformSecurityService implements SecurityService {
           done: (result['done'] as num).toInt(),
           skipped: (result['skipped'] as num).toInt(),
           failed: (result['failed'] as num).toInt(),
+          errors: (result['errors'] as List?)?.map((v) => v.toString()).toList() ?? const [],
         );
       }
     } on PlatformException catch (e, stack) {
       await reportService.recordError(e, stack);
     }
     return null;
+  }
+
+  @override
+  Future<String?> cryptSelfTest() async {
+    try {
+      return await _platform.invokeMethod<String>('cryptSelfTest');
+    } on PlatformException catch (e, stack) {
+      await reportService.recordError(e, stack);
+      return e.message ?? e.code;
+    }
   }
 }

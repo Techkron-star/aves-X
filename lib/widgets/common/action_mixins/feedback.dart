@@ -352,37 +352,40 @@ class _ReportOverlayState extends State<ReportOverlay> with SingleTickerProvider
                   animateFromLastPercent: true,
                 ),
                 // send to the background: the operation goes on
-                Material(
-                  color: Colors.transparent,
-                  child: Container(
-                    width: diameter,
-                    height: diameter,
-                    alignment: const FractionalOffset(0.5, 0.13),
-                    child: Tooltip(
-                      message: context.l10n.operationBackgroundTooltip,
-                      preferBelow: false,
-                      child: IconButton(
-                        visualDensity: VisualDensity.compact,
-                        icon: const Icon(Symbols.close_fullscreen),
-                        onPressed: widget.onMinimize,
+                SizedBox(
+                  width: diameter,
+                  height: diameter,
+                  child: Align(
+                    alignment: const Alignment(0, -.74),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Tooltip(
+                        message: context.l10n.operationBackgroundTooltip,
+                        preferBelow: false,
+                        child: IconButton(
+                          visualDensity: VisualDensity.compact,
+                          icon: const Icon(Symbols.close_fullscreen),
+                          onPressed: widget.onMinimize,
+                        ),
                       ),
                     ),
                   ),
                 ),
                 if (widget.onCancel != null)
-                  Material(
-                    color: Colors.transparent,
-                    child: Container(
-                      width: diameter,
-                      height: diameter,
-                      margin: const EdgeInsets.only(top: fontSize),
-                      alignment: const FractionalOffset(0.5, 0.75),
-                      child: Tooltip(
-                        message: context.l10n.cancelTooltip,
-                        preferBelow: false,
-                        child: IconButton(
-                          icon: const Icon(AIcons.cancel),
-                          onPressed: widget.onCancel,
+                  SizedBox(
+                    width: diameter,
+                    height: diameter,
+                    child: Align(
+                      alignment: const Alignment(0, .62),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Tooltip(
+                          message: context.l10n.cancelTooltip,
+                          preferBelow: false,
+                          child: IconButton(
+                            icon: const Icon(AIcons.cancel),
+                            onPressed: widget.onCancel,
+                          ),
                         ),
                       ),
                     ),

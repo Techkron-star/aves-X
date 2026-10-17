@@ -846,5 +846,13 @@
   "settingsNavLens": "Bat-Lens",
   "settingsNavLensSubtitle": "Lente de cristal que se desliza sobre el elemento seleccionado de la barra de navegación (no en el estilo clásico). Si está desactivada, la pestaña actual brilla.",
   "aboutForkedBy": "Fork por",
-  "operationBackgroundTooltip": "Continuar en segundo plano"
+  "operationBackgroundTooltip": "Continuar en segundo plano",
+  "stickerNew": "Nuevo",
+  "stickerExperimental": "Experimental",
+  "batCurityForceDecryptTitle": "Forzar descifrado de las vaults",
+  "batCurityForceDecryptSubtitle": "Herramienta de emergencia: intenta descifrar ahora todos los archivos de las vaults e indica cuáles fallan. Pide el Código Maestro.",
+  "batCurityForceDecryptError": "No se pudo ejecutar el descifrado. Puede que la clave de cifrado no esté disponible en este dispositivo.",
+  "batCurityForceDecryptResult": "Descifrados: {done}. Ya legibles: {skipped}. Fallidos: {failed}.",
+  "batCurityVaultEncSelfTestFailed": "La clave de cifrado no funciona en este dispositivo, así que no se cifró nada: {error}",
+  "vaultDecryptPartialWarning": "La vault se abrió, pero {count} archivos no se pudieron descifrar. Puedes probar Ajustes → Seguridad → Forzar descifrado de las vaults."
 }

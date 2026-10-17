@@ -1,3 +1,4 @@
+import 'package:aves/widgets/common/basic/feature_sticker.dart';
 import 'package:aves/model/security/bat_curity.dart';
 import 'package:aves/theme/colors.dart';
 import 'package:aves/theme/icons.dart';
@@ -31,6 +32,7 @@ class SecuritySection extends SettingsSection {
   Future<List<SettingsTile>> tiles(BuildContext context) => Future.value([
     SettingsTileSecurityHashing(),
     SettingsTileSecurityVaultEncryption(),
+    SettingsTileSecurityForceDecrypt(),
     SettingsTilePrivacyGroup(PrivacyGroup.appLock),
     SettingsTilePrivacyGroup(PrivacyGroup.destruction),
   ]);
@@ -114,7 +116,13 @@ class SettingsTileSecurityVaultEncryption extends SettingsTile {
       final l10n = context.l10n;
       final error = Theme.of(context).colorScheme.error;
       return SwitchListTile(
-        title: Text(title(context)),
+        title: Row(
+          children: [
+            Flexible(child: Text(title(context))),
+            const SizedBox(width: 8),
+            const FeatureSticker(kind: StickerKind.experimental),
+          ],
+        ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -134,5 +142,20 @@ class SettingsTileSecurityVaultEncryption extends SettingsTile {
         },
       );
     },
+  );
+}
+
+class SettingsTileSecurityForceDecrypt extends SettingsTile {
+  @override
+  List<String> get settingKeys => [];
+
+  @override
+  String title(BuildContext context) => context.l10n.batCurityForceDecryptTitle;
+
+  @override
+  Widget build(BuildContext context) => ListTile(
+    title: Text(title(context)),
+    subtitle: Text(context.l10n.batCurityForceDecryptSubtitle),
+    onTap: () => batCurity.forceDecryptAll(context),
   );
 }

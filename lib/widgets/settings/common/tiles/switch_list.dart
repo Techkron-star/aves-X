@@ -15,6 +15,7 @@ class const SettingsSwitchListTile({
   required final TitleBuilder title,
   final TitleBuilder? subtitle,
   final Widget? trailing,
+  final Widget? sticker,
 }) extends StatefulWidget {
   static const disabledOpacity = .2;
 
@@ -32,6 +33,16 @@ class _SettingsSwitchListTileState extends State<SettingsSwitchListTile> {
         Widget titleWidget = Text(widget.title(context) ?? AText.valueNotAvailable);
         final subtitle = widget.subtitle?.call(context);
         final trailing = widget.trailing;
+        final sticker = widget.sticker;
+        if (sticker != null) {
+          titleWidget = Row(
+            children: [
+              Flexible(child: titleWidget),
+              const SizedBox(width: 8),
+              sticker,
+            ],
+          );
+        }
         final onChanged = widget.onChanged;
 
         if (leading != null) {

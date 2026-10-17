@@ -1139,5 +1139,40 @@
   "settingsNavLens": "Bat-Lens",
   "settingsNavLensSubtitle": "Glass lens that slides over the selected item of the navigation bar (not on the classic style). When off, the current tab glows instead.",
   "aboutForkedBy": "Fork by",
-  "operationBackgroundTooltip": "Continue in the background"
+  "operationBackgroundTooltip": "Continue in the background",
+  "stickerNew": "New",
+  "stickerExperimental": "Experimental",
+  "batCurityForceDecryptTitle": "Force decrypt vault files",
+  "batCurityForceDecryptSubtitle": "Emergency tool: tries to decrypt every vault file now and reports the ones that fail. Needs the Master Code.",
+  "batCurityForceDecryptError": "The decryption could not run. The encryption key may be unavailable on this device.",
+  "batCurityForceDecryptResult": "Decrypted: {done}. Already readable: {skipped}. Failed: {failed}.",
+  "@batCurityForceDecryptResult": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      }
+    }
+  },
+  "batCurityVaultEncSelfTestFailed": "The encryption key does not work on this device, so nothing was encrypted: {error}",
+  "@batCurityVaultEncSelfTestFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultDecryptPartialWarning": "The vault was opened, but {count} files could not be decrypted. You can try Settings → Security → Force decrypt vault files.",
+  "@vaultDecryptPartialWarning": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

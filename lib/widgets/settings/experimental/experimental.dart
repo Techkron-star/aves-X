@@ -1,3 +1,4 @@
+import 'package:aves/widgets/common/basic/feature_sticker.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/colors.dart';
 import 'package:aves/theme/icons.dart';
@@ -81,5 +82,6 @@ class SettingsTileExperimentalGlassEverywhere extends SettingsTile {
     onChanged: (v) => settings.glassEverywhere = v,
     title: title,
     subtitle: (context) => context.l10n.settingsGlassEverywhereSubtitle,
+    sticker: const FeatureSticker(kind: StickerKind.experimental),
   );
 }

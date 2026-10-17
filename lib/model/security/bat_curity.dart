@@ -1,3 +1,5 @@
+import 'package:aves/widgets/common/extensions/build_context.dart';
+import 'package:aves/widgets/dialogs/aves_dialog.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
@@ -51,15 +53,16 @@ class BatCurity extends ChangeNotifier {
     return completer.future;
   }
 
-  // `true` if the vault does not need decryption, or was decrypted
-  Future<bool> decryptVault(String name) async {
-    if (!_vaultEncryption) return true;
-    final report = await _enqueue(() => securityService.cryptVault(name, encrypt: false));
-    return report != null && report.success;
+  // `null` when nothing had to be done, otherwise the report (with the errors, if any)
+  Future<VaultCryptoReport?> decryptVault(String name) async {
+    if (!_vaultEncryption) return null;
+    return _enqueue(() => securityService.cryptVault(name, encrypt: false));
   }
 
   Future<bool> encryptVault(String name) async {
     if (!_vaultEncryption) return true;
+    // never touch the files if the key does not work
+    if (await securityService.cryptSelfTest() != null) return false;
     final report = await _enqueue(() => securityService.cryptVault(name, encrypt: true));
     return report != null && report.success;
   }
@@ -69,7 +72,24 @@ class BatCurity extends ChangeNotifier {
     // may run before `init`
     if (await securityService.readValue<String>(_vaultEncKey) != '1') return;
     _vaultEncryption = true;
+    if (await securityService.cryptSelfTest() != null) return;
     await _enqueue(() => securityService.cryptAllVaults(encrypt: true));
+  }
+
+  // emergency tool (needs the Master Code): decrypts every vault file it can, and reports what could not be
+  Future<void> forceDecryptAll(BuildContext context) async {
+    if (!await MasterCode.require(context) || !context.mounted) return;
+
+    final report = await _enqueue(() => securityService.cryptAllVaults(encrypt: false));
+    if (!context.mounted) return;
+    final l10n = context.l10n;
+    final message = report == null
+        ? l10n.batCurityForceDecryptError
+        : [
+            l10n.batCurityForceDecryptResult(report.done, report.skipped, report.failed),
+            if (report.errors.isNotEmpty) report.errors.take(5).join('\n'),
+          ].join('\n\n');
+    await showWarningDialog(context: context, message: message);
   }
 
   // enabling encrypts the locked vaults now (the others when they lock);
@@ -79,6 +99,12 @@ class BatCurity extends ChangeNotifier {
     if (!await MasterCode.require(context)) return false;
 
     if (value) {
+      // the key must work before anything is encrypted
+      final error = await securityService.cryptSelfTest();
+      if (error != null) {
+        if (context.mounted) await showWarningDialog(context: context, message: context.l10n.batCurityVaultEncSelfTestFailed(error));
+        return false;
+      }
       _vaultEncryption = true;
       await securityService.writeValue<String>(_vaultEncKey, '1');
       for (final details in vaults.all.where((v) => vaults.isLocked(v.path))) {

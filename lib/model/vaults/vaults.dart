@@ -1,3 +1,5 @@
+import 'package:aves/widgets/common/extensions/build_context.dart';
+import 'package:aves/widgets/dialogs/aves_dialog.dart';
 import 'package:aves/model/security/bat_curity.dart';
 import 'dart:async';
 import 'dart:io';
@@ -167,11 +169,19 @@ class Vaults {
   Future<void> unlock(BuildContext context, String dirPath) async {
     if (!vaults.isVault(dirPath) || !vaults.isLocked(dirPath)) return;
 
-    // decrypt the files first (Bat-curity); the vault stays locked if it fails
+    // decrypt the files first (Bat-Curity). A failure never prevents opening the vault:
+    // the files that cannot be decrypted are reported, and the others stay accessible
     final vaultName = detailsForPath(dirPath)?.name;
-    if (vaultName != null && !await batCurity.decryptVault(vaultName)) {
-      await reportService.recordError('Failed to decrypt vault=$vaultName');
-      return;
+    if (vaultName != null) {
+      final report = await batCurity.decryptVault(vaultName);
+      if (report != null && !report.success && context.mounted) {
+        unawaited(
+          showWarningDialog(
+            context: context,
+            message: [context.l10n.vaultDecryptPartialWarning(report.failed), ...report.errors.take(3)].join('\n\n'),
+          ),
+        );
+      }
     }
 
     // recover untracked vault items

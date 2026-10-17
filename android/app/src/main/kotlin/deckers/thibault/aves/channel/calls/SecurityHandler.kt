@@ -34,6 +34,7 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
             "wipeAppData" -> safe(call, result, ::wipeAppData)
             "cryptVault" -> ioScope.launch { safe(call, result, ::cryptVault) }
             "cryptAllVaults" -> ioScope.launch { safe(call, result, ::cryptAllVaults) }
+            "cryptSelfTest" -> ioScope.launch { safe(call, result, ::cryptSelfTest) }
             else -> result.notImplemented()
         }
     }
@@ -129,6 +130,7 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
     }
 
     // encrypts or decrypts the files of every vault
+    @Suppress("UNCHECKED_CAST")
     private fun cryptAllVaults(call: MethodCall, result: MethodChannel.Result) {
         val encrypt = call.argument<Boolean>("encrypt")
         if (encrypt == null) {
@@ -139,20 +141,32 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
         var done = 0
         var skipped = 0
         var failed = 0
+        val errors = mutableListOf<String>()
         File(StorageUtils.getVaultRoot(context)).listFiles()?.filter { it.isDirectory }?.forEach { dir ->
             val report = synchronizedCrypt(dir, encrypt)
-            done += report["done"] ?: 0
-            skipped += report["skipped"] ?: 0
-            failed += report["failed"] ?: 0
+            done += report["done"] as Int
+            skipped += report["skipped"] as Int
+            failed += report["failed"] as Int
+            errors.addAll(report["errors"] as List<String>)
         }
-        result.success(hashMapOf("done" to done, "skipped" to skipped, "failed" to failed))
+        result.success(hashMapOf("done" to done, "skipped" to skipped, "failed" to failed, "errors" to errors))
     }
 
     // one operation at a time, as they replace files
     @Synchronized
-    private fun synchronizedCrypt(dir: File, encrypt: Boolean): Map<String, Int> {
-        val report = vaultCrypto.processDirectory(dir, encrypt)
-        return hashMapOf("done" to report.done, "skipped" to report.skipped, "failed" to report.failed)
+    private fun synchronizedCrypt(dir: File, encrypt: Boolean): Map<String, Any> {
+        return try {
+            val report = vaultCrypto.processDirectory(dir, encrypt)
+            hashMapOf("done" to report.done, "skipped" to report.skipped, "failed" to report.failed, "errors" to report.errors)
+        } catch (e: Throwable) {
+            // e.g. the key cannot be used: the details are reported instead of failing silently
+            hashMapOf("done" to 0, "skipped" to 0, "failed" to 1, "errors" to listOf("${e.javaClass.simpleName}: ${e.message}"))
+        }
+    }
+
+    // `null` when the encryption key works, the error otherwise
+    private fun cryptSelfTest(@Suppress("unused_parameter") call: MethodCall, result: MethodChannel.Result) {
+        result.success(vaultCrypto.selfTest())
     }
 
     companion object {

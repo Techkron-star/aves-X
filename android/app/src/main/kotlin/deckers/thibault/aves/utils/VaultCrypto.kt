@@ -27,13 +27,28 @@ class VaultCrypto(private val context: Context) {
             .getPrimitive(StreamingAead::class.java)
     }
 
-    data class Report(val done: Int, val skipped: Int, val failed: Int)
+    data class Report(val done: Int, val skipped: Int, val failed: Int, val errors: List<String> = listOf())
+
+    // round trip on a small buffer: `null` when the key works, the error otherwise
+    fun selfTest(): String? {
+        return try {
+            val data = ByteArray(10000) { (it % 251).toByte() }
+            val encrypted = java.io.ByteArrayOutputStream().also { out ->
+                streamingAead.newEncryptingStream(out, ASSOCIATED_DATA).use { it.write(data) }
+            }.toByteArray()
+            val decrypted = streamingAead.newDecryptingStream(encrypted.inputStream(), ASSOCIATED_DATA).use { it.readBytes() }
+            if (decrypted.contentEquals(data)) null else "round trip mismatch"
+        } catch (e: Throwable) {
+            "${e.javaClass.simpleName}: ${e.message}"
+        }
+    }
 
     // encrypts (or decrypts) all the files directly inside the directory
     fun processDirectory(dir: File, encrypt: Boolean): Report {
         var done = 0
         var skipped = 0
         var failed = 0
+        val errors = mutableListOf<String>()
         val files = dir.listFiles() ?: return Report(0, 0, 0)
         for (file in files) {
             if (file.name.endsWith(TEMP_SUFFIX)) {
@@ -50,14 +65,16 @@ class VaultCrypto(private val context: Context) {
                     done++
                 } else {
                     failed++
+                    errors.add("${file.name}: could not replace the file")
                 }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 Log.w(LOG_TAG, "failed to process file=${file.path} encrypt=$encrypt", e)
                 File(file.path + TEMP_SUFFIX).delete()
                 failed++
+                errors.add("${file.name}: ${e.javaClass.simpleName}: ${e.message}")
             }
         }
-        return Report(done, skipped, failed)
+        return Report(done, skipped, failed, errors)
     }
 
     private fun isEncrypted(file: File): Boolean {

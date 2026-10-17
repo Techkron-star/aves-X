@@ -1,3 +1,4 @@
+import 'package:aves/widgets/common/basic/feature_sticker.dart';
 import 'package:aves/model/settings/enums/nav_bar_style.dart';
 import 'dart:async';
 
@@ -189,6 +190,7 @@ class SettingsTileDisplayBatGlass extends SettingsTile {
     onChanged: (v) => settings.batGlass = v,
     title: title,
     subtitle: (context) => context.l10n.settingsBatGlassSubtitle,
+    sticker: const FeatureSticker(kind: StickerKind.experimental),
     trailing: Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
@@ -250,5 +252,6 @@ class SettingsTileDisplayNavLens extends SettingsTile {
     onChanged: (v) => settings.navLens = v,
     title: title,
     subtitle: (context) => context.l10n.settingsNavLensSubtitle,
+    sticker: const FeatureSticker(kind: StickerKind.newFeature),
   );
 }
