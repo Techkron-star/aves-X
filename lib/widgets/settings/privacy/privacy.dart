@@ -58,8 +58,6 @@ class PrivacySection extends SettingsSection {
       if (!settings.useTvLayout) SettingsTilePrivacyEnableBin(),
       if (!settings.useTvLayout) SettingsTilePrivacyGroup(PrivacyGroup.locks),
       if (!settings.useTvLayout) SettingsTilePrivacyGroup(PrivacyGroup.vaults),
-      if (!settings.useTvLayout) SettingsTilePrivacyGroup(PrivacyGroup.appLock),
-      if (!settings.useTvLayout) SettingsTilePrivacyGroup(PrivacyGroup.destruction),
       if (!settings.useTvLayout) SettingsTilePrivacyAutoDelete(),
       SettingsTilePrivacySaveSearchHistory(),
       if (!settings.useTvLayout) SettingsTilePrivacyAutoExportSettings(),

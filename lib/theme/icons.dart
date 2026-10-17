@@ -52,6 +52,7 @@ class AIcons {
   static const path = Symbols.account_tree;
   static const privacy = Symbols.shield_person;
   static const experimental = Symbols.science;
+  static const security = Symbols.encrypted;
   static const rating = Symbols.star;
   static const ratingRejected = MdiIcons.starMinusOutline;
   static const ratingUnrated = MdiIcons.starOffOutline;

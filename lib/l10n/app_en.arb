@@ -21,7 +21,6 @@
       }
     }
   },
-
   "timeSeconds": "{count, plural, =1{{count} second} other{{count} seconds}}",
   "@timeSeconds": {
     "placeholders": {
@@ -58,7 +57,6 @@
       }
     }
   },
-
   "applyButtonLabel": "APPLY",
   "createButtonLabel": "CREATE",
   "deleteButtonLabel": "DELETE",
@@ -67,7 +65,6 @@
   "hideButtonLabel": "HIDE",
   "continueButtonLabel": "CONTINUE",
   "saveCopyButtonLabel": "SAVE COPY",
-
   "applyTooltip": "Apply",
   "cancelTooltip": "Cancel",
   "changeTooltip": "Change",
@@ -81,15 +78,12 @@
   "saveTooltip": "Save",
   "stopTooltip": "Stop",
   "pickTooltip": "Pick",
-
   "doubleBackExitMessage": "Tap “back” again to exit.",
   "doNotAskAgain": "Do not ask again",
-
   "sourceStateLoading": "Loading",
   "sourceStateCataloguing": "Cataloguing",
   "sourceStateLocatingCountries": "Locating countries",
   "sourceStateLocatingPlaces": "Locating places",
-
   "chipActionDelete": "Delete",
   "chipActionRemove": "Remove",
   "chipActionShowCollection": "Show in Collection",
@@ -114,7 +108,6 @@
   "chipActionCreateAlbum": "Create album",
   "chipActionCreateVault": "Create vault",
   "chipActionConfigureVault": "Configure vault",
-
   "entryActionCopyToClipboard": "Copy to clipboard",
   "entryActionDelete": "Delete",
   "entryActionConvert": "Convert",
@@ -141,7 +134,6 @@
   "entryActionRotateScreen": "Rotate screen",
   "entryActionAddFavourite": "Add to favorites",
   "entryActionRemoveFavourite": "Remove from favorites",
-
   "videoActionCaptureFrame": "Capture frame",
   "videoActionMute": "Mute",
   "videoActionUnmute": "Unmute",
@@ -154,17 +146,13 @@
   "videoActionSelectStreams": "Select tracks",
   "videoActionSetSpeed": "Playback speed",
   "videoActionABRepeat": "A-B repeat",
-
   "videoRepeatActionSetStart": "Set start",
   "videoRepeatActionSetEnd": "Set end",
-
   "viewerActionSettings": "Settings",
   "viewerActionLock": "Lock viewer",
   "viewerActionUnlock": "Unlock viewer",
-
   "slideshowActionResume": "Resume",
   "slideshowActionShowInCollection": "Show in Collection",
-
   "entryInfoActionEditDate": "Edit date & time",
   "entryInfoActionEditLocation": "Edit location",
   "entryInfoActionEditTitleDescription": "Edit title & description",
@@ -173,16 +161,12 @@
   "entryInfoActionRemoveMetadata": "Remove metadata",
   "entryInfoActionExportMetadata": "Export metadata",
   "entryInfoActionRemoveLocation": "Remove location",
-
   "editorActionTransform": "Transform",
-
   "editorTransformCrop": "Crop",
   "editorTransformRotate": "Rotate",
-
   "cropAspectRatioFree": "Free",
   "cropAspectRatioOriginal": "Original",
   "cropAspectRatioSquare": "Square",
-
   "filterAspectRatioLandscapeLabel": "Landscape",
   "filterAspectRatioPortraitLabel": "Portrait",
   "filterBinLabel": "Recycle bin",
@@ -207,10 +191,8 @@
   "filterTypeGeotiffLabel": "GeoTIFF",
   "filterMimeImageLabel": "Image",
   "filterMimeVideoLabel": "Video",
-
   "accessibilityAnimationsRemove": "Prevent screen effects",
   "accessibilityAnimationsKeep": "Keep screen effects",
-
   "albumTierNew": "New",
   "albumTierPinned": "Pinned",
   "albumTierGroups": "Groups",
@@ -219,12 +201,10 @@
   "albumTierVaults": "Vaults",
   "albumTierDynamic": "Dynamic",
   "albumTierRegular": "Others",
-
   "calendarGregorian": "Gregorian",
   "calendarHijriTabular": "Hijri (Tabular)",
   "calendarHijriUmalqura": "Hijri (Umm al-Qura)",
   "calendarPersian": "Persian",
-
   "coordinateFormatDms": "DMS",
   "coordinateFormatDdm": "DDM",
   "coordinateFormatDecimal": "Decimal degrees",
@@ -245,18 +225,14 @@
   "coordinateDmsSouth": "S",
   "coordinateDmsEast": "E",
   "coordinateDmsWest": "W",
-
   "displayRefreshRatePreferHighest": "Highest rate",
   "displayRefreshRatePreferLowest": "Lowest rate",
-
   "keepScreenOnNever": "Never",
   "keepScreenOnVideoPlayback": "During video playback",
   "keepScreenOnViewerOnly": "Viewer page only",
   "keepScreenOnAlways": "Always",
-
   "lengthUnitPixel": "px",
   "lengthUnitPercent": "%",
-
   "mapStyleGoogleNormal": "Google Maps",
   "mapStyleGoogleHybrid": "Google Maps (Hybrid)",
   "mapStyleGoogleTerrain": "Google Maps (Terrain)",
@@ -264,69 +240,51 @@
   "mapStyleOpenTopoMap": "OpenTopoMap",
   "mapStyleOsmHot": "Humanitarian OSM",
   "mapStyleStamenWatercolor": "Stamen Watercolor",
-
   "maxBrightnessNever": "Never",
   "maxBrightnessAlways": "Always",
-
   "nameConflictStrategyRename": "Rename",
   "nameConflictStrategyReplace": "Replace",
   "nameConflictStrategySkip": "Skip",
-
   "overlayHistogramNone": "None",
   "overlayHistogramRGB": "RGB",
   "overlayHistogramLuminance": "Luminance",
-
   "subtitlePositionTop": "Top",
   "subtitlePositionBottom": "Bottom",
-
   "themeBrightnessLight": "Light",
   "themeBrightnessDark": "Dark",
   "themeBrightnessBlack": "Black",
-
   "unitSystemMetric": "Metric",
   "unitSystemImperial": "Imperial",
-
   "vaultLockTypePattern": "Pattern",
   "vaultLockTypePin": "PIN",
   "vaultLockTypePassword": "Password",
-
   "settingsVideoEnablePip": "Picture-in-picture",
-
   "videoControlsPlayOutside": "Open with other player",
-
   "videoLoopModeNever": "Never",
   "videoLoopModeShortOnly": "Short videos only",
   "videoLoopModeAlways": "Always",
-
   "videoPlaybackSkip": "Skip",
   "videoPlaybackMuted": "Play muted",
   "videoPlaybackWithSound": "Play with sound",
-
   "videoResumptionModeNever": "Never",
   "videoResumptionModeAlways": "Always",
-
   "videoThumbnailMethodEmbeddedImage": "Embedded image",
   "videoThumbnailMethodPreviewFrame": "Preview frame",
   "videoThumbnailMethodFirstFrame": "First frame",
-
   "viewerTransitionSlide": "Slide",
   "viewerTransitionParallax": "Parallax",
   "viewerTransitionFade": "Fade",
   "viewerTransitionZoomIn": "Zoom in",
   "viewerTransitionNone": "None",
-
   "wallpaperTargetHome": "Home screen",
   "wallpaperTargetLock": "Lock screen",
   "wallpaperTargetHomeLock": "Home and lock screens",
-
   "widgetDisplayedItemRandom": "Random",
   "widgetDisplayedItemMostRecent": "Most recent",
-
   "widgetOpenPageHome": "Open home",
   "widgetOpenPageCollection": "Open collection",
   "widgetOpenPageViewer": "Open viewer",
   "widgetTapUpdateWidget": "Update widget",
-
   "storageVolumeDescriptionFallbackPrimary": "Internal storage",
   "storageVolumeDescriptionFallbackNonPrimary": "SD card",
   "rootDirectoryDescription": "root directory",
@@ -387,7 +345,6 @@
     }
   },
   "missingSystemFilePickerDialogMessage": "The system file picker is missing or disabled. Please enable it and try again.",
-
   "unsupportedTypeDialogMessage": "{count, plural, =1{This operation is not supported for items of the following type: {types}.} other{This operation is not supported for items of the following types: {types}.}}",
   "@unsupportedTypeDialogMessage": {
     "placeholders": {
@@ -401,15 +358,11 @@
       }
     }
   },
-
   "nameConflictDialogSingleSourceMessage": "Some files in the destination folder have the same name.",
   "nameConflictDialogMultipleSourceMessage": "Some files have the same name.",
-
   "addShortcutDialogLabel": "Shortcut label",
   "addShortcutButtonLabel": "ADD",
-
   "noMatchingAppDialogMessage": "There are no apps that can handle this.",
-
   "binEntriesConfirmationDialogMessage": "{count, plural, =1{Move this item to the recycle bin?} other{Move these {count} items to the recycle bin?}}",
   "@binEntriesConfirmationDialogMessage": {
     "placeholders": {
@@ -428,7 +381,6 @@
       }
     }
   },
-
   "videoResumeDialogMessage": "Do you want to resume playing at {time}?",
   "@videoResumeDialogMessage": {
     "placeholders": {
@@ -440,22 +392,17 @@
   },
   "videoStartOverButtonLabel": "START OVER",
   "videoResumeButtonLabel": "RESUME",
-
   "setCoverDialogLatest": "Latest item",
   "setCoverDialogAuto": "Auto",
   "setCoverDialogCustom": "Custom",
-
   "hideFilterConfirmationDialogMessage": "Matching photos and videos will be hidden from your collection. You can show them again from the “Privacy” settings.\n\nAre you sure you want to hide them?",
-
   "newAlbumDialogTitle": "New Album",
   "newAlbumDialogNameLabel": "Album name",
   "newAlbumDialogAlbumAlreadyExistsHelper": "Album already exists",
   "newAlbumDialogNameLabelAlreadyExistsHelper": "Directory already exists",
   "newAlbumDialogStorageLabel": "Storage:",
-
   "newDynamicAlbumDialogTitle": "New Dynamic Album",
   "dynamicAlbumAlreadyExists": "Dynamic album already exists",
-
   "newGroupDialogTitle": "New Group",
   "newGroupDialogNameLabel": "Group name",
   "groupAlreadyExists": "Group already exists",
@@ -463,42 +410,32 @@
   "ungrouped": "Ungrouped",
   "groupPickerTitle": "Pick Group",
   "groupPickerUseThisGroupButton": "Use this group",
-
   "newVaultWarningDialogMessage": "Items in vaults are only available to this app and no others.\n\nIf you uninstall this app, or clear this app data, you will lose all these items.",
   "newVaultDialogTitle": "New Vault",
   "configureVaultDialogTitle": "Configure Vault",
   "vaultDialogLockModeWhenScreenOff": "Lock when screen turns off",
   "vaultDialogLockTypeLabel": "Lock type",
-
   "patternDialogEnter": "Enter pattern",
   "patternDialogConfirm": "Confirm pattern",
-
   "pinDialogEnter": "Enter PIN",
   "pinDialogConfirm": "Confirm PIN",
-
   "passwordDialogEnter": "Enter password",
   "passwordDialogConfirm": "Confirm password",
-
   "authenticateToConfigureVault": "Authenticate to configure vault",
   "authenticateToUnlockVault": "Authenticate to unlock vault",
   "authenticateToOpenBin": "Authenticate to open the recycle bin",
   "authenticateToConfigureBinLock": "Authenticate to configure the recycle bin lock",
-
   "vaultBinUsageDialogMessage": "Some vaults are using the recycle bin.",
-
   "renameAlbumDialogLabel": "New name",
   "renameAlbumDialogLabelAlreadyExistsHelper": "Directory already exists",
   "renameTagDialogLabelAlreadyExistsHelper": "Tag already exists",
-
   "renameEntrySetPageTitle": "Rename",
   "renameEntrySetPagePatternFieldLabel": "Naming pattern",
   "renameEntrySetPageInsertTooltip": "Insert field",
   "renameEntrySetPagePreviewSectionTitle": "Preview",
-
   "renameProcessorCounter": "Counter",
   "renameProcessorHash": "Hash",
   "renameProcessorName": "Name",
-
   "deleteSingleAlbumConfirmationDialogMessage": "{count, plural, =1{Delete this album and the item in it?} other{Delete this album and the {count} items in it?}}",
   "@deleteSingleAlbumConfirmationDialogMessage": {
     "placeholders": {
@@ -517,29 +454,23 @@
       }
     }
   },
-
   "exportEntryDialogFormat": "Format:",
   "exportEntryDialogWidth": "Width",
   "exportEntryDialogHeight": "Height",
   "exportEntryDialogQuality": "Quality",
   "exportEntryDialogWriteMetadata": "Write metadata",
-
   "renameEntryDialogLabel": "New name",
-
   "editEntryDialogCopyFromItem": "Copy from other item",
   "editEntryDialogTargetFieldsHeader": "Fields to modify",
-
   "editEntryDateDialogTitle": "Date & Time",
   "editEntryDateDialogSetCustom": "Set custom date",
   "editEntryDateDialogCopyField": "Copy from other date",
   "editEntryDateDialogExtractFromTitle": "Extract from file name",
   "editEntryDateDialogShift": "Shift",
   "editEntryDateDialogSourceFileModifiedDate": "File modified date",
-
   "durationDialogHours": "Hours",
   "durationDialogMinutes": "Minutes",
   "durationDialogSeconds": "Seconds",
-
   "editEntryLocationDialogTitle": "Location",
   "editEntryLocationDialogSetCustom": "Set custom location",
   "editEntryLocationDialogChooseOnMap": "Choose on map",
@@ -547,32 +478,23 @@
   "editEntryLocationDialogLatitude": "Latitude",
   "editEntryLocationDialogLongitude": "Longitude",
   "editEntryLocationDialogTimeShift": "Time shift",
-
   "locationPickerUseThisLocationButton": "Use this location",
-
   "editEntryRatingDialogTitle": "Rating",
-
   "removeEntryMetadataDialogTitle": "Metadata Removal",
   "removeEntryMetadataDialogAll": "All",
   "removeEntryMetadataDialogMore": "More",
-
   "removeEntryMetadataMotionPhotoXmpWarningDialogMessage": "XMP is required to play the video inside a motion photo.\n\nAre you sure you want to remove it?",
-
   "videoSpeedDialogLabel": "Playback speed",
-
   "videoStreamSelectionDialogVideo": "Video",
   "videoStreamSelectionDialogAudio": "Audio",
   "videoStreamSelectionDialogText": "Subtitles",
   "videoStreamSelectionDialogOff": "Off",
   "videoStreamSelectionDialogTrack": "Track",
   "videoStreamSelectionDialogNoSelection": "There are no other tracks.",
-
   "genericSuccessFeedback": "Done!",
   "genericFailureFeedback": "Failed",
   "genericDangerWarningDialogMessage": "Are you sure?",
-
   "tooManyItemsErrorDialogMessage": "Try again with fewer items.",
-
   "menuActionConfigureView": "Change layout",
   "menuActionSelect": "Select",
   "menuActionSelectAll": "Select all",
@@ -580,35 +502,27 @@
   "menuActionMap": "Map",
   "menuActionSlideshow": "Slideshow",
   "menuActionStats": "Stats",
-
   "viewDialogSortSectionTitle": "Sort",
   "viewDialogGroupSectionTitle": "Sections",
   "viewDialogLayoutSectionTitle": "Layout",
   "viewDialogReverseSortOrder": "Reverse sort order",
-
   "tileLayoutMosaic": "Mosaic",
   "tileLayoutGrid": "Grid",
   "tileLayoutList": "List",
   "tileLayoutCalendar": "Calendar",
-
   "castDialogTitle": "Cast Devices",
-
   "coverDialogTabCover": "Cover",
   "coverDialogTabApp": "App",
   "coverDialogTabColor": "Color",
-
   "appPickDialogTitle": "Pick App",
   "appPickDialogNone": "None",
-
   "aboutPageTitle": "About",
   "aboutLinkLicense": "License",
   "aboutLinkPolicy": "Privacy Policy",
-
   "aboutBugSectionTitle": "Bug Report",
   "aboutBugSaveLogInstruction": "Save app logs to a file",
   "aboutBugReportInstruction": "Report on GitHub with the logs and system information",
   "aboutBugReportButton": "Report",
-
   "aboutDataUsageSectionTitle": "Data Usage",
   "aboutDataUsageData": "Data",
   "aboutDataUsageCache": "Cache",
@@ -617,12 +531,10 @@
   "aboutDataUsageInternal": "Internal",
   "aboutDataUsageExternal": "External",
   "aboutDataUsageClearCache": "Clear Cache",
-
   "aboutCreditsSectionTitle": "Credits",
   "aboutCreditsWorldAtlas1": "This app uses a TopoJSON file from",
   "aboutCreditsWorldAtlas2": "under ISC License.",
   "aboutTranslatorsSectionTitle": "Translators",
-
   "aboutLicensesSectionTitle": "Open-Source Licenses",
   "aboutLicensesBanner": "This app uses the following open-source packages and libraries.",
   "aboutLicensesAndroidLibrariesSectionTitle": "Android Libraries",
@@ -630,13 +542,10 @@
   "aboutLicensesFlutterPackagesSectionTitle": "Flutter Packages",
   "aboutLicensesDartPackagesSectionTitle": "Dart Packages",
   "aboutLicensesShowAllButtonLabel": "Show All Licenses",
-
   "policyPageTitle": "Privacy Policy",
-
   "collectionPageTitle": "Collection",
   "collectionPickPageTitle": "Pick",
   "collectionSelectPageTitle": "Select items",
-
   "collectionActionShowLayoutBar": "Show layout bar",
   "collectionActionHideLayoutBar": "Hide layout bar",
   "collectionActionShowTitleSearch": "Show title filter",
@@ -650,13 +559,10 @@
   "collectionActionRescan": "Rescan",
   "collectionActionEdit": "Edit",
   "collectionActionExportGpx": "Export GPX",
-
   "collectionSearchTitlesHintText": "Search titles",
-
   "collectionGroupAlbum": "By album",
   "collectionGroupMonth": "By month",
   "collectionGroupDay": "By day",
-
   "sectionNone": "No sections",
   "sectionUnknown": "Unknown",
   "dateToday": "Today",
@@ -752,15 +658,12 @@
       }
     }
   },
-
   "collectionEmptyFavourites": "No favorites",
   "collectionEmptyVideos": "No videos",
   "collectionEmptyImages": "No images",
   "collectionEmptyGrantAccessButtonLabel": "Grant access",
-
   "collectionSelectSectionTooltip": "Select section",
   "collectionDeselectSectionTooltip": "Deselect section",
-
   "drawerAboutButton": "About",
   "drawerSettingsButton": "Settings",
   "drawerCollectionAll": "All collection",
@@ -777,7 +680,6 @@
   "drawerCountryPage": "Countries",
   "drawerPlacePage": "Places",
   "drawerTagPage": "Tags",
-
   "sortByDate": "By date",
   "sortByName": "By name",
   "sortByItemCount": "By item count",
@@ -786,7 +688,6 @@
   "sortByRating": "By rating",
   "sortByDuration": "By duration",
   "sortByPath": "By path",
-
   "sortOrderNewestFirst": "Newest first",
   "sortOrderOldestFirst": "Oldest first",
   "sortOrderAtoZ": "A to Z",
@@ -797,49 +698,36 @@
   "sortOrderSmallestFirst": "Smallest first",
   "sortOrderShortestFirst": "Shortest first",
   "sortOrderLongestFirst": "Longest first",
-
   "albumGroupTier": "By tier",
   "albumGroupType": "By type",
   "albumGroupVolume": "By storage volume",
-
   "albumMimeTypeMixed": "Mixed",
-
   "albumPickPageTitleCopy": "Copy to Album",
   "albumPickPageTitleExport": "Export to Album",
   "albumPickPageTitleMove": "Move to Album",
   "albumPickPageTitlePick": "Pick Album",
-
   "albumCamera": "Camera",
   "albumDownload": "Download",
   "albumScreenshots": "Screenshots",
   "albumScreenRecordings": "Screen recordings",
   "albumVideoCaptures": "Video Captures",
-
   "albumPageTitle": "Albums",
   "albumEmpty": "No albums",
   "createAlbumButtonLabel": "CREATE",
   "newFilterBanner": "new",
-
   "countryPageTitle": "Countries",
   "countryEmpty": "No countries",
-
   "statePageTitle": "States",
   "stateEmpty": "No states",
-
   "placePageTitle": "Places",
   "placeEmpty": "No places",
-
   "tagPageTitle": "Tags",
   "tagEmpty": "No tags",
   "tagPickPageTitle": "Pick Tag",
-
   "binPageTitle": "Recycle Bin",
-
   "explorerPageTitle": "Explorer",
   "explorerActionSelectStorageVolume": "Select storage",
-
   "selectStorageVolumeDialogTitle": "Select Storage",
-
   "searchCollectionFieldHint": "Search collection",
   "searchRecentSectionTitle": "Recent",
   "searchDateSectionTitle": "Date",
@@ -851,7 +739,6 @@
   "searchTagsSectionTitle": "Tags",
   "searchRatingSectionTitle": "Ratings",
   "searchMetadataSectionTitle": "Metadata",
-
   "settingsPageTitle": "Settings",
   "settingsSystemDefault": "System default",
   "settingsDefault": "Default",
@@ -860,19 +747,16 @@
   "settingsForced": "Forced",
   "settingsAskEverytime": "Ask everytime",
   "settingsModificationWarningDialogMessage": "Other settings will be modified.",
-
   "settingsSearchFieldLabel": "Search settings",
   "settingsSearchEmpty": "No matching setting",
   "settingsActionExport": "Export",
   "settingsActionExportDialogTitle": "Export",
   "settingsActionImport": "Import",
   "settingsActionImportDialogTitle": "Import",
-
   "appExportCovers": "Covers",
   "appExportDynamicAlbums": "Dynamic albums",
   "appExportFavourites": "Favorites",
   "appExportSettings": "Settings",
-
   "settingsNavigationSectionTitle": "Navigation",
   "settingsHomeTile": "Home",
   "settingsHomeDialogTitle": "Home",
@@ -880,14 +764,12 @@
   "settingsKeepScreenOnTile": "Keep screen on",
   "settingsKeepScreenOnDialogTitle": "Keep Screen On",
   "settingsDoubleBackExit": "Tap “back” twice to exit",
-
   "settingsConfirmationTile": "Confirmation dialogs",
   "settingsConfirmationDialogTitle": "Confirmation Dialogs",
   "settingsConfirmationBeforeDeleteItems": "Ask before deleting items forever",
   "settingsConfirmationBeforeMoveToBinItems": "Ask before moving items to the recycle bin",
   "settingsConfirmationAfterMoveToBinItems": "Show message after moving items to the recycle bin",
   "settingsConfirmationVaultDataLoss": "Show vault data loss warning",
-
   "settingsNavigationDrawerTile": "Navigation menu",
   "settingsNavigationDrawerEditorPageTitle": "Navigation Menu",
   "settingsNavigationDrawerBanner": "Touch and hold to move and reorder menu items.",
@@ -895,11 +777,9 @@
   "settingsNavigationDrawerTabAlbums": "Albums",
   "settingsNavigationDrawerTabPages": "Pages",
   "settingsNavigationDrawerAddAlbum": "Add album",
-
   "settingsNavigationBottomActionsTile": "Bottom navigation",
   "settingsNavigationBottomActionEditorPageTitle": "Bottom Navigation",
   "settingsNavigationBottomActionEditorBanner": "Touch and hold to move buttons and select which actions are displayed in the bottom navigation bar.",
-
   "settingsThumbnailSectionTitle": "Thumbnails",
   "settingsThumbnailOverlayTile": "Overlay",
   "settingsThumbnailOverlayPageTitle": "Overlay",
@@ -912,31 +792,26 @@
   "settingsThumbnailShowRawIcon": "Show raw icon",
   "showThumbnailSlowMotionVideoIcon": "Show slow motion icon",
   "settingsThumbnailShowVideoDuration": "Show video duration",
-
   "settingsCollectionQuickActionsTile": "Quick actions",
   "settingsCollectionQuickActionEditorPageTitle": "Quick Actions",
   "settingsCollectionQuickActionTabBrowsing": "Browsing",
   "settingsCollectionQuickActionTabSelecting": "Selecting",
   "settingsCollectionBrowsingQuickActionEditorBanner": "Touch and hold to move buttons and select which actions are displayed when browsing items.",
   "settingsCollectionSelectionQuickActionEditorBanner": "Touch and hold to move buttons and select which actions are displayed when selecting items.",
-
   "settingsCollectionBurstPatternsTile": "Burst patterns",
   "settingsCollectionBurstPatternsNone": "None",
-
   "settingsViewerSectionTitle": "Viewer",
   "settingsViewerGestureSideTapNext": "Tap on screen edges to show previous/next item",
   "settingsViewerUseCutout": "Use cutout area",
   "settingsViewerMaximumBrightness": "Maximum brightness",
   "settingsMotionPhotoAutoPlay": "Auto play motion photos",
   "settingsImageBackground": "Image background",
-
   "settingsViewerQuickActionsTile": "Quick actions",
   "settingsViewerQuickActionEditorPageTitle": "Quick Actions",
   "settingsViewerQuickActionEditorBanner": "Touch and hold to move buttons and select which actions are displayed in the viewer.",
   "settingsViewerQuickActionEditorDisplayedButtonsSectionTitle": "Displayed Buttons",
   "settingsViewerQuickActionEditorAvailableButtonsSectionTitle": "Available Buttons",
   "settingsViewerQuickActionEmpty": "No buttons",
-
   "settingsViewerOverlayTile": "Overlay",
   "settingsViewerOverlayPageTitle": "Overlay",
   "settingsViewerShowOverlayOnOpening": "Show on opening",
@@ -950,7 +825,6 @@
   "settingsViewerShowDescription": "Show description",
   "settingsViewerShowOverlayThumbnails": "Show thumbnails",
   "settingsViewerEnableOverlayBlurEffect": "Blur effect",
-
   "settingsViewerSlideshowTile": "Slideshow",
   "settingsViewerSlideshowPageTitle": "Slideshow",
   "settingsSlideshowRepeat": "Repeat",
@@ -961,11 +835,9 @@
   "settingsSlideshowIntervalTile": "Interval",
   "settingsSlideshowVideoPlaybackTile": "Video playback",
   "settingsSlideshowVideoPlaybackDialogTitle": "Video Playback",
-
   "settingsVideoPageTitle": "Video Settings",
   "settingsVideoSectionTitle": "Video",
   "settingsVideoShowVideos": "Show videos",
-
   "settingsVideoPlaybackTile": "Playback",
   "settingsVideoPlaybackPageTitle": "Playback",
   "settingsVideoEnableHardwareAcceleration": "Hardware acceleration",
@@ -977,14 +849,12 @@
   "settingsVideoBackgroundMode": "Background mode",
   "settingsVideoBackgroundModeDialogTitle": "Background Mode",
   "settingsVideoThumbnailMethods": "Preferred thumbnail",
-
   "settingsVideoControlsTile": "Controls",
   "settingsVideoControlsPageTitle": "Controls",
   "settingsVideoButtonsTile": "Buttons",
   "settingsVideoGestureDoubleTapTogglePlay": "Double tap to play/pause",
   "settingsVideoGestureSideDoubleTapSeek": "Double tap on screen edges to seek backward/forward",
   "settingsVideoGestureVerticalDragBrightnessVolume": "Swipe up or down to adjust brightness/volume",
-
   "settingsSubtitleThemeTile": "Subtitles",
   "settingsSubtitleThemePageTitle": "Subtitles",
   "settingsSubtitleThemeSample": "This is a sample.",
@@ -1001,7 +871,6 @@
   "settingsSubtitleThemeTextAlignmentLeft": "Left",
   "settingsSubtitleThemeTextAlignmentCenter": "Center",
   "settingsSubtitleThemeTextAlignmentRight": "Right",
-
   "settingsPrivacySectionTitle": "Privacy",
   "settingsAllowInstalledAppAccess": "Access to app inventory",
   "settingsAllowInstalledAppAccessSubtitle": "Used to improve album display",
@@ -1029,28 +898,22 @@
   "settingsDisablingBinWarningDialogMessage": "Items in the recycle bin will be deleted forever.",
   "settingsAllowMediaManagement": "Allow media management",
   "settingsAllowNotifications": "Allow notifications",
-
   "settingsPermissionsTile": "Permissions",
   "settingsPermissionsPageTitle": "Permissions",
-
   "settingsHiddenItemsTile": "Hidden items",
   "settingsHiddenItemsPageTitle": "Hidden Items",
-
   "settingsHiddenFiltersBanner": "Photos and videos matching hidden filters will not appear in your collection.",
   "settingsHiddenFiltersEmpty": "No hidden filters",
-
   "settingsStorageAccessTile": "Storage access",
   "settingsStorageAccessPageTitle": "Storage Access",
   "settingsStorageAccessBanner": "Some directories require an explicit access grant to modify files in them. You can review here directories to which you previously gave access.",
   "settingsStorageAccessEmpty": "No access grants",
   "settingsStorageAccessRevokeTooltip": "Revoke",
-
   "settingsAccessibilitySectionTitle": "Accessibility",
   "settingsRemoveAnimationsTile": "Remove animations",
   "settingsRemoveAnimationsDialogTitle": "Remove Animations",
   "settingsTimeToTakeActionTile": "Time to take action",
   "settingsAccessibilityShowPinchGestureAlternatives": "Show multi-touch gesture alternatives",
-
   "settingsDisplaySectionTitle": "Display",
   "settingsThemeBrightnessTile": "Theme",
   "settingsThemeBrightnessDialogTitle": "Theme",
@@ -1059,7 +922,6 @@
   "settingsDisplayRefreshRateModeTile": "Display refresh rate",
   "settingsDisplayRefreshRateModeDialogTitle": "Refresh Rate",
   "settingsDisplayUseTvInterface": "Android TV interface",
-
   "settingsLanguageSectionTitle": "Language & Formats",
   "settingsLanguageTile": "Language",
   "settingsLanguagePageTitle": "Language",
@@ -1069,16 +931,12 @@
   "settingsUnitSystemTile": "Units",
   "settingsUnitSystemDialogTitle": "Units",
   "settingsForceWesternArabicNumeralsTile": "Force Arabic numerals",
-
   "settingsScreenSaverPageTitle": "Screen Saver",
-
   "settingsWidgetPageTitle": "Photo Frame",
   "settingsWidgetShowOutline": "Outline",
   "settingsWidgetOpenPage": "When tapping on the widget",
   "settingsWidgetDisplayedItem": "Displayed item",
-
   "settingsCollectionTile": "Collection",
-
   "statsPageTitle": "Stats",
   "statsWithGps": "{count, plural, =1{1 item with location} other{{count} items with location}}",
   "@statsWithGps": {
@@ -1094,15 +952,12 @@
   "statsTopPlacesSectionTitle": "Top Places",
   "statsTopTagsSectionTitle": "Top Tags",
   "statsTopAlbumsSectionTitle": "Top Albums",
-
   "viewerOpenPanoramaButtonLabel": "OPEN PANORAMA",
   "viewerSetWallpaperButtonLabel": "SET WALLPAPER",
   "viewerErrorUnknown": "Oops!",
   "viewerErrorDoesNotExist": "The file no longer exists.",
-
   "viewerInfoPageTitle": "Info",
   "viewerInfoBackToViewerTooltip": "Back to viewer",
-
   "viewerInfoUnknown": "unknown",
   "viewerInfoLabelDescription": "Description",
   "viewerInfoLabelTitle": "Title",
@@ -1115,7 +970,6 @@
   "viewerInfoLabelOwner": "Owner",
   "viewerInfoLabelCoordinates": "Coordinates",
   "viewerInfoLabelAddress": "Address",
-
   "mapStyleDialogTitle": "Map Style",
   "mapStyleDialogAddStyle": "Add style",
   "mapStyleTooltip": "Select map style",
@@ -1135,11 +989,9 @@
   "mapAttributionStamen": "Tiles by [Stamen Design](https://stamen.com), [CC BY 3.0](https://creativecommons.org/licenses/by/3.0)",
   "openMapPageTooltip": "View on Map page",
   "mapEmptyRegion": "No images in this region",
-
   "viewerInfoOpenEmbeddedFailureFeedback": "Failed to extract embedded data",
   "viewerInfoOpenLinkText": "Open",
   "viewerInfoViewXmlLinkText": "View XML",
-
   "viewerInfoSearchFieldLabel": "Search metadata",
   "viewerInfoSearchEmpty": "No matching keys",
   "viewerInfoSearchSuggestionDate": "Date & time",
@@ -1147,30 +999,31 @@
   "viewerInfoSearchSuggestionDimensions": "Dimensions",
   "viewerInfoSearchSuggestionResolution": "Resolution",
   "viewerInfoSearchSuggestionRights": "Rights",
-
   "wallpaperUseScrollEffect": "Use scroll effect on home screen",
-
   "tagEditorPageTitle": "Edit Tags",
   "tagEditorPageNewTagFieldLabel": "New tag",
   "tagEditorPageAddTagTooltip": "Add tag",
   "tagEditorSectionRecent": "Recent",
   "tagEditorSectionPlaceholders": "Placeholders",
   "tagEditorDiscardDialogMessage": "Do you want to discard changes?",
-
   "tagPlaceholderCountry": "Country",
   "tagPlaceholderState": "State",
   "tagPlaceholderPlace": "Place",
-
   "panoramaEnableSensorControl": "Enable sensor control",
   "panoramaDisableSensorControl": "Disable sensor control",
-
   "sourceViewerPageTitle": "Source",
   "masterCodeCreateMessage": "Create a 6-digit Master Code. It is required to change or remove any PIN or password, and it cannot be recovered if lost.",
   "masterCodeEnterMessage": "Enter the Master Code",
   "settingsMasterCode": "Master Code",
   "settingsMasterCodeSubtitle": "6-digit code required to change security settings",
   "attemptsCooldownMessage": "Too many failed attempts. Try again in {minutes, plural, =1{1 minute} other{{minutes} minutes}}.",
-  "@attemptsCooldownMessage": {"placeholders": {"minutes": {"type": "int"}}},
+  "@attemptsCooldownMessage": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "settingsAppLock": "App lock",
   "settingsAppLockSubtitle": "Ask for a PIN when opening the app",
   "appLockChangePin": "Change app PIN",
@@ -1182,7 +1035,13 @@
   "appLockTitle": "Enter PIN",
   "appLockWrongPin": "Wrong PIN",
   "appLockCooldownMessage": "Too many failed attempts. Try again in {time}.",
-  "@appLockCooldownMessage": {"placeholders": {"time": {"type": "String"}}},
+  "@appLockCooldownMessage": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "settingsNukeVaults": "Nuke all vaults",
   "settingsNukeVaultsSubtitle": "Deletes all vaults and their content. Requires the Master Code. Irreversible.",
   "authenticateToOpenLockedItem": "Authenticate to open this locked item",
@@ -1190,7 +1049,13 @@
   "settingsItemLock": "Lock for albums and items",
   "actionToggleItemLock": "Lock / unlock",
   "dangerTypeWordMessage": "To confirm, type {word}",
-  "@dangerTypeWordMessage": {"placeholders": {"word": {"type": "String"}}},
+  "@dangerTypeWordMessage": {
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
   "privacyGroupLocks": "Locks and hidden items",
   "privacyGroupVaults": "Vaults",
   "privacyGroupDestruction": "Security and destruction",
@@ -1221,7 +1086,13 @@
   "navBarStyleFloating": "Floating",
   "navBarStyleRectangular": "Rectangular",
   "aboutBasedOnAves": "A personal tribute to Aves, based on Aves {version} by Thibault Deckers",
-  "@aboutBasedOnAves": {"placeholders": {"version": {"type": "String"}}},
+  "@aboutBasedOnAves": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "itemLocksEnablePrompt": "Locking albums and items is turned off. Turn it on now?",
   "settingsPerformanceMode": "Performance mode",
   "settingsPerformanceModeSubtitle": "No animations and no blur (solid colors instead), for smoother use on slower devices",
@@ -1230,10 +1101,35 @@
   "autoDeleteBin": "Recycle bin: keep items for",
   "autoDeleteOff": "Off",
   "autoDeleteMinutes": "{count, plural, =1{1 minute} other{{count} minutes}}",
-  "@autoDeleteMinutes": {"placeholders": {"count": {"type": "int"}}},
+  "@autoDeleteMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "autoDeleteHours": "{count, plural, =1{1 hour} other{{count} hours}}",
-  "@autoDeleteHours": {"placeholders": {"count": {"type": "int"}}},
+  "@autoDeleteHours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "autoDeleteDays": "{count, plural, =1{1 day} other{{count} days}}",
-  "@autoDeleteDays": {"placeholders": {"count": {"type": "int"}}},
-  "autoDeleteShortWarning": "This delay is shorter than 48 hours: you could lose important files very quickly. Only continue if you know exactly what you are doing."
+  "@autoDeleteDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "autoDeleteShortWarning": "This delay is shorter than 48 hours: you could lose important files very quickly. Only continue if you know exactly what you are doing.",
+  "settingsSecuritySectionTitle": "Security",
+  "batCurityHashingTitle": "Bat-curity: hash credentials",
+  "batCurityHashingSubtitle": "Stores the Master Code, PINs, patterns and passwords as Argon2id hashes with a random salt, instead of plain values.",
+  "batCurityOnlyIfYouKnow": "Only enable if you know what you are doing",
+  "batCurityHashingWarning": "Bat-curity hashing converts all your credentials into one-way hashes. Checking a code becomes slower, and nothing can ever show you a forgotten code. Turning it off needs the Master Code. Continue only if you understand this.",
+  "batCurityOfferMessage": "Do you want extra security (Bat-curity)? It is not enabled automatically: you will be taken to the Security section, where you can enable it yourself.",
+  "batCurityOfferGo": "Go to Security"
 }

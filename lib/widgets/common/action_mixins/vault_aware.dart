@@ -1,3 +1,4 @@
+import 'package:aves/model/security/bat_curity.dart';
 import 'package:aves/model/filters/favourite.dart';
 import 'package:aves/model/item_locks.dart';
 import 'package:aves/model/advanced_privacy.dart';
@@ -125,7 +126,7 @@ mixin VaultAwareMixin on FeedbackMixin {
           routeSettings: const RouteSettings(name: PatternDialog.routeName),
         );
         if (pattern != null) {
-          return await securityService.writeValue(details.passKey, pattern);
+          return await batCurity.store(details.passKey, pattern);
         }
       case .pin:
         final pin = await showAvesDialog<String>(
@@ -134,7 +135,7 @@ mixin VaultAwareMixin on FeedbackMixin {
           routeSettings: const RouteSettings(name: PinDialog.routeName),
         );
         if (pin != null) {
-          return await securityService.writeValue(details.passKey, pin);
+          return await batCurity.store(details.passKey, pin);
         }
       case .password:
         final password = await showAvesDialog<String>(
@@ -143,7 +144,7 @@ mixin VaultAwareMixin on FeedbackMixin {
           routeSettings: const RouteSettings(name: PasswordDialog.routeName),
         );
         if (password != null) {
-          return await securityService.writeValue(details.passKey, password);
+          return await batCurity.store(details.passKey, password);
         }
     }
     return false;

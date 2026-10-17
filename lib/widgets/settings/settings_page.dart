@@ -1,3 +1,4 @@
+import 'package:aves/widgets/settings/security/security.dart';
 import 'package:aves/widgets/settings/experimental/experimental.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/durations.dart';
@@ -27,6 +28,7 @@ class SettingsPage extends StatelessWidget {
     ViewerSection(),
     VideoSection(),
     PrivacySection(),
+    SecuritySection(),
     AccessibilitySection(),
     DisplaySection(),
     LanguageSection(),

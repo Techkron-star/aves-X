@@ -48,6 +48,7 @@ dependencies:
     path: plugins/aves_model
   aves_report:
     path: plugins/aves_report
+  pointycastle: ^3.9.1
   aves_report_platform:
     path: plugins/aves_report_crashlytics
   aves_screen_state:

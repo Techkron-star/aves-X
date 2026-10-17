@@ -1,3 +1,6 @@
+import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
+import 'package:aves/widgets/settings/security/security.dart';
+import 'package:aves/model/security/bat_curity.dart';
 import 'package:aves/model/security/attempt_guard.dart';
 import 'package:aves/model/security/nuke.dart';
 import 'package:aves/services/common/services.dart';
@@ -23,7 +26,13 @@ class MasterCode {
       builder: (context) => CodeDialog(needConfirmation: true, message: context.l10n.masterCodeCreateMessage),
       routeSettings: const RouteSettings(name: CodeDialog.routeName),
     );
-    return code != null && await securityService.writeValue<String>(_key, code);
+    if (code == null || !await batCurity.store(_key, code)) return false;
+
+    // extra security is only offered: the user has to enable it by hand in the Security section
+    if (context.mounted && await showConfirmationDialog(context: context, message: context.l10n.batCurityOfferMessage, ok: context.l10n.batCurityOfferGo) && context.mounted) {
+      await SecuritySection().open(context);
+    }
+    return true;
   }
 
   // asks for the code (creating it first if needed); `true` if the user can proceed
@@ -46,7 +55,7 @@ class MasterCode {
     );
     if (code == null) return false;
 
-    if (code == await securityService.readValue<String>(_key)) {
+    if (await batCurity.matches(_key, code)) {
       await guard.reset();
       return true;
     }
@@ -64,7 +73,7 @@ class MasterCode {
       routeSettings: const RouteSettings(name: CodeDialog.routeName),
     );
     if (code != null) {
-      await securityService.writeValue<String>(_key, code);
+      await batCurity.store(_key, code);
     }
   }
 

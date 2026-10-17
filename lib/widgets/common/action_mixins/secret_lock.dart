@@ -1,3 +1,4 @@
+import 'package:aves/model/security/bat_curity.dart';
 import 'package:aves/model/device.dart';
 import 'package:aves/model/security/attempt_guard.dart';
 import 'package:aves/model/security/master_code.dart';
@@ -171,21 +172,21 @@ class SecretLock {
           builder: (context) => const PatternDialog(needConfirmation: false),
           routeSettings: const RouteSettings(name: PatternDialog.routeName),
         );
-        return pattern == null ? null : pattern == await securityService.readValue<String>(passKey);
+        return pattern == null ? null : await batCurity.matches(passKey, pattern);
       case VaultLockType.pin:
         final pin = await showAvesDialog<String>(
           context: context,
           builder: (context) => const PinDialog(needConfirmation: false),
           routeSettings: const RouteSettings(name: PinDialog.routeName),
         );
-        return pin == null ? null : pin == await securityService.readValue<String>(passKey);
+        return pin == null ? null : await batCurity.matches(passKey, pin);
       case VaultLockType.password:
         final password = await showAvesDialog<String>(
           context: context,
           builder: (context) => const PasswordDialog(needConfirmation: false),
           routeSettings: const RouteSettings(name: PasswordDialog.routeName),
         );
-        return password == null ? null : password == await securityService.readValue<String>(passKey);
+        return password == null ? null : await batCurity.matches(passKey, password);
     }
   }
 
@@ -210,21 +211,21 @@ class SecretLock {
           builder: (context) => const PatternDialog(needConfirmation: true),
           routeSettings: const RouteSettings(name: PatternDialog.routeName),
         );
-        return pattern != null && await securityService.writeValue<String>(passKey, pattern);
+        return pattern != null && await batCurity.store(passKey, pattern);
       case VaultLockType.pin:
         final pin = await showAvesDialog<String>(
           context: context,
           builder: (context) => const PinDialog(needConfirmation: true),
           routeSettings: const RouteSettings(name: PinDialog.routeName),
         );
-        return pin != null && await securityService.writeValue<String>(passKey, pin);
+        return pin != null && await batCurity.store(passKey, pin);
       case VaultLockType.password:
         final password = await showAvesDialog<String>(
           context: context,
           builder: (context) => const PasswordDialog(needConfirmation: true),
           routeSettings: const RouteSettings(name: PasswordDialog.routeName),
         );
-        return password != null && await securityService.writeValue<String>(passKey, password);
+        return password != null && await batCurity.store(passKey, password);
     }
   }
 }
