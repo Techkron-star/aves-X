@@ -53,18 +53,14 @@ class _LockedBadgeState extends State<LockedBadge> with SingleTickerProviderStat
             final t = _controller.value;
             final chains = Curves.easeOut.transform((t / 0.35).clamp(0, 1));
             final fall = Curves.bounceOut.transform(((t - 0.3) / 0.45).clamp(0, 1));
-            final chainsFade = 1 - Curves.easeIn.transform(((t - 0.8) / 0.2).clamp(0, 1));
             final shake = t > 0.6 && t < 0.78 ? sin((t - 0.6) * 90) * 2 : 0.0;
             return Stack(
               alignment: Alignment.center,
               children: [
-                if (t < 1)
-                  Positioned.fill(
-                    child: Opacity(
-                      opacity: chainsFade,
-                      child: CustomPaint(painter: _ChainsPainter(progress: chains, ruby: bat, scale: scale)),
-                    ),
-                  ),
+                // the chains stay in place once locked
+                Positioned.fill(
+                  child: CustomPaint(painter: _ChainsPainter(progress: chains, ruby: bat, scale: scale)),
+                ),
                 Transform.translate(
                   offset: Offset(shake, -(1 - fall) * box * .9),
                   child: SizedBox(
