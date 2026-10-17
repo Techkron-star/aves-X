@@ -1,3 +1,5 @@
+import 'dart:ui';
+import 'package:aves/widgets/common/fx/liquid.dart';
 import 'package:aves/model/settings/enums/nav_bar_style.dart';
 import 'package:aves/model/security/privacy_options.dart';
 import 'dart:async';
@@ -103,11 +105,17 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
                   onPointerMove: _onPointerMove,
                   onPointerUp: (_) => _cancelHold(),
                   onPointerCancel: (_) => _cancelHold(),
-                  child: BottomNavigationBar(
+                  child: _withLens(
+                    context,
+                    navBarStyle,
+                    items.length,
+                    _getCurrentIndex(context, items),
+                    isRtl,
+                    BottomNavigationBar(
                     items: items.map((item) {
                       final label = item.getText(context);
                       return BottomNavigationBarItem(
-                        icon: item.getIcon(context),
+                        icon: LiquidIcon(child: item.getIcon(context)),
                         label: label,
                         tooltip: label,
                       );
@@ -118,6 +126,7 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
                     backgroundColor: backgroundColor,
                     showSelectedLabels: false,
                     showUnselectedLabels: false,
+                    ),
                   ),
                 );
               },
@@ -146,6 +155,60 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
   }
 
   void _onCollectionFilterChanged() => setState(() {});
+
+  // iOS-like lens over the selected item (rounded and rectangular bars)
+  Widget _withLens(BuildContext context, NavBarStyle style, int count, int index, bool isRtl, Widget bar) {
+    if (style != NavBarStyle.rounded && style != NavBarStyle.rectangular) return bar;
+    final blur = settings.enableBlurEffect;
+    final bat = settings.batGlass;
+    final radius = BorderRadius.circular(style == NavBarStyle.rounded ? 22 : 8);
+    final position = count <= 1 ? 0.0 : -1 + 2 * index / (count - 1);
+    Widget lens = DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: radius,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: bat ? const [Color(0x55FF3B5C), Color(0x14E0183E)] : const [Color(0x40FFFFFF), Color(0x0DFFFFFF)],
+        ),
+        border: Border.all(color: bat ? const Color(0x99FF6A80) : const Color(0x73FFFFFF), width: 1.2),
+        boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 8)],
+      ),
+    );
+    if (blur) {
+      lens = ClipRRect(
+        borderRadius: radius,
+        child: BackdropFilter(
+          // a slight zoom-like distortion, as a lens would do
+          filter: ImageFilter.compose(
+            outer: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
+            inner: ImageFilter.matrix((Matrix4.identity()..scaleByDouble(1.12, 1.12, 1, 1)).storage),
+          ),
+          child: lens,
+        ),
+      );
+    }
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        bar,
+        Positioned.fill(
+          child: IgnorePointer(
+            child: AnimatedAlign(
+              alignment: Alignment(isRtl ? -position : position, 0),
+              duration: settings.animate ? const Duration(milliseconds: 320) : Duration.zero,
+              curve: Curves.easeOutBack,
+              child: FractionallySizedBox(
+                widthFactor: 1 / count,
+                heightFactor: .82,
+                child: Padding(padding: const EdgeInsets.symmetric(horizontal: 6), child: lens),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   int _getCurrentIndex(BuildContext context, List<AvesNavItem> items) {
     // current route may be null during navigation

@@ -1,3 +1,4 @@
+import 'package:aves/widgets/common/fx/liquid.dart';
 import 'package:aves/theme/durations.dart';
 import 'package:aves/theme/styles.dart';
 import 'package:aves/theme/themes.dart';
@@ -25,11 +26,13 @@ class const SettingsTileLeading({
         shape: BoxShape.circle,
       ),
       duration: ADurations.themeColorModeAnimation,
-      child: Icon(
-        icon,
-        size: 18,
-        color: DefaultTextStyle.of(context).style.color,
-        shadows: Theme.of(context).isDark ? AStyles.embossShadows : null,
+      child: LiquidIcon(
+        child: Icon(
+          icon,
+          size: 18,
+          color: DefaultTextStyle.of(context).style.color,
+          shadows: Theme.of(context).isDark ? AStyles.embossShadows : null,
+        ),
       ),
     );
   }

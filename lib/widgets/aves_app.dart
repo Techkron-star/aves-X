@@ -1,3 +1,4 @@
+import 'package:aves/widgets/common/fx/liquid.dart';
 import 'package:aves/model/security/auto_delete.dart';
 import 'package:aves/model/item_locks.dart';
 import 'package:aves/model/security/privacy_options.dart';
@@ -321,10 +322,12 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
                                 },
                                 navigatorObservers: _navigatorObservers,
                                 builder: (context, child) => AppLockGate(
-                                  child: AvesAppContentDecorator(
-                                    initialized: initialized,
-                                    source: _mediaStoreSource,
-                                    child: child,
+                                  child: GlassThemeScope(
+                                    child: AvesAppContentDecorator(
+                                      initialized: initialized,
+                                      source: _mediaStoreSource,
+                                      child: child,
+                                    ),
                                   ),
                                 ),
                                 onGenerateTitle: (context) => context.l10n.appName,
