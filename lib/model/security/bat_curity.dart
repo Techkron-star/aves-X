@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
@@ -16,6 +17,7 @@ final BatCurity batCurity = BatCurity._();
 
 class BatCurity extends ChangeNotifier {
   static const _enabledKey = 'batcurity_hash';
+  static const _vaultEncKey = 'batcurity_vault_enc';
   static const _prefix = 'a2id';
 
   // Argon2id parameters: 16 MiB, 3 passes, 1 lane
@@ -29,8 +31,75 @@ class BatCurity extends ChangeNotifier {
 
   bool get hashingEnabled => _enabled;
 
+  bool _vaultEncryption = false;
+
+  // vault files are encrypted at rest while the vaults are locked
+  bool get vaultEncryption => _vaultEncryption;
+
+  // operations on files are queued, as each one replaces files
+  Future<void> _chain = Future.value();
+
+  Future<T> _enqueue<T>(Future<T> Function() op) {
+    final completer = Completer<T>();
+    _chain = _chain.then((_) async {
+      try {
+        completer.complete(await op());
+      } catch (error, stack) {
+        completer.completeError(error, stack);
+      }
+    });
+    return completer.future;
+  }
+
+  // `true` if the vault does not need decryption, or was decrypted
+  Future<bool> decryptVault(String name) async {
+    if (!_vaultEncryption) return true;
+    final report = await _enqueue(() => securityService.cryptVault(name, encrypt: false));
+    return report != null && report.success;
+  }
+
+  Future<bool> encryptVault(String name) async {
+    if (!_vaultEncryption) return true;
+    final report = await _enqueue(() => securityService.cryptVault(name, encrypt: true));
+    return report != null && report.success;
+  }
+
+  // nothing is open when the app starts, so everything has to be encrypted
+  Future<void> encryptAllAtStartup() async {
+    // may run before `init`
+    if (await securityService.readValue<String>(_vaultEncKey) != '1') return;
+    _vaultEncryption = true;
+    await _enqueue(() => securityService.cryptAllVaults(encrypt: true));
+  }
+
+  // enabling encrypts the locked vaults now (the others when they lock);
+  // disabling decrypts everything first, and stays enabled if any file could not be decrypted
+  Future<bool> setVaultEncryption(BuildContext context, bool value) async {
+    if (value == _vaultEncryption) return true;
+    if (!await MasterCode.require(context)) return false;
+
+    if (value) {
+      _vaultEncryption = true;
+      await securityService.writeValue<String>(_vaultEncKey, '1');
+      for (final details in vaults.all.where((v) => vaults.isLocked(v.path))) {
+        await encryptVault(details.name);
+      }
+    } else {
+      final report = await _enqueue(() => securityService.cryptAllVaults(encrypt: false));
+      if (report == null || !report.success) {
+        notifyListeners();
+        return false;
+      }
+      _vaultEncryption = false;
+      await securityService.writeValue<String>(_vaultEncKey, null);
+    }
+    notifyListeners();
+    return true;
+  }
+
   Future<void> init() async {
     _enabled = await securityService.readValue<String>(_enabledKey) == '1';
+    _vaultEncryption = await securityService.readValue<String>(_vaultEncKey) == '1';
     notifyListeners();
   }
 

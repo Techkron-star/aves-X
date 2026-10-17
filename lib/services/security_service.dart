@@ -24,6 +24,20 @@ abstract class SecurityService {
 
   // clears all the data of the app (vaults included) and stops the app, `false` if it failed
   Future<bool> wipeAppData();
+
+  // encrypts or decrypts the files of a vault (by name); `null` if the call failed
+  Future<VaultCryptoReport?> cryptVault(String vault, {required bool encrypt});
+
+  // same for all the vaults
+  Future<VaultCryptoReport?> cryptAllVaults({required bool encrypt});
+}
+
+class VaultCryptoReport {
+  final int done, skipped, failed;
+
+  const VaultCryptoReport({required this.done, required this.skipped, required this.failed});
+
+  bool get success => failed == 0;
 }
 
 class PlatformSecurityService implements SecurityService {
@@ -81,5 +95,27 @@ class PlatformSecurityService implements SecurityService {
       await reportService.recordError(e, stack);
     }
     return false;
+  }
+
+  @override
+  Future<VaultCryptoReport?> cryptVault(String vault, {required bool encrypt}) => _crypt('cryptVault', {'vault': vault, 'encrypt': encrypt});
+
+  @override
+  Future<VaultCryptoReport?> cryptAllVaults({required bool encrypt}) => _crypt('cryptAllVaults', {'encrypt': encrypt});
+
+  Future<VaultCryptoReport?> _crypt(String method, Map<String, Object?> args) async {
+    try {
+      final result = await _platform.invokeMethod<Map>(method, args);
+      if (result != null) {
+        return VaultCryptoReport(
+          done: (result['done'] as num).toInt(),
+          skipped: (result['skipped'] as num).toInt(),
+          failed: (result['failed'] as num).toInt(),
+        );
+      }
+    } on PlatformException catch (e, stack) {
+      await reportService.recordError(e, stack);
+    }
+    return null;
   }
 }

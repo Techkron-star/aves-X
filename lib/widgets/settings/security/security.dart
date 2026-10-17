@@ -30,6 +30,7 @@ class SecuritySection extends SettingsSection {
   @override
   Future<List<SettingsTile>> tiles(BuildContext context) => Future.value([
     SettingsTileSecurityHashing(),
+    SettingsTileSecurityVaultEncryption(),
     SettingsTilePrivacyGroup(PrivacyGroup.appLock),
     SettingsTilePrivacyGroup(PrivacyGroup.destruction),
   ]);
@@ -93,6 +94,43 @@ class SettingsTileSecurityHashing extends SettingsTile {
           if (value && !await showRiskWarning(context, l10n.batCurityHashingWarning)) return;
           if (!context.mounted) return;
           await batCurity.setHashing(context, value);
+        },
+      );
+    },
+  );
+}
+
+class SettingsTileSecurityVaultEncryption extends SettingsTile {
+  @override
+  List<String> get settingKeys => [];
+
+  @override
+  String title(BuildContext context) => context.l10n.batCurityVaultEncTitle;
+
+  @override
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: batCurity,
+    builder: (context, _) {
+      final l10n = context.l10n;
+      final error = Theme.of(context).colorScheme.error;
+      return SwitchListTile(
+        title: Text(title(context)),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.batCurityVaultEncSubtitle),
+            const SizedBox(height: 4),
+            Text(l10n.batCurityOnlyIfYouKnow, style: TextStyle(color: error, fontWeight: FontWeight.w600)),
+          ],
+        ),
+        value: batCurity.vaultEncryption,
+        onChanged: (value) async {
+          if (value && !await showRiskWarning(context, l10n.batCurityVaultEncWarning)) return;
+          if (!context.mounted) return;
+          final ok = await batCurity.setVaultEncryption(context, value);
+          if (!ok && !value && context.mounted) {
+            ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(l10n.batCurityVaultEncDisableFailed)));
+          }
         },
       );
     },

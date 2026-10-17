@@ -1,3 +1,4 @@
+import 'package:aves/model/security/bat_curity.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -155,10 +156,23 @@ class Vaults {
 
     _unlockedDirPaths.removeAll(unlocked);
     _onLockStateChanged();
+
+    // encryption at rest (Bat-curity), if enabled
+    for (final path in unlocked) {
+      final name = detailsForPath(path)?.name;
+      if (name != null) unawaited(batCurity.encryptVault(name));
+    }
   }
 
   Future<void> unlock(BuildContext context, String dirPath) async {
     if (!vaults.isVault(dirPath) || !vaults.isLocked(dirPath)) return;
+
+    // decrypt the files first (Bat-curity); the vault stays locked if it fails
+    final vaultName = detailsForPath(dirPath)?.name;
+    if (vaultName != null && !await batCurity.decryptVault(vaultName)) {
+      await reportService.recordError('Failed to decrypt vault=$vaultName');
+      return;
+    }
 
     // recover untracked vault items
     final source = context.read<CollectionSource>();

@@ -10,12 +10,21 @@ import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import deckers.thibault.aves.channel.calls.Coresult.Companion.safe
+import deckers.thibault.aves.storage.StorageUtils
+import deckers.thibault.aves.utils.VaultCrypto
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import java.io.File
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 
 class SecurityHandler(private val context: Context) : MethodCallHandler {
     private var sharedPreferences: SharedPreferences? = null
+    private val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val vaultCrypto by lazy { VaultCrypto(context) }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
@@ -23,6 +32,8 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
             "readValue" -> safe(call, result, ::readValue)
             "getClockInfo" -> safe(call, result, ::getClockInfo)
             "wipeAppData" -> safe(call, result, ::wipeAppData)
+            "cryptVault" -> ioScope.launch { safe(call, result, ::cryptVault) }
+            "cryptAllVaults" -> ioScope.launch { safe(call, result, ::cryptAllVaults) }
             else -> result.notImplemented()
         }
     }
@@ -102,6 +113,46 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
         val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val success = activityManager.clearApplicationUserData()
         result.success(success)
+    }
+
+    // encrypts or decrypts the files of one vault (by name)
+    private fun cryptVault(call: MethodCall, result: MethodChannel.Result) {
+        val vault = call.argument<String>("vault")
+        val encrypt = call.argument<Boolean>("encrypt")
+        if (vault == null || encrypt == null || vault.contains('/') || vault.contains("..")) {
+            result.error("cryptVault-args", "missing or invalid arguments", null)
+            return
+        }
+
+        val dir = File(StorageUtils.getVaultRoot(context), vault)
+        result.success(synchronizedCrypt(dir, encrypt))
+    }
+
+    // encrypts or decrypts the files of every vault
+    private fun cryptAllVaults(call: MethodCall, result: MethodChannel.Result) {
+        val encrypt = call.argument<Boolean>("encrypt")
+        if (encrypt == null) {
+            result.error("cryptAllVaults-args", "missing arguments", null)
+            return
+        }
+
+        var done = 0
+        var skipped = 0
+        var failed = 0
+        File(StorageUtils.getVaultRoot(context)).listFiles()?.filter { it.isDirectory }?.forEach { dir ->
+            val report = synchronizedCrypt(dir, encrypt)
+            done += report["done"] ?: 0
+            skipped += report["skipped"] ?: 0
+            failed += report["failed"] ?: 0
+        }
+        result.success(hashMapOf("done" to done, "skipped" to skipped, "failed" to failed))
+    }
+
+    // one operation at a time, as they replace files
+    @Synchronized
+    private fun synchronizedCrypt(dir: File, encrypt: Boolean): Map<String, Int> {
+        val report = vaultCrypto.processDirectory(dir, encrypt)
+        return hashMapOf("done" to report.done, "skipped" to report.skipped, "failed" to report.failed)
     }
 
     companion object {

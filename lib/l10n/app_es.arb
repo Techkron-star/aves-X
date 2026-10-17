@@ -838,5 +838,9 @@
   "batCurityOnlyIfYouKnow": "Solo activar si sabe lo que está haciendo",
   "batCurityHashingWarning": "El hasheo de Bat-curity convierte todas tus credenciales en hashes irreversibles. Comprobar un código será más lento y nada podrá mostrarte un código olvidado. Desactivarlo requiere el código maestro. Continúa solo si lo entiendes.",
   "batCurityOfferMessage": "¿Quieres seguridad extra (Bat-curity)? No se activa sola: te llevaremos a la sección Seguridad, donde puedes activarla tú mismo.",
-  "batCurityOfferGo": "Ir a Seguridad"
+  "batCurityOfferGo": "Ir a Seguridad",
+  "batCurityVaultEncTitle": "Bat-curity: cifrar archivos de las vaults",
+  "batCurityVaultEncSubtitle": "Los archivos de las vaults se cifran (AES-256-GCM, clave protegida por el Keystore de Android) mientras la vault está bloqueada, así no se pueden leer desde la carpeta de datos de la app, ni con root. Se descifran al desbloquear la vault y se vuelven a cifrar al bloquearla o reiniciar la app.",
+  "batCurityVaultEncWarning": "Los archivos de las vaults se reescribirán cifrados. Si se pierden los datos de la app o la clave del dispositivo (borrar datos, restaurar una copia en otro dispositivo, restablecer de fábrica), los archivos cifrados NO se podrán recuperar JAMÁS. Mientras una vault está desbloqueada sus archivos son legibles. Guarda copias de lo importante. Continúa solo si lo entiendes.",
+  "batCurityVaultEncDisableFailed": "Algunos archivos de las vaults no se pudieron descifrar, así que el cifrado sigue activado."
 }

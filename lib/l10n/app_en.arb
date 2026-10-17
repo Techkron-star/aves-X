@@ -1131,5 +1131,9 @@
   "batCurityOnlyIfYouKnow": "Only enable if you know what you are doing",
   "batCurityHashingWarning": "Bat-curity hashing converts all your credentials into one-way hashes. Checking a code becomes slower, and nothing can ever show you a forgotten code. Turning it off needs the Master Code. Continue only if you understand this.",
   "batCurityOfferMessage": "Do you want extra security (Bat-curity)? It is not enabled automatically: you will be taken to the Security section, where you can enable it yourself.",
-  "batCurityOfferGo": "Go to Security"
+  "batCurityOfferGo": "Go to Security",
+  "batCurityVaultEncTitle": "Bat-curity: encrypt vault files",
+  "batCurityVaultEncSubtitle": "Vault files are encrypted (AES-256-GCM, key protected by the Android Keystore) while the vault is locked, so they cannot be read from the app data folder, even with root. They are decrypted when you unlock the vault and encrypted again when it locks or the app restarts.",
+  "batCurityVaultEncWarning": "Vault files will be rewritten as encrypted files. If the app data or the device key is lost (clearing data, restoring a backup on another device, factory reset), the encrypted files can NEVER be recovered. While a vault is unlocked its files are readable. Keep copies of what matters. Continue only if you understand this.",
+  "batCurityVaultEncDisableFailed": "Some vault files could not be decrypted, so encryption stays on."
 }

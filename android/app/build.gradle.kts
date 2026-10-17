@@ -225,6 +225,8 @@ dependencies {
     // Jetpack `security-crypto` library is deprecated:
     // https://developer.android.com/privacy-and-security/cryptography#security-crypto-jetpack-deprecated
     implementation(libs.androidx.security.crypto)
+    // streaming encryption of vault files (Bat-curity), already used by `security-crypto`
+    implementation("com.google.crypto.tink:tink-android:1.13.0")
     implementation(libs.androidx.work.runtime)
 
     implementation(libs.commonsware.cwac)
