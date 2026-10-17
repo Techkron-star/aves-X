@@ -20,15 +20,20 @@ mixin DisplaySettings on SettingsAccess {
 
   set enableDynamicColor(bool newValue) => set(SettingKeys.enableDynamicColorKey, newValue);
 
-  bool get glassEverywhere => getBool(SettingKeys.glassEverywhereKey) ?? SettingsDefaults.glassEverywhere;
+  bool get glassEverywhere => !performanceMode && (getBool(SettingKeys.glassEverywhereKey) ?? SettingsDefaults.glassEverywhere);
 
   set glassEverywhere(bool newValue) => set(SettingKeys.glassEverywhereKey, newValue);
+
+  bool get navLens => !performanceMode && (getBool(SettingKeys.navLensKey) ?? SettingsDefaults.navLens);
+
+  set navLens(bool newValue) => set(SettingKeys.navLensKey, newValue);
 
   NavBarStyle get navBarStyle => getEnumOrDefault(SettingKeys.navBarStyleKey, SettingsDefaults.navBarStyle, NavBarStyle.values);
 
   set navBarStyle(NavBarStyle newValue) => set(SettingKeys.navBarStyleKey, newValue.name);
 
-  bool get batGlass => getBool(SettingKeys.batGlassKey) ?? SettingsDefaults.batGlass;
+  // performance mode always wins over the visual effects
+  bool get batGlass => !performanceMode && (getBool(SettingKeys.batGlassKey) ?? SettingsDefaults.batGlass);
 
   set batGlass(bool newValue) => set(SettingKeys.batGlassKey, newValue);
 

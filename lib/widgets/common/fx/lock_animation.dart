@@ -1,13 +1,14 @@
 import 'dart:math';
 
 import 'package:aves/model/settings/settings.dart';
+import 'package:aves/widgets/common/fx/liquid.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 // Badge shown over locked thumbnails, in place of a plain padlock icon.
 // When the item was just locked (`fresh`), it plays a short animation over the thumbnail:
 // two chains crossing in an X, then the padlock falling on the crossing.
-// With "Bat glass": ruby chains and a translucent bat with a keyhole, with a shimmering light inside.
+// With "Bat-Glass": ruby chains and a translucent bat with a keyhole, with a shimmering light inside.
 class LockedBadge extends StatefulWidget {
   final bool fresh;
 
@@ -19,7 +20,7 @@ class LockedBadge extends StatefulWidget {
 
 class _LockedBadgeState extends State<LockedBadge> with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1100));
-  bool get _playing => widget.fresh && settings.animate;
+  bool get _playing => widget.fresh && settings.animate && !settings.performanceMode;
 
   @override
   void initState() {
@@ -57,8 +58,9 @@ class _LockedBadgeState extends State<LockedBadge> with SingleTickerProviderStat
             return Stack(
               alignment: Alignment.center,
               children: [
-                // the chains stay in place once locked
-                Positioned.fill(
+                // the chains stay in place once locked (not in performance mode: padlock only)
+                if (!settings.performanceMode)
+                  Positioned.fill(
                   child: CustomPaint(painter: _ChainsPainter(progress: chains, ruby: bat, scale: scale)),
                 ),
                 Transform.translate(
@@ -81,53 +83,27 @@ class _LockedBadgeState extends State<LockedBadge> with SingleTickerProviderStat
   }
 }
 
-// a soft light sweeping across the child, keeping its shape and details
-class _Shimmer extends StatefulWidget {
+// a soft light sweeping across the child from time to time, keeping its shape and details
+class _Shimmer extends StatelessWidget {
   final bool enabled;
   final Widget child;
 
   const _Shimmer({required this.enabled, required this.child});
 
   @override
-  State<_Shimmer> createState() => _ShimmerState();
-}
-
-class _ShimmerState extends State<_Shimmer> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 2600));
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.enabled) _controller.repeat();
-  }
-
-  @override
-  void didUpdateWidget(covariant _Shimmer oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.enabled && !_controller.isAnimating) _controller.repeat();
-    if (!widget.enabled) _controller.stop();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (!widget.enabled) return widget.child;
-    return AnimatedBuilder(
-      animation: _controller,
-      child: widget.child,
-      builder: (context, child) => ShaderMask(
+    return RandomBurst(
+      enabled: enabled,
+      duration: const Duration(milliseconds: 1500),
+      child: child,
+      builder: (context, t, child) => ShaderMask(
         blendMode: BlendMode.srcATop,
         shaderCallback: (bounds) => LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: const [Color(0x00FFFFFF), Color(0xB3FFB3BF), Color(0x00FFFFFF)],
           stops: const [.25, .5, .75],
-          transform: _Slide(_controller.value),
+          transform: _Slide(t),
         ).createShader(bounds),
         child: child,
       ),
@@ -190,9 +166,9 @@ class _ChainsPainter extends CustomPainter {
 }
 
 class _PadlockPainter extends CustomPainter {
-  final bool bat, open;
+  final bool bat, open, keyhole;
 
-  const _PadlockPainter({required this.bat, required this.open});
+  const _PadlockPainter({required this.bat, required this.open, this.keyhole = true});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -263,6 +239,7 @@ class _PadlockPainter extends CustomPainter {
         ..strokeJoin = StrokeJoin.round
         ..color = const Color(0xCCFFB3BF),
     );
+    if (!keyhole) return;
     // keyhole, with a small key shape when unlocked
     final hole = Paint()..color = const Color(0xFF1A0308);
     canvas.drawCircle(const Offset(50, 50), 6, hole);
@@ -273,5 +250,25 @@ class _PadlockPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _PadlockPainter old) => old.bat != bat || old.open != open;
+  bool shouldRepaint(covariant _PadlockPainter old) => old.bat != bat || old.open != open || old.keyhole != keyhole;
+}
+
+// small translucent ruby bat (no keyhole), optionally mirrored
+class BatMark extends StatelessWidget {
+  final double size;
+  final bool mirrored;
+
+  const BatMark({super.key, this.size = 28, this.mirrored = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.flip(
+      flipX: mirrored,
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: CustomPaint(painter: const _PadlockPainter(bat: true, open: false, keyhole: false)),
+      ),
+    );
+  }
 }

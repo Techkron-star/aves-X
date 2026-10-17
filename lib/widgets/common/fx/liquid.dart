@@ -1,62 +1,121 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/themes.dart';
 import 'package:material_ui/material_ui.dart';
 
-// "Bat glass": icons get a slow liquid highlight flowing inside them.
-// No-op without Bat glass, or when animations are disabled (e.g. performance mode).
-class LiquidIcon extends StatefulWidget {
+// Plays `builder` in short bursts at random moments, and shows the plain `child` the rest of the time.
+// Every instance has its own random timing, so that effects never run all at once:
+// this keeps the cost low even with many icons or badges on screen.
+class RandomBurst extends StatefulWidget {
+  final bool enabled;
+  final Duration duration;
+  final int minPauseMillis, maxPauseMillis;
   final Widget child;
+  final Widget Function(BuildContext context, double t, Widget child) builder;
 
-  const LiquidIcon({super.key, required this.child});
+  const RandomBurst({
+    super.key,
+    required this.enabled,
+    this.duration = const Duration(milliseconds: 1400),
+    this.minPauseMillis = 2500,
+    this.maxPauseMillis = 9000,
+    required this.child,
+    required this.builder,
+  });
 
   @override
-  State<LiquidIcon> createState() => _LiquidIconState();
+  State<RandomBurst> createState() => _RandomBurstState();
 }
 
-class _LiquidIconState extends State<LiquidIcon> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 3600));
+class _RandomBurstState extends State<RandomBurst> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(vsync: this, duration: widget.duration);
+  final _random = Random();
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    if (_active) _controller.repeat();
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _controller.value = 0;
+        _schedule();
+      }
+    });
+    if (widget.enabled) _schedule(first: true);
   }
 
-  bool get _active => settings.batGlass && settings.animate;
+  void _schedule({bool first = false}) {
+    _timer?.cancel();
+    final span = widget.maxPauseMillis - widget.minPauseMillis;
+    final pause = (first ? 0 : widget.minPauseMillis) + _random.nextInt(first ? widget.maxPauseMillis : span);
+    _timer = Timer(Duration(milliseconds: pause), () {
+      if (mounted && widget.enabled) _controller.forward(from: 0);
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant RandomBurst oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.enabled && !oldWidget.enabled) _schedule(first: true);
+    if (!widget.enabled) {
+      _timer?.cancel();
+      _controller.value = 0;
+    }
+  }
 
   @override
   void dispose() {
+    _timer?.cancel();
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_active) {
-      _controller.stop();
-      return widget.child;
-    }
-    if (!_controller.isAnimating) _controller.repeat();
+    if (!widget.enabled) return widget.child;
+    return AnimatedBuilder(
+      animation: _controller,
+      child: widget.child,
+      builder: (context, child) {
+        // idle: no shader, no extra layer
+        if (!_controller.isAnimating) return child!;
+        return widget.builder(context, _controller.value, child!);
+      },
+    );
+  }
+}
+
+// "Bat-Glass": icons get a liquid highlight flowing inside them from time to time.
+// No-op without Bat-Glass, or when animations are disabled (e.g. performance mode).
+class LiquidIcon extends StatelessWidget {
+  final Widget child;
+
+  const LiquidIcon({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = settings.batGlass && settings.animate;
+    if (!enabled) return child;
 
     final base = IconTheme.of(context).color ?? Theme.of(context).colorScheme.onSurface;
     final highlight = Color.lerp(base, const Color(0xFFFF8A9B), .9)!.withValues(alpha: base.a);
     final deep = Color.lerp(base, Themes.batGlassRuby, .35)!.withValues(alpha: base.a);
-    return RepaintBoundary(
-      child: AnimatedBuilder(
-        animation: _controller,
-        child: widget.child,
-        builder: (context, child) => ShaderMask(
-          blendMode: BlendMode.srcIn,
-          shaderCallback: (bounds) => LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [deep, highlight, base, deep],
-            stops: const [0, .35, .65, 1],
-            tileMode: TileMode.repeated,
-            transform: _LiquidSlide(_controller.value),
-          ).createShader(bounds),
-          child: child,
-        ),
+    return RandomBurst(
+      enabled: true,
+      child: child,
+      builder: (context, t, child) => ShaderMask(
+        blendMode: BlendMode.srcIn,
+        shaderCallback: (bounds) => LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [deep, highlight, base, deep],
+          stops: const [0, .35, .65, 1],
+          tileMode: TileMode.repeated,
+          transform: _LiquidSlide(t),
+        ).createShader(bounds),
+        child: child,
       ),
     );
   }
@@ -76,7 +135,7 @@ class _LiquidSlide extends GradientTransform {
 }
 
 // Glass look for selectable controls (switches, tiles, checkboxes) when
-// "Glass everywhere" or "Bat glass" is on.
+// "Glass everywhere" or "Bat-Glass" is on.
 class GlassThemeScope extends StatelessWidget {
   final Widget? child;
 

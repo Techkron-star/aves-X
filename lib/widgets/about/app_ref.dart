@@ -1,3 +1,4 @@
+import 'package:aves/widgets/common/fx/lock_animation.dart';
 import 'package:aves/model/device.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/theme/styles.dart';
@@ -33,8 +34,56 @@ class AppReference extends StatelessWidget {
             crossAxisAlignment: .center,
             children: AppReference.buildLinks(context),
           ),
+          const SizedBox(height: 20),
+          _buildForkCredit(context),
         ],
       ),
+    );
+  }
+
+  // the author of the fork, highlighted with the Bat-Glass look and a bat on each side
+  Widget _buildForkCredit(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          context.l10n.aboutForkedBy,
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        const SizedBox(height: 6),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xCC2A0710), Color(0xCC090103)],
+            ),
+            border: Border.all(color: const Color(0x99FF6A80), width: 1.2),
+            boxShadow: const [BoxShadow(color: Color(0x44E0183E), blurRadius: 14)],
+          ),
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            child: Row(
+              mainAxisSize: .min,
+              spacing: 6,
+              children: [
+                // both bats look towards the name
+                BatMark(size: 30),
+                LinkChip(
+                  leading: Icon(
+                    AIcons.github,
+                    size: 22,
+                    color: Colors.white,
+                  ),
+                  text: 'Techkron-star',
+                  urlString: 'https://github.com/Techkron-star',
+                ),
+                BatMark(size: 30, mirrored: true),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 

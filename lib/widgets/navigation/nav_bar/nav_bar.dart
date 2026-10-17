@@ -1,3 +1,4 @@
+import 'package:aves/theme/themes.dart';
 import 'dart:ui';
 import 'package:aves/widgets/common/fx/liquid.dart';
 import 'package:aves/model/settings/enums/nav_bar_style.dart';
@@ -80,6 +81,8 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
     if (items.length < 2) return const SizedBox();
 
     final navBarStyle = context.select<Settings, NavBarStyle>((v) => v.navBarStyle);
+    // rebuild when the lens is toggled
+    context.select<Settings, bool>((v) => v.navLens);
     final safeBottomPadding = context.select<MediaQueryData, double>((mq) => mq.safeBottomPadding);
     Widget child = FloatingNavBar(
       scrollController: PrimaryScrollController.of(context),
@@ -116,6 +119,8 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
                       final label = item.getText(context);
                       return BottomNavigationBarItem(
                         icon: LiquidIcon(child: item.getIcon(context)),
+                        // without the lens, the current tab glows so that it can be told apart
+                        activeIcon: settings.navLens ? null : _glow(context, LiquidIcon(child: item.getIcon(context))),
                         label: label,
                         tooltip: label,
                       );
@@ -156,9 +161,20 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
 
   void _onCollectionFilterChanged() => setState(() {});
 
+  Widget _glow(BuildContext context, Widget icon) {
+    final color = settings.batGlass ? Themes.batGlassRuby : Theme.of(context).colorScheme.primary;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        boxShadow: [BoxShadow(color: color.withValues(alpha: .65), blurRadius: 16, spreadRadius: 2)],
+      ),
+      child: icon,
+    );
+  }
+
   // iOS-like lens over the selected item (rounded and rectangular bars)
   Widget _withLens(BuildContext context, NavBarStyle style, int count, int index, bool isRtl, Widget bar) {
-    if (style == NavBarStyle.classic) return bar;
+    if (style == NavBarStyle.classic || !settings.navLens) return bar;
     final blur = settings.enableBlurEffect;
     final bat = settings.batGlass;
     final radius = BorderRadius.circular(style == NavBarStyle.rectangular ? 8 : 22);

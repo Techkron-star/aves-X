@@ -397,6 +397,7 @@ class Settings
           case SettingKeys.enableBlurEffectKey:
           case SettingKeys.batGlassKey:
           case SettingKeys.performanceModeKey:
+          case SettingKeys.navLensKey:
           case SettingKeys.glassEverywhereKey:
           case SettingKeys.mustBackTwiceToExitKey:
           case SettingKeys.confirmCreateVaultKey:

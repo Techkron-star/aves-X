@@ -38,6 +38,7 @@ class DisplaySection extends SettingsSection {
     SettingsTileDisplayPerformanceMode(),
     SettingsTileDisplayEnableBlurEffect(),
     if (!settings.useTvLayout) SettingsTileDisplayNavBarStyle(),
+    if (!settings.useTvLayout) SettingsTileDisplayNavLens(),
     if (!settings.useTvLayout) SettingsTileDisplayMaxBrightness(),
     if (!settings.useTvLayout) SettingsTileDisplayRefreshRateMode(),
     if (!device.isTelevision) SettingsTileDisplayForceTvLayout(),
@@ -233,5 +234,21 @@ class SettingsTileDisplayPerformanceMode extends SettingsTile {
     onChanged: (v) => settings.performanceMode = v,
     title: title,
     subtitle: (context) => context.l10n.settingsPerformanceModeSubtitle,
+  );
+}
+
+class SettingsTileDisplayNavLens extends SettingsTile {
+  @override
+  List<String> get settingKeys => [SettingKeys.navLensKey];
+
+  @override
+  String title(BuildContext context) => context.l10n.settingsNavLens;
+
+  @override
+  Widget build(BuildContext context) => SettingsSwitchListTile(
+    selector: (context, s) => s.navLens,
+    onChanged: (v) => settings.navLens = v,
+    title: title,
+    subtitle: (context) => context.l10n.settingsNavLensSubtitle,
   );
 }

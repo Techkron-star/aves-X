@@ -33,10 +33,10 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 
 ## Principios
 - **Todo es opt-in**: ninguna función nueva de privacidad ni experimental viene activada por defecto.
-- Sección **EXPERIMENTAL** en Ajustes (con aviso al abrirla): Bat glass y efecto cristal en diálogos/menú lateral.
+- Sección **EXPERIMENTAL** en Ajustes (con aviso al abrirla): Bat-Glass y efecto cristal en diálogos/menú lateral.
 - Feedback háptico y visual al bloquear/desbloquear álbumes, fotos y favoritos.
 
-- [x] Estilo de la barra de navegación (clásica, redondeada, flotante, rectangular). Botones sólidos → cristal rubí translúcido con Bat glass / cristal en todas partes. Acerca de actualizado (Aves-X alpha, basado en Aves).
+- [x] Estilo de la barra de navegación (clásica, redondeada, flotante, rectangular). Botones sólidos → cristal rubí translúcido con Bat-Glass / cristal en todas partes. Acerca de actualizado (Aves-X alpha, basado en Aves).
 
 ## 0.3 — Destrucción (nuke) y Master Code
 - [x] **Master Code** de 6 dígitos: se crea antes de cualquier PIN/contraseña, obligatorio para cambiar o quitar cualquier credencial (vaults, papelera, revelado, bloqueo de app, seguridad avanzada) y para el nuke manual. Sin recuperación.
@@ -76,7 +76,7 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 - [x] Cristal más transparente (barras y botones con fondo casi translúcido).
 - [x] Logo de murciélago como icono y logo dentro de la app; nombre "Aves-X".
 - [x] Blur más fuerte y reutilizable (`Blurred*`) con reflejo y borde de cristal en barras y botones flotantes.
-- [~] **Tema "Bat glass"** (experimental, Ajustes → Pantalla): negro con cristal líquido rubí. Primera versión: esquema oscuro negro/rubí y reflejos rojos en las superficies de cristal; falta pulir.
+- [~] **Tema "Bat-Glass"** (experimental, Ajustes → Pantalla): negro con cristal líquido rubí. Primera versión: esquema oscuro negro/rubí y reflejos rojos en las superficies de cristal; falta pulir.
 - [ ] Liquid glass avanzado (saturación y refracción del fondo), blur específico en el visor, animaciones.
 - [ ] Rediseño de Ajustes en niveles (básico / avanzado / experimental), gestos configurables.
 - [ ] Indicadores visuales de oculto / vault / bloqueado / protegido.
@@ -96,7 +96,7 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 - Los archivos de `flavors/` del proyecto original están desactualizados; el workflow genera la variante libre a partir de `pubspec.yaml`.
 - El chequeo `Quality check` del fork marca avisos de estilo en análisis estático (no afectan al APK).
 
-## Bat-curity (in progress)
+## Bat-Curity (in progress)
 
 - [x] "Security" settings category (App lock, Master Code, nuke, hashing)
 - [x] Argon2id + random salt hashing of all credentials (opt-in, only the Master Code can disable it; offered after creating the Master Code)
@@ -105,7 +105,14 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 
 ## Other recent additions
 
-- [x] Lock animation (chains + padlock; ruby chains + bat padlock in Bat glass)
-- [x] Nav bar lens (rounded/rectangular), liquid icons in Bat glass, glass controls
+- [x] Lock animation (chains + padlock; ruby chains + bat padlock in Bat-Glass)
+- [x] Nav bar lens (rounded/rectangular), liquid icons in Bat-Glass, glass controls
 - [x] Performance mode, automatic deletion, PNG/WebP metadata removal, lock from the viewer
 - [x] Fix: nav bar vanishing after turning the TV layout off (inherited from Aves)
+
+## Next
+
+- [ ] Glass-Everywhere 2.0: glass look for every screen, dialog and control, with a lower cost
+- [ ] Bat-Curity: encryption of individually locked photos and albums
+- [ ] Attempt counters for bin / hidden-items / item locks
+- [ ] Metadata removal for HEIC, AVIF and GIF
