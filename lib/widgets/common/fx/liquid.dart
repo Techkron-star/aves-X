@@ -105,18 +105,24 @@ class LiquidIcon extends StatelessWidget {
     return RandomBurst(
       enabled: true,
       child: child,
-      builder: (context, t, child) => ShaderMask(
-        blendMode: BlendMode.srcIn,
-        shaderCallback: (bounds) => LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [deep, highlight, base, deep],
-          stops: const [0, .35, .65, 1],
-          tileMode: TileMode.repeated,
-          transform: _LiquidSlide(t),
-        ).createShader(bounds),
-        child: child,
-      ),
+      builder: (context, t, child) {
+        // fade in and out, so that the effect starts and ends without a visible cut
+        final e = sin(pi * t);
+        final d = Color.lerp(base, deep, e)!;
+        final h = Color.lerp(base, highlight, e)!;
+        return ShaderMask(
+          blendMode: BlendMode.srcIn,
+          shaderCallback: (bounds) => LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [d, h, base, d],
+            stops: const [0, .35, .65, 1],
+            tileMode: TileMode.repeated,
+            transform: _LiquidSlide(t),
+          ).createShader(bounds),
+          child: child,
+        );
+      },
     );
   }
 }

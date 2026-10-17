@@ -96,17 +96,21 @@ class _Shimmer extends StatelessWidget {
       enabled: enabled,
       duration: const Duration(milliseconds: 1500),
       child: child,
-      builder: (context, t, child) => ShaderMask(
-        blendMode: BlendMode.srcATop,
-        shaderCallback: (bounds) => LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: const [Color(0x00FFFFFF), Color(0xB3FFB3BF), Color(0x00FFFFFF)],
-          stops: const [.25, .5, .75],
-          transform: _Slide(t),
-        ).createShader(bounds),
-        child: child,
-      ),
+      builder: (context, t, child) {
+        // fade in and out, so that the effect starts and ends without a visible cut
+        final e = sin(pi * t);
+        return ShaderMask(
+          blendMode: BlendMode.srcATop,
+          shaderCallback: (bounds) => LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [const Color(0x00FFFFFF), Color(0xFFFFB3BF).withValues(alpha: .7 * e), const Color(0x00FFFFFF)],
+            stops: const [.25, .5, .75],
+            transform: _Slide(t),
+          ).createShader(bounds),
+          child: child,
+        );
+      },
     );
   }
 }
