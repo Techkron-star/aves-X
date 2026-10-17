@@ -932,6 +932,7 @@ class _AvesAppContentDecoratorState extends State<AvesAppContentDecorator> with 
     } else {
       _pageTransitionsBuilderNotifier.value = _defaultPageTransitionsBuilder;
       _tvMediaQueryModifierNotifier.value = null;
+      settings.revertTvSettings();
       await windowService.requestOrientation(null);
     }
   }

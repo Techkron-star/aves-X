@@ -1,3 +1,5 @@
+import 'package:aves/model/settings/settings.dart';
+import 'package:aves/widgets/common/fx/lock_animation.dart';
 import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:flutter/services.dart';
@@ -98,6 +100,11 @@ class ItemLocks extends ChangeNotifier {
   void _feedback(BuildContext context, bool locked) {
     HapticFeedback.mediumImpact();
     if (!context.mounted) return;
+    // short animation (chains and padlock); without animations, a message instead
+    if (settings.animate) {
+      showLockAnimation(context, locked: locked);
+      return;
+    }
     final l10n = context.l10n;
     ScaffoldMessenger.maybeOf(context)?.showSnackBar(
       SnackBar(

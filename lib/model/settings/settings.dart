@@ -167,7 +167,43 @@ class Settings
     }
   }
 
+  static const _tvAppliedKey = 'tv_settings_applied';
+
+  static const _tvOverriddenKeys = [
+    SettingKeys.themeBrightnessKey,
+    SettingKeys.maxBrightnessKey,
+    SettingKeys.mustBackTwiceToExitKey,
+    SettingKeys.keepScreenOnKey,
+    SettingKeys.drawerTypeBookmarksKey,
+    SettingKeys.drawerPageBookmarksKey,
+    SettingKeys.bottomNavigationActionsKey,
+    SettingKeys.showOverlayOnOpeningKey,
+    SettingKeys.showOverlayMinimapKey,
+    SettingKeys.showOverlayZoomLevelKey,
+    SettingKeys.showOverlayThumbnailPreviewKey,
+    SettingKeys.viewerGestureSideTapNextKey,
+    SettingKeys.viewerUseCutoutKey,
+    SettingKeys.videoBackgroundModeKey,
+    SettingKeys.videoControlActionsKey,
+    SettingKeys.videoGestureDoubleTapTogglePlayKey,
+    SettingKeys.videoGestureSideDoubleTapSeekKey,
+    SettingKeys.enableBinKey,
+    SettingKeys.showPinchGestureAlternativesKey,
+  ];
+
+  // `applyTvSettings` overrides many settings (e.g. empties the bottom navigation bar),
+  // so when the TV layout is turned off on a non-TV device, they must go back to their defaults,
+  // otherwise the navigation bar stays gone
+  void revertTvSettings() {
+    if (getBool(_tvAppliedKey) != true) return;
+    for (final key in _tvOverriddenKeys) {
+      set(key, null);
+    }
+    set(_tvAppliedKey, null);
+  }
+
   void applyTvSettings() {
+    if (!device.isTelevision) set(_tvAppliedKey, true);
     themeBrightness = AvesThemeBrightness.dark;
     maxBrightness = MaxBrightness.never;
     mustBackTwiceToExit = false;
