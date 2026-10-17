@@ -4,42 +4,33 @@ import 'package:aves/model/settings/settings.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
-// Short animation shown after locking an album or an item:
-// two chains crossing in an X, then a padlock falling on the crossing.
-// With "Bat glass": ruby chains, and a translucent bat with a keyhole instead of the padlock.
-Future<void> showLockAnimation(BuildContext context, {required bool locked}) async {
-  if (!settings.animate) return;
+// Badge shown over locked thumbnails, in place of a plain padlock icon.
+// When the item was just locked (`fresh`), it plays a short animation over the thumbnail:
+// two chains crossing in an X, then the padlock falling on the crossing.
+// With "Bat glass": ruby chains and a translucent bat with a keyhole, with a shimmering light inside.
+class LockedBadge extends StatefulWidget {
+  final bool fresh;
 
-  await showGeneralDialog<void>(
-    context: context,
-    barrierDismissible: false,
-    barrierColor: Colors.black38,
-    transitionDuration: Duration.zero,
-    useRootNavigator: true,
-    pageBuilder: (context, _, __) => _LockAnimation(locked: locked, bat: settings.batGlass),
-  );
-}
-
-class _LockAnimation extends StatefulWidget {
-  final bool locked, bat;
-
-  const _LockAnimation({required this.locked, required this.bat});
+  const LockedBadge({super.key, this.fresh = false});
 
   @override
-  State<_LockAnimation> createState() => _LockAnimationState();
+  State<LockedBadge> createState() => _LockedBadgeState();
 }
 
-class _LockAnimationState extends State<_LockAnimation> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1150));
+class _LockedBadgeState extends State<LockedBadge> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1100));
+  bool get _playing => widget.fresh && settings.animate;
 
   @override
   void initState() {
     super.initState();
-    _controller.forward().whenComplete(() {
-      if (mounted) Navigator.of(context, rootNavigator: true).pop();
-    });
-    // the "impact" of the padlock on the chains
-    Future.delayed(const Duration(milliseconds: 620), () => HapticFeedback.heavyImpact());
+    if (_playing) {
+      _controller.forward();
+      // the "impact" of the padlock on the chains
+      Future.delayed(const Duration(milliseconds: 600), () => HapticFeedback.heavyImpact());
+    } else {
+      _controller.value = 1;
+    }
   }
 
   @override
@@ -50,59 +41,126 @@ class _LockAnimationState extends State<_LockAnimation> with SingleTickerProvide
 
   @override
   Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Center(
-        child: SizedBox(
-          width: 220,
-          height: 220,
-          child: AnimatedBuilder(
-            animation: _controller,
-            builder: (context, _) {
-              final t = _controller.value;
-              final chains = Curves.easeOut.transform((t / 0.35).clamp(0, 1));
-              final fall = Curves.bounceOut.transform(((t - 0.3) / 0.45).clamp(0, 1));
-              final fade = 1 - Curves.easeIn.transform(((t - 0.85) / 0.15).clamp(0, 1));
-              final shake = t > 0.62 && t < 0.8 ? sin((t - 0.62) * 90) * 3 : 0.0;
-              return Opacity(
-                opacity: fade,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Positioned.fill(
-                      child: CustomPaint(painter: _ChainsPainter(progress: chains, ruby: widget.bat, broken: !widget.locked)),
+    final bat = settings.batGlass;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final box = min(constraints.maxWidth.isFinite ? constraints.maxWidth : 120.0, constraints.maxHeight.isFinite ? constraints.maxHeight : 120.0);
+        final lockSize = (box * .4).clamp(22.0, 64.0);
+        final scale = box / 220;
+        return AnimatedBuilder(
+          animation: _controller,
+          builder: (context, _) {
+            final t = _controller.value;
+            final chains = Curves.easeOut.transform((t / 0.35).clamp(0, 1));
+            final fall = Curves.bounceOut.transform(((t - 0.3) / 0.45).clamp(0, 1));
+            final chainsFade = 1 - Curves.easeIn.transform(((t - 0.8) / 0.2).clamp(0, 1));
+            final shake = t > 0.6 && t < 0.78 ? sin((t - 0.6) * 90) * 2 : 0.0;
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                if (t < 1)
+                  Positioned.fill(
+                    child: Opacity(
+                      opacity: chainsFade,
+                      child: CustomPaint(painter: _ChainsPainter(progress: chains, ruby: bat, scale: scale)),
                     ),
-                    Transform.translate(
-                      offset: Offset(shake, -(1 - fall) * 190),
-                      child: SizedBox(
-                        width: 84,
-                        height: 84,
-                        child: CustomPaint(painter: _PadlockPainter(bat: widget.bat, open: !widget.locked)),
-                      ),
+                  ),
+                Transform.translate(
+                  offset: Offset(shake, -(1 - fall) * box * .9),
+                  child: SizedBox(
+                    width: lockSize,
+                    height: lockSize,
+                    child: _Shimmer(
+                      enabled: bat && settings.animate,
+                      child: CustomPaint(painter: _PadlockPainter(bat: bat, open: false)),
                     ),
-                  ],
+                  ),
                 ),
-              );
-            },
-          ),
-        ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+// a soft light sweeping across the child, keeping its shape and details
+class _Shimmer extends StatefulWidget {
+  final bool enabled;
+  final Widget child;
+
+  const _Shimmer({required this.enabled, required this.child});
+
+  @override
+  State<_Shimmer> createState() => _ShimmerState();
+}
+
+class _ShimmerState extends State<_Shimmer> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 2600));
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.enabled) _controller.repeat();
+  }
+
+  @override
+  void didUpdateWidget(covariant _Shimmer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.enabled && !_controller.isAnimating) _controller.repeat();
+    if (!widget.enabled) _controller.stop();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!widget.enabled) return widget.child;
+    return AnimatedBuilder(
+      animation: _controller,
+      child: widget.child,
+      builder: (context, child) => ShaderMask(
+        blendMode: BlendMode.srcATop,
+        shaderCallback: (bounds) => LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: const [Color(0x00FFFFFF), Color(0xB3FFB3BF), Color(0x00FFFFFF)],
+          stops: const [.25, .5, .75],
+          transform: _Slide(_controller.value),
+        ).createShader(bounds),
+        child: child,
       ),
     );
   }
 }
 
-class _ChainsPainter extends CustomPainter {
-  final double progress;
-  final bool ruby, broken;
+class _Slide extends GradientTransform {
+  final double t;
 
-  const _ChainsPainter({required this.progress, required this.ruby, required this.broken});
+  const _Slide(this.t);
+
+  @override
+  Matrix4? transform(Rect bounds, {TextDirection? textDirection}) => Matrix4.translationValues(bounds.width * (t * 2.4 - 1.2), bounds.height * (t * 2.4 - 1.2), 0);
+}
+
+class _ChainsPainter extends CustomPainter {
+  final double progress, scale;
+  final bool ruby;
+
+  const _ChainsPainter({required this.progress, required this.ruby, required this.scale});
 
   @override
   void paint(Canvas canvas, Size size) {
     final c = size.center(Offset.zero);
-    final reach = size.width * 0.46 * progress;
+    final reach = size.shortestSide * 0.62 * progress;
     for (final angle in [pi / 4, -pi / 4]) {
       final dir = Offset(cos(angle), sin(angle));
-      const linkLength = 16.0;
+      final linkLength = 16.0 * scale;
       final count = (reach * 2 / linkLength).floor();
       for (var i = 0; i < count; i++) {
         final d = -reach + (i + .5) * linkLength;
@@ -110,8 +168,8 @@ class _ChainsPainter extends CustomPainter {
         canvas.translate(c.dx + dir.dx * d, c.dy + dir.dy * d);
         canvas.rotate(angle + (i.isEven ? 0 : pi / 2));
         final rect = RRect.fromRectAndRadius(
-          Rect.fromCenter(center: Offset.zero, width: linkLength + 4, height: i.isEven ? 11 : 6),
-          const Radius.circular(5),
+          Rect.fromCenter(center: Offset.zero, width: linkLength + 4 * scale, height: (i.isEven ? 11 : 6) * scale),
+          Radius.circular(5 * scale),
         );
         final fill = Paint()
           ..shader = (ruby
@@ -123,7 +181,7 @@ class _ChainsPainter extends CustomPainter {
           rect,
           Paint()
             ..style = PaintingStyle.stroke
-            ..strokeWidth = 1.4
+            ..strokeWidth = 1.4 * scale
             ..color = ruby ? const Color(0xCCFFB3BF) : const Color(0xFF3A3A3A),
         );
         canvas.restore();
@@ -132,7 +190,7 @@ class _ChainsPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _ChainsPainter old) => old.progress != progress || old.ruby != ruby;
+  bool shouldRepaint(covariant _ChainsPainter old) => old.progress != progress || old.ruby != ruby || old.scale != scale;
 }
 
 class _PadlockPainter extends CustomPainter {

@@ -1,3 +1,4 @@
+import 'package:aves/widgets/common/fx/lock_animation.dart';
 import 'dart:ui';
 
 import 'package:aves/model/item_locks.dart';
@@ -197,7 +198,7 @@ class _ThumbnailImageState extends State<ThumbnailImage> {
         if (settings.performanceMode) {
           return const ColoredBox(
             color: Color(0xFF2A2A2A),
-            child: Center(child: Icon(Icons.lock, color: Colors.white70)),
+            child: Center(child: LockedBadge()),
           );
         }
 
@@ -209,10 +210,10 @@ class _ThumbnailImageState extends State<ThumbnailImage> {
                 imageFilter: ImageFilter.blur(sigmaX: 24, sigmaY: 24, tileMode: TileMode.decal),
                 child: child,
               ),
-              const Positioned.fill(
+              Positioned.fill(
                 child: ColoredBox(
                   color: Colors.black26,
-                  child: Center(child: Icon(Icons.lock, color: Colors.white70)),
+                  child: LockedBadge(fresh: itemLocks.isFresh(entry)),
                 ),
               ),
             ],

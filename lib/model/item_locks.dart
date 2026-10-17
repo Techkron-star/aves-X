@@ -1,5 +1,4 @@
 import 'package:aves/model/settings/settings.dart';
-import 'package:aves/widgets/common/fx/lock_animation.dart';
 import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:flutter/services.dart';
@@ -28,6 +27,15 @@ class ItemLocks extends ChangeNotifier {
   final Set<String> _albums = {};
   final Set<String> _items = {};
   final Set<String> _open = {};
+  // just locked: the thumbnails play the lock animation
+  final Set<String> _fresh = {};
+
+  bool isFresh(AvesEntry entry) => _fresh.contains(entryKey(entry)) || (entry.directory != null && _fresh.contains('dir:${entry.directory}'));
+
+  void _markFresh(Iterable<String> keys) {
+    _fresh.addAll(keys);
+    Future.delayed(const Duration(seconds: 3), () => _fresh.removeAll(keys.toList()));
+  }
 
   Future<void> init() async {
     _albums
@@ -100,11 +108,8 @@ class ItemLocks extends ChangeNotifier {
   void _feedback(BuildContext context, bool locked) {
     HapticFeedback.mediumImpact();
     if (!context.mounted) return;
-    // short animation (chains and padlock); without animations, a message instead
-    if (settings.animate) {
-      showLockAnimation(context, locked: locked);
-      return;
-    }
+    // the animation is played by the locked thumbnails themselves (see `LockedBadge`)
+    if (settings.animate && locked) return;
     final l10n = context.l10n;
     ScaffoldMessenger.maybeOf(context)?.showSnackBar(
       SnackBar(
@@ -177,6 +182,7 @@ class ItemLocks extends ChangeNotifier {
     } else {
       if (!await _ensureEnabled(context) || !context.mounted || !await _ensureLock(context)) return;
       _items.addAll(entries.map(entryKey));
+      _markFresh(entries.map(entryKey));
     }
     await _save();
     if (context.mounted) _feedback(context, !allMarked);
@@ -193,6 +199,7 @@ class ItemLocks extends ChangeNotifier {
     } else {
       if (!await _ensureEnabled(context) || !context.mounted || !await _ensureLock(context)) return;
       _albums.addAll(dirPaths);
+      _markFresh(dirPaths.map((v) => 'dir:$v'));
     }
     await _save();
     if (context.mounted) _feedback(context, !allMarked);
