@@ -89,6 +89,7 @@ class EntrySetActions {
     .move,
     .rename,
     .toggleFavourite,
+    .toggleItemLock,
     null,
     .map,
     .slideshow,

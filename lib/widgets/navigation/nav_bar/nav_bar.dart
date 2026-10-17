@@ -158,10 +158,10 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
 
   // iOS-like lens over the selected item (rounded and rectangular bars)
   Widget _withLens(BuildContext context, NavBarStyle style, int count, int index, bool isRtl, Widget bar) {
-    if (style != NavBarStyle.rounded && style != NavBarStyle.rectangular) return bar;
+    if (style == NavBarStyle.classic) return bar;
     final blur = settings.enableBlurEffect;
     final bat = settings.batGlass;
-    final radius = BorderRadius.circular(style == NavBarStyle.rounded ? 22 : 8);
+    final radius = BorderRadius.circular(style == NavBarStyle.rectangular ? 8 : 22);
     final position = count <= 1 ? 0.0 : -1 + 2 * index / (count - 1);
     Widget lens = DecoratedBox(
       decoration: BoxDecoration(
@@ -179,11 +179,8 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
       lens = ClipRRect(
         borderRadius: radius,
         child: BackdropFilter(
-          // a slight zoom-like distortion, as a lens would do
-          filter: ImageFilter.compose(
-            outer: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
-            inner: ImageFilter.matrix((Matrix4.identity()..scaleByDouble(1.12, 1.12, 1, 1)).storage),
-          ),
+          // very light blur only, so that the icon below stays crisp
+          filter: ImageFilter.blur(sigmaX: .6, sigmaY: .6),
           child: lens,
         ),
       );
@@ -196,8 +193,8 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
           child: IgnorePointer(
             child: AnimatedAlign(
               alignment: Alignment(isRtl ? -position : position, 0),
-              duration: settings.animate ? const Duration(milliseconds: 320) : Duration.zero,
-              curve: Curves.easeOutBack,
+              duration: settings.animate ? const Duration(milliseconds: 650) : Duration.zero,
+              curve: const _SpringCurve(),
               child: FractionallySizedBox(
                 widthFactor: 1 / count,
                 heightFactor: .82,
@@ -306,4 +303,12 @@ class const NavBarPaddingSliver({super.key}) extends StatelessWidget {
       child: SizedBox(height: height),
     );
   }
+}
+
+// damped spring: overshoots the target and settles
+class _SpringCurve extends Curve {
+  const _SpringCurve();
+
+  @override
+  double transformInternal(double t) => 1 - exp(-6.5 * t) * cos(2 * pi * 1.4 * t);
 }
