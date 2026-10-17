@@ -1,3 +1,4 @@
+import 'package:aves/widgets/common/basic/feature_sticker.dart';
 import 'package:aves/widgets/settings/privacy/auto_delete_page.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:aves/model/item_locks.dart';
@@ -314,7 +315,13 @@ class _OptionSwitchTile extends SettingsTile {
     builder: (context, _) => SwitchListTile(
       value: _value(privacyOptions),
       onChanged: (v) => privacyOptions.change(context, key, v),
-      title: Text(title(context)),
+      title: Row(
+        children: [
+          Flexible(child: Text(title(context))),
+          const SizedBox(width: 8),
+          const FeatureSticker(kind: StickerKind.newFeature),
+        ],
+      ),
       subtitle: Text(_subtitle(context.l10n)),
     ),
   );

@@ -1,3 +1,4 @@
+import 'package:aves/widgets/common/fx/diamond.dart';
 import 'dart:ui';
 import 'package:aves/model/filters/container/album_group.dart';
 import 'package:aves/model/filters/covered/stored_album.dart';
@@ -194,7 +195,8 @@ class _AppDrawerState extends State<AppDrawer> with WidgetsBindingObserver {
     );
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      color: colorScheme.primary,
+      // red diamond look in the glass modes
+      decoration: (settings.batGlass || settings.glassEverywhere) ? const DiamondDecoration() : BoxDecoration(color: colorScheme.primary),
       child: SafeArea(
         bottom: false,
         child: OutlinedButtonTheme(

@@ -236,6 +236,7 @@ class SettingsTileDisplayPerformanceMode extends SettingsTile {
     onChanged: (v) => settings.performanceMode = v,
     title: title,
     subtitle: (context) => context.l10n.settingsPerformanceModeSubtitle,
+    sticker: const FeatureSticker(kind: StickerKind.newFeature),
   );
 }
 

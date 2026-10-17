@@ -82,7 +82,13 @@ class SettingsTileSecurityHashing extends SettingsTile {
       final l10n = context.l10n;
       final error = Theme.of(context).colorScheme.error;
       return SwitchListTile(
-        title: Text(title(context)),
+        title: Row(
+          children: [
+            Flexible(child: Text(title(context))),
+            const SizedBox(width: 8),
+            const FeatureSticker(kind: StickerKind.newFeature),
+          ],
+        ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

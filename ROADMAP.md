@@ -127,3 +127,25 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 ## Privacy
 
 - [x] No telemetry: Firebase/Crashlytics, Google services, their plugins, keys and settings were removed; errors are only logged on the device
+
+## Bat-Player (video player rewrite)
+
+- [ ] Quick controls: loop, shuffle, playback speed
+- [ ] YouTube-like gestures: slide on the left/right side of the screen for brightness/volume, double tap to seek
+- [ ] Codec / decoder options (hardware vs software), and investigate why some HD/4K videos play at ~10 fps
+- [ ] Equalizer-like and subtitle options as in other players
+
+## Bat-Cave (Glass-Everywhere 2.0) and Bat-Glass 2.0
+
+- [x] Side menu header with a translucent red diamond texture in the glass modes
+- [ ] Glass look for the search / filter area, the app bars and more screens
+- [ ] Bat-Lens: sliding effect when switching tabs
+- [ ] Swipe horizontally to change between the main tabs (favourites, albums, ...)
+
+## Tags for photos (stickers)
+
+- [ ] Free text labels / captions on photos and videos (e.g. "foto madre 17/11/2017"), searchable from the search page, not only file names and types
+
+## Major update (later)
+
+- [ ] Code optimization and wider compatibility
