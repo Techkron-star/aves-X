@@ -19,6 +19,8 @@ class Failsafe with WidgetsBindingObserver {
   static const _stateKey = 'failsafe_state';
   static const _crashesKey = 'failsafe_crashes';
   static const _logKey = 'failsafe_log';
+  static const _errorsKey = 'failsafe_errors';
+  static const _uncleanKey = 'failsafe_unclean';
   static const _maxLines = 60;
   static const _maxLogChars = 12000;
   static const _healthyAfter = Duration(seconds: 20);
@@ -46,11 +48,23 @@ class Failsafe with WidgetsBindingObserver {
       final previous = await securityService.readValue<String>(_logKey);
       if (previous != null && previous.isNotEmpty) _lines.addAll(const LineSplitter().convert(previous));
 
+      final previousErrors = int.tryParse(await securityService.readValue<String>(_errorsKey) ?? '') ?? 0;
+      var unclean = int.tryParse(await securityService.readValue<String>(_uncleanKey) ?? '') ?? 0;
       if (state == 'running') {
-        // the previous session never went to the background properly: it died
-        _crashes++;
-        _add('CRASH', 'Unclean exit detected (previous session ended while running, route=$_route)');
+        // the previous session ended while in the foreground. It could be a crash, or simply the app being
+        // force-stopped, so safe mode needs more evidence: errors in that session, or two unclean exits in a row
+        unclean++;
+        if (previousErrors > 0 || unclean >= 2) {
+          _crashes++;
+          _add('CRASH', 'Unclean exit detected (errors in previous session=$previousErrors, in a row=$unclean)');
+        } else {
+          _add('INFO', 'Unclean exit without errors, ignored once');
+        }
+      } else {
+        unclean = 0;
       }
+      await securityService.writeValue<String>(_uncleanKey, '$unclean');
+      await securityService.writeValue<String>(_errorsKey, '0');
       safeMode.value = _crashes > 0;
       if (safeMode.value) _add('SAFE', 'Safe mode enabled for this session (failures=$_crashes)');
       _add('BOOT', 'Launch');
@@ -80,7 +94,7 @@ class Failsafe with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == .paused) {
+    if (state == .paused || state == .hidden || state == .detached) {
       unawaited(securityService.writeValue<String>(_stateKey, 'background'));
       unawaited(_flush());
     } else if (state == .resumed) {
@@ -97,6 +111,7 @@ class Failsafe with WidgetsBindingObserver {
   // an uncaught error (Flutter framework, async zone or isolate)
   void record(Object error, StackTrace? stack, {String source = 'ERR'}) {
     _sessionErrors++;
+    unawaited(securityService.writeValue<String>(_errorsKey, '$_sessionErrors'));
     final text = '$error\n${stack ?? ''}';
     _add(source, '${error.toString().split('\n').first} | likely cause: ${diagnose(text).first} | route=$_route');
     if (stack != null) _add('STACK', stack.toString().split('\n').take(4).join(' <- '));
@@ -155,8 +170,12 @@ class Failsafe with WidgetsBindingObserver {
 
   String buildReport() {
     final all = _lines.join('\n');
-    final recent = _lines.where((l) => l.contains('[ERR]') || l.contains('[FLUTTER]') || l.contains('[CRASH]')).join('\n');
-    final causes = diagnose(recent.isEmpty ? all : recent);
+    // only the error lines, without the screen names that would match unrelated rules
+    final recent = _lines
+        .where((l) => l.contains('[ERR]') || l.contains('[FLUTTER]') || l.contains('[ISOLATE]') || l.contains('[STACK]'))
+        .map((l) => l.replaceAll(RegExp(r'route=\S+'), '').replaceAll(RegExp(r'likely cause: [^|]*\|'), ''))
+        .join('\n');
+    final causes = diagnose(recent);
     return [
       'Aves-X System Failsafe report',
       'Safe mode: ${safeMode.value ? 'ON' : 'off'} | failures counted: $_crashes | errors this session: $_sessionErrors',

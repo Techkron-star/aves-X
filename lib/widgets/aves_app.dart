@@ -846,6 +846,8 @@ class _AvesAppContentDecoratorState extends State<AvesAppContentDecorator> with 
   }
 
   Future<void> _onSourceStateChanged() async {
+    // the listener can fire while the widget is not mounted (e.g. at launch)
+    if (!mounted) return;
     final appMode = context.read<ValueNotifier<AppMode>>().value;
     if (appMode == .main) {
       if (source.isReady) {

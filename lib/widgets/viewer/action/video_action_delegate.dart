@@ -63,8 +63,12 @@ class VideoActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
       case .videoSetSpeed:
         await _showSpeedDialog(context, controller);
       case .videoToggleLoop:
-        // quick loop switch: loops when it was not looping, otherwise stops looping
-        settings.videoLoopMode = settings.videoLoopMode == VideoLoopMode.never ? VideoLoopMode.always : VideoLoopMode.never;
+        // quick loop switch: cycles through never, always, short videos only
+        settings.videoLoopMode = switch (settings.videoLoopMode) {
+          VideoLoopMode.never => VideoLoopMode.always,
+          VideoLoopMode.always => VideoLoopMode.shortOnly,
+          VideoLoopMode.shortOnly => VideoLoopMode.never,
+        };
       case .videoABRepeat:
         controller.toggleABRepeat();
       case .videoSettings:

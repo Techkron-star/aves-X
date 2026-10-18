@@ -1,3 +1,4 @@
+import 'package:aves/view/view.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/widgets/common/basic/popup/menu_row.dart';
@@ -22,10 +23,11 @@ class LoopToggler extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final on = context.select<Settings, bool>((s) => s.videoLoopMode == VideoLoopMode.always);
-    final color = on ? Theme.of(context).colorScheme.primary : null;
-    final icon = Icon(AIcons.videoLoop, color: color);
-    final text = context.l10n.videoActionLoop;
+    final mode = context.select<Settings, VideoLoopMode>((s) => s.videoLoopMode);
+    final color = mode == VideoLoopMode.never ? null : Theme.of(context).colorScheme.primary;
+    // repeat: off or short videos only, repeat one: always
+    final icon = Icon(mode == VideoLoopMode.always ? AIcons.videoLoop : (mode == VideoLoopMode.never ? AIcons.repeatOff : AIcons.repeat), color: color);
+    final text = '${context.l10n.videoActionLoop}: ${mode.getName(context)}';
     return isMenuItem
         ? MenuRow(text: text, icon: icon)
         : IconButton(

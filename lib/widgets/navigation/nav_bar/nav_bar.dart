@@ -178,7 +178,6 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
     final blur = settings.enableBlurEffect;
     final bat = settings.batGlass;
     final radius = BorderRadius.circular(style == NavBarStyle.rectangular ? 8 : 22);
-    final position = count <= 1 ? 0.0 : -1 + 2 * index / (count - 1);
     Widget lens = DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: radius,
@@ -207,16 +206,7 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
         bar,
         Positioned.fill(
           child: IgnorePointer(
-            child: AnimatedAlign(
-              alignment: Alignment(isRtl ? -position : position, 0),
-              duration: settings.animate ? const Duration(milliseconds: 650) : Duration.zero,
-              curve: const _SpringCurve(),
-              child: FractionallySizedBox(
-                widthFactor: 1 / count,
-                heightFactor: .82,
-                child: Padding(padding: const EdgeInsets.symmetric(horizontal: 6), child: lens),
-              ),
-            ),
+            child: _LensSlider(count: count, index: index, isRtl: isRtl, lens: lens),
           ),
         ),
       ],
@@ -251,6 +241,7 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
       _holdFired = false;
       return;
     }
+    LensMemory.remember(_getCurrentIndex(context, items));
     items[index].goTo(context, topLevel: null);
   }
 
@@ -329,8 +320,9 @@ class _SpringCurve extends Curve {
   double transformInternal(double t) => 1 - exp(-6.5 * t) * cos(2 * pi * 1.4 * t);
 }
 
-// swipe horizontally over the page to go to the previous / next item of the navigation bar
-class SwipeTabs extends StatelessWidget {
+// swipe horizontally over the page to go to the previous / next item of the navigation bar.
+// Raw pointer events are observed (no gesture arena), so scrolling and other gestures are never disturbed
+class SwipeTabs extends StatefulWidget {
   const SwipeTabs({
     super.key,
     required this.enabled,
@@ -342,21 +334,58 @@ class SwipeTabs extends StatelessWidget {
   final CollectionLens? currentCollection;
   final Widget child;
 
-  static const _minVelocity = 800.0;
+  @override
+  State<SwipeTabs> createState() => _SwipeTabsState();
+}
+
+class _SwipeTabsState extends State<SwipeTabs> {
+  static const _edge = 28.0;
+  static const _minDistance = 70.0;
+  static const _maxDuration = Duration(milliseconds: 900);
+
+  final Set<int> _pointers = {};
+  Offset? _start;
+  DateTime? _startTime;
+  bool _cancelled = false;
 
   @override
   Widget build(BuildContext context) {
     final swipeTabs = context.select<Settings, bool>((v) => v.swipeTabs);
-    if (!enabled || !swipeTabs) return child;
-    return GestureDetector(
+    if (!widget.enabled || !swipeTabs) return widget.child;
+    return Listener(
       behavior: HitTestBehavior.translucent,
-      onHorizontalDragEnd: (details) => _onDragEnd(context, details.primaryVelocity ?? 0),
-      child: child,
+      onPointerDown: (event) {
+        _pointers.add(event.pointer);
+        if (_pointers.length == 1) {
+          final width = MediaQuery.sizeOf(context).width;
+          // edges are left to the drawer and the system back gesture
+          _cancelled = event.position.dx < _edge || event.position.dx > width - _edge;
+          _start = event.position;
+          _startTime = DateTime.now();
+        } else {
+          _cancelled = true;
+        }
+      },
+      onPointerUp: (event) {
+        final wasSingle = _pointers.length == 1;
+        _pointers.remove(event.pointer);
+        final start = _start;
+        final startTime = _startTime;
+        if (!wasSingle || _cancelled || start == null || startTime == null) return;
+        final delta = event.position - start;
+        if (DateTime.now().difference(startTime) > _maxDuration) return;
+        if (delta.dx.abs() < _minDistance || delta.dx.abs() < delta.dy.abs() * 2) return;
+        _go(context, delta.dx);
+      },
+      onPointerCancel: (event) {
+        _pointers.remove(event.pointer);
+        _cancelled = true;
+      },
+      child: widget.child,
     );
   }
 
-  void _onDragEnd(BuildContext context, double velocity) {
-    if (velocity.abs() < _minVelocity) return;
+  void _go(BuildContext context, double dx) {
     final items = settings.bottomNavigationActions;
     if (items.length < 2) return;
 
@@ -364,17 +393,132 @@ class SwipeTabs extends StatelessWidget {
     final currentIndex = items.indexWhere((item) {
       if (item.route != currentRoute) return false;
       if (item.route == CollectionPage.routeName) {
-        return const SetEquality().equals(currentCollection?.filters ?? {}, item.filters ?? {});
+        return const SetEquality().equals(widget.currentCollection?.filters ?? {}, item.filters ?? {});
       }
       return true;
     });
     if (currentIndex < 0) return;
 
     final isRtl = Directionality.of(context) == TextDirection.rtl;
-    // finger moving to the left (negative velocity) goes to the next item
-    final forward = isRtl ? velocity > 0 : velocity < 0;
+    // finger moving to the left goes to the next item
+    final forward = isRtl ? dx > 0 : dx < 0;
     final target = currentIndex + (forward ? 1 : -1);
     if (target < 0 || target >= items.length) return;
+    LensMemory.remember(currentIndex);
     items[target].goTo(context, topLevel: null);
+  }
+}
+
+// remembers where the lens was before changing page, so that the new page's lens can slide from there
+class LensMemory {
+  static int? _from;
+  static DateTime? _at;
+
+  static void remember(int index) {
+    _from = index;
+    _at = DateTime.now();
+  }
+
+  static int? recent() {
+    final at = _at;
+    if (at == null || DateTime.now().difference(at) > const Duration(milliseconds: 1500)) return null;
+    return _from;
+  }
+}
+
+// lens sliding between items like a drop of water: the leading edge goes first with a spring,
+// the trailing edge follows later, so the lens stretches while moving and then settles
+class _LensSlider extends StatefulWidget {
+  const _LensSlider({
+    required this.count,
+    required this.index,
+    required this.isRtl,
+    required this.lens,
+  });
+
+  final int count;
+  final int index;
+  final bool isRtl;
+  final Widget lens;
+
+  @override
+  State<_LensSlider> createState() => _LensSliderState();
+}
+
+class _LensSliderState extends State<_LensSlider> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 750));
+  late int _from;
+  late int _to;
+
+  int _visual(int i) => widget.isRtl ? widget.count - 1 - i : i;
+
+  @override
+  void initState() {
+    super.initState();
+    _to = widget.index;
+    _from = LensMemory.recent() ?? _to;
+    if (_from != _to && settings.animate) {
+      _controller.forward(from: 0);
+    } else {
+      _controller.value = 1;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _LensSlider oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.index != _to) {
+      _from = _to;
+      _to = widget.index;
+      if (settings.animate) {
+        _controller.forward(from: 0);
+      } else {
+        _controller.value = 1;
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final itemWidth = constraints.maxWidth / widget.count;
+        final from = _visual(_from).toDouble();
+        final to = _visual(_to).toDouble();
+        final d = to - from;
+        return AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+            final t = _controller.value;
+            const fast = _SpringCurve();
+            final slow = Curves.easeOutCubic;
+            final lead = fast.transform(t);
+            final trail = slow.transform(t);
+            // moving right: the right edge leads, moving left: the left edge leads
+            final left = from + d * (d >= 0 ? trail : lead);
+            final right = from + 1 + d * (d >= 0 ? lead : trail);
+            final width = max(.6, right - left);
+            return Stack(
+              children: [
+                Positioned(
+                  left: left * itemWidth,
+                  width: width * itemWidth,
+                  top: constraints.maxHeight * .09,
+                  bottom: constraints.maxHeight * .09,
+                  child: child!,
+                ),
+              ],
+            );
+          },
+          child: Padding(padding: const EdgeInsets.symmetric(horizontal: 6), child: widget.lens),
+        );
+      },
+    );
   }
 }
