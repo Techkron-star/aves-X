@@ -1,3 +1,5 @@
+import 'package:aves/model/security/failsafe.dart';
+import 'package:aves/model/security/failsafe_config.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:flutter/services.dart';
 
@@ -33,9 +35,10 @@ class AttemptGuard {
     final raw = await securityService.readValue<String>(_cooldownKey);
     if (raw == null) return null;
 
-    // `elapsedRealtime|bootCount|wallClockMillis`
+    // `elapsedRealtime|bootCount|wallClockMillis|durationMillis` (the duration is missing in older markers)
     final parts = raw.split('|');
-    if (parts.length != 3) return cooldownDuration;
+    if (parts.length < 3) return cooldownDuration;
+    final duration = parts.length > 3 ? Duration(milliseconds: int.tryParse(parts[3]) ?? cooldownDuration.inMilliseconds) : cooldownDuration;
     final startElapsed = int.tryParse(parts[0]);
     final startBoot = int.tryParse(parts[1]);
     final startWall = int.tryParse(parts[2]);
@@ -47,20 +50,20 @@ class AttemptGuard {
       // no monotonic clock available, fall back to the system clock, but never trust a clock set in the past
       elapsedSinceStart = DateTime.now().millisecondsSinceEpoch - startWall;
       if (elapsedSinceStart < 0) {
-        await _startCooldown();
-        return cooldownDuration;
+        await _startCooldown(duration);
+        return duration;
       }
     } else {
       final rebooted = (startBoot >= 0 && clock.bootCount >= 0 && clock.bootCount != startBoot) || clock.elapsedRealtimeMillis < startElapsed;
       if (rebooted) {
         // cannot tell how long the device was off: restart the cooldown
-        await _startCooldown();
-        return cooldownDuration;
+        await _startCooldown(duration);
+        return duration;
       }
       elapsedSinceStart = clock.elapsedRealtimeMillis - startElapsed;
     }
 
-    final remaining = cooldownDuration - Duration(milliseconds: elapsedSinceStart);
+    final remaining = duration - Duration(milliseconds: elapsedSinceStart);
     if (remaining <= Duration.zero) {
       // keep the marker: the failure counter stays at its value, and the next failure will nuke
       await securityService.writeValue<String>(_cooldownKey, null);
@@ -69,9 +72,9 @@ class AttemptGuard {
     return remaining;
   }
 
-  Future<void> _startCooldown() async {
+  Future<void> _startCooldown(Duration duration) async {
     final clock = await securityService.getClockInfo();
-    final value = '${clock?.elapsedRealtimeMillis ?? 0}|${clock?.bootCount ?? -1}|${DateTime.now().millisecondsSinceEpoch}';
+    final value = '${clock?.elapsedRealtimeMillis ?? 0}|${clock?.bootCount ?? -1}|${DateTime.now().millisecondsSinceEpoch}|${duration.inMilliseconds}';
     await securityService.writeValue<String>(_cooldownKey, value);
   }
 
@@ -79,12 +82,18 @@ class AttemptGuard {
   Future<AttemptOutcome> registerFailure() async {
     final count = await failures() + 1;
     await securityService.writeValue<String>(_failsKey, count.toString());
-    if (count >= nukeFailures) {
+    final nukeEnabled = await FailsafeConfig.nukeOnFailures;
+    if (nukeEnabled && count >= nukeFailures) {
       return AttemptOutcome.nuke;
     }
     if (count >= cooldownFailures) {
-      await _startCooldown();
+      // the cooldown grows with each failure, up to the configured maximum
+      await _startCooldown(await FailsafeConfig.cooldownFor(count));
       await HapticFeedback.vibrate();
+      // without the nuke, the Failsafe takes control of the app until the Master Code is entered
+      if (count >= nukeFailures && (id == 'app' || id == 'master') && await FailsafeConfig.lockdownEnabled && await securityService.readValue<String>('master_code') != null) {
+        await failsafe.engageLockdown();
+      }
       return AttemptOutcome.cooldown;
     }
     return AttemptOutcome.failed;

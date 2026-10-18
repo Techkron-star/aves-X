@@ -1,3 +1,4 @@
+import 'package:aves/widgets/security/failsafe_lockdown.dart';
 import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/widgets/common/fx/failsafe_badge.dart';
 import 'package:aves/model/security/bat_curity.dart';
@@ -325,12 +326,14 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
                                 },
                                 navigatorObservers: _navigatorObservers,
                                 builder: (context, child) => SafeModeBanner(
-                                  child: AppLockGate(
-                                    child: GlassThemeScope(
-                                      child: AvesAppContentDecorator(
-                                        initialized: initialized,
-                                        source: _mediaStoreSource,
-                                        child: child,
+                                  child: FailsafeLockdownGate(
+                                    child: AppLockGate(
+                                      child: GlassThemeScope(
+                                        child: AvesAppContentDecorator(
+                                          initialized: initialized,
+                                          source: _mediaStoreSource,
+                                          child: child,
+                                        ),
                                       ),
                                     ),
                                   ),

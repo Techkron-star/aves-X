@@ -1,3 +1,4 @@
+import 'package:aves/model/security/failsafe_config.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -29,6 +30,9 @@ class Failsafe with WidgetsBindingObserver {
   // always on: there is deliberately no setting to turn this off
   final ValueNotifier<bool> safeMode = ValueNotifier(false);
   final ValueNotifier<int> eventCount = ValueNotifier(0);
+
+  // the lockdown covers the whole app until the Master Code is entered
+  final ValueNotifier<bool> lockdown = ValueNotifier(false);
 
   final List<String> _lines = [];
   String _route = '-';
@@ -66,6 +70,7 @@ class Failsafe with WidgetsBindingObserver {
       await securityService.writeValue<String>(_uncleanKey, '$unclean');
       await securityService.writeValue<String>(_errorsKey, '0');
       safeMode.value = _crashes > 0;
+      lockdown.value = await FailsafeConfig.lockdownActive;
       if (safeMode.value) _add('SAFE', 'Safe mode enabled for this session (failures=$_crashes)');
       _add('BOOT', 'Launch');
       await securityService.writeValue<String>(_crashesKey, '$_crashes');
@@ -100,6 +105,19 @@ class Failsafe with WidgetsBindingObserver {
     } else if (state == .resumed) {
       unawaited(securityService.writeValue<String>(_stateKey, 'running'));
     }
+  }
+
+  Future<void> engageLockdown() async {
+    await FailsafeConfig.setLockdownActive(true);
+    lockdown.value = true;
+    _add('LOCK', 'Lockdown engaged after repeated failed attempts');
+    await _flush();
+  }
+
+  Future<void> releaseLockdown() async {
+    await FailsafeConfig.setLockdownActive(false);
+    lockdown.value = false;
+    _add('LOCK', 'Lockdown lifted with the Master Code');
   }
 
   void breadcrumb(String message) {

@@ -875,5 +875,41 @@
   "settingsVideoCustomMpvOptions": "Opciones propias del reproductor (avanzado)",
   "settingsVideoCustomMpvOptionsSubtitle": "Opciones de mpv, una por línea (experimental)",
   "settingsVideoCustomMpvOptionsHelp": "Una opción=valor por línea, se aplican al abrir un video. Las líneas inválidas se ignoran y las que empiezan por # son comentarios. Valores incorrectos pueden romper la reproducción: vacía el campo para volver a lo normal.",
-  "settingsVideoHwAccelHybrid": "Híbrida (hardware y luego software)"
+  "settingsVideoHwAccelHybrid": "Híbrida (hardware y luego software)",
+  "settingsFailsafeSectionTitle": "Failsafe",
+  "failsafeLockdownTitle": "Failsafe ha tomado el control temporalmente",
+  "failsafeLockdownMessage": "Introduce el código maestro para desbloquear.",
+  "failsafeLockdownOption": "Bloqueo tras intentos fallidos",
+  "failsafeLockdownOptionSubtitle": "Tras 4 intentos incorrectos la app se bloquea hasta que se introduzca el código maestro. No se borra nada.",
+  "failsafeMaxCooldownTitle": "Espera máxima entre intentos",
+  "failsafeMaxCooldownSubtitle": "La espera crece con cada intento incorrecto hasta este límite.",
+  "failsafeRecommended": "recomendado",
+  "failsafeTooLongWarning": "Es demasiado tiempo. Si fallas por error tendrás que esperar todo ese tiempo. ¿Seguro?",
+  "failsafeNukeOption": "Destruir datos tras 4 intentos incorrectos",
+  "failsafeNukeOptionSubtitle": "Peligroso: unos pocos errores (o alguien jugando con el teléfono) borran los datos privados. Desactivado por defecto.",
+  "failsafeNukeConfirm": "Con esto activado, 4 intentos incorrectos destruyen los datos privados de la app. ¿De verdad lo quieres?",
+  "failsafeMinutes": "{count, plural, =1{1 minuto} other{{count} minutos}}",
+  "failsafeHours": "{count, plural, =1{1 hora} other{{count} horas}}",
+  "attemptsCooldownSecondsMessage": "Demasiados intentos fallidos. Inténtalo de nuevo en {seconds} s.",
+  "@failsafeMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@failsafeHours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@attemptsCooldownSecondsMessage": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  }
 }

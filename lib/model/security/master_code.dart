@@ -78,6 +78,9 @@ class MasterCode {
   }
 
   static Future<void> showCooldownMessage(BuildContext context, Duration remaining) {
+    if (remaining.inSeconds < 60) {
+      return showWarningDialog(context: context, message: context.l10n.attemptsCooldownSecondsMessage(remaining.inSeconds + 1));
+    }
     final minutes = (remaining.inSeconds / 60).ceil();
     return showWarningDialog(context: context, message: context.l10n.attemptsCooldownMessage(minutes));
   }
@@ -89,7 +92,7 @@ class MasterCode {
       case AttemptOutcome.nuke:
         await onNuke();
       case AttemptOutcome.cooldown:
-        if (context.mounted) await showCooldownMessage(context, AttemptGuard.cooldownDuration);
+        if (context.mounted) await showCooldownMessage(context, await guard.remainingCooldown() ?? AttemptGuard.cooldownDuration);
       case AttemptOutcome.failed:
         if (context.mounted) await showWarningDialog(context: context, message: context.l10n.genericFailureFeedback);
     }

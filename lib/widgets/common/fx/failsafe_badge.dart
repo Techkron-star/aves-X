@@ -13,7 +13,9 @@ const _alert = Color(0xFFFF3B3B);
 
 // "Failsafe: online" indicator with a radar pulse. Tap to see the diagnosis.
 class FailsafeBadge extends StatefulWidget {
-  const FailsafeBadge({super.key});
+  const FailsafeBadge({super.key, this.forceAlert = false});
+
+  final bool forceAlert;
 
   @override
   State<FailsafeBadge> createState() => _FailsafeBadgeState();
@@ -38,10 +40,11 @@ class _FailsafeBadgeState extends State<FailsafeBadge> with SingleTickerProvider
   Widget build(BuildContext context) {
     return ValueListenableBuilder<bool>(
       valueListenable: failsafe.safeMode,
-      builder: (context, safe, _) {
+      builder: (context, safeMode, _) {
+        final safe = safeMode || widget.forceAlert;
         final color = safe ? _alert : _ok;
         return InkWell(
-          onTap: () => showFailsafeReport(context),
+          onTap: widget.forceAlert ? null : () => showFailsafeReport(context),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(

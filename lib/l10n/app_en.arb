@@ -1195,5 +1195,41 @@
   "settingsVideoCustomMpvOptions": "Custom player options (advanced)",
   "settingsVideoCustomMpvOptionsSubtitle": "mpv options, one per line (experimental)",
   "settingsVideoCustomMpvOptionsHelp": "One option=value per line, applied when a video opens. Invalid lines are ignored and lines starting with # are comments. Wrong values can break playback: clear the field to go back to the defaults.",
-  "settingsVideoHwAccelHybrid": "Hybrid (hardware, then software)"
+  "settingsVideoHwAccelHybrid": "Hybrid (hardware, then software)",
+  "settingsFailsafeSectionTitle": "Failsafe",
+  "failsafeLockdownTitle": "Failsafe has temporarily taken control",
+  "failsafeLockdownMessage": "Enter the Master Code to unlock.",
+  "failsafeLockdownOption": "Lockdown after failed attempts",
+  "failsafeLockdownOptionSubtitle": "After 4 wrong attempts the app locks until the Master Code is entered. Nothing is deleted.",
+  "failsafeMaxCooldownTitle": "Longest wait between attempts",
+  "failsafeMaxCooldownSubtitle": "The wait grows with every wrong attempt up to this limit.",
+  "failsafeRecommended": "recommended",
+  "failsafeTooLongWarning": "That is a very long time. If you fail by mistake you will have to wait that long. Are you sure?",
+  "failsafeNukeOption": "Destroy data after 4 wrong attempts",
+  "failsafeNukeOptionSubtitle": "Dangerous: a few mistakes (or someone else playing with the phone) wipe the private data. Off by default.",
+  "failsafeNukeConfirm": "With this on, 4 wrong attempts destroy the private data of the app. Do you really want it?",
+  "failsafeMinutes": "{count, plural, =1{1 minute} other{{count} minutes}}",
+  "failsafeHours": "{count, plural, =1{1 hour} other{{count} hours}}",
+  "attemptsCooldownSecondsMessage": "Too many failed attempts. Try again in {seconds} s.",
+  "@failsafeMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@failsafeHours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@attemptsCooldownSecondsMessage": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  }
 }
