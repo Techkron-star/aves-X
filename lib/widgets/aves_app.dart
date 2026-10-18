@@ -1,3 +1,4 @@
+import 'package:aves/widgets/security/failsafe_welcome.dart';
 import 'package:aves/widgets/security/failsafe_lockdown.dart';
 import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/widgets/common/fx/failsafe_badge.dart';
@@ -556,6 +557,7 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
     await reportService.setCollectionEnabled(false);
 
     await failsafe.init();
+    unawaited(maybeShowFailsafeWelcome(navigatorKey));
     FlutterError.onError = (details) {
       failsafe.recordFlutter(details);
       reportService.recordFlutterError(details);

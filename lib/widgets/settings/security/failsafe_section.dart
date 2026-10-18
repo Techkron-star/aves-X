@@ -31,6 +31,26 @@ class FailsafeSection extends SettingsSection {
   @override
   Future<List<SettingsTile>> tiles(BuildContext context) => Future.value([]);
 
+  static Future<void> open(BuildContext context) async {
+    final section = FailsafeSection();
+    await Navigator.maybeOf(context)?.push(
+      MaterialPageRoute(
+        settings: const RouteSettings(name: routeName),
+        builder: (context) => AvesScaffold(
+          appBar: AppBar(title: Text(section.title(context).toUpperCase())),
+          body: SafeArea(
+            child: ValueListenableBuilder<bool>(
+              valueListenable: failsafe.safeMode,
+              // security options cannot be lowered in safe mode
+              builder: (context, safe, child) => AbsorbPointer(absorbing: safe, child: Opacity(opacity: safe ? .45 : 1, child: child)),
+              child: const _FailsafeOptions(),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext sectionContext, ValueNotifier<String?> expandedNotifier) {
     return Builder(
@@ -39,22 +59,7 @@ class FailsafeSection extends SettingsSection {
         leading: icon(context),
         title: Text(title(context).toUpperCase(), style: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1)),
         trailing: const Icon(Icons.chevron_right),
-        onTap: () => Navigator.maybeOf(context)?.push(
-          MaterialPageRoute(
-            settings: const RouteSettings(name: routeName),
-            builder: (context) => AvesScaffold(
-              appBar: AppBar(title: Text(title(context).toUpperCase())),
-              body: SafeArea(
-                child: ValueListenableBuilder<bool>(
-                  valueListenable: failsafe.safeMode,
-                  // security options cannot be lowered in safe mode
-                  builder: (context, safe, child) => AbsorbPointer(absorbing: safe, child: Opacity(opacity: safe ? .45 : 1, child: child)),
-                  child: const _FailsafeOptions(),
-                ),
-              ),
-            ),
-          ),
-        ),
+        onTap: () => open(context),
       ),
     );
   }

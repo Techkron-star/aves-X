@@ -107,6 +107,12 @@ class Failsafe with WidgetsBindingObserver {
     }
   }
 
+  static const _welcomeKey = 'failsafe_welcomed';
+
+  Future<bool> get needsWelcome async => await securityService.readValue<String>(_welcomeKey) == null;
+
+  Future<void> markWelcomed() => securityService.writeValue<String>(_welcomeKey, '1');
+
   Future<void> engageLockdown() async {
     await FailsafeConfig.setLockdownActive(true);
     lockdown.value = true;

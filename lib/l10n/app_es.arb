@@ -911,5 +911,9 @@
         "type": "int"
       }
     }
-  }
+  },
+  "failsafeWelcomeTitle": "Hola, soy Failsafe",
+  "failsafeWelcomeMessage": "Vigilo la app: guardo un registro local de errores y busco su causa (nunca se envía nada a ningún sitio), y si la app falla arranco en modo seguro para que nada privado pueda debilitarse o borrarse por accidente.\n\nTambién puedo bloquear la app si alguien insiste adivinando tus códigos, sin borrar nada. Puedes cambiar lo estricto que soy, o activar la opción destructiva, en Ajustes, Failsafe.",
+  "failsafeWelcomeConfigure": "Configurar",
+  "failsafeWelcomeDismiss": "Entendido"
 }

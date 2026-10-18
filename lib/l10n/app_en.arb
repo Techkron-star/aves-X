@@ -1231,5 +1231,9 @@
         "type": "int"
       }
     }
-  }
+  },
+  "failsafeWelcomeTitle": "Hi, I am Failsafe",
+  "failsafeWelcomeMessage": "I watch over the app: I keep a local record of errors and look for their cause (nothing is ever sent anywhere), and if the app fails I start in safe mode so nothing private can be weakened or deleted by accident.\n\nI can also lock the app if someone keeps guessing your codes, without deleting anything. You can change how strict I am, or turn on the destructive option, in Settings, Failsafe.",
+  "failsafeWelcomeConfigure": "Configure",
+  "failsafeWelcomeDismiss": "Got it"
 }
