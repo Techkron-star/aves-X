@@ -269,6 +269,7 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
       case .videoToggleMute:
       case .videoSelectTracks:
       case .videoSetSpeed:
+      case .videoToggleLoop:
       case .videoABRepeat:
       case .videoSettings:
       case .videoTogglePlay:

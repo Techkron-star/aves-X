@@ -1174,5 +1174,6 @@
         "type": "int"
       }
     }
-  }
+  },
+  "videoActionLoop": "Loop"
 }

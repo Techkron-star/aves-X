@@ -16,7 +16,7 @@ class SettingsDefaults {
   static const videoControlActions = <EntryAction>[.videoTogglePlay];
   static const videoGestureDoubleTapTogglePlay = false;
   static const videoGestureSideDoubleTapSeek = true;
-  static const videoGestureVerticalDragBrightnessVolume = false;
+  static const videoGestureVerticalDragBrightnessVolume = true; // Bat-Player: slide on the sides for brightness and volume
 
   // subtitles
   static const subtitleFontSize = 20.0;
