@@ -20,6 +20,9 @@ class AttemptGuard {
 
   static AttemptGuard vault(String name) => AttemptGuard._('vault_$name');
 
+  // other locks (bin, hidden items reveal, locked items)
+  static AttemptGuard named(String name) => AttemptGuard._('lock_$name');
+
   final String id;
 
   AttemptGuard._(this.id);

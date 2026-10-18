@@ -46,7 +46,7 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 - [x] Nuke manual: Ajustes > Privacidad > "Nukear todas las vaults" (pide Master Code, sin más confirmación; fallo = intento de Master Code). No toca archivos fuera de las vaults.
 - [x] Biometría en el bloqueo de inicio: cada fallo cuenta en el mismo contador; tras 3 fallos biométricos se exige el PIN.
 - [x] PIN de pánico opcional: pantalla falsa "PIN incorrecto" y borrado total en segundo plano.
-- [ ] Contadores de intentos también para papelera y bloqueo de revelado (hoy sin límite).
+- [x] Contadores de intentos también para papelera y bloqueo de revelado (hoy sin límite).
 - [ ] Root shredder opcional, registro local del resultado.
 - [ ] **Cifrado de los archivos de las vaults** (para que con root en `data/data` no se puedan abrir). Plan por fases:
   1. Fase 1 (at-rest): AES-256-GCM por archivo (streaming, `javax.crypto`), clave maestra aleatoria guardada en Android Keystore (mejor StrongBox/TEE; no exportable). Al desbloquear una vault se descifra a una carpeta temporal privada (`cacheDir/vault_tmp/<vault>`) y al bloquear / cerrar / arrancar se borra y sobrescribe. Mantiene compatible todo el visor (rutas de archivo, vídeo, EXIF). Límite: mientras la vault está abierta, el texto plano existe en disco.
@@ -121,7 +121,7 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 - [x] Operation progress (move/delete/copy) can be sent to the background (`close_fullscreen` button) and uses the Bat-Glass / glass look; more dialogs and animations to follow
 - [ ] Glass-Everywhere 2.0 (to be renamed **Bat-Cave**): glass look for every screen, dialog and control, with a lower cost
 - [ ] Bat-Curity: encryption of individually locked photos and albums
-- [ ] Attempt counters for bin / hidden-items / item locks
+- [x] Attempt counters for bin / hidden-items / item locks
 - [ ] Metadata removal for HEIC, AVIF and GIF
 
 ## Privacy

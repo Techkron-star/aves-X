@@ -72,7 +72,8 @@ class SecretLock {
     if (lockType == null) return true;
     if (!context.mounted) return false;
 
-    return challenge(context, lockType, authReason(context), _passKey);
+    // wrong attempts are counted, with a cooldown that grows with each failure
+    return challenge(context, lockType, authReason(context), _passKey, guard: AttemptGuard.named(id));
   }
 
   // let the user choose the lock type, and set the secret if needed
