@@ -194,6 +194,7 @@ class AIcons {
   static const unmute = Symbols.volume_up;
   static const captureFrame = Symbols.screenshot;
   static const repeat = Symbols.repeat;
+  static const videoLoop = Symbols.repeat_one;
   static const repeatOff = MdiIcons.repeatOff;
   static const selectTracks = Symbols.translate;
   static const setSpeed = Symbols.speed;

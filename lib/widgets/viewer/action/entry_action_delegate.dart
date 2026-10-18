@@ -127,6 +127,7 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
           return !settings.useTvLayout && targetEntry.isPureVideo;
         case .videoSelectTracks:
         case .videoSetSpeed:
+        case .videoToggleLoop:
         case .videoABRepeat:
         case .videoSettings:
         case .videoTogglePlay:

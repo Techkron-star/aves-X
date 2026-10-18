@@ -37,6 +37,7 @@ extension ExtraEntryActionView on EntryAction {
       .videoSelectTracks => l10n.videoActionSelectStreams,
       .videoSetSpeed => l10n.videoActionSetSpeed,
       .videoABRepeat => l10n.videoActionABRepeat,
+      .videoToggleLoop => l10n.videoActionLoop,
       .videoSettings => l10n.viewerActionSettings,
       .videoTogglePlay =>
         // different data depending on toggle state
@@ -117,6 +118,7 @@ extension ExtraEntryActionView on EntryAction {
       .videoSelectTracks => AIcons.selectTracks,
       .videoSetSpeed => AIcons.setSpeed,
       .videoABRepeat => AIcons.repeat,
+      .videoToggleLoop => AIcons.videoLoop,
       .videoSettings => AIcons.videoSettings,
       .videoTogglePlay =>
         // different data depending on toggle state
