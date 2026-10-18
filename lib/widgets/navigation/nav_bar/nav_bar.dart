@@ -328,3 +328,53 @@ class _SpringCurve extends Curve {
   @override
   double transformInternal(double t) => 1 - exp(-6.5 * t) * cos(2 * pi * 1.4 * t);
 }
+
+// swipe horizontally over the page to go to the previous / next item of the navigation bar
+class SwipeTabs extends StatelessWidget {
+  const SwipeTabs({
+    super.key,
+    required this.enabled,
+    required this.child,
+    this.currentCollection,
+  });
+
+  final bool enabled;
+  final CollectionLens? currentCollection;
+  final Widget child;
+
+  static const _minVelocity = 800.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final swipeTabs = context.select<Settings, bool>((v) => v.swipeTabs);
+    if (!enabled || !swipeTabs) return child;
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onHorizontalDragEnd: (details) => _onDragEnd(context, details.primaryVelocity ?? 0),
+      child: child,
+    );
+  }
+
+  void _onDragEnd(BuildContext context, double velocity) {
+    if (velocity.abs() < _minVelocity) return;
+    final items = settings.bottomNavigationActions;
+    if (items.length < 2) return;
+
+    final currentRoute = context.currentRouteName;
+    final currentIndex = items.indexWhere((item) {
+      if (item.route != currentRoute) return false;
+      if (item.route == CollectionPage.routeName) {
+        return const SetEquality().equals(currentCollection?.filters ?? {}, item.filters ?? {});
+      }
+      return true;
+    });
+    if (currentIndex < 0) return;
+
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+    // finger moving to the left (negative velocity) goes to the next item
+    final forward = isRtl ? velocity > 0 : velocity < 0;
+    final target = currentIndex + (forward ? 1 : -1);
+    if (target < 0 || target >= items.length) return;
+    items[target].goTo(context, topLevel: null);
+  }
+}

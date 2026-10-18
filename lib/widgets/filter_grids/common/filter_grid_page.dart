@@ -150,7 +150,7 @@ class FilterGridPage<T extends CollectionFilter> extends StatelessWidget {
               return false;
             },
             child: AvesScaffold(
-              body: body,
+              body: SwipeTabs(enabled: showBottomNavigationBar, child: body),
               floatingActionButton: floatingActionButton,
               drawer: canNavigate ? const AppDrawer() : null,
               bottomNavigationBar: showBottomNavigationBar

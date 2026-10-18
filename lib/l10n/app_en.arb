@@ -1186,5 +1186,7 @@
   "noMediaCreateMessage": "Create a .nomedia file in this folder? Other apps will stop showing its photos and videos. It will also disappear from the media lists in this app, but you can still reach it from the Explorer.",
   "noMediaRemoveMessage": "Remove the .nomedia file from this folder? Other apps will be able to show its photos and videos again.",
   "noMediaCreated": ".nomedia created",
-  "noMediaRemoved": ".nomedia removed"
+  "noMediaRemoved": ".nomedia removed",
+  "settingsSwipeTabs": "Swipe between tabs",
+  "settingsSwipeTabsSubtitle": "Swipe left or right over a page to go to the next or previous item of the navigation bar."
 }

@@ -30,6 +30,7 @@ class SettingsDefaults {
   static const enableDynamicColor = true;
   static const glassEverywhere = false; // experimental glass on dialogs and drawer
   static const navBarStyle = NavBarStyle.classic;
+  static const swipeTabs = true; // swipe horizontally to change between the main tabs
   static const navLens = false; // opt-in lens over the selected item of the navigation bar
   static const performanceMode = false; // opt-in: no animations, no blur
   static const batGlass = false; // experimental ruby glass theme

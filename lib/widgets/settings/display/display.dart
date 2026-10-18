@@ -40,6 +40,7 @@ class DisplaySection extends SettingsSection {
     SettingsTileDisplayEnableBlurEffect(),
     if (!settings.useTvLayout) SettingsTileDisplayNavBarStyle(),
     if (!settings.useTvLayout) SettingsTileDisplayNavLens(),
+    if (!settings.useTvLayout) SettingsTileDisplaySwipeTabs(),
     if (!settings.useTvLayout) SettingsTileDisplayMaxBrightness(),
     if (!settings.useTvLayout) SettingsTileDisplayRefreshRateMode(),
     if (!device.isTelevision) SettingsTileDisplayForceTvLayout(),
@@ -253,6 +254,23 @@ class SettingsTileDisplayNavLens extends SettingsTile {
     onChanged: (v) => settings.navLens = v,
     title: title,
     subtitle: (context) => context.l10n.settingsNavLensSubtitle,
+    sticker: const FeatureSticker(kind: StickerKind.newFeature),
+  );
+}
+
+class SettingsTileDisplaySwipeTabs extends SettingsTile {
+  @override
+  List<String> get settingKeys => [SettingKeys.swipeTabsKey];
+
+  @override
+  String title(BuildContext context) => context.l10n.settingsSwipeTabs;
+
+  @override
+  Widget build(BuildContext context) => SettingsSwitchListTile(
+    selector: (context, s) => s.swipeTabs,
+    onChanged: (v) => settings.swipeTabs = v,
+    title: title,
+    subtitle: (context) => context.l10n.settingsSwipeTabsSubtitle,
     sticker: const FeatureSticker(kind: StickerKind.newFeature),
   );
 }

@@ -136,7 +136,7 @@ class _ExplorerPageState extends State<ExplorerPage> {
                 return false;
               },
               child: AvesScaffold(
-                body: body,
+                body: SwipeTabs(enabled: showBottomNavigationBar, child: body),
                 drawer: canNavigate ? AppDrawer(currentExplorerPath: path) : null,
                 bottomNavigationBar: showBottomNavigationBar
                     ? AppBottomNavBar(

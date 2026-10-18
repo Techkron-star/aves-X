@@ -866,5 +866,7 @@
   "noMediaCreateMessage": "¿Crear un archivo .nomedia en esta carpeta? Otras apps dejarán de mostrar sus fotos y videos. También desaparecerá de las listas de medios de esta app, pero seguirás pudiendo llegar a ella desde el Explorador.",
   "noMediaRemoveMessage": "¿Quitar el archivo .nomedia de esta carpeta? Otras apps podrán volver a mostrar sus fotos y videos.",
   "noMediaCreated": ".nomedia creado",
-  "noMediaRemoved": ".nomedia eliminado"
+  "noMediaRemoved": ".nomedia eliminado",
+  "settingsSwipeTabs": "Deslizar entre pestañas",
+  "settingsSwipeTabsSubtitle": "Desliza a izquierda o derecha sobre una página para ir al elemento siguiente o anterior de la barra de navegación."
 }

@@ -51,6 +51,7 @@ class SettingKeys {
   static const batGlassKey = 'bat_glass';
   static const performanceModeKey = 'performance_mode';
   static const navLensKey = 'nav_lens';
+  static const swipeTabsKey = 'swipe_tabs';
   static const navBarStyleKey = 'nav_bar_style';
   static const glassEverywhereKey = 'glass_everywhere';
   static const maxBrightnessKey = 'max_brightness';

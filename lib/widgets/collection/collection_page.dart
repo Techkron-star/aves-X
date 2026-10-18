@@ -146,7 +146,7 @@ class _CollectionPageState extends State<CollectionPage> {
                     return false;
                   },
                   child: AvesScaffold(
-                    body: body,
+                    body: SwipeTabs(enabled: showBottomNavigationBar, currentCollection: _collection, child: body),
                     floatingActionButton: _buildFab(context, isSelecting, selectedItemCount),
                     drawer: canNavigate ? AppDrawer(currentCollection: _collection) : null,
                     bottomNavigationBar: showBottomNavigationBar

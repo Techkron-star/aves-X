@@ -140,7 +140,7 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 - [x] Side menu header with a translucent red diamond texture in the glass modes
 - [ ] Glass look for the search / filter area, the app bars and more screens
 - [ ] Bat-Lens: sliding effect when switching tabs
-- [ ] Swipe horizontally to change between the main tabs (favourites, albums, ...)
+- [x] Swipe horizontally to change between the main tabs (favourites, albums, ...)
 
 ## Tags for photos (stickers)
 

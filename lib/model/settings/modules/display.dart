@@ -24,6 +24,10 @@ mixin DisplaySettings on SettingsAccess {
 
   set glassEverywhere(bool newValue) => set(SettingKeys.glassEverywhereKey, newValue);
 
+  bool get swipeTabs => getBool(SettingKeys.swipeTabsKey) ?? SettingsDefaults.swipeTabs;
+
+  set swipeTabs(bool newValue) => set(SettingKeys.swipeTabsKey, newValue);
+
   bool get navLens => !performanceMode && (getBool(SettingKeys.navLensKey) ?? SettingsDefaults.navLens);
 
   set navLens(bool newValue) => set(SettingKeys.navLensKey, newValue);
