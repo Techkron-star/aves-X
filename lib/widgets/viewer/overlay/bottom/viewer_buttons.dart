@@ -14,6 +14,7 @@ import 'package:aves/widgets/common/action_controls/quick_choosers/rate_button.d
 import 'package:aves/widgets/common/action_controls/quick_choosers/share_button.dart';
 import 'package:aves/widgets/common/action_controls/quick_choosers/tag_button.dart';
 import 'package:aves/widgets/common/action_controls/togglers/favourite.dart';
+import 'package:aves/widgets/common/action_controls/togglers/loop.dart';
 import 'package:aves/widgets/common/action_controls/togglers/mute.dart';
 import 'package:aves/widgets/common/action_controls/togglers/play.dart';
 import 'package:aves/widgets/common/basic/font_size_icon_theme.dart';
@@ -178,6 +179,8 @@ class const _TvButtonRowContent({
           entries: {favouriteTargetEntry},
           enabled: enabled,
         );
+      case .videoToggleLoop:
+        return LoopTogglerCaption(enabled: enabled);
       case .videoToggleMute:
         return MuteTogglerCaption(
           controller: videoController,
@@ -362,6 +365,8 @@ class _ViewerButtonRowContentState extends State<ViewerButtonRowContent> {
           entries: {favouriteTargetEntry},
           isMenuItem: true,
         );
+      case .videoToggleLoop:
+        child = const LoopToggler(isMenuItem: true);
       case .videoToggleMute:
         child = MuteToggler(
           controller: videoController,
@@ -479,6 +484,11 @@ class _ViewerButtonRowContentState extends State<ViewerButtonRowContent> {
         final favouriteTargetEntry = mainEntry.isStack ? pageEntry : mainEntry;
         return FavouriteToggler(
           entries: {favouriteTargetEntry},
+          focusNode: focusNode,
+          onPressed: onPressed,
+        );
+      case .videoToggleLoop:
+        return LoopToggler(
           focusNode: focusNode,
           onPressed: onPressed,
         );

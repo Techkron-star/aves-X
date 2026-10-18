@@ -13,7 +13,7 @@ class SettingsDefaults {
   static const videoThumbnailMethods = <VideoThumbnailMethod>[.embedded, .preview];
 
   // controls
-  static const videoControlActions = <EntryAction>[.videoTogglePlay];
+  static const videoControlActions = <EntryAction>[.videoTogglePlay, .videoToggleLoop];
   static const videoGestureDoubleTapTogglePlay = false;
   static const videoGestureSideDoubleTapSeek = true;
   static const videoGestureVerticalDragBrightnessVolume = true; // Bat-Player: slide on the sides for brightness and volume
