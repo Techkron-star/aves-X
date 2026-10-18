@@ -870,5 +870,9 @@
   "settingsSwipeTabs": "Deslizar entre pestañas",
   "settingsSwipeTabsSubtitle": "Desliza a izquierda o derecha sobre una página para ir al elemento siguiente o anterior de la barra de navegación.",
   "entryActionEditCaption": "Subtítulo",
-  "captionHint": "p. ej. foto madre 17/11/2017"
+  "captionHint": "p. ej. foto madre 17/11/2017",
+  "settingsVideoHwAccelCopy": "Forzada (modo copia)",
+  "settingsVideoCustomMpvOptions": "Opciones propias del reproductor (avanzado)",
+  "settingsVideoCustomMpvOptionsSubtitle": "Opciones de mpv, una por línea (experimental)",
+  "settingsVideoCustomMpvOptionsHelp": "Una opción=valor por línea, se aplican al abrir un video. Las líneas inválidas se ignoran y las que empiezan por # son comentarios. Valores incorrectos pueden romper la reproducción: vacía el campo para volver a lo normal."
 }

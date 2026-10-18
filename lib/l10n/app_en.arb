@@ -1190,5 +1190,9 @@
   "settingsSwipeTabs": "Swipe between tabs",
   "settingsSwipeTabsSubtitle": "Swipe left or right over a page to go to the next or previous item of the navigation bar.",
   "entryActionEditCaption": "Caption",
-  "captionHint": "e.g. mom photo 17/11/2017"
+  "captionHint": "e.g. mom photo 17/11/2017",
+  "settingsVideoHwAccelCopy": "Forced (copy mode)",
+  "settingsVideoCustomMpvOptions": "Custom player options (advanced)",
+  "settingsVideoCustomMpvOptionsSubtitle": "mpv options, one per line (experimental)",
+  "settingsVideoCustomMpvOptionsHelp": "One option=value per line, applied when a video opens. Invalid lines are ignored and lines starting with # are comments. Wrong values can break playback: clear the field to go back to the defaults."
 }

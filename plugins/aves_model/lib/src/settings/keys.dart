@@ -131,6 +131,7 @@ class SettingKeys {
   static const videoBackgroundModeKey = 'video_background_mode';
   static const videoHardwareAccelerationKey = 'video_hardware_acceleration';
   static const videoLoopModeKey = 'video_loop';
+  static const videoCustomMpvOptionsKey = 'video_custom_mpv_options';
   static const videoResumptionModeKey = 'video_resumption_mode';
   static const videoThumbnailMethodsKey = 'video_thumbnail_methods';
   static const videoControlActionsKey = 'video_control_actions';

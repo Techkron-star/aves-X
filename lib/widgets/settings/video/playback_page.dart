@@ -9,6 +9,7 @@ import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/settings/common/tiles/single_selection.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:provider/provider.dart';
 
 class const VideoPlaybackPage({super.key}) extends StatelessWidget {
   static const routeName = '/settings/video/playback';
@@ -18,6 +19,7 @@ class const VideoPlaybackPage({super.key}) extends StatelessWidget {
     SettingKeys.videoLoopModeKey,
     SettingKeys.videoResumptionModeKey,
     SettingKeys.videoBackgroundModeKey,
+    SettingKeys.videoCustomMpvOptionsKey,
     SettingKeys.videoHardwareAccelerationKey,
   ];
 
@@ -75,9 +77,58 @@ class const VideoPlaybackPage({super.key}) extends StatelessWidget {
                 tooltip: 'FAQ',
               ),
             ),
+            const _CustomMpvOptionsTile(),
           ],
         ),
       ),
+    );
+  }
+}
+
+// advanced decoder / player options (mpv)
+class _CustomMpvOptionsTile extends StatelessWidget {
+  const _CustomMpvOptionsTile();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final value = context.select<Settings, String?>((s) => s.videoCustomMpvOptions);
+    return ListTile(
+      title: Text(l10n.settingsVideoCustomMpvOptions),
+      subtitle: Text(value == null ? l10n.settingsVideoCustomMpvOptionsSubtitle : value.trim().split('\n').first),
+      onTap: () async {
+        final controller = TextEditingController(text: value ?? '');
+        final result = await showDialog<String>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(l10n.settingsVideoCustomMpvOptions),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.settingsVideoCustomMpvOptionsHelp),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: controller,
+                    maxLines: 6,
+                    minLines: 3,
+                    autocorrect: false,
+                    style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
+                    decoration: const InputDecoration(hintText: 'vd-lavc-threads=4\nhwdec-codecs=h264,hevc'),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.maybeOf(context)?.pop(), child: Text(MaterialLocalizations.of(context).cancelButtonLabel)),
+              TextButton(onPressed: () => Navigator.maybeOf(context)?.pop(controller.text), child: Text(l10n.applyButtonLabel)),
+            ],
+          ),
+        );
+        controller.dispose();
+        if (result != null) settings.videoCustomMpvOptions = result;
+      },
     );
   }
 }

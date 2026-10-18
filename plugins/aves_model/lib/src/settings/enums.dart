@@ -36,7 +36,7 @@ enum VideoAutoPlayMode { disabled, playMuted, playWithSound }
 
 enum VideoBackgroundMode { disabled, pip }
 
-enum VideoHardwareAcceleration { disabled, enabled, forced }
+enum VideoHardwareAcceleration { disabled, enabled, forced, copy }
 
 enum VideoLoopMode { never, shortOnly, always }
 

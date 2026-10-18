@@ -14,6 +14,10 @@ mixin VideoSettings on SettingsAccess {
 
   set videoHardwareAcceleration(VideoHardwareAcceleration newValue) => set(SettingKeys.videoHardwareAccelerationKey, newValue.name);
 
+  String? get videoCustomMpvOptions => getString(SettingKeys.videoCustomMpvOptionsKey);
+
+  set videoCustomMpvOptions(String? newValue) => set(SettingKeys.videoCustomMpvOptionsKey, newValue == null || newValue.trim().isEmpty ? null : newValue);
+
   VideoLoopMode get videoLoopMode => getEnumOrDefault(SettingKeys.videoLoopModeKey, SettingsDefaults.videoLoopMode, VideoLoopMode.values);
 
   set videoLoopMode(VideoLoopMode newValue) => set(SettingKeys.videoLoopModeKey, newValue.name);

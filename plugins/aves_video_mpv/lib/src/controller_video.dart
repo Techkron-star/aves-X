@@ -199,6 +199,26 @@ class MpvVideoController(
 
   Future<void> _applyLoop() => enableLoop(settings.videoLoopMode.shouldLoop(entry));
 
+  // advanced: one `option=value` mpv option per line, e.g. `vd-lavc-threads=4` or `hwdec-codecs=h264,hevc`
+  // invalid lines are ignored, and anything starting with `#` is a comment
+  Future<void> _applyCustomOptions() async {
+    final platform = _mkPlayer.platform;
+    if (platform is! NativePlayer) return;
+    final raw = settings.videoCustomMpvOptions;
+    if (raw == null) return;
+    for (final line in raw.split('\n')) {
+      final text = line.trim();
+      if (text.isEmpty || text.startsWith('#')) continue;
+      final index = text.indexOf('=');
+      if (index <= 0) continue;
+      try {
+        await platform.setProperty(text.substring(0, index).trim(), text.substring(index + 1).trim());
+      } catch (error) {
+        debugPrint('failed to set mpv option line=$text error=$error');
+      }
+    }
+  }
+
   Future<void> _init({int startMillis = 0}) async {
     final playing = _mkPlayer.state.playing;
 
@@ -209,6 +229,7 @@ class MpvVideoController(
     // cf https://github.com/media-kit/media-kit/issues/1061
 
     await _applyLoop();
+    await _applyCustomOptions();
     await _mkPlayer.open(Media(entry.uri), play: playing);
     await _mkPlayer.setSubtitleTrack(SubtitleTrack.no());
     if (startMillis > 0) {
@@ -250,6 +271,9 @@ class MpvVideoController(
         // how well it handles non-standard colorspaces is not known.
         // In the rare cases where 10-bit is supported the bit depth of the output will be reduced to 8.
         hwdec = 'mediacodec'; // seems similar with 'mediacodec-copy'
+      case .copy:
+        // hardware decoding, frames copied back to memory: slower than `forced` but handles more files
+        hwdec = 'mediacodec-copy';
     }
     // as of `media_kit_video` v2.0.1, the following properties are set internally:
     // - 'gpu-context': 'android',
