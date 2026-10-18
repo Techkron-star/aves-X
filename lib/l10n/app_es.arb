@@ -861,5 +861,10 @@
   "failsafeTapForReport": "Toca para ver el diagnóstico",
   "failsafeReportTitle": "System Failsafe",
   "failsafeCopy": "Copiar",
-  "failsafeBlocked": "El modo seguro está activo tras un error. Esta acción está desactivada hasta que la app se reinicie sin errores."
+  "failsafeBlocked": "El modo seguro está activo tras un error. Esta acción está desactivada hasta que la app se reinicie sin errores.",
+  "explorerActionNoMedia": "Ocultar a otras apps (.nomedia)",
+  "noMediaCreateMessage": "¿Crear un archivo .nomedia en esta carpeta? Otras apps dejarán de mostrar sus fotos y videos. También desaparecerá de las listas de medios de esta app, pero seguirás pudiendo llegar a ella desde el Explorador.",
+  "noMediaRemoveMessage": "¿Quitar el archivo .nomedia de esta carpeta? Otras apps podrán volver a mostrar sus fotos y videos.",
+  "noMediaCreated": ".nomedia creado",
+  "noMediaRemoved": ".nomedia eliminado"
 }

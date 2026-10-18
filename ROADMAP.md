@@ -112,7 +112,7 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 
 ## Next
 
-- [ ] `.nomedia`: a toggle to show folders that contain no media, and creating/removing `.nomedia` files so other apps do not see chosen folders
+- [~] `.nomedia` (create/remove from the Explorer menu done; toggle to show hidden folders pending): a toggle to show folders that contain no media, and creating/removing `.nomedia` files so other apps do not see chosen folders
 - [ ] Stickers: small labels next to feature names (e.g. "experimental") in Settings
 - [ ] Custom tags/captions for photos and videos (e.g. "foto madre 17/11/2017") searchable instead of the file name
 - [ ] Faster media transfer between albums (check what is a platform limit and what can be optimized)

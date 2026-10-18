@@ -1181,5 +1181,10 @@
   "failsafeTapForReport": "Tap to see the diagnosis",
   "failsafeReportTitle": "System Failsafe",
   "failsafeCopy": "Copy",
-  "failsafeBlocked": "Safe mode is active after an error. This action is disabled until the app restarts without errors."
+  "failsafeBlocked": "Safe mode is active after an error. This action is disabled until the app restarts without errors.",
+  "explorerActionNoMedia": "Hide from other apps (.nomedia)",
+  "noMediaCreateMessage": "Create a .nomedia file in this folder? Other apps will stop showing its photos and videos. It will also disappear from the media lists in this app, but you can still reach it from the Explorer.",
+  "noMediaRemoveMessage": "Remove the .nomedia file from this folder? Other apps will be able to show its photos and videos again.",
+  "noMediaCreated": ".nomedia created",
+  "noMediaRemoved": ".nomedia removed"
 }

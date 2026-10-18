@@ -30,6 +30,8 @@ class StorageHandler(private val context: Context) : MethodCallHandler {
             "getVaultRoot" -> ioScope.launch { safe(call, result, ::getVaultRoot) }
             "getFreeSpace" -> ioScope.launch { safe(call, result, ::getFreeSpace) }
             "deleteEmptyDirectories" -> ioScope.launch { safe(call, result, ::deleteEmptyDirectories) }
+            "hasNoMedia" -> ioScope.launch { safe(call, result, ::hasNoMedia) }
+            "setNoMedia" -> ioScope.launch { safe(call, result, ::setNoMedia) }
             "deleteTempDirectory" -> ioScope.launch { safe(call, result, ::deleteTempDirectory) }
             "deleteExternalCache" -> ioScope.launch { safe(call, result, ::deleteExternalCache) }
             else -> result.notImplemented()
@@ -193,6 +195,30 @@ class StorageHandler(private val context: Context) : MethodCallHandler {
             }
         }
         result.success(deleted)
+    }
+
+    private fun hasNoMedia(call: MethodCall, result: MethodChannel.Result) {
+        val dirPath = call.argument<String>("dirPath")
+        if (dirPath == null) {
+            result.error("hasNoMedia-args", "missing arguments", null)
+            return
+        }
+        result.success(StorageUtils.hasNoMedia(context, dirPath))
+    }
+
+    private fun setNoMedia(call: MethodCall, result: MethodChannel.Result) {
+        val dirPath = call.argument<String>("dirPath")
+        val enabled = call.argument<Boolean>("enabled")
+        if (dirPath == null || enabled == null) {
+            result.error("setNoMedia-args", "missing arguments", null)
+            return
+        }
+        val success = StorageUtils.setNoMedia(context, dirPath, enabled)
+        if (success && enabled) {
+            // let the media scanner notice the change
+            android.media.MediaScannerConnection.scanFile(context, arrayOf(dirPath), null, null)
+        }
+        result.success(success)
     }
 
     private fun deleteTempDirectory(@Suppress("unused_parameter") call: MethodCall, result: MethodChannel.Result) {

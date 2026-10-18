@@ -28,6 +28,11 @@ abstract class StorageService {
 
   Future<bool> deleteTempDirectory();
 
+  Future<bool> hasNoMedia(String dirPath);
+
+  // creates or removes the `.nomedia` marker of a directory
+  Future<bool> setNoMedia(String dirPath, bool enabled);
+
   Future<bool> deleteExternalCache();
 
   // save provided content to a user selected file
@@ -155,6 +160,26 @@ class PlatformStorageService implements StorageService {
       await reportService.recordError(e, stack);
     }
     return 0;
+  }
+
+  @override
+  Future<bool> hasNoMedia(String dirPath) async {
+    try {
+      return await _platform.invokeMethod<bool>('hasNoMedia', <String, Object?>{'dirPath': dirPath}) ?? false;
+    } on PlatformException catch (e, stack) {
+      await reportService.recordError(e, stack);
+    }
+    return false;
+  }
+
+  @override
+  Future<bool> setNoMedia(String dirPath, bool enabled) async {
+    try {
+      return await _platform.invokeMethod<bool>('setNoMedia', <String, Object?>{'dirPath': dirPath, 'enabled': enabled}) ?? false;
+    } on PlatformException catch (e, stack) {
+      await reportService.recordError(e, stack);
+    }
+    return false;
   }
 
   @override

@@ -10,6 +10,7 @@ extension ExtraExplorerActionView on ExplorerAction {
       .addShortcut => l10n.collectionActionAddShortcut,
       .setHome => l10n.collectionActionSetHome,
       .hide => l10n.chipActionHide,
+      .noMedia => l10n.explorerActionNoMedia,
       .stats => l10n.menuActionStats,
     };
   }
@@ -21,6 +22,7 @@ extension ExtraExplorerActionView on ExplorerAction {
       .addShortcut => AIcons.addShortcut,
       .setHome => AIcons.home,
       .hide => AIcons.hide,
+      .noMedia => AIcons.hide,
       .stats => AIcons.stats,
     };
   }

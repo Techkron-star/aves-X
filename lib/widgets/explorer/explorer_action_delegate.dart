@@ -7,6 +7,8 @@ import 'package:aves/model/source/collection_lens.dart';
 import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
+import 'package:aves/widgets/common/action_mixins/permission_aware.dart';
+import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/dialogs/add_shortcut_dialog.dart';
 import 'package:aves/widgets/dialogs/aves_dialog.dart';
@@ -17,7 +19,7 @@ import 'package:aves_model/aves_model.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 
-class ExplorerActionDelegate with FeedbackMixin {
+class ExplorerActionDelegate with FeedbackMixin, PermissionAwareMixin {
   final VolumeRelativeDirectory directory;
 
   new({required this.directory});
@@ -34,6 +36,7 @@ class ExplorerActionDelegate with FeedbackMixin {
       case .setHome:
         return isMain && !useTvLayout;
       case .hide:
+      case .noMedia:
       case .stats:
         return isMain;
     }
@@ -44,6 +47,7 @@ class ExplorerActionDelegate with FeedbackMixin {
       case .addShortcut:
       case .setHome:
       case .hide:
+      case .noMedia:
       case .stats:
         return true;
     }
@@ -58,9 +62,29 @@ class ExplorerActionDelegate with FeedbackMixin {
         _setHome(context);
       case .hide:
         _hide(context);
+      case .noMedia:
+        _toggleNoMedia(context);
       case .stats:
         _goToStats(context);
     }
+  }
+
+  Future<void> _toggleNoMedia(BuildContext context) async {
+    final dirPath = directory.dirPath;
+    final l10n = context.l10n;
+    final has = await storageService.hasNoMedia(dirPath);
+    if (!context.mounted) return;
+    if (!await showConfirmationDialog(
+      context: context,
+      message: has ? l10n.noMediaRemoveMessage : l10n.noMediaCreateMessage,
+    )) {
+      return;
+    }
+    if (!context.mounted) return;
+    if (!await checkStoragePermissionForAlbums(context, {dirPath})) return;
+    final ok = await storageService.setNoMedia(dirPath, !has);
+    if (!context.mounted) return;
+    showFeedback(context, ok ? FeedbackType.info : FeedbackType.warn, ok ? (has ? l10n.noMediaRemoved : l10n.noMediaCreated) : l10n.genericFailureFeedback);
   }
 
   PathFilter _getPathFilter() => PathFilter(directory.dirPath);

@@ -461,6 +461,34 @@ object StorageUtils {
         return null
     }
 
+    // `.nomedia` marker: other apps (and the media scanner) ignore the folder when it exists
+    fun hasNoMedia(context: Context, dirPath: String): Boolean {
+        val path = ensureTrailingSeparator(dirPath) + ".nomedia"
+        return try {
+            File(path).exists() || getDocumentFileByTreeDoc(context, path)?.exists() == true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun setNoMedia(context: Context, dirPath: String, enabled: Boolean): Boolean {
+        val path = ensureTrailingSeparator(dirPath) + ".nomedia"
+        try {
+            if (FilePermissions.canEdit(context, path)) {
+                val file = File(path)
+                return if (enabled) (file.exists() || file.createNewFile()) else (!file.exists() || file.delete())
+            }
+            val existing = getDocumentFileByTreeDoc(context, path)
+            if (enabled) {
+                return existing?.exists() == true || getDocumentFileForNewFile(context, path, "application/octet-stream") != null
+            }
+            return existing == null || !existing.exists() || existing.delete()
+        } catch (e: Exception) {
+            Log.w(LOG_TAG, "failed to set .nomedia for dirPath=$dirPath enabled=$enabled", e)
+            return false
+        }
+    }
+
     // returns the directory `DocumentFile` (from tree URI when scoped storage is required, `File` otherwise)
     // returns null if directory does not exist and could not be created
     fun createDirectoryDocIfAbsent(context: Context, dirPath: String): DocumentFileCompat? {
