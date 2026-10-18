@@ -198,6 +198,7 @@ extension ExtraVideoHardwareAccelerationView on VideoHardwareAcceleration {
       .enabled => l10n.settingsEnabled,
       .forced => l10n.settingsForced,
       .copy => l10n.settingsVideoHwAccelCopy,
+      .hybrid => l10n.settingsVideoHwAccelHybrid,
     };
   }
 }

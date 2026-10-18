@@ -1194,5 +1194,6 @@
   "settingsVideoHwAccelCopy": "Forced (copy mode)",
   "settingsVideoCustomMpvOptions": "Custom player options (advanced)",
   "settingsVideoCustomMpvOptionsSubtitle": "mpv options, one per line (experimental)",
-  "settingsVideoCustomMpvOptionsHelp": "One option=value per line, applied when a video opens. Invalid lines are ignored and lines starting with # are comments. Wrong values can break playback: clear the field to go back to the defaults."
+  "settingsVideoCustomMpvOptionsHelp": "One option=value per line, applied when a video opens. Invalid lines are ignored and lines starting with # are comments. Wrong values can break playback: clear the field to go back to the defaults.",
+  "settingsVideoHwAccelHybrid": "Hybrid (hardware, then software)"
 }

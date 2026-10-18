@@ -274,6 +274,10 @@ class MpvVideoController(
       case .copy:
         // hardware decoding, frames copied back to memory: slower than `forced` but handles more files
         hwdec = 'mediacodec-copy';
+      case .hybrid:
+        // mpv tries each decoder in order for every file:
+        // direct hardware, hardware with copy, then software for what the chip cannot decode
+        hwdec = 'mediacodec,mediacodec-copy,no';
     }
     // as of `media_kit_video` v2.0.1, the following properties are set internally:
     // - 'gpu-context': 'android',
