@@ -1,3 +1,4 @@
+import 'package:aves/model/item_locks.dart';
 import 'dart:async';
 import 'dart:math';
 
@@ -763,6 +764,21 @@ class _EntryViewerStackState extends State<EntryViewerStack> with EntryViewContr
   }
 
   void _onHorizontalPageChanged(int page) {
+    final previousIndex = _currentEntryIndex;
+    // locked items are skipped when swiping through the collection
+    final list = entries;
+    if (!viewerController.repeat && page != previousIndex && page >= 0 && page < list.length && itemLocks.isEntryLocked(list[page])) {
+      final step = page >= previousIndex ? 1 : -1;
+      var target = page;
+      while (target >= 0 && target < list.length && itemLocks.isEntryLocked(list[target])) {
+        target += step;
+      }
+      if (target < 0 || target >= list.length) target = previousIndex;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _horizontalPager.hasClients) _horizontalPager.jumpToPage(target);
+      });
+      return;
+    }
     _currentEntryIndex = page;
     if (viewerController.repeat) {
       _currentEntryIndex %= entries.length;

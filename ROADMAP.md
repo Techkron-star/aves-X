@@ -160,3 +160,9 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 
 - [ ] Root daemon: nuke and automatic deletion that keep running with the app closed or killed
 - [ ] Stronger deletion, sealing and encrypting folders in the app data
+- [ ] Failsafe lockdown (idea): when the nuke by attempts is off, repeated wrong Master Code attempts lock the app instead of destroying data. Full screen "Fail-Safe has temporarily taken control, enter the Master Code to unlock"
+- [ ] Escalating cooldown between attempts using a monotonic clock (immune to changing the phone clock), configurable maximum (recommended 5 min, warning above 2 h), lockdown on/off
+- [ ] Failsafe personality: a small character in a corner that jokes as attempts fail ("surely a misclick", "are you really the owner of this phone?", "you should call the owner, you seem very interested in their photos"), with a royalty-free babble sound
+- [ ] Failsafe section in Settings and a welcome wizard on first launch that introduces it and explains the options
+- [ ] Locked individual photos: keep their metadata and move them to private app storage so other apps cannot reach them (Bat-Curity phase 2)
+- [x] Locked photos are skipped when swiping in the viewer
