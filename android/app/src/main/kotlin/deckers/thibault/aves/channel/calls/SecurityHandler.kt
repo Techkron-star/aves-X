@@ -35,6 +35,7 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
             "cryptVault" -> ioScope.launch { safe(call, result, ::cryptVault) }
             "cryptAllVaults" -> ioScope.launch { safe(call, result, ::cryptAllVaults) }
             "cryptSelfTest" -> ioScope.launch { safe(call, result, ::cryptSelfTest) }
+            "destroyCryptoKeys" -> ioScope.launch { safe(call, result, ::destroyCryptoKeys) }
             else -> result.notImplemented()
         }
     }
@@ -167,6 +168,10 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
     // `null` when the encryption key works, the error otherwise
     private fun cryptSelfTest(@Suppress("unused_parameter") call: MethodCall, result: MethodChannel.Result) {
         result.success(vaultCrypto.selfTest())
+    }
+
+    private fun destroyCryptoKeys(@Suppress("unused_parameter") call: MethodCall, result: MethodChannel.Result) {
+        result.success(vaultCrypto.destroyKeys())
     }
 
     companion object {

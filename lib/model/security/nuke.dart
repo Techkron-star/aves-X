@@ -33,7 +33,8 @@ class Nuke {
   // early at startup, before the UI: wipes everything (like clearing the data from the system settings)
   static Future<void> runPendingTotal() async {
     if (await securityService.readValue<String>(_pendingAllKey) != '1') return;
-    // on success the app data is gone and the process stops here
+    // crypto-erase first, then wipe: on success the app data is gone and the process stops here
+    await securityService.destroyCryptoKeys();
     await securityService.wipeAppData();
   }
 
@@ -59,6 +60,9 @@ class Nuke {
 
   // deletes all the vaults and their content (manual nuke)
   static Future<void> nukeAllVaults({CollectionSource? source}) async {
+    // crypto-erase first: once the keys are gone, whatever remains of encrypted files is unreadable,
+    // even if the process is killed before the files are deleted
+    await securityService.destroyCryptoKeys();
     final all = vaults.all.toList();
     for (final details in all) {
       await _deleteVaultContent(details.path, source);

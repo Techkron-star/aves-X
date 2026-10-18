@@ -33,6 +33,9 @@ abstract class SecurityService {
 
   // `null` when the encryption key works, the error otherwise
   Future<String?> cryptSelfTest();
+
+  // crypto-erase: destroys the vault encryption keys
+  Future<bool> destroyCryptoKeys();
 }
 
 class VaultCryptoReport {
@@ -131,6 +134,16 @@ class PlatformSecurityService implements SecurityService {
     } on PlatformException catch (e, stack) {
       await reportService.recordError(e, stack);
       return e.message ?? e.code;
+    }
+  }
+
+  @override
+  Future<bool> destroyCryptoKeys() async {
+    try {
+      return await _platform.invokeMethod<bool>('destroyCryptoKeys') ?? false;
+    } on PlatformException catch (e, stack) {
+      await reportService.recordError(e, stack);
+      return false;
     }
   }
 }

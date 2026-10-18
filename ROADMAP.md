@@ -152,9 +152,9 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 
 ## Failsafe (crash handling, replaces any crash reporting)
 
-- [ ] Local crash capture: after a crash, show the log as a text the user can share if they want (nothing is sent anywhere)
-- [ ] Safe mode after a crash: banner "Safe mode"; security options cannot be lowered, vaults cannot be opened or deleted, nothing can be deleted; back to normal after a clean launch
-- [ ] Crypto-erase first nuke: destroy keys and credentials before deleting files, so an interrupted nuke still leaves nothing readable
+- [x] Local crash capture: after a crash, show the log as a text the user can share if they want (nothing is sent anywhere)
+- [x] Safe mode after a crash: banner "Safe mode"; security options cannot be lowered, vaults cannot be opened or deleted, nothing can be deleted; back to normal after a clean launch
+- [x] Crypto-erase first nuke: destroy keys and credentials before deleting files, so an interrupted nuke still leaves nothing readable
 
 ## Black Hole (optional root mode)
 

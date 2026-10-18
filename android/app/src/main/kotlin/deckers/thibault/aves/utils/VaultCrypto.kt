@@ -27,6 +27,27 @@ class VaultCrypto(private val context: Context) {
             .getPrimitive(StreamingAead::class.java)
     }
 
+    // crypto-erase: destroys the wrapped keyset and the Keystore key, so encrypted files can never be read again
+    fun destroyKeys(): Boolean {
+        var ok = true
+        try {
+            context.getSharedPreferences(KEYSET_PREFS, Context.MODE_PRIVATE).edit().clear().commit()
+            context.deleteSharedPreferences(KEYSET_PREFS)
+        } catch (e: Exception) {
+            Log.w(LOG_TAG, "failed to delete keyset", e)
+            ok = false
+        }
+        try {
+            val keyStore = java.security.KeyStore.getInstance("AndroidKeyStore")
+            keyStore.load(null)
+            keyStore.deleteEntry(MASTER_KEY_URI.removePrefix("android-keystore://"))
+        } catch (e: Exception) {
+            Log.w(LOG_TAG, "failed to delete Keystore key", e)
+            ok = false
+        }
+        return ok
+    }
+
     data class Report(val done: Int, val skipped: Int, val failed: Int, val errors: List<String> = listOf())
 
     // round trip on a small buffer: `null` when the key works, the error otherwise
