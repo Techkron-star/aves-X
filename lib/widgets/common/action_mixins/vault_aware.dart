@@ -1,3 +1,4 @@
+import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/model/security/bat_curity.dart';
 import 'package:aves/model/filters/favourite.dart';
 import 'package:aves/model/item_locks.dart';
@@ -25,6 +26,7 @@ import 'package:provider/provider.dart';
 
 mixin VaultAwareMixin on FeedbackMixin {
   Future<bool> _tryUnlock(BuildContext context, String dirPath) async {
+    if (failsafe.blocked(context)) return false;
     if (!vaults.isVault(dirPath)) return itemLocks.unlockAlbum(context, dirPath);
     if (!vaults.isLocked(dirPath)) return true;
 

@@ -1,3 +1,4 @@
+import 'package:aves/widgets/common/fx/failsafe_badge.dart';
 import 'package:aves/widgets/common/fx/diamond.dart';
 import 'dart:ui';
 import 'package:aves/model/filters/container/album_group.dart';
@@ -132,6 +133,8 @@ class _AppDrawerState extends State<AppDrawer> with WidgetsBindingObserver {
         const Divider(),
         debugTile,
       ],
+      const Divider(),
+      const FailsafeBadge(),
     ];
 
     // experimental glass effect (opt-in)

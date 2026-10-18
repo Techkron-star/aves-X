@@ -1175,5 +1175,11 @@
       }
     }
   },
-  "videoActionLoop": "Loop"
+  "videoActionLoop": "Loop",
+  "failsafeOnline": "Failsafe: online",
+  "failsafeSafeMode": "Safe mode",
+  "failsafeTapForReport": "Tap to see the diagnosis",
+  "failsafeReportTitle": "System Failsafe",
+  "failsafeCopy": "Copy",
+  "failsafeBlocked": "Safe mode is active after an error. This action is disabled until the app restarts without errors."
 }

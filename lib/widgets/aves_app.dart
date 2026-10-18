@@ -1,3 +1,5 @@
+import 'package:aves/model/security/failsafe.dart';
+import 'package:aves/widgets/common/fx/failsafe_badge.dart';
 import 'package:aves/model/security/bat_curity.dart';
 import 'package:aves/widgets/common/fx/liquid.dart';
 import 'package:aves/model/security/auto_delete.dart';
@@ -322,12 +324,14 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
                                   );
                                 },
                                 navigatorObservers: _navigatorObservers,
-                                builder: (context, child) => AppLockGate(
-                                  child: GlassThemeScope(
-                                    child: AvesAppContentDecorator(
-                                      initialized: initialized,
-                                      source: _mediaStoreSource,
-                                      child: child,
+                                builder: (context, child) => SafeModeBanner(
+                                  child: AppLockGate(
+                                    child: GlassThemeScope(
+                                      child: AvesAppContentDecorator(
+                                        initialized: initialized,
+                                        source: _mediaStoreSource,
+                                        child: child,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -548,7 +552,15 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
     // nothing is ever sent anywhere: errors are only logged on the device
     await reportService.setCollectionEnabled(false);
 
-    FlutterError.onError = reportService.recordFlutterError;
+    await failsafe.init();
+    FlutterError.onError = (details) {
+      failsafe.recordFlutter(details);
+      reportService.recordFlutterError(details);
+    };
+    WidgetsBinding.instance.platformDispatcher.onError = (error, stack) {
+      failsafe.record(error, stack);
+      return true;
+    };
     final now = DateTime.now();
     await reportService.setCustomKeys({
       'build_mode': kReleaseMode

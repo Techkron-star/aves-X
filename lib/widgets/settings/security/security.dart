@@ -1,3 +1,4 @@
+import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/widgets/common/basic/feature_sticker.dart';
 import 'package:aves/model/security/bat_curity.dart';
 import 'package:aves/theme/colors.dart';
@@ -47,7 +48,12 @@ class SecuritySection extends SettingsSection {
         builder: (context) => AvesScaffold(
           appBar: AppBar(title: Text(title(context).toUpperCase())),
           body: SafeArea(
-            child: ListView(children: items.map((tile) => tile.build(context)).toList()),
+            child: ValueListenableBuilder<bool>(
+              valueListenable: failsafe.safeMode,
+              // security options cannot be lowered in safe mode
+              builder: (context, safe, child) => AbsorbPointer(absorbing: safe, child: Opacity(opacity: safe ? .45 : 1, child: child)),
+              child: ListView(children: items.map((tile) => tile.build(context)).toList()),
+            ),
           ),
         ),
       ),

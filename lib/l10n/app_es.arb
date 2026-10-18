@@ -855,5 +855,11 @@
   "batCurityForceDecryptResult": "Descifrados: {done}. Ya legibles: {skipped}. Fallidos: {failed}.",
   "batCurityVaultEncSelfTestFailed": "La clave de cifrado no funciona en este dispositivo, así que no se cifró nada: {error}",
   "vaultDecryptPartialWarning": "La vault se abrió, pero {count} archivos no se pudieron descifrar. Puedes probar Ajustes → Seguridad → Forzar descifrado de las vaults.",
-  "videoActionLoop": "Repetir"
+  "videoActionLoop": "Repetir",
+  "failsafeOnline": "Failsafe: online",
+  "failsafeSafeMode": "Modo seguro",
+  "failsafeTapForReport": "Toca para ver el diagnóstico",
+  "failsafeReportTitle": "System Failsafe",
+  "failsafeCopy": "Copiar",
+  "failsafeBlocked": "El modo seguro está activo tras un error. Esta acción está desactivada hasta que la app se reinicie sin errores."
 }

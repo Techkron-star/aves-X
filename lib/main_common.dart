@@ -1,3 +1,4 @@
+import 'package:aves/model/security/failsafe.dart';
 import 'dart:isolate';
 
 import 'package:aves/app_flavor.dart';
@@ -22,6 +23,7 @@ void mainCommon(AppFlavor flavor, {Map<String, Object?>? debugIntentData}) {
       final error = errorAndStacktrace[0] as String;
       final stackTraceString = errorAndStacktrace[1] as String?;
       final stackTrace = stackTraceString != null ? StackTrace.fromString(stackTraceString) : null;
+      failsafe.record(error, stackTrace, source: 'ISOLATE');
       reportService.recordError(error, stackTrace);
     }).sendPort,
   );

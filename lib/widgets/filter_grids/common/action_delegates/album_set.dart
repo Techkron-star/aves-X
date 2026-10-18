@@ -1,3 +1,4 @@
+import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/model/item_locks.dart';
 import 'package:aves/model/security/privacy_options.dart';
 import 'package:aves/widgets/dialogs/danger_confirmation.dart';
@@ -292,6 +293,7 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
   }
 
   Future<void> _deleteStoredAlbums(BuildContext context) async {
+    if (failsafe.blocked(context)) return;
     final filters = _getSelectedStoredAlbumFilters(context);
     final byBinUsage = groupBy<StoredAlbumFilter, bool>(filters, (filter) {
       final details = vaults.getVault(filter.album);
@@ -365,6 +367,7 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
   }
 
   Future<void> _deleteEntriesForever(BuildContext context, Set<AvesEntry> todoEntries) async {
+    if (failsafe.blocked(context)) return;
     if (todoEntries.isEmpty) return;
 
     final source = context.read<CollectionSource>();

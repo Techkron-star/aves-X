@@ -1,3 +1,4 @@
+import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/model/item_locks.dart';
 import 'package:aves/model/security/privacy_options.dart';
 import 'package:aves/widgets/dialogs/danger_confirmation.dart';
@@ -455,6 +456,7 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
   }
 
   Future<void> _delete(BuildContext context, AvesEntry targetEntry) async {
+    if (failsafe.blocked(context)) return;
     final vault = vaults.getVault(targetEntry.directory);
     final enableBin = vault?.useBin ?? settings.enableBin;
 
