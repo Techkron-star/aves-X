@@ -6,6 +6,7 @@ class SqfliteLocalMediaDbSchema {
   static const metadataTable = 'metadata';
   static const addressTable = 'address';
   static const favouriteTable = 'favourites';
+  static const captionTable = 'captions';
   static const coverTable = 'covers';
   static const dynamicAlbumTable = 'dynamicAlbums';
   static const vaultTable = 'vaults';
@@ -19,6 +20,7 @@ class SqfliteLocalMediaDbSchema {
     metadataTable,
     addressTable,
     favouriteTable,
+    captionTable,
     coverTable,
     dynamicAlbumTable,
     vaultTable,
@@ -91,6 +93,13 @@ class SqfliteLocalMediaDbSchema {
         return db.execute(
           'CREATE TABLE $favouriteTable('
           'id INTEGER PRIMARY KEY'
+          ')',
+        );
+      case captionTable:
+        return db.execute(
+          'CREATE TABLE $captionTable('
+          'id INTEGER PRIMARY KEY'
+          ', caption TEXT'
           ')',
         );
       case coverTable:

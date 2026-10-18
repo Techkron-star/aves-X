@@ -1,3 +1,4 @@
+import 'package:aves/model/captions.dart';
 import 'dart:async';
 
 import 'package:aves/model/covers.dart';
@@ -235,6 +236,7 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
 
     final oldIds = oldEntries.map((entry) => entry.id).toSet();
     await favourites.removeIds(oldIds);
+    captions.removeIds(oldIds);
     await covers.removeIds(oldIds);
     await localMediaDb.removeIds(oldIds);
 

@@ -56,6 +56,7 @@ extension ExtraEntryActionView on EntryAction {
       // platform
       .rotateScreen => l10n.entryActionRotateScreen,
       .toggleItemLock => l10n.actionToggleItemLock,
+      .editCaption => l10n.entryActionEditCaption,
       // metadata
       .editDate => l10n.entryInfoActionEditDate,
       .editLocation => l10n.entryInfoActionEditLocation,
@@ -137,6 +138,7 @@ extension ExtraEntryActionView on EntryAction {
       // platform
       .rotateScreen => AIcons.rotateScreen,
       .toggleItemLock => AIcons.vaultLock,
+      .editCaption => AIcons.text,
       // metadata
       .editDate => AIcons.date,
       .editLocation => AIcons.location,

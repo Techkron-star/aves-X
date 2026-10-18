@@ -868,5 +868,7 @@
   "noMediaCreated": ".nomedia creado",
   "noMediaRemoved": ".nomedia eliminado",
   "settingsSwipeTabs": "Deslizar entre pestañas",
-  "settingsSwipeTabsSubtitle": "Desliza a izquierda o derecha sobre una página para ir al elemento siguiente o anterior de la barra de navegación."
+  "settingsSwipeTabsSubtitle": "Desliza a izquierda o derecha sobre una página para ir al elemento siguiente o anterior de la barra de navegación.",
+  "entryActionEditCaption": "Subtítulo",
+  "captionHint": "p. ej. foto madre 17/11/2017"
 }

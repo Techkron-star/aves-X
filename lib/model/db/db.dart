@@ -88,6 +88,13 @@ abstract class LocalMediaDb {
 
   Future<void> updateTrash(int id, TrashDetails? details);
 
+  // captions
+
+  Future<Map<int, String>> loadAllCaptions();
+
+  // an empty caption removes it
+  Future<void> setCaption(int id, String? caption);
+
   // favourites
 
   Future<void> clearFavourites();

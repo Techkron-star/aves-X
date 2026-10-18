@@ -1,3 +1,4 @@
+import 'package:aves/model/captions.dart';
 import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/model/item_locks.dart';
 import 'package:aves/model/security/privacy_options.dart';
@@ -101,6 +102,7 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
         case .toggleFavourite:
           return collection != null;
         case .toggleItemLock:
+        case .editCaption:
           return appMode == .main;
         case .delete:
         case .rename:
@@ -235,6 +237,8 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
         _delete(context, targetEntry);
       case .toggleItemLock:
         itemLocks.toggleEntries(context, {targetEntry});
+      case .editCaption:
+        _editCaption(context, targetEntry);
       case .restore:
         _move(context, targetEntry, moveType: MoveType.fromBin);
       case .convert:
@@ -453,6 +457,31 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
 
   Future<void> _rotateScreen(BuildContext context) async {
     await windowService.requestOrientation(context.isPortrait ? .landscape : .portrait);
+  }
+
+  Future<void> _editCaption(BuildContext context, AvesEntry targetEntry) async {
+    final l10n = context.l10n;
+    final controller = TextEditingController(text: captions.of(targetEntry) ?? '');
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.entryActionEditCaption),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          maxLines: 3,
+          minLines: 1,
+          decoration: InputDecoration(hintText: l10n.captionHint),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.maybeOf(context)?.pop(), child: Text(MaterialLocalizations.of(context).cancelButtonLabel)),
+          TextButton(onPressed: () => Navigator.maybeOf(context)?.pop(controller.text), child: Text(l10n.applyButtonLabel)),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (result == null) return;
+    await captions.set(targetEntry, result);
   }
 
   Future<void> _delete(BuildContext context, AvesEntry targetEntry) async {

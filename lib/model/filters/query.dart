@@ -1,3 +1,4 @@
+import 'package:aves/model/captions.dart';
 import 'package:aves/locale/aves_locale.dart';
 import 'package:aves/locale/calendar/calendar_utils.dart';
 import 'package:aves/model/entry/entry.dart';
@@ -76,7 +77,8 @@ class QueryFilter extends CollectionFilter {
     }
 
     // default to title search
-    bool testTitle(AvesEntry entry) => entry.bestTitle?.toUpperCase().contains(upQuery) == true;
+    // also looks into the custom caption of the entry
+    bool testTitle(AvesEntry entry) => entry.bestTitle?.toUpperCase().contains(upQuery) == true || captions.of(entry)?.toUpperCase().contains(upQuery) == true;
     _test = not ? (entry) => !testTitle(entry) : testTitle;
   }
 

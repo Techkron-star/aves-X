@@ -1188,5 +1188,7 @@
   "noMediaCreated": ".nomedia created",
   "noMediaRemoved": ".nomedia removed",
   "settingsSwipeTabs": "Swipe between tabs",
-  "settingsSwipeTabsSubtitle": "Swipe left or right over a page to go to the next or previous item of the navigation bar."
+  "settingsSwipeTabsSubtitle": "Swipe left or right over a page to go to the next or previous item of the navigation bar.",
+  "entryActionEditCaption": "Caption",
+  "captionHint": "e.g. mom photo 17/11/2017"
 }

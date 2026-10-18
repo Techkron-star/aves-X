@@ -86,6 +86,14 @@ class FakeAvesDb extends Fake implements LocalMediaDb {
   @override
   Future<void> updateTrash(int id, TrashDetails? details) => SynchronousFuture(null);
 
+  // captions
+
+  @override
+  Future<Map<int, String>> loadAllCaptions() => SynchronousFuture({});
+
+  @override
+  Future<void> setCaption(int id, String? caption) => SynchronousFuture(null);
+
   // favourites
 
   @override

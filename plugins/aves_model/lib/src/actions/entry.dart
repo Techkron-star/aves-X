@@ -12,6 +12,7 @@ enum EntryAction {
   share,
   toggleFavourite,
   toggleItemLock,
+  editCaption,
   // raster
   rotateCCW,
   rotateCW,
@@ -70,6 +71,7 @@ class EntryActions {
     .move,
     .toggleFavourite,
     .toggleItemLock,
+    .editCaption,
     .rotateScreen,
     .viewSource,
   ];

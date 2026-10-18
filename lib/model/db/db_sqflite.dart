@@ -29,6 +29,7 @@ class SqfliteLocalMediaDb implements LocalMediaDb {
   static const metadataTable = SqfliteLocalMediaDbSchema.metadataTable;
   static const addressTable = SqfliteLocalMediaDbSchema.addressTable;
   static const favouriteTable = SqfliteLocalMediaDbSchema.favouriteTable;
+  static const captionTable = SqfliteLocalMediaDbSchema.captionTable;
   static const coverTable = SqfliteLocalMediaDbSchema.coverTable;
   static const dynamicAlbumTable = SqfliteLocalMediaDbSchema.dynamicAlbumTable;
   static const vaultTable = SqfliteLocalMediaDbSchema.vaultTable;
@@ -49,7 +50,7 @@ class SqfliteLocalMediaDb implements LocalMediaDb {
       await path,
       onCreate: (db, version) => SqfliteLocalMediaDbSchema.createLatestVersion(db),
       onUpgrade: LocalMediaDbUpgrader.upgradeDb,
-      version: 16,
+      version: 17,
     );
 
     final maxIdRows = await _db.rawQuery('SELECT MAX(id) AS maxId FROM $entryTable');
@@ -94,6 +95,7 @@ class SqfliteLocalMediaDb implements LocalMediaDb {
       }
       if (_dataTypes.contains(EntryDataType.references)) {
         batch.delete(favouriteTable, where: where, whereArgs: whereArgs);
+        batch.delete(captionTable, where: where, whereArgs: whereArgs);
         batch.delete(coverTable, where: coverWhere, whereArgs: whereArgs);
         batch.delete(trashTable, where: where, whereArgs: whereArgs);
         batch.delete(videoPlaybackTable, where: where, whereArgs: whereArgs);
@@ -454,6 +456,26 @@ class SqfliteLocalMediaDb implements LocalMediaDb {
       details.toDbMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+  }
+
+  // captions
+
+  @override
+  Future<Map<int, String>> loadAllCaptions() async {
+    final rows = await _db.query(captionTable);
+    return {
+      for (final row in rows)
+        if (row['id'] is int && (row['caption'] as String?)?.isNotEmpty == true) row['id'] as int: row['caption'] as String,
+    };
+  }
+
+  @override
+  Future<void> setCaption(int id, String? caption) async {
+    if (caption == null || caption.isEmpty) {
+      await _db.delete(captionTable, where: 'id = ?', whereArgs: [id]);
+    } else {
+      await _db.insert(captionTable, {'id': id, 'caption': caption}, conflictAlgorithm: ConflictAlgorithm.replace);
+    }
   }
 
   // favourites

@@ -17,6 +17,7 @@ class LocalMediaDbUpgrader {
   static const dynamicAlbumTable = SqfliteLocalMediaDbSchema.dynamicAlbumTable;
   static const vaultTable = SqfliteLocalMediaDbSchema.vaultTable;
   static const trashTable = SqfliteLocalMediaDbSchema.trashTable;
+  static const captionTable = SqfliteLocalMediaDbSchema.captionTable;
   static const videoPlaybackTable = SqfliteLocalMediaDbSchema.videoPlaybackTable;
   static const debugTable = SqfliteLocalMediaDbSchema.debugTable;
 
@@ -56,6 +57,8 @@ class LocalMediaDbUpgrader {
           await _upgradeFrom14(db);
         case 15:
           await _upgradeFrom15(db);
+        case 16:
+          await _upgradeFrom16(db);
       }
       oldVersion++;
     }
@@ -577,6 +580,18 @@ class LocalMediaDbUpgrader {
       'CREATE TABLE $debugTable('
       'id INTEGER PRIMARY KEY AUTOINCREMENT'
       ', message TEXT'
+      ')',
+    );
+  }
+
+  static Future<void> _upgradeFrom16(Database db) async {
+    debugPrint('upgrading DB from v16');
+
+    // custom captions of entries
+    await db.execute(
+      'CREATE TABLE $captionTable('
+      'id INTEGER PRIMARY KEY'
+      ', caption TEXT'
       ')',
     );
   }
