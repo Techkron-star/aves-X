@@ -130,9 +130,9 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 
 ## Bat-Player (video player rewrite)
 
-- [ ] Quick controls: loop, shuffle, playback speed
-- [ ] YouTube-like gestures: slide on the left/right side of the screen for brightness/volume, double tap to seek
-- [ ] Codec / decoder options (hardware vs software), and investigate why some HD/4K videos play at ~10 fps
+- [~] Quick controls: loop (done), playback speed (already in Aves); shuffle pending
+- [x] YouTube-like gestures: slide on the left/right side of the screen for brightness/volume, double tap to seek
+- [~] Codec / decoder options already exist (Settings → Video → Hardware acceleration: disabled, enabled, forced; forced is the default). Still to investigate why some HD/4K videos play at ~10 fps
 - [ ] Equalizer-like and subtitle options as in other players
 
 ## Bat-Cave (Glass-Everywhere 2.0) and Bat-Glass 2.0
