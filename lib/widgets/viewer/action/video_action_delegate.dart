@@ -6,6 +6,7 @@ import 'package:aves/model/entry/extensions/keys.dart';
 import 'package:aves/model/entry/extensions/location.dart';
 import 'package:aves/model/entry/extensions/props.dart';
 import 'package:aves/model/filters/covered/stored_album.dart';
+import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_lens.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/services/media/enums.dart';
