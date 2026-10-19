@@ -1239,5 +1239,21 @@
   "explorerActionShowAllFolders": "Show all folders (including .nomedia)",
   "failsafeLockdownActive": "Lockdown protocol active",
   "failsafeExitSafeMode": "Leave safe mode",
-  "settingsNavLensClassicUnavailable": "Bat-Lens is only available for the Rounded, Floating and Rectangular navigation bar styles."
+  "settingsNavLensClassicUnavailable": "Bat-Lens is only available for the Rounded, Floating and Rectangular navigation bar styles.",
+  "failsafeWizGreeting": "Hi. I am Fail-Safe.",
+  "failsafeWizGreeting2": "From now on, someone is watching over your photos.",
+  "failsafeWizDoes1": "I keep a private log of anything that goes wrong, only on this phone, and I look for the cause.",
+  "failsafeWizDoes2": "If the app fails, I start in safe mode, so nothing private gets weakened or deleted by accident.",
+  "failsafeWizDoes3": "If someone keeps guessing your codes, I lock the app. You decide if I should also destroy data.",
+  "failsafeWizNext": "Next",
+  "failsafeWizTermsTitle": "The fine print, the short version",
+  "failsafeWizTerm1": "Nothing leaves your phone: no accounts, no tracking, no uploads.",
+  "failsafeWizTerm2": "Your private data is protected on this device. If you lose your Master Code or clear the app data, nobody can recover it, not even me.",
+  "failsafeWizTerm3": "Aves-X is provided as it is, without warranty. Keep your own backups.",
+  "failsafeWizTerm4": "Based on Aves by Thibault Deckers, BSD-3-Clause license.",
+  "failsafeWizHold": "Hold to accept",
+  "failsafeWizDecline": "I do not accept",
+  "failsafeWizSetupTitle": "How strict should I be?",
+  "failsafeWizSetupMore": "More options, like the longest wait between attempts or destroying data, are in Settings, Fail-Safe.",
+  "failsafeWizFinish": "Start"
 }
