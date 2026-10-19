@@ -24,6 +24,10 @@ mixin DisplaySettings on SettingsAccess {
 
   set glassEverywhere(bool newValue) => set(SettingKeys.glassEverywhereKey, newValue);
 
+  bool get explorerShowAllFolders => getBool(SettingKeys.explorerShowAllFoldersKey) ?? SettingsDefaults.explorerShowAllFolders;
+
+  set explorerShowAllFolders(bool newValue) => set(SettingKeys.explorerShowAllFoldersKey, newValue);
+
   bool get swipeTabs => getBool(SettingKeys.swipeTabsKey) ?? SettingsDefaults.swipeTabs;
 
   set swipeTabs(bool newValue) => set(SettingKeys.swipeTabsKey, newValue);

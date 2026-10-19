@@ -856,10 +856,10 @@
   "batCurityVaultEncSelfTestFailed": "La clave de cifrado no funciona en este dispositivo, así que no se cifró nada: {error}",
   "vaultDecryptPartialWarning": "La vault se abrió, pero {count} archivos no se pudieron descifrar. Puedes probar Ajustes → Seguridad → Forzar descifrado de las vaults.",
   "videoActionLoop": "Repetir",
-  "failsafeOnline": "Failsafe: online",
+  "failsafeOnline": "Fail-Safe: online",
   "failsafeSafeMode": "Modo seguro",
   "failsafeTapForReport": "Toca para ver el diagnóstico",
-  "failsafeReportTitle": "System Failsafe",
+  "failsafeReportTitle": "System Fail-Safe",
   "failsafeCopy": "Copiar",
   "failsafeBlocked": "El modo seguro está activo tras un error. Esta acción está desactivada hasta que la app se reinicie sin errores.",
   "explorerActionNoMedia": "Ocultar a otras apps (.nomedia)",
@@ -876,8 +876,8 @@
   "settingsVideoCustomMpvOptionsSubtitle": "Opciones de mpv, una por línea (experimental)",
   "settingsVideoCustomMpvOptionsHelp": "Una opción=valor por línea, se aplican al abrir un video. Las líneas inválidas se ignoran y las que empiezan por # son comentarios. Valores incorrectos pueden romper la reproducción: vacía el campo para volver a lo normal.",
   "settingsVideoHwAccelHybrid": "Híbrida (hardware y luego software)",
-  "settingsFailsafeSectionTitle": "Failsafe",
-  "failsafeLockdownTitle": "Failsafe ha tomado el control temporalmente",
+  "settingsFailsafeSectionTitle": "Fail-Safe",
+  "failsafeLockdownTitle": "Fail-Safe ha tomado el control temporalmente",
   "failsafeLockdownMessage": "Introduce el código maestro para desbloquear.",
   "failsafeLockdownOption": "Bloqueo tras intentos fallidos",
   "failsafeLockdownOptionSubtitle": "Tras 4 intentos incorrectos la app se bloquea hasta que se introduzca el código maestro. No se borra nada.",
@@ -912,8 +912,12 @@
       }
     }
   },
-  "failsafeWelcomeTitle": "Hola, soy Failsafe",
-  "failsafeWelcomeMessage": "Vigilo la app: guardo un registro local de errores y busco su causa (nunca se envía nada a ningún sitio), y si la app falla arranco en modo seguro para que nada privado pueda debilitarse o borrarse por accidente.\n\nTambién puedo bloquear la app si alguien insiste adivinando tus códigos, sin borrar nada. Puedes cambiar lo estricto que soy, o activar la opción destructiva, en Ajustes, Failsafe.",
+  "failsafeWelcomeTitle": "Hola, soy Fail-Safe",
+  "failsafeWelcomeMessage": "Vigilo la app: guardo un registro local de errores y busco su causa (nunca se envía nada a ningún sitio), y si la app falla arranco en modo seguro para que nada privado pueda debilitarse o borrarse por accidente.\n\nTambién puedo bloquear la app si alguien insiste adivinando tus códigos, sin borrar nada. Puedes cambiar lo estricto que soy, o activar la opción destructiva, en Ajustes, Fail-Safe.",
   "failsafeWelcomeConfigure": "Configurar",
-  "failsafeWelcomeDismiss": "Entendido"
+  "failsafeWelcomeDismiss": "Entendido",
+  "explorerActionShowAllFolders": "Mostrar todas las carpetas (incluidas .nomedia)",
+  "failsafeLockdownActive": "Protocolo Lockdown activado",
+  "failsafeExitSafeMode": "Salir del modo seguro",
+  "settingsNavLensClassicUnavailable": "Bat-Lens solo está disponible para los estilos Redondeado, Flotante y Rectangular de la barra de navegación."
 }

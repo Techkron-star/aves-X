@@ -3,5 +3,6 @@ enum ExplorerAction {
   setHome,
   hide,
   noMedia,
+  showAllFolders,
   stats,
 }

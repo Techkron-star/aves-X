@@ -1,3 +1,4 @@
+import 'package:aves/model/security/master_code.dart';
 import 'dart:math' as math;
 
 import 'package:aves/model/security/failsafe.dart';
@@ -72,13 +73,14 @@ class _FailsafeBadgeState extends State<FailsafeBadge> with SingleTickerProvider
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        safe ? context.l10n.failsafeSafeMode : context.l10n.failsafeOnline,
+                        widget.forceAlert ? context.l10n.failsafeLockdownActive : (safe ? context.l10n.failsafeSafeMode : context.l10n.failsafeOnline),
                         style: TextStyle(color: color, fontWeight: FontWeight.w600, letterSpacing: .6),
                       ),
-                      Text(
-                        context.l10n.failsafeTapForReport,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
+                      if (!widget.forceAlert)
+                        Text(
+                          context.l10n.failsafeTapForReport,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
                     ],
                   ),
                 ),
@@ -197,6 +199,16 @@ Future<void> showFailsafeReport(BuildContext context) {
         ),
       ),
       actions: [
+        if (failsafe.safeMode.value)
+          TextButton(
+            onPressed: () async {
+              if (await MasterCode.require(context) && context.mounted) {
+                await failsafe.exitSafeMode();
+                if (context.mounted) Navigator.maybeOf(context)?.pop();
+              }
+            },
+            child: Text(context.l10n.failsafeExitSafeMode),
+          ),
         TextButton(
           onPressed: () => Clipboard.setData(ClipboardData(text: report)),
           child: Text(context.l10n.failsafeCopy),

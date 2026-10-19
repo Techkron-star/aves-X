@@ -37,6 +37,7 @@ class ExplorerActionDelegate with FeedbackMixin, PermissionAwareMixin {
         return isMain && !useTvLayout;
       case .hide:
       case .noMedia:
+      case .showAllFolders:
       case .stats:
         return isMain;
     }
@@ -48,6 +49,7 @@ class ExplorerActionDelegate with FeedbackMixin, PermissionAwareMixin {
       case .setHome:
       case .hide:
       case .noMedia:
+      case .showAllFolders:
       case .stats:
         return true;
     }
@@ -64,6 +66,8 @@ class ExplorerActionDelegate with FeedbackMixin, PermissionAwareMixin {
         _hide(context);
       case .noMedia:
         _toggleNoMedia(context);
+      case .showAllFolders:
+        settings.explorerShowAllFolders = !settings.explorerShowAllFolders;
       case .stats:
         _goToStats(context);
     }

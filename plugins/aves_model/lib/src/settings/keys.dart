@@ -52,6 +52,7 @@ class SettingKeys {
   static const performanceModeKey = 'performance_mode';
   static const navLensKey = 'nav_lens';
   static const swipeTabsKey = 'swipe_tabs';
+  static const explorerShowAllFoldersKey = 'explorer_show_all_folders';
   static const navBarStyleKey = 'nav_bar_style';
   static const glassEverywhereKey = 'glass_everywhere';
   static const maxBrightnessKey = 'max_brightness';

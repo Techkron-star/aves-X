@@ -11,6 +11,7 @@ extension ExtraExplorerActionView on ExplorerAction {
       .setHome => l10n.collectionActionSetHome,
       .hide => l10n.chipActionHide,
       .noMedia => l10n.explorerActionNoMedia,
+      .showAllFolders => l10n.explorerActionShowAllFolders,
       .stats => l10n.menuActionStats,
     };
   }
@@ -23,6 +24,7 @@ extension ExtraExplorerActionView on ExplorerAction {
       .setHome => AIcons.home,
       .hide => AIcons.hide,
       .noMedia => AIcons.hide,
+      .showAllFolders => AIcons.show,
       .stats => AIcons.stats,
     };
   }

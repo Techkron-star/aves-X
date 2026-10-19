@@ -136,6 +136,7 @@ class _ExplorerAppBarState extends State<ExplorerAppBar> with WidgetsBindingObse
             ExplorerAction.setHome,
             ExplorerAction.hide,
             ExplorerAction.noMedia,
+            ExplorerAction.showAllFolders,
             null,
             ExplorerAction.stats,
           ].map<PopupMenuEntry<ExplorerAction>>((v) {

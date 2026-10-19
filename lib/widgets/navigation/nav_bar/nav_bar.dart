@@ -313,13 +313,6 @@ class const NavBarPaddingSliver({super.key}) extends StatelessWidget {
 }
 
 // damped spring: overshoots the target and settles
-class _SpringCurve extends Curve {
-  const _SpringCurve();
-
-  @override
-  double transformInternal(double t) => 1 - exp(-6.5 * t) * cos(2 * pi * 1.4 * t);
-}
-
 // swipe horizontally over the page to go to the previous / next item of the navigation bar.
 // Raw pointer events are observed (no gesture arena), so scrolling and other gestures are never disturbed
 class SwipeTabs extends StatefulWidget {
@@ -496,8 +489,9 @@ class _LensSliderState extends State<_LensSlider> with SingleTickerProviderState
           animation: _controller,
           builder: (context, child) {
             final t = _controller.value;
-            const fast = _SpringCurve();
-            final slow = Curves.easeOutCubic;
+            // one soft overshoot for the leading edge, the trailing edge follows a little later without bouncing
+            const fast = Cubic(.2, .9, .3, 1.12);
+            final slow = Interval(.1, 1, curve: Curves.easeOutCubic);
             final lead = fast.transform(t);
             final trail = slow.transform(t);
             // moving right: the right edge leads, moving left: the left edge leads

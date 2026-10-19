@@ -398,6 +398,7 @@ class Settings
           case SettingKeys.performanceModeKey:
           case SettingKeys.navLensKey:
           case SettingKeys.swipeTabsKey:
+          case SettingKeys.explorerShowAllFoldersKey:
           case SettingKeys.glassEverywhereKey:
           case SettingKeys.mustBackTwiceToExitKey:
           case SettingKeys.confirmCreateVaultKey:

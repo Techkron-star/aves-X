@@ -37,6 +37,8 @@ class Failsafe with WidgetsBindingObserver {
   final List<String> _lines = [];
   String _route = '-';
   int _sessionErrors = 0;
+  // errors repeating the same failure count once, so that one recurring harmless error cannot lock safe mode in
+  final Set<String> _signatures = {};
   int _crashes = 0;
   bool _dirty = false;
   Timer? _healthyTimer;
@@ -89,7 +91,7 @@ class Failsafe with WidgetsBindingObserver {
     // a session that runs for a while without serious errors counts as clean:
     // the next launch will be back to normal
     _healthyTimer = Timer(_healthyAfter, () async {
-      if (_sessionErrors >= _errorsBeforeSafeMode) return;
+      if (_signatures.length >= _errorsBeforeSafeMode) return;
       _crashes = 0;
       _add('OK', 'Healthy session, safe mode will be off at the next launch');
       await securityService.writeValue<String>(_crashesKey, '0');
@@ -113,6 +115,17 @@ class Failsafe with WidgetsBindingObserver {
 
   Future<void> markWelcomed() => securityService.writeValue<String>(_welcomeKey, '1');
 
+  // manual way out of safe mode (the caller asks for the Master Code first)
+  Future<void> exitSafeMode() async {
+    _crashes = 0;
+    _signatures.clear();
+    safeMode.value = false;
+    _add('SAFE', 'Safe mode left manually');
+    await securityService.writeValue<String>(_crashesKey, '0');
+    await securityService.writeValue<String>(_uncleanKey, '0');
+    await _flush();
+  }
+
   Future<void> engageLockdown() async {
     await FailsafeConfig.setLockdownActive(true);
     lockdown.value = true;
@@ -135,11 +148,12 @@ class Failsafe with WidgetsBindingObserver {
   // an uncaught error (Flutter framework, async zone or isolate)
   void record(Object error, StackTrace? stack, {String source = 'ERR'}) {
     _sessionErrors++;
+    _signatures.add('${error.toString().split('\n').first}|${stack?.toString().split('\n').first ?? ''}');
     unawaited(securityService.writeValue<String>(_errorsKey, '$_sessionErrors'));
     final text = '$error\n${stack ?? ''}';
     _add(source, '${error.toString().split('\n').first} | likely cause: ${diagnose(text).first} | route=$_route');
     if (stack != null) _add('STACK', stack.toString().split('\n').take(4).join(' <- '));
-    if (_sessionErrors >= _errorsBeforeSafeMode) {
+    if (_signatures.length >= _errorsBeforeSafeMode) {
       // too many errors in one session: next launch starts in safe mode
       _crashes = _crashes < 1 ? 1 : _crashes;
       unawaited(securityService.writeValue<String>(_crashesKey, '$_crashes'));
@@ -201,7 +215,7 @@ class Failsafe with WidgetsBindingObserver {
         .join('\n');
     final causes = diagnose(recent);
     return [
-      'Aves-X System Failsafe report',
+      'Aves-X System Fail-Safe report',
       'Safe mode: ${safeMode.value ? 'ON' : 'off'} | failures counted: $_crashes | errors this session: $_sessionErrors',
       'Last screen: $_route',
       'Likely causes: ${causes.join('; ')}',

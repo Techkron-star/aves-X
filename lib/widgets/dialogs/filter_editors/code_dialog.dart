@@ -7,6 +7,8 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 class CodeDialog extends StatefulWidget {
   static const routeName = '/dialog/code';
   static const length = 6;
+  // cells are 48 wide with 8 of spacing between them
+  static const fieldWidth = length * 48.0 + (length - 1) * 8.0;
 
   final bool needConfirmation;
   final String? message;
@@ -42,7 +44,7 @@ class _CodeDialogState extends State<CodeDialog> {
               child: FittedBox(
                 fit: BoxFit.scaleDown,
                 child: SizedBox(
-                  width: CodeDialog.length * 48.0,
+                  width: CodeDialog.fieldWidth,
                   child: MaterialPinField(
                     length: CodeDialog.length,
                     pinController: _controller,

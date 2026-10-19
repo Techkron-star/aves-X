@@ -69,6 +69,7 @@ class _ExplorerPageState extends State<ExplorerPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final source = context.read<CollectionSource>();
       _subscriptions.add(source.eventBus.on<AlbumsChangedEvent>().listen((event) => _updateContents()));
+      _subscriptions.add(settings.updateStream.where((event) => event.key == SettingKeys.explorerShowAllFoldersKey).listen((_) => _updateContents()));
     });
   }
 
@@ -161,12 +162,14 @@ class _ExplorerPageState extends State<ExplorerPage> {
     final contents = <Directory>[];
     final source = context.read<CollectionSource>();
     final albums = source.rawAlbums.map((v) => v.toLowerCase()).toSet();
+    // folders hidden by `.nomedia` are not albums anymore, so they only appear when asked for
+    final showAll = settings.explorerShowAllFolders;
     Directory(dirPath).list().listen(
       (event) {
         final entity = event.absolute;
         if (entity is Directory) {
           final dirPath = entity.path.toLowerCase();
-          if (albums.any((v) => v.startsWith(dirPath))) {
+          if (showAll || albums.any((v) => v.startsWith(dirPath))) {
             contents.add(entity);
           }
         }

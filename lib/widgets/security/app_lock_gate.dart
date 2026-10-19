@@ -38,14 +38,36 @@ class AppLockGate extends StatelessWidget {
   }
 }
 
+// the screen sits above the Navigator, so it needs its own Overlay (text selection handles require one)
 class _LockScreen extends StatefulWidget {
   const _LockScreen();
 
   @override
-  State<_LockScreen> createState() => _LockScreenState();
+  State<_LockScreen> createState() => _LockScreenHostState();
 }
 
-class _LockScreenState extends State<_LockScreen> {
+class _LockScreenHostState extends State<_LockScreen> {
+  late final OverlayEntry _entry = OverlayEntry(builder: (context) => const _LockBody());
+
+  @override
+  void dispose() {
+    _entry.remove();
+    _entry.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Overlay(initialEntries: [_entry]);
+}
+
+class _LockBody extends StatefulWidget {
+  const _LockBody();
+
+  @override
+  State<_LockBody> createState() => _LockScreenState();
+}
+
+class _LockScreenState extends State<_LockBody> {
   final _controller = PinInputController();
   String? _message;
   bool _fake = false;
@@ -162,8 +184,10 @@ class _LockScreenState extends State<_LockScreen> {
                 Text(_fake ? l10n.appLockWrongPin : l10n.appLockTitle, style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 24),
                 if (!_fake && !_blocked)
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 320),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: SizedBox(
+                    width: CodeDialog.fieldWidth,
                     child: MaterialPinField(
                       length: CodeDialog.length,
                       pinController: _controller,
@@ -172,6 +196,7 @@ class _LockScreenState extends State<_LockScreen> {
                       obscureText: true,
                       onChanged: (v) {},
                       onCompleted: _onCode,
+                    ),
                     ),
                   ),
                 if (_message != null && !_fake)

@@ -1176,10 +1176,10 @@
     }
   },
   "videoActionLoop": "Loop",
-  "failsafeOnline": "Failsafe: online",
+  "failsafeOnline": "Fail-Safe: online",
   "failsafeSafeMode": "Safe mode",
   "failsafeTapForReport": "Tap to see the diagnosis",
-  "failsafeReportTitle": "System Failsafe",
+  "failsafeReportTitle": "System Fail-Safe",
   "failsafeCopy": "Copy",
   "failsafeBlocked": "Safe mode is active after an error. This action is disabled until the app restarts without errors.",
   "explorerActionNoMedia": "Hide from other apps (.nomedia)",
@@ -1196,8 +1196,8 @@
   "settingsVideoCustomMpvOptionsSubtitle": "mpv options, one per line (experimental)",
   "settingsVideoCustomMpvOptionsHelp": "One option=value per line, applied when a video opens. Invalid lines are ignored and lines starting with # are comments. Wrong values can break playback: clear the field to go back to the defaults.",
   "settingsVideoHwAccelHybrid": "Hybrid (hardware, then software)",
-  "settingsFailsafeSectionTitle": "Failsafe",
-  "failsafeLockdownTitle": "Failsafe has temporarily taken control",
+  "settingsFailsafeSectionTitle": "Fail-Safe",
+  "failsafeLockdownTitle": "Fail-Safe has temporarily taken control",
   "failsafeLockdownMessage": "Enter the Master Code to unlock.",
   "failsafeLockdownOption": "Lockdown after failed attempts",
   "failsafeLockdownOptionSubtitle": "After 4 wrong attempts the app locks until the Master Code is entered. Nothing is deleted.",
@@ -1232,8 +1232,12 @@
       }
     }
   },
-  "failsafeWelcomeTitle": "Hi, I am Failsafe",
-  "failsafeWelcomeMessage": "I watch over the app: I keep a local record of errors and look for their cause (nothing is ever sent anywhere), and if the app fails I start in safe mode so nothing private can be weakened or deleted by accident.\n\nI can also lock the app if someone keeps guessing your codes, without deleting anything. You can change how strict I am, or turn on the destructive option, in Settings, Failsafe.",
+  "failsafeWelcomeTitle": "Hi, I am Fail-Safe",
+  "failsafeWelcomeMessage": "I watch over the app: I keep a local record of errors and look for their cause (nothing is ever sent anywhere), and if the app fails I start in safe mode so nothing private can be weakened or deleted by accident.\n\nI can also lock the app if someone keeps guessing your codes, without deleting anything. You can change how strict I am, or turn on the destructive option, in Settings, Fail-Safe.",
   "failsafeWelcomeConfigure": "Configure",
-  "failsafeWelcomeDismiss": "Got it"
+  "failsafeWelcomeDismiss": "Got it",
+  "explorerActionShowAllFolders": "Show all folders (including .nomedia)",
+  "failsafeLockdownActive": "Lockdown protocol active",
+  "failsafeExitSafeMode": "Leave safe mode",
+  "settingsNavLensClassicUnavailable": "Bat-Lens is only available for the Rounded, Floating and Rectangular navigation bar styles."
 }

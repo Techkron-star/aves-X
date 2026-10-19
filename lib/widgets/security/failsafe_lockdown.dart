@@ -33,14 +33,36 @@ class FailsafeLockdownGate extends StatelessWidget {
   }
 }
 
+// the screen sits above the Navigator, so it needs its own Overlay (text selection handles require one)
 class _LockdownScreen extends StatefulWidget {
   const _LockdownScreen();
 
   @override
-  State<_LockdownScreen> createState() => _LockdownScreenState();
+  State<_LockdownScreen> createState() => _LockdownScreenHostState();
 }
 
-class _LockdownScreenState extends State<_LockdownScreen> {
+class _LockdownScreenHostState extends State<_LockdownScreen> {
+  late final OverlayEntry _entry = OverlayEntry(builder: (context) => const _LockdownBody());
+
+  @override
+  void dispose() {
+    _entry.remove();
+    _entry.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Overlay(initialEntries: [_entry]);
+}
+
+class _LockdownBody extends StatefulWidget {
+  const _LockdownBody();
+
+  @override
+  State<_LockdownBody> createState() => _LockdownScreenState();
+}
+
+class _LockdownScreenState extends State<_LockdownBody> {
   final _controller = PinInputController();
   String? _message;
   Timer? _timer;
@@ -133,8 +155,10 @@ class _LockdownScreenState extends State<_LockdownScreen> {
                 Text(l10n.failsafeLockdownMessage, textAlign: TextAlign.center),
                 const SizedBox(height: 24),
                 if (!_blocked)
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 320),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: SizedBox(
+                    width: CodeDialog.fieldWidth,
                     child: MaterialPinField(
                       length: CodeDialog.length,
                       pinController: _controller,
@@ -143,6 +167,7 @@ class _LockdownScreenState extends State<_LockdownScreen> {
                       obscureText: true,
                       onChanged: (v) {},
                       onCompleted: _onCode,
+                    ),
                     ),
                   ),
                 if (_message != null)

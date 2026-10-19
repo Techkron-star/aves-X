@@ -251,7 +251,14 @@ class SettingsTileDisplayNavLens extends SettingsTile {
   @override
   Widget build(BuildContext context) => SettingsSwitchListTile(
     selector: (context, s) => s.navLens,
-    onChanged: (v) => settings.navLens = v,
+    onChanged: (v) {
+      // the lens is drawn over the rounded, floating and rectangular bars only
+      if (v && settings.navBarStyle == NavBarStyle.classic) {
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(context.l10n.settingsNavLensClassicUnavailable)));
+        return;
+      }
+      settings.navLens = v;
+    },
     title: title,
     subtitle: (context) => context.l10n.settingsNavLensSubtitle,
     sticker: const FeatureSticker(kind: StickerKind.newFeature),
