@@ -241,7 +241,10 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
       _holdFired = false;
       return;
     }
-    LensMemory.remember(_getCurrentIndex(context, items));
+    final current = _getCurrentIndex(context, items);
+    LensMemory.remember(current);
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    if (index != current) TabSlide.request((index > current) != rtl ? 1 : -1);
     items[index].goTo(context, topLevel: null);
   }
 
@@ -398,6 +401,7 @@ class _SwipeTabsState extends State<SwipeTabs> {
     final target = currentIndex + (forward ? 1 : -1);
     if (target < 0 || target >= items.length) return;
     LensMemory.remember(currentIndex);
+    TabSlide.request(forward ? 1 : -1);
     items[target].goTo(context, topLevel: null);
   }
 }

@@ -106,6 +106,14 @@ class AvesNavItem extends Equatable {
           parentCollection: topLevel ? currentCollection?.copyWith() : currentCollection,
         );
       default:
+        final slide = TabSlide.consume();
+        if (topLevel && slide != null && settings.animate) {
+          return TabSlideRoute(
+            settings: RouteSettings(name: route),
+            builder: _materialPageBuilder(route),
+            direction: slide,
+          );
+        }
         return MaterialPageRoute(
           settings: RouteSettings(name: route),
           builder: _materialPageBuilder(route),
@@ -174,4 +182,43 @@ class AvesNavItem extends Equatable {
     }
     return null;
   }
+}
+
+// Instagram-like tab change: the new tab slides in from the side of the movement, while fading in
+class TabSlide {
+  static int? _direction;
+  static DateTime? _at;
+
+  // 1: the new tab comes from the right, -1: from the left
+  static void request(int direction) {
+    _direction = direction;
+    _at = DateTime.now();
+  }
+
+  static int? consume() {
+    final at = _at, direction = _direction;
+    _direction = null;
+    _at = null;
+    if (at == null || DateTime.now().difference(at) > const Duration(seconds: 3)) return null;
+    return direction;
+  }
+}
+
+class TabSlideRoute<T> extends PageRouteBuilder<T> {
+  TabSlideRoute({
+    super.settings,
+    required WidgetBuilder builder,
+    required int direction,
+  }) : super(
+         pageBuilder: (context, _, _) => builder(context),
+         transitionDuration: const Duration(milliseconds: 380),
+         reverseTransitionDuration: const Duration(milliseconds: 380),
+         transitionsBuilder: (context, animation, secondary, child) {
+           final curved = CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
+           return SlideTransition(
+             position: Tween<Offset>(begin: Offset(direction.toDouble(), 0), end: Offset.zero).animate(curved),
+             child: FadeTransition(opacity: Tween<double>(begin: .55, end: 1).animate(curved), child: child),
+           );
+         },
+       );
 }

@@ -180,9 +180,10 @@ class _Facet {
 // the crystal with a light glint sweeping across it every few seconds
 class AnimatedCrystal extends StatefulWidget {
   final bool animate;
+  final double opacity;
   final Widget child;
 
-  const AnimatedCrystal({super.key, required this.animate, required this.child});
+  const AnimatedCrystal({super.key, required this.animate, this.opacity = .86, required this.child});
 
   @override
   State<AnimatedCrystal> createState() => _AnimatedCrystalState();
@@ -205,13 +206,13 @@ class _AnimatedCrystalState extends State<AnimatedCrystal> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.animate) return DecoratedBox(decoration: const DiamondDecoration(), child: widget.child);
+    if (!widget.animate) return DecoratedBox(decoration: DiamondDecoration(opacity: widget.opacity), child: widget.child);
     return AnimatedBuilder(
       animation: _controller,
       child: widget.child,
       // the glint crosses during the first part of the cycle, then the stone rests
       builder: (context, child) => DecoratedBox(
-        decoration: DiamondDecoration(glint: _controller.value < .45 ? _controller.value / .45 : -1),
+        decoration: DiamondDecoration(glint: _controller.value < .45 ? _controller.value / .45 : -1, opacity: widget.opacity),
         child: child,
       ),
     );

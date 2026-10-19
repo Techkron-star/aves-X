@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:aves/model/settings/settings.dart';
+import 'package:aves/widgets/common/fx/diamond.dart';
 import 'package:aves/model/security/attempt_guard.dart';
 import 'package:aves/model/security/bat_curity.dart';
 import 'package:aves/model/security/failsafe.dart';
@@ -140,8 +142,12 @@ class _LockdownScreenState extends State<_LockdownBody> {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     return Material(
-      color: scheme.surface,
-      child: SafeArea(
+      color: Colors.black,
+      // deep ruby crystal with a slow glint: Fail-Safe has taken control
+      child: AnimatedCrystal(
+        animate: !settings.performanceMode,
+        opacity: .3,
+        child: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
@@ -179,6 +185,7 @@ class _LockdownScreenState extends State<_LockdownBody> {
             ),
           ),
         ),
+      ),
       ),
     );
   }
