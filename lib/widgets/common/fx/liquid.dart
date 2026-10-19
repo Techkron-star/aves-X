@@ -153,9 +153,10 @@ class GlassThemeScope extends StatelessWidget {
       listenable: settings,
       builder: (context, _) {
         final child = this.child ?? const SizedBox();
-        if (!(settings.glassEverywhere || settings.batGlass)) return child;
-
         final theme = Theme.of(context);
+        // same tree shape whether the glass is on or not: otherwise toggling it remounts the whole app below
+        if (!(settings.glassEverywhere || settings.batGlass)) return Theme(data: theme, child: child);
+
         final bat = settings.batGlass;
         final isDark = theme.brightness == Brightness.dark;
         final accent = bat ? Themes.batGlassRuby : theme.colorScheme.primary;
