@@ -196,10 +196,10 @@ class _AppDrawerState extends State<AppDrawer> with WidgetsBindingObserver {
     final drawerButtonStyle = ButtonStyle(
       padding: WidgetStateProperty.all(const EdgeInsetsDirectional.only(start: 12, end: 16)),
     );
-    return Container(
+    final header = Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       // red diamond look in the glass modes
-      decoration: settings.batGlass ? const DiamondDecoration() : settings.glassEverywhere ? BoxDecoration(color: colorScheme.primary.withValues(alpha: .55)) : BoxDecoration(color: colorScheme.primary),
+      decoration: settings.batGlass ? null : settings.glassEverywhere ? BoxDecoration(color: colorScheme.primary.withValues(alpha: .55)) : BoxDecoration(color: colorScheme.primary),
       child: SafeArea(
         bottom: false,
         child: OutlinedButtonTheme(
@@ -288,6 +288,7 @@ class _AppDrawerState extends State<AppDrawer> with WidgetsBindingObserver {
         ),
       ),
     );
+    return settings.batGlass ? AnimatedCrystal(animate: settings.animate, child: header) : header;
   }
 
   Widget _buildHomeLink() {

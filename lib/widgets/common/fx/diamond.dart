@@ -32,12 +32,17 @@ class _CrystalPainter extends BoxPainter {
   static const _cell = 46.0;
   static const _body = [Color(0xFFFF4A66), Color(0xFFD81B3F), Color(0xFF8E0E2B), Color(0xFF4A0414)];
 
-  Size? _cachedSize;
+  // shared by all painters, so that animating the glint does not cut the crystal again at every frame
+  static final Map<Size, List<_Facet>> _cache = {};
   List<_Facet> _facets = const [];
 
   void _build(Size size) {
-    if (_cachedSize == size) return;
-    _cachedSize = size;
+    final cached = _cache[size];
+    if (cached != null) {
+      _facets = cached;
+      return;
+    }
+    if (_cache.length > 8) _cache.clear();
     final cols = (size.width / _cell).ceil() + 1;
     final rows = (size.height / _cell).ceil() + 1;
     final cw = size.width / (cols - 1 == 0 ? 1 : cols - 1);
@@ -64,7 +69,7 @@ class _CrystalPainter extends BoxPainter {
         }
       }
     }
-    _facets = facets;
+    _facets = _cache[size] = facets;
   }
 
   @override
@@ -170,4 +175,45 @@ class _Facet {
   late final Offset centroid = Offset((p[0].dx + p[1].dx + p[2].dx) / 3, (p[0].dy + p[1].dy + p[2].dy) / 3);
 
   _Facet(this.p, this.nx, this.ny);
+}
+
+// the crystal with a light glint sweeping across it every few seconds
+class AnimatedCrystal extends StatefulWidget {
+  final bool animate;
+  final Widget child;
+
+  const AnimatedCrystal({super.key, required this.animate, required this.child});
+
+  @override
+  State<AnimatedCrystal> createState() => _AnimatedCrystalState();
+}
+
+class _AnimatedCrystalState extends State<AnimatedCrystal> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(seconds: 7));
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.animate) _controller.repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!widget.animate) return DecoratedBox(decoration: const DiamondDecoration(), child: widget.child);
+    return AnimatedBuilder(
+      animation: _controller,
+      child: widget.child,
+      // the glint crosses during the first part of the cycle, then the stone rests
+      builder: (context, child) => DecoratedBox(
+        decoration: DiamondDecoration(glint: _controller.value < .45 ? _controller.value / .45 : -1),
+        child: child,
+      ),
+    );
+  }
 }
