@@ -338,6 +338,15 @@ class const _ExplorerContentLine({
               child: Icon(AIcons.folder),
             ),
       title: Text('${Unicode.FSI}${pContext.split(entity.path).last}${Unicode.PDI}'),
+      // marks the folders hidden from other apps by a `.nomedia` file
+      trailing: entity is Directory
+          ? FutureBuilder<bool>(
+              future: storageService.hasNoMedia(entity.path),
+              builder: (context, snapshot) => snapshot.data == true
+                  ? Tooltip(message: '.nomedia', child: Icon(AIcons.hide, color: Theme.of(context).colorScheme.primary))
+                  : const SizedBox(),
+            )
+          : null,
       onTap: () => _GoToPathNotification(entity.path).dispatch(context),
     );
   }

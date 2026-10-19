@@ -1,3 +1,4 @@
+import 'package:aves/widgets/common/action_controls/togglers/loop.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/view/view.dart';
 import 'package:aves/widgets/common/action_controls/togglers/play.dart';
@@ -69,6 +70,8 @@ class const _VideoOverlayButton({
         controller: controller,
         onPressed: () => onActionSelected(action),
       );
+    } else if (action == EntryAction.videoToggleLoop) {
+      child = LoopToggler(onPressed: () => onActionSelected(action));
     } else {
       final enabled = action == EntryAction.openVideoPlayer ? canOpenVideoPlayer : true;
       child = IconButton(

@@ -414,8 +414,16 @@ class LensMemory {
 
   static int? recent() {
     final at = _at;
-    if (at == null || DateTime.now().difference(at) > const Duration(milliseconds: 1500)) return null;
+    if (at == null || DateTime.now().difference(at) > const Duration(milliseconds: 750)) return null;
     return _from;
+  }
+
+  // how far the slide is, in 0..1, according to the time elapsed since the page change:
+  // every lens built for the same page change (hero flight, new page) continues the same slide instead of restarting it
+  static double progress() {
+    final at = _at;
+    if (at == null) return 1;
+    return (DateTime.now().difference(at).inMilliseconds / 750).clamp(0.0, 1.0);
   }
 }
 
@@ -451,7 +459,7 @@ class _LensSliderState extends State<_LensSlider> with SingleTickerProviderState
     _to = widget.index;
     _from = LensMemory.recent() ?? _to;
     if (_from != _to && settings.animate) {
-      _controller.forward(from: 0);
+      _controller.forward(from: LensMemory.progress());
     } else {
       _controller.value = 1;
     }

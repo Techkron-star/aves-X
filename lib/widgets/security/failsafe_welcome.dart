@@ -14,8 +14,8 @@ import 'package:material_ui/material_ui.dart';
 Future<void> maybeShowFailsafeWelcome(GlobalKey<NavigatorState> navigatorKey) async {
   if (!await failsafe.needsWelcome) return;
   // wait for the app to be usable (not locked, not in lockdown)
-  for (var i = 0; i < 40; i++) {
-    await Future<void>.delayed(const Duration(milliseconds: 750));
+  for (var i = 0; i < 160; i++) {
+    await Future<void>.delayed(Duration(milliseconds: i == 0 ? 0 : 150));
     final context = navigatorKey.currentContext;
     if (context == null || !context.mounted) continue;
     if (!appLock.ready || appLock.locked || failsafe.lockdown.value) continue;
@@ -49,6 +49,7 @@ class _WizardState extends State<_Wizard> {
   final _pager = PageController();
   int _page = 0;
   bool _lockdown = true;
+  bool _accepted = false;
 
   static const _pageCount = 4;
 
@@ -80,8 +81,14 @@ class _WizardState extends State<_Wizard> {
             Expanded(
               child: PageView(
                 controller: _pager,
-                physics: const NeverScrollableScrollPhysics(),
-                onPageChanged: (i) => setState(() => _page = i),
+                onPageChanged: (i) {
+                  // the setup page is only reachable once the terms were accepted
+                  if (i == 3 && !_accepted) {
+                    _pager.animateToPage(2, duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
+                    return;
+                  }
+                  setState(() => _page = i);
+                },
                 children: [
                   _Step(
                     active: _page == 0,
@@ -94,7 +101,10 @@ class _WizardState extends State<_Wizard> {
                   ),
                   _TermsStep(
                     active: _page == 2,
-                    onAccepted: _next,
+                    onAccepted: () {
+                      _accepted = true;
+                      _next();
+                    },
                   ),
                   _SetupStep(
                     lockdown: _lockdown,
@@ -153,17 +163,25 @@ class _Step extends StatefulWidget {
 
 class _StepState extends State<_Step> {
   int _line = 0;
+  bool _skipped = false;
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    return Padding(
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      // one tap shows all the text at once
+      onTap: () => setState(() {
+        _skipped = true;
+        _line = widget.lines.length - 1;
+      }),
+      child: Padding(
       padding: const EdgeInsets.all(28),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Center(child: FailsafeBadge()),
+          const Center(child: FailsafeBadge(interactive: false)),
           const SizedBox(height: 28),
           for (var i = 0; i < widget.lines.length; i++)
             if (i <= _line)
@@ -172,6 +190,7 @@ class _StepState extends State<_Step> {
                 child: widget.active
                     ? Typewriter(
                         text: widget.lines[i],
+                        instant: _skipped,
                         style: i == 0 && widget.big ? textTheme.headlineMedium : textTheme.titleMedium,
                         onDone: () {
                           if (mounted && _line == i && i < widget.lines.length - 1) {
@@ -185,6 +204,7 @@ class _StepState extends State<_Step> {
               ),
         ],
       ),
+    ),
     );
   }
 }
@@ -247,7 +267,7 @@ class _SetupStep extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Center(child: FailsafeBadge()),
+          const Center(child: FailsafeBadge(interactive: false)),
           const SizedBox(height: 24),
           Text(l10n.failsafeWizSetupTitle, style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 12),
@@ -268,7 +288,9 @@ class _SetupStep extends StatelessWidget {
 
 // text that types itself, tap to show it all
 class Typewriter extends StatefulWidget {
-  const Typewriter({super.key, required this.text, this.style, this.onDone});
+  const Typewriter({super.key, required this.text, this.style, this.onDone, this.instant = false});
+
+  final bool instant;
 
   final String text;
   final TextStyle? style;
@@ -283,8 +305,15 @@ class _TypewriterState extends State<Typewriter> {
   Timer? _timer;
 
   @override
+  void didUpdateWidget(covariant Typewriter oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.instant && _count < widget.text.length) setState(() => _count = widget.text.length);
+  }
+
+  @override
   void initState() {
     super.initState();
+    if (widget.instant) _count = widget.text.length;
     _timer = Timer.periodic(const Duration(milliseconds: 28), (timer) {
       if (!mounted) return;
       if (_count >= widget.text.length) {

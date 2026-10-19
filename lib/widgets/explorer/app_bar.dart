@@ -128,6 +128,17 @@ class _ExplorerAppBarState extends State<ExplorerAppBar> with WidgetsBindingObse
         onPressed: () => _goToSearch(context),
         tooltip: MaterialLocalizations.of(context).searchFieldLabel,
       ),
+      // quick access to the folders that are not albums (e.g. the ones with a `.nomedia` file)
+      Builder(
+        builder: (context) {
+          final all = context.select<Settings, bool>((v) => v.explorerShowAllFolders);
+          return IconButton(
+            icon: Icon(all ? AIcons.show : AIcons.hide, color: all ? Theme.of(context).colorScheme.primary : null),
+            onPressed: () => settings.explorerShowAllFolders = !all,
+            tooltip: ExplorerAction.showAllFolders.getText(context),
+          );
+        },
+      ),
       if (_volumes.length > 1) _buildVolumeSelector(context),
       PopupMenuButton<ExplorerAction>(
         itemBuilder: (context) {
