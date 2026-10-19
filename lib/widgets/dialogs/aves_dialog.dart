@@ -92,7 +92,13 @@ class _AvesDialogState extends State<AvesDialog> {
       // clipping to prevent highlighted material to bleed through rounded corners
       clipBehavior: Clip.antiAlias,
       shape: AvesDialog.shape(context),
-      backgroundColor: (settings.enableBlurEffect && settings.glassEverywhere) ? Theme.of(context).colorScheme.surfaceContainerHigh.withValues(alpha: .8) : null,
+      backgroundColor: !settings.enableBlurEffect
+          ? null
+          : settings.batGlass
+              ? const Color(0xCC24060E) // ruby smoked crystal
+              : settings.glassEverywhere
+                  ? Theme.of(context).colorScheme.surfaceContainerHigh.withValues(alpha: .62) // frosted
+                  : null,
     );
   }
 
@@ -210,7 +216,7 @@ Future<T?> showAvesDialog<T>({
   return showDialog<T>(
     context: context,
     // frosted background behind dialogs
-    builder: (settings.enableBlurEffect && settings.glassEverywhere) ? (context) => BackdropFilter(filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8), child: builder(context)) : builder,
+    builder: (settings.enableBlurEffect && (settings.glassEverywhere || settings.batGlass)) ? (context) => BackdropFilter(filter: ImageFilter.blur(sigmaX: settings.batGlass ? 4 : 12, sigmaY: settings.batGlass ? 4 : 12), child: builder(context)) : builder,
     barrierDismissible: barrierDismissible,
     barrierColor: barrierColor,
     barrierLabel: barrierLabel,
