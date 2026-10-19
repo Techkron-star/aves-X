@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:aves/model/settings/settings.dart';
+import 'package:aves/widgets/common/fx/diamond.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 
@@ -107,7 +108,8 @@ class BlurredRRect extends StatelessWidget {
                   border: Border.all(color: _edgeFor(context.select<Settings, bool>((v) => v.batGlass), context.select<Settings, bool>((v) => v.glassEverywhere)), width: .8),
                 )
               : const BoxDecoration(),
-          child: child,
+          // Bat-Glass: the surface itself becomes a see-through ruby crystal
+          child: enabled && context.select<Settings, bool>((v) => v.batGlass) ? DecoratedBox(decoration: const DiamondDecoration(opacity: .34), child: child) : child,
         ),
       ),
     );
@@ -141,7 +143,8 @@ class BlurredOval extends StatelessWidget {
                   border: Border.fromBorderSide(BorderSide(color: _edgeFor(context.select<Settings, bool>((v) => v.batGlass), context.select<Settings, bool>((v) => v.glassEverywhere)), width: .8)),
                 )
               : const BoxDecoration(),
-          child: child,
+          // Bat-Glass: the surface itself becomes a see-through ruby crystal
+          child: enabled && context.select<Settings, bool>((v) => v.batGlass) ? DecoratedBox(decoration: const DiamondDecoration(opacity: .34), child: child) : child,
         ),
       ),
     );

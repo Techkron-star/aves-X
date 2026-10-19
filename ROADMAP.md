@@ -156,6 +156,17 @@ Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendien
 - [x] Safe mode after a crash: banner "Safe mode"; security options cannot be lowered, vaults cannot be opened or deleted, nothing can be deleted; back to normal after a clean launch
 - [x] Crypto-erase first nuke: destroy keys and credentials before deleting files, so an interrupted nuke still leaves nothing readable
 
+## Gargantua System (planned, not a priority)
+
+Most security apps keep people out of the photos (locks, PINs, encryption). Gargantua does the opposite: it stops files from leaving without permission. Named after the black hole in Interstellar: once a file is inside a protected zone of Aves-X, it does not leave unless the owner explicitly orders it. Cosmic look.
+
+- [ ] Share interception: the app intercepts "Share" before the Android chooser appears (WhatsApp, Telegram, mail, anything)
+- [ ] File customs: rules to make folders or photos fully blocked for export
+- [ ] Exit authentication: sharing a protected file asks for the PIN or Master Code; without it the file does not leave the phone
+- [ ] Vault protection: everything inside vaults or locked with a password is under Gargantua by default
+- [ ] Cosmic visual style
+- [ ] With root, its capabilities are boosted (this is the rework of the optional root mode below; scope still to be defined)
+
 ## Black Hole (optional root mode)
 
 - [ ] Root daemon: nuke and automatic deletion that keep running with the app closed or killed
