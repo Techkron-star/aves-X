@@ -199,7 +199,7 @@ class _AppDrawerState extends State<AppDrawer> with WidgetsBindingObserver {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       // red diamond look in the glass modes
-      decoration: (settings.batGlass || settings.glassEverywhere) ? const DiamondDecoration() : BoxDecoration(color: colorScheme.primary),
+      decoration: settings.batGlass ? const DiamondDecoration() : settings.glassEverywhere ? BoxDecoration(color: colorScheme.primary.withValues(alpha: .55)) : BoxDecoration(color: colorScheme.primary),
       child: SafeArea(
         bottom: false,
         child: OutlinedButtonTheme(
