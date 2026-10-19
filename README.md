@@ -26,8 +26,9 @@ It keeps Aves' core features — media viewer, albums, metadata, tags, maps, tra
 
 - **Master Code** — Primary credential required to modify or remove security protections.
 - **App Lock** — Protects access to the application with a PIN and optional biometrics.
-- **Failed Attempt Protection** — Progressive cooldowns and an optional emergency wipe after too many failed attempts.
-- **Nuke** — Manual or automatic emergency wipe for vaults and their contents.
+- **Failed Attempt Protection** — Waits that grow with every wrong attempt (configurable maximum, immune to changing the phone clock) and an optional emergency wipe after too many failed attempts.
+- **Fail-Safe** — Always-on local crash diagnosis (nothing is ever sent anywhere), a safe mode after failures that blocks weakening security, opening or deleting vaults and deleting photos, and a lockdown screen that only the Master Code lifts when someone keeps guessing your codes.
+- **Nuke** — Manual or automatic emergency wipe for vaults and their contents. Keys are destroyed first, so an interrupted wipe still leaves nothing readable.
 - **Panic PIN** — Triggers an emergency wipe while displaying a fake incorrect-PIN screen.
 - **Bat-Curity** — Optional credential protection using Argon2id hashing.
 - **Encrypted Vaults** — Experimental AES-256 encryption for files stored inside vaults.
@@ -59,7 +60,11 @@ It keeps Aves' core features — media viewer, albums, metadata, tags, maps, tra
 
 - **Performance Mode** — Reduces animations and visual effects for lower-end devices.
 - **Extended Metadata Removal** — Additional metadata removal support for non-animated PNG and WebP files.
-- **Viewer & Selection Controls** — Protect photos and albums directly from the viewer or selection interface.
+- **Viewer & Selection Controls** — Protect photos and albums directly from the viewer or selection interface. Locked photos are skipped when swiping.
+- **Captions** — Add your own text to any photo or video (for example "mom photo 17/11/2017") and find it from the search page. Stored in the app, files are never modified.
+- **`.nomedia` Control** — Create or remove `.nomedia` for a folder from the Explorer, and optionally list every folder, including hidden ones.
+- **Swipe Between Tabs** — Swipe horizontally to move between the main sections.
+- **Video Player** — Loop button, brightness and volume gestures, and decoder modes (software, hardware, hybrid) plus advanced player options.
 
 ## Project Status
 
