@@ -184,7 +184,7 @@ class _LockdownScreenState extends State<_LockdownBody> {
                   ),
                 Padding(
                   padding: const EdgeInsets.only(top: 24),
-                  child: _FailsafeBuddy(fails: _fails),
+                  child: FailsafeBuddy(fails: _fails),
                 ),
                 if (_message != null)
                   Padding(
@@ -202,8 +202,8 @@ class _LockdownScreenState extends State<_LockdownBody> {
 }
 
 // Fail-Safe's little character: comments on the failed attempts with growing suspicion
-class _FailsafeBuddy extends StatelessWidget {
-  const _FailsafeBuddy({required this.fails});
+class FailsafeBuddy extends StatelessWidget {
+  const FailsafeBuddy({required this.fails});
 
   final int fails;
 

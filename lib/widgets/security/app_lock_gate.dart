@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:aves/widgets/security/failsafe_lockdown.dart';
+
 import 'package:aves/model/security/app_lock.dart';
 import 'package:aves/model/security/attempt_guard.dart';
 import 'package:aves/model/security/nuke.dart';
@@ -71,6 +73,7 @@ class _LockScreenState extends State<_LockBody> {
   final _controller = PinInputController();
   String? _message;
   bool _fake = false;
+  int _fails = 0;
   bool _showBiometric = false;
   Timer? _timer;
 
@@ -145,7 +148,13 @@ class _LockScreenState extends State<_LockBody> {
     await _handle(ok ? await appLock.biometricSucceeded() : await appLock.biometricFailed());
   }
 
+  Future<void> _loadFails() async {
+    final fails = await AttemptGuard.app.failures();
+    if (mounted) setState(() => _fails = fails);
+  }
+
   Future<void> _handle(AppLockResult result) async {
+    unawaited(_loadFails());
     switch (result) {
       case AppLockResult.unlocked:
         break;
@@ -198,6 +207,11 @@ class _LockScreenState extends State<_LockBody> {
                       onCompleted: _onCode,
                     ),
                     ),
+                  ),
+                if (_fails > 0 && !_fake)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: FailsafeBuddy(fails: _fails),
                   ),
                 if (_message != null && !_fake)
                   Padding(
