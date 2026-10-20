@@ -110,7 +110,7 @@ Las apps de seguridad suelen impedir que otros entren a tus fotos; Gargantua evi
 ### Modo tablet y ergonomía (Bubble Navigation)
 - 🔧 Navegación flotante para pantallas grandes (**Modo tablet**, Ajustes → Pantalla, bajo el modo TV): burbuja grande al borde que abre hasta 6 burbujas en arco; deslizar de la grande a una pequeña cambia de pestaña. Sin Bat-Lens; el editor limita a 6 acciones. Primera versión, sin probar; falta mover la burbuja de lado (zurdos) y el gesto secreto de Álbumes.
 - ⬜ Animaciones de escala y desvanecimiento de las burbujas, con la estética de Bat-Glass.
-- ⬜ Detección automática de tablet (ancho de pantalla > 600 dp) para activar este modo sin pasar por Ajustes.
+- ✅ Detección automática de tablet (lado menor ≥ 600 dp) para activar este modo sin pasar por Ajustes: se aplica solo la primera vez, si el usuario aún no ha elegido; después manda el ajuste. Sin probar.
 - ⬜ Detección automática de Android TV por `uiMode` del sistema: aplicar la interfaz de TV de Aves y evitar errores de estado.
 - ⬜ Cambio en caliente: al rotar el dispositivo o conectarlo a una pantalla externa, la interfaz se adapta en tiempo real.
 

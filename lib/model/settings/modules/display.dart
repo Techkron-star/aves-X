@@ -2,6 +2,7 @@ import 'package:aves/model/settings/enums/nav_bar_style.dart';
 import 'package:aves/model/device.dart';
 import 'package:aves/model/settings/defaults.dart';
 import 'package:aves_model/aves_model.dart';
+import 'package:flutter/widgets.dart';
 
 mixin DisplaySettings on SettingsAccess {
   DisplayRefreshRateMode get displayRefreshRateMode => getEnumOrDefault(SettingKeys.displayRefreshRateModeKey, SettingsDefaults.displayRefreshRateMode, DisplayRefreshRateMode.values);
@@ -65,6 +66,17 @@ mixin DisplaySettings on SettingsAccess {
   bool get tabletMode => !useTvLayout && (getBool(SettingKeys.tabletModeKey) ?? SettingsDefaults.tabletMode);
 
   set tabletMode(bool newValue) => set(SettingKeys.tabletModeKey, newValue);
+
+  // on big screens (shortest side of 600 dp or more, like Android's `sw600dp`) the tablet mode is turned on
+  // the first time, as long as the user has not chosen anything yet. Afterwards, the setting is the user's call.
+  void autoDetectTabletMode() {
+    if (getBool(SettingKeys.tabletModeKey) != null) return;
+    final views = WidgetsBinding.instance.platformDispatcher.views;
+    if (views.isEmpty) return;
+    final view = views.first;
+    final shortestSideDp = view.physicalSize.shortestSide / view.devicePixelRatio;
+    if (shortestSideDp >= 600) tabletMode = true;
+  }
 
   bool get useTvLayout => device.isTelevision || forceTvLayout;
 
