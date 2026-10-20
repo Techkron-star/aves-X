@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
 import 'package:material_ui/material_ui.dart';
@@ -72,18 +73,52 @@ class _CrystalPainter extends BoxPainter {
     _facets = _cache[size] = facets;
   }
 
+  // the static crystal is recorded once per size and replayed, so animating the glint only costs one gradient per frame
+  static final Map<(Size, double), ui.Picture> _pictures = {};
+
   @override
   void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
     final size = configuration.size;
     if (size == null || size.isEmpty) return;
-    final rect = offset & size;
-    _build(size);
+    if (_pictures.length > 8) {
+      for (final p in _pictures.values) {
+        p.dispose();
+      }
+      _pictures.clear();
+    }
+    final picture = _pictures[(size, opacity)] ??= _record(size);
 
     canvas.save();
-    canvas.clipRect(rect);
+    canvas.clipRect(offset & size);
     canvas.translate(offset.dx, offset.dy);
-    final local = Offset.zero & size;
+    canvas.drawPicture(picture);
+    if (glint >= 0) {
+      // soft diagonal band of light sweeping across the stone
+      final pos = glint * 1.5 - .25;
+      final band = Rect.fromLTWH(0, 0, size.width, size.height);
+      canvas.drawRect(
+        band,
+        Paint()
+          ..shader = LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: const [Color(0x00FFFFFF), Color(0x55FFFFFF), Color(0x00FFFFFF)],
+            stops: [(pos - .14).clamp(0.0, 1.0), pos.clamp(0.0, 1.0), (pos + .14).clamp(0.0, 1.0)],
+          ).createShader(band),
+      );
+    }
+    canvas.restore();
+  }
 
+  ui.Picture _record(Size size) {
+    _build(size);
+    final recorder = ui.PictureRecorder();
+    _draw(Canvas(recorder), size);
+    return recorder.endRecording();
+  }
+
+  void _draw(Canvas canvas, Size size) {
+    final local = Offset.zero & size;
     // translucent body, brighter at the top left, deep at the bottom right
     canvas.drawRect(
       local,
@@ -101,7 +136,6 @@ class _CrystalPainter extends BoxPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = .7
       ..strokeJoin = StrokeJoin.round;
-    final diag = size.width + size.height;
     for (final f in _facets) {
       final path = Path()
         ..moveTo(f.p[0].dx, f.p[0].dy)
@@ -110,14 +144,7 @@ class _CrystalPainter extends BoxPainter {
         ..close();
       // light from the top left: facets facing it are lit, the others fall into shade
       final lit = (-f.nx * .6 - f.ny * .8);
-      var c = f.centroid;
-      var k = lit;
-      if (glint >= 0) {
-        // moving glint band: facets lighten when the band crosses them
-        final pos = glint * 1.6 - .3;
-        final d = ((c.dx + c.dy) / diag - pos).abs();
-        k += max(0, 1 - d / .12) * 1.4;
-      }
+      final k = lit;
       if (k > 0) {
         fill.color = Colors.white.withValues(alpha: (k * .20).clamp(0, .55));
       } else {
@@ -165,7 +192,6 @@ class _CrystalPainter extends BoxPainter {
     canvas.drawLine(Offset.zero, Offset(size.width, 0), rim..color = const Color(0xAAFFFFFF));
     canvas.drawLine(Offset.zero, Offset(0, size.height), rim..color = const Color(0x66FFFFFF));
     canvas.drawLine(Offset(0, size.height), Offset(size.width, size.height), rim..color = const Color(0x66000000));
-    canvas.restore();
   }
 }
 
@@ -207,14 +233,22 @@ class _AnimatedCrystalState extends State<AnimatedCrystal> with SingleTickerProv
   @override
   Widget build(BuildContext context) {
     if (!widget.animate) return DecoratedBox(decoration: DiamondDecoration(opacity: widget.opacity), child: widget.child);
-    return AnimatedBuilder(
-      animation: _controller,
-      child: widget.child,
-      // the glint crosses during the first part of the cycle, then the stone rests
-      builder: (context, child) => DecoratedBox(
-        decoration: DiamondDecoration(glint: _controller.value < .45 ? _controller.value / .45 : -1, opacity: widget.opacity),
-        child: child,
-      ),
+    // only the crystal layer repaints while the glint moves; the content on top stays untouched
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: RepaintBoundary(
+            child: AnimatedBuilder(
+              animation: _controller,
+              // the glint crosses during the first part of the cycle, then the stone rests
+              builder: (context, _) => DecoratedBox(
+                decoration: DiamondDecoration(glint: _controller.value < .45 ? _controller.value / .45 : -1, opacity: widget.opacity),
+              ),
+            ),
+          ),
+        ),
+        widget.child,
+      ],
     );
   }
 }

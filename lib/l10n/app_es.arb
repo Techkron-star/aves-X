@@ -807,7 +807,7 @@
   "appLockEnableWarning": "Con el bloqueo de la app, 4 PIN incorrectos borran TODOS los datos de la app (vaults incluidas). Si pierdes el Código Maestro no hay recuperación.",
   "appLockPanicWarning": "Al introducir el PIN de pánico se muestra un error falso y se borran TODOS los datos de la app en segundo plano. Úsalo con cuidado.",
   "settingsBatGlass": "Bat-Glass",
-  "settingsBatGlassSubtitle": "Tema negro y rubí: cristal de diamante rojo facetado en barras, botones y menú lateral, con íconos líquidos. Colores y material.",
+  "settingsBatGlassSubtitle": "Tema negro y rubí: cristal de diamante rojo facetado en barras, botones y menú lateral, con íconos líquidos. Colores y material. Alto consumo de GPU: puede ralentizar el dispositivo.",
   "experimentalLabel": "EXPERIMENTAL",
   "settingsExperimentalSectionTitle": "Experimental",
   "experimentalWarningMessage": "Estas opciones son experimentales. Pueden causar problemas de rendimiento, mayor consumo de batería o inestabilidad. Actívalas bajo tu propio riesgo.",
