@@ -65,7 +65,7 @@ Leyenda: ✅ hecho (compila; se prueba en el teléfono) · 🔧 en curso o parci
 
 ## ⬜ Pendiente — próxima versión
 
-1. ⬜ **Personalidad de Fail-Safe**: personaje en una esquina que bromea según fallan los intentos, con sonido de balbuceo sintetizado (estilo Animal Crossing/Celeste, sin muestras con copyright). Requiere camino de audio propio.
+1. 🔧 **Personalidad de Fail-Safe** (personaje y comentarios ya en el Lockdown; falta el sonido y llevarlo a más pantallas): personaje en una esquina que bromea según fallan los intentos, con sonido de balbuceo sintetizado (estilo Animal Crossing/Celeste, sin muestras con copyright). Requiere camino de audio propio.
 2. ⬜ **Bat-Curity fase 2**: fotos bloqueadas individualmente conservan metadatos y se mueven al almacenamiento privado de la app.
 3. ⬜ **Cifrado de archivos de las vaults** (que con root en `data/data` no se abran):
    1. At-rest: AES-256-GCM por archivo con clave en Android Keystore; descifrado temporal al abrir y borrado/sobrescritura al cerrar.

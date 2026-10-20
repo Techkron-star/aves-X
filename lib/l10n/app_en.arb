@@ -1255,5 +1255,10 @@
   "failsafeWizDecline": "I do not accept",
   "failsafeWizSetupTitle": "How strict should I be?",
   "failsafeWizSetupMore": "More options, like the longest wait between attempts or destroying data, are in Settings, Fail-Safe.",
-  "failsafeWizFinish": "Start"
+  "failsafeWizFinish": "Start",
+  "failsafeBuddy0": "I'm watching over things. Relax.",
+  "failsafeBuddy1": "Wow, that was surely a misclick.",
+  "failsafeBuddy2": "Are you sure you're the owner of this phone?",
+  "failsafeBuddy3": "That's quite a few tries... I'm starting to doubt it.",
+  "failsafeBuddy4": "You should call the phone's owner. You seem very interested in their photos."
 }

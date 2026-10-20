@@ -935,5 +935,10 @@
   "failsafeWizDecline": "No acepto",
   "failsafeWizSetupTitle": "¿Qué tan estricto quieres que sea?",
   "failsafeWizSetupMore": "Más opciones, como la espera máxima entre intentos o destruir datos, están en Ajustes, Fail-Safe.",
-  "failsafeWizFinish": "Empezar"
+  "failsafeWizFinish": "Empezar",
+  "failsafeBuddy0": "Estoy vigilando. Tranquilo.",
+  "failsafeBuddy1": "Wao, seguro fue un missclick eso.",
+  "failsafeBuddy2": "¿Estás seguro de que eres el dueño del teléfono?",
+  "failsafeBuddy3": "Ya van varios intentos... empiezo a dudarlo.",
+  "failsafeBuddy4": "Deberías llamar al dueño del teléfono, pareces muy interesado en sus fotos."
 }

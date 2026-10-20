@@ -6,6 +6,7 @@ import 'package:aves/model/security/attempt_guard.dart';
 import 'package:aves/model/security/bat_curity.dart';
 import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
+import 'package:aves/widgets/common/fx/lock_animation.dart';
 import 'package:aves/widgets/common/fx/failsafe_badge.dart';
 import 'package:aves/widgets/dialogs/filter_editors/code_dialog.dart';
 import 'package:material_ui/material_ui.dart';
@@ -68,6 +69,7 @@ class _LockdownScreenState extends State<_LockdownBody> {
   final _controller = PinInputController();
   String? _message;
   Timer? _timer;
+  int _fails = 0;
 
   @override
   void initState() {
@@ -85,8 +87,10 @@ class _LockdownScreenState extends State<_LockdownBody> {
   bool get _blocked => _timer?.isActive ?? false;
 
   Future<void> _refresh() async {
+    final fails = await AttemptGuard.master.failures();
     final remaining = await AttemptGuard.master.remainingCooldown();
     if (!mounted) return;
+    setState(() => _fails = fails);
     if (remaining != null) _showCooldown(remaining);
   }
 
@@ -128,6 +132,8 @@ class _LockdownScreenState extends State<_LockdownBody> {
     }
     // every failure makes the cooldown longer
     await AttemptGuard.master.registerFailure();
+    final fails = await AttemptGuard.master.failures();
+    if (mounted) setState(() => _fails = fails);
     final remaining = await AttemptGuard.master.remainingCooldown();
     if (!mounted) return;
     if (remaining != null) {
@@ -176,6 +182,10 @@ class _LockdownScreenState extends State<_LockdownBody> {
                     ),
                     ),
                   ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 24),
+                  child: _FailsafeBuddy(fails: _fails),
+                ),
                 if (_message != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 16),
@@ -187,6 +197,60 @@ class _LockdownScreenState extends State<_LockdownBody> {
         ),
       ),
       ),
+    );
+  }
+}
+
+// Fail-Safe's little character: comments on the failed attempts with growing suspicion
+class _FailsafeBuddy extends StatelessWidget {
+  const _FailsafeBuddy({required this.fails});
+
+  final int fails;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final text = switch (fails) {
+      <= 0 => l10n.failsafeBuddy0,
+      1 => l10n.failsafeBuddy1,
+      2 => l10n.failsafeBuddy2,
+      3 => l10n.failsafeBuddy3,
+      _ => l10n.failsafeBuddy4,
+    };
+    final alert = fails >= 3;
+    final color = alert ? const Color(0xFFFF5A6E) : const Color(0xFF3DDC84);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: color, width: 1.5), color: Colors.black54),
+          child: const Center(child: BatMark(size: 22)),
+        ),
+        const SizedBox(width: 10),
+        Flexible(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 350),
+            child: Container(
+              key: ValueKey(fails.clamp(0, 4)),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: .08),
+                border: Border.all(color: color.withValues(alpha: .6)),
+                borderRadius: const BorderRadiusDirectional.only(
+                  topStart: Radius.circular(16),
+                  topEnd: Radius.circular(16),
+                  bottomEnd: Radius.circular(16),
+                  bottomStart: Radius.circular(3),
+                ),
+              ),
+              child: Text(text, style: const TextStyle(color: Colors.white, fontSize: 13)),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
