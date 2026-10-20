@@ -107,6 +107,13 @@ Las apps de seguridad suelen impedir que otros entren a tus fotos; Gargantua evi
 - 🔧 Borrado más fuerte: sobrescritura antes de borrar (nuke) y TRIM con root hechos; falta sellado y cifrado de carpetas en `data/data`.
 - ⬜ Se integrará con Gargantua.
 
+### Modo tablet y ergonomía (Bubble Navigation)
+- ⬜ Navegación flotante para pantallas grandes, en vez de la barra inferior (que obliga a estirar los pulgares al centro): un botón flotante cerca de los bordes o de donde están los dedos que, al pulsarlo, despliega burbujas (radiales o flotantes) para cambiar entre Colección, Álbumes, Favoritos, etc.
+- ⬜ Animaciones de escala y desvanecimiento de las burbujas, con la estética de Bat-Glass.
+- ⬜ Detección automática de tablet (ancho de pantalla > 600 dp) para activar este modo sin pasar por Ajustes.
+- ⬜ Detección automática de Android TV por `uiMode` del sistema: aplicar la interfaz de TV de Aves y evitar errores de estado.
+- ⬜ Cambio en caliente: al rotar el dispositivo o conectarlo a una pantalla externa, la interfaz se adapta en tiempo real.
+
 ### Otras ideas
 - ⬜ Estrategias nuevas de ocultación, automatización de metadatos y vaults, opciones avanzadas de almacenamiento.
 
