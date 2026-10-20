@@ -143,7 +143,7 @@ class _BubbleNavState extends State<BubbleNav> with SingleTickerProviderStateMix
     final rtl = Directionality.of(context) == TextDirection.rtl;
     final safeBottom = context.select<MediaQueryData, double>((mq) => mq.padding.bottom);
     final bottom = 8 + safeBottom;
-    final current = widget.currentIndex.clamp(0, max(0, items.length - 1));
+    final current = widget.currentIndex.clamp(0, max(0, items.length - 1)).toInt();
     final blur = settings.enableBlurEffect;
 
     return _OverflowHit(
