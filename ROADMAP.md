@@ -110,9 +110,9 @@ Las apps de seguridad suelen impedir que otros entren a tus fotos; Gargantua evi
 ### Modo tablet y ergonomía (Bubble Navigation)
 - 🔧 Navegación flotante para pantallas grandes (**Modo tablet**, Ajustes → Pantalla, bajo el modo TV): burbuja grande al borde que abre hasta 6 burbujas en arco; deslizar de la grande a una pequeña cambia de pestaña. Sin Bat-Lens; el editor limita a 6 acciones. Primera versión, sin probar. Ya incluye el ajuste "Burbuja a la izquierda" (zurdos) y el gesto secreto de Álbumes (mantener 5 s la burbuja de Álbumes con el menú abierto); ambos sin probar.
 - ⬜ Animaciones de escala y desvanecimiento de las burbujas, con la estética de Bat-Glass.
-- ✅ Detección automática de tablet (lado menor ≥ 600 dp) para activar este modo sin pasar por Ajustes: se aplica solo la primera vez, si el usuario aún no ha elegido; después manda el ajuste. Sin probar.
+- ✅ Detección automática de tablet (lado menor ≥ 600 dp) para activar este modo sin pasar por Ajustes: mientras el usuario no elija el interruptor, la interfaz sigue a la pantalla; si elige, manda su ajuste. Sin probar.
 - 🔧 Detección automática de Android TV: ahora también se considera TV cuando el `uiMode` del sistema es televisión (cajas que no declaran `leanback`). Sin probar; falta revisar errores de estado al cambiar de interfaz.
-- ⬜ Cambio en caliente: al rotar el dispositivo o conectarlo a una pantalla externa, la interfaz se adapta en tiempo real.
+- 🔧 Cambio en caliente: el modo tablet automático se recalcula cuando cambian las métricas de la ventana (plegar, pantalla externa, pantalla dividida). Sin probar; falta el cambio en caliente entre interfaz TV y normal.
 
 ### Otras ideas
 - ⬜ Estrategias nuevas de ocultación, automatización de metadatos y vaults, opciones avanzadas de almacenamiento.

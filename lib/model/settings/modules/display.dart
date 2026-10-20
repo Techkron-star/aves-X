@@ -63,7 +63,10 @@ mixin DisplaySettings on SettingsAccess {
 
   set forceTvLayout(bool newValue) => set(SettingKeys.forceTvLayoutKey, newValue);
 
-  bool get tabletMode => !useTvLayout && (getBool(SettingKeys.tabletModeKey) ?? SettingsDefaults.tabletMode);
+  // not persisted: follows the current screen as long as the user has not chosen the tablet mode explicitly
+  bool _autoTabletMode = false;
+
+  bool get tabletMode => !useTvLayout && (getBool(SettingKeys.tabletModeKey) ?? _autoTabletMode);
 
   set tabletMode(bool newValue) => set(SettingKeys.tabletModeKey, newValue);
 
@@ -71,15 +74,18 @@ mixin DisplaySettings on SettingsAccess {
 
   set tabletBubbleLeft(bool newValue) => set(SettingKeys.tabletBubbleLeftKey, newValue);
 
-  // on big screens (shortest side of 600 dp or more, like Android's `sw600dp`) the tablet mode is turned on
-  // the first time, as long as the user has not chosen anything yet. Afterwards, the setting is the user's call.
+  // on big screens (shortest side of 600 dp or more, like Android's `sw600dp`) the tablet mode is on,
+  // as long as the user has not chosen anything. It is called at startup and whenever the window metrics change
+  // (folding, external display, split screen...), so the interface adapts live. The user's choice always wins.
   void autoDetectTabletMode() {
-    if (getBool(SettingKeys.tabletModeKey) != null) return;
     final views = WidgetsBinding.instance.platformDispatcher.views;
     if (views.isEmpty) return;
     final view = views.first;
     final shortestSideDp = view.physicalSize.shortestSide / view.devicePixelRatio;
-    if (shortestSideDp >= 600) tabletMode = true;
+    final auto = shortestSideDp >= 600;
+    if (auto == _autoTabletMode) return;
+    _autoTabletMode = auto;
+    if (getBool(SettingKeys.tabletModeKey) == null) notifyListeners();
   }
 
   bool get useTvLayout => device.isTelevision || forceTvLayout;

@@ -386,6 +386,12 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
   }
 
   @override
+  void didChangeMetrics() {
+    // hot switch of the tablet mode when the screen changes (folding, external display, split screen...)
+    if (settings.initialized) settings.autoDetectTabletMode();
+  }
+
+  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     reportService.log('Lifecycle ${state.name}');
     AvesApp.lifecycleStateNotifier.value = state;
