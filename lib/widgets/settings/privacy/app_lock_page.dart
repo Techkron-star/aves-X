@@ -1,3 +1,4 @@
+import 'package:aves/l10n/l10n.dart';
 import 'package:aves/widgets/dialogs/danger_confirmation.dart';
 import 'package:aves/model/device.dart';
 import 'package:aves/model/security/app_lock.dart';
@@ -48,6 +49,11 @@ class AppLockPage extends StatelessWidget {
                       },
                       title: Text(l10n.appLockUseBiometric),
                     ),
+                  ListTile(
+                    title: Text(l10n.appLockRelockDelay),
+                    subtitle: Text(_delayLabel(l10n, appLock.relockDelay)),
+                    onTap: () => _pickRelockDelay(context),
+                  ),
                   SwitchListTile(
                     value: appLock.hasPanicPin,
                     onChanged: (v) => v ? _setPanic(context) : _removePanic(context),
@@ -61,6 +67,33 @@ class AppLockPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _delayLabel(AppLocalizations l10n, Duration delay) {
+    if (delay == Duration.zero) return l10n.appLockRelockImmediately;
+    if (delay.inSeconds < 60) return l10n.timeSeconds(delay.inSeconds);
+    return l10n.timeMinutes(delay.inMinutes);
+  }
+
+  // a longer delay lowers the protection, so any change requires the Master Code
+  Future<void> _pickRelockDelay(BuildContext context) async {
+    final l10n = context.l10n;
+    final delay = await showAvesDialog<Duration>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: Text(l10n.appLockRelockDelay),
+        children: AppLock.relockDelayOptions
+            .map(
+              (v) => SimpleDialogOption(
+                onPressed: () => Navigator.maybeOf(context)?.pop(v),
+                child: Text(_delayLabel(l10n, v)),
+              ),
+            )
+            .toList(),
+      ),
+    );
+    if (delay == null || delay == appLock.relockDelay || !context.mounted) return;
+    if (await MasterCode.require(context)) await appLock.setRelockDelay(delay);
   }
 
   Future<String?> _newCode(BuildContext context) {

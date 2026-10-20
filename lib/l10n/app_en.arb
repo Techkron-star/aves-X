@@ -1027,6 +1027,8 @@
   "settingsAppLock": "App lock",
   "settingsAppLockSubtitle": "Ask for a PIN when opening the app",
   "appLockChangePin": "Change app PIN",
+  "appLockRelockDelay": "Lock again after",
+  "appLockRelockImmediately": "Immediately",
   "appLockUseBiometric": "Use biometrics",
   "appLockBiometricReason": "Authenticate to open the app",
   "appLockPanicPin": "Panic PIN",

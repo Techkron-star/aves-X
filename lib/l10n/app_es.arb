@@ -776,6 +776,8 @@
   "settingsAppLock": "Bloqueo de la app",
   "settingsAppLockSubtitle": "Pedir un PIN al abrir la app",
   "appLockChangePin": "Cambiar PIN de la app",
+  "appLockRelockDelay": "Volver a bloquear tras",
+  "appLockRelockImmediately": "Inmediatamente",
   "appLockUseBiometric": "Usar biometría",
   "appLockBiometricReason": "Autentícate para abrir la app",
   "appLockPanicPin": "PIN de pánico",

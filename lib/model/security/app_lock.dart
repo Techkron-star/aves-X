@@ -14,11 +14,15 @@ class AppLock extends ChangeNotifier {
   static const _biometricKey = 'app_lock_bio';
   static const _panicKey = 'app_lock_panic';
 
-  // delay in the background before the app locks again
-  static const relockDelay = Duration(seconds: 30);
+  static const _delayKey = 'app_lock_delay';
+
+  // delays in the background before the app locks again (zero: as soon as the app comes back)
+  static const relockDelayOptions = [Duration.zero, Duration(seconds: 30), Duration(minutes: 1), Duration(minutes: 5)];
+  static const defaultRelockDelay = Duration(seconds: 30);
 
   AppLock._private();
 
+  Duration _relockDelay = defaultRelockDelay;
   bool _ready = false;
   bool _enabled = false;
   bool _biometric = false;
@@ -37,10 +41,14 @@ class AppLock extends ChangeNotifier {
 
   bool get locked => _locked;
 
+  Duration get relockDelay => _relockDelay;
+
   Future<void> init() async {
     _enabled = await securityService.readValue<String>(_pinKey) != null;
     _biometric = await securityService.readValue<String>(_biometricKey) == '1';
     _hasPanic = await securityService.readValue<String>(_panicKey) != null;
+    final delaySeconds = int.tryParse(await securityService.readValue<String>(_delayKey) ?? '');
+    _relockDelay = relockDelayOptions.firstWhere((v) => v.inSeconds == delaySeconds, orElse: () => defaultRelockDelay);
     _locked = _enabled;
     _ready = true;
     notifyListeners();
@@ -59,11 +67,19 @@ class AppLock extends ChangeNotifier {
     await securityService.writeValue<String>(_pinKey, null);
     await securityService.writeValue<String>(_biometricKey, null);
     await securityService.writeValue<String>(_panicKey, null);
+    await securityService.writeValue<String>(_delayKey, null);
     await AttemptGuard.app.reset();
     _enabled = false;
     _biometric = false;
     _hasPanic = false;
+    _relockDelay = defaultRelockDelay;
     _locked = false;
+    notifyListeners();
+  }
+
+  Future<void> setRelockDelay(Duration delay) async {
+    await securityService.writeValue<String>(_delayKey, delay.inSeconds.toString());
+    _relockDelay = delay;
     notifyListeners();
   }
 
