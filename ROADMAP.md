@@ -72,7 +72,7 @@ Leyenda: ✅ hecho (compila; se prueba en el teléfono) · 🔧 en curso o parci
    2. Clave ligada a la credencial (PBKDF2/Argon2).
    3. Sin texto plano en disco (descifrado en memoria; miniaturas y base de datos cifradas).
    4. Migración de vaults existentes y limpieza segura tras el nuke.
-4. ⬜ Metadatos para HEIC, AVIF y GIF; previsualización de lo que se elimina y selección de campos (GPS, fecha, cámara…); regenerar miniaturas.
+4. 🔧 Metadatos: GIF hecho (conserva la animación); faltan HEIC y AVIF; previsualización de lo que se elimina y selección de campos (GPS, fecha, cámara…); regenerar miniaturas.
 5. ⬜ Transferencia más rápida entre álbumes (separar límite de la plataforma de lo optimizable).
 6. ⬜ Aviso de escaneo de medios que a veces no desaparece.
 7. ⬜ App lock: bloqueo inmediato o por tiempo configurable; ocultar contenido en multitarea y notificaciones.

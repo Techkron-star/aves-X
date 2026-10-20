@@ -1911,6 +1911,9 @@ abstract class ImageProvider {
                             }
                             bitmap.compress(format, 100, output)
                             bitmap.recycle()
+                        } else if (mimeType == MimeTypes.GIF) {
+                            // Aves-X: GIF blocks are copied one by one, without comments, text and unknown application extensions (e.g. XMP)
+                            output.write(stripGifMetadata(input.readBytes()))
                         } else {
                             PixyMetaHelper.removeMetadata(input, output, types)
                         }
@@ -1951,6 +1954,77 @@ abstract class ImageProvider {
 
         val newFields: FieldMap = hashMapOf()
         scanPostMetadataEdit(context, contentAddress, newFields, callback)
+    }
+
+    private fun stripGifMetadata(src: ByteArray): ByteArray {
+        if (src.size < 13) throw Exception("invalid GIF")
+        val out = java.io.ByteArrayOutputStream(src.size)
+        var i = 0
+
+        fun copy(n: Int) {
+            if (i + n > src.size) throw Exception("truncated GIF")
+            out.write(src, i, n)
+            i += n
+        }
+
+        fun skip(n: Int) {
+            if (i + n > src.size) throw Exception("truncated GIF")
+            i += n
+        }
+
+        // sub-blocks, until the terminator
+        fun blocks(keep: Boolean) {
+            while (true) {
+                if (i >= src.size) throw Exception("truncated GIF")
+                val size = src[i].toInt() and 0xFF
+                if (keep) copy(1 + size) else skip(1 + size)
+                if (size == 0) return
+            }
+        }
+
+        copy(6)
+        val flags = src[i + 4].toInt() and 0xFF
+        copy(7)
+        if (flags and 0x80 != 0) copy(3 * (1 shl ((flags and 7) + 1)))
+
+        while (i < src.size) {
+            when (val b = src[i].toInt() and 0xFF) {
+                0x21 -> {
+                    val label = src[i + 1].toInt() and 0xFF
+                    if (label == 0xF9) {
+                        // graphic control (timing, transparency): kept
+                        copy(2)
+                        blocks(true)
+                    } else if (label == 0xFF) {
+                        val idSize = src[i + 2].toInt() and 0xFF
+                        val id = String(src, i + 3, minOf(idSize, src.size - i - 3), Charsets.ISO_8859_1)
+                        val keep = id.startsWith("NETSCAPE") || id.startsWith("ANIMEXTS")
+                        if (keep) copy(2) else skip(2)
+                        blocks(keep)
+                    } else {
+                        // comments, plain text, others: dropped
+                        skip(2)
+                        blocks(false)
+                    }
+                }
+
+                0x2C -> {
+                    val localFlags = src[i + 9].toInt() and 0xFF
+                    copy(10)
+                    if (localFlags and 0x80 != 0) copy(3 * (1 shl ((localFlags and 7) + 1)))
+                    copy(1)
+                    blocks(true)
+                }
+
+                0x3B -> {
+                    copy(1)
+                    break
+                }
+
+                else -> throw Exception("unexpected GIF block $b")
+            }
+        }
+        return out.toByteArray()
     }
 
     private fun outputStream(

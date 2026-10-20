@@ -53,6 +53,8 @@ class AppSupport {
       case MimeTypes.jpeg:
       case MimeTypes.png:
       case MimeTypes.webp:
+      // Aves-X: GIF blocks are copied without comments and extensions, animation is kept
+      case MimeTypes.gif:
         return true;
       default:
         return false;
