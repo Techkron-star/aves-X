@@ -67,6 +67,10 @@ mixin DisplaySettings on SettingsAccess {
 
   set tabletMode(bool newValue) => set(SettingKeys.tabletModeKey, newValue);
 
+  bool get tabletBubbleLeft => getBool(SettingKeys.tabletBubbleLeftKey) ?? SettingsDefaults.tabletBubbleLeft;
+
+  set tabletBubbleLeft(bool newValue) => set(SettingKeys.tabletBubbleLeftKey, newValue);
+
   // on big screens (shortest side of 600 dp or more, like Android's `sw600dp`) the tablet mode is turned on
   // the first time, as long as the user has not chosen anything yet. Afterwards, the setting is the user's call.
   void autoDetectTabletMode() {

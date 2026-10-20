@@ -1270,5 +1270,7 @@
   "failsafeVoiceTestFailed": "The audio system did not play the sound.",
   "settingsTabletMode": "Tablet mode",
   "settingsTabletModeSubtitle": "Bubble navigation for big screens: a big bubble near the edge opens up to 6 small bubbles; slide from the big one to a small one to change tab. No navigation bar, no Bat-Lens.",
+  "settingsTabletBubbleLeft": "Bubble on the left",
+  "settingsTabletBubbleLeftSubtitle": "Puts the big bubble of the tablet mode on the left edge instead of the right one (left-handed).",
   "bubbleNavTooltip": "Navigation"
 }

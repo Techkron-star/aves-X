@@ -45,6 +45,7 @@ class DisplaySection extends SettingsSection {
     if (!settings.useTvLayout) SettingsTileDisplayRefreshRateMode(),
     if (!device.isTelevision) SettingsTileDisplayForceTvLayout(),
     if (!settings.useTvLayout) SettingsTileDisplayTabletMode(),
+    if (!settings.useTvLayout) SettingsTileDisplayTabletBubbleLeft(),
   ]);
 }
 
@@ -160,6 +161,22 @@ class SettingsTileDisplayTabletMode extends SettingsTile {
     title: title,
     subtitle: (context) => context.l10n.settingsTabletModeSubtitle,
     sticker: const FeatureSticker(kind: StickerKind.experimental),
+  );
+}
+
+class SettingsTileDisplayTabletBubbleLeft extends SettingsTile {
+  @override
+  List<String> get settingKeys => [SettingKeys.tabletBubbleLeftKey];
+
+  @override
+  String title(BuildContext context) => context.l10n.settingsTabletBubbleLeft;
+
+  @override
+  Widget build(BuildContext context) => SettingsSwitchListTile(
+    selector: (context, s) => s.tabletBubbleLeft,
+    onChanged: (v) => settings.tabletBubbleLeft = v,
+    title: title,
+    subtitle: (context) => context.l10n.settingsTabletBubbleLeftSubtitle,
   );
 }
 

@@ -90,6 +90,7 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
         items: bubbles,
         currentIndex: _getCurrentIndex(context, bubbles),
         onSelect: (index) => _goTo(context, bubbles, index),
+        onSecretHold: () => unawaited(_toggleReveal(context)),
       );
     }
 

@@ -1,8 +1,12 @@
+import 'dart:async';
 import 'dart:math';
 
+import 'package:aves/model/secret_reveal.dart';
+import 'package:aves/model/security/privacy_options.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/fx/blurred.dart';
+import 'package:aves/widgets/filter_grids/albums_page.dart';
 import 'package:aves/widgets/navigation/nav_item.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart' show SingleChildRenderObjectWidget;
@@ -21,11 +25,15 @@ class BubbleNav extends StatefulWidget {
   final int currentIndex;
   final void Function(int index) onSelect;
 
+  // called when the Albums bubble is held down for long enough (secret gesture to reveal hidden items)
+  final VoidCallback? onSecretHold;
+
   const BubbleNav({
     super.key,
     required this.items,
     required this.currentIndex,
     required this.onSelect,
+    this.onSecretHold,
   });
 
   @override
@@ -47,13 +55,46 @@ class _BubbleNavState extends State<BubbleNav> with SingleTickerProviderStateMix
   bool _dragged = false;
   int? _hover;
   Offset? _downAt;
+  Timer? _secretTimer;
+  Offset? _secretOrigin;
+  bool _secretFired = false;
 
   List<AvesNavItem> get _items => widget.items.take(BubbleNav.maxBubbles).toList();
 
   @override
   void dispose() {
+    _secretTimer?.cancel();
     _controller.dispose();
     super.dispose();
+  }
+
+  // holding the Albums bubble toggles the reveal of hidden items, like holding the Albums item of the bar
+  void _onBubbleDown(PointerDownEvent event, AvesNavItem item) {
+    _secretFired = false;
+    _cancelSecret();
+    final onSecretHold = widget.onSecretHold;
+    if (onSecretHold == null || !_open || !privacyOptions.revealGesture) return;
+    if (item.route != AlbumListPage.routeName) return;
+
+    _secretOrigin = event.position;
+    _secretTimer = Timer(SecretReveal.holdDuration, () {
+      _secretTimer = null;
+      _secretFired = true;
+      if (!mounted) return;
+      _setOpen(false);
+      onSecretHold();
+    });
+  }
+
+  void _onBubbleMove(PointerMoveEvent event) {
+    final origin = _secretOrigin;
+    if (origin != null && (event.position - origin).distance > 32) _cancelSecret();
+  }
+
+  void _cancelSecret() {
+    _secretTimer?.cancel();
+    _secretTimer = null;
+    _secretOrigin = null;
   }
 
   void _setOpen(bool open) {
@@ -102,7 +143,8 @@ class _BubbleNavState extends State<BubbleNav> with SingleTickerProviderStateMix
     if (!_dragged && (event.localPosition - down).distance < 12) return;
     _dragged = true;
     final v = event.localPosition - const Offset(_mainSize / 2, _mainSize / 2);
-    final sign = rtl ? 1.0 : -1.0;
+    // the bubbles open towards the inner side of the screen: to the left when the big bubble is on the right edge
+    final sign = (rtl != settings.tabletBubbleLeft) ? 1.0 : -1.0;
     int? hover;
     var best = _bubbleSize * .7;
     for (var i = 0; i < _items.length; i++) {
@@ -145,6 +187,8 @@ class _BubbleNavState extends State<BubbleNav> with SingleTickerProviderStateMix
     final bottom = 8 + safeBottom;
     final current = widget.currentIndex.clamp(0, max(0, items.length - 1)).toInt();
     final blur = settings.enableBlurEffect;
+    // left-handed: the big bubble sits on the start edge instead of the end one
+    final atStart = context.select<Settings, bool>((v) => v.tabletBubbleLeft);
 
     return _OverflowHit(
       child: SizedBox(
@@ -153,9 +197,10 @@ class _BubbleNavState extends State<BubbleNav> with SingleTickerProviderStateMix
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            for (var i = 0; i < items.length; i++) _buildBubble(context, i, items[i], bottom, blur, scheme),
+            for (var i = 0; i < items.length; i++) _buildBubble(context, i, items[i], bottom, blur, scheme, atStart),
             PositionedDirectional(
-              end: _margin,
+              start: atStart ? _margin : null,
+              end: atStart ? null : _margin,
               bottom: bottom,
               width: _mainSize,
               height: _mainSize,
@@ -190,7 +235,7 @@ class _BubbleNavState extends State<BubbleNav> with SingleTickerProviderStateMix
     );
   }
 
-  Widget _buildBubble(BuildContext context, int i, AvesNavItem item, double bottom, bool blur, ColorScheme scheme) {
+  Widget _buildBubble(BuildContext context, int i, AvesNavItem item, double bottom, bool blur, ColorScheme scheme, bool atStart) {
     final spot = _spot(i);
     final active = i == widget.currentIndex;
     final hovered = i == _hover;
@@ -204,8 +249,10 @@ class _BubbleNavState extends State<BubbleNav> with SingleTickerProviderStateMix
         if (_controller.value == 0) return const SizedBox();
         final fade = (_controller.value * 1.6).clamp(0.0, 1.0);
         final offset = (_mainSize - _bubbleSize) / 2;
+        final side = _margin + offset + spot.dx * t;
         return PositionedDirectional(
-          end: _margin + offset + spot.dx * t,
+          start: atStart ? side : null,
+          end: atStart ? null : side,
           bottom: bottom + offset + spot.dy * t,
           width: _bubbleSize,
           height: _bubbleSize,
@@ -217,15 +264,31 @@ class _BubbleNavState extends State<BubbleNav> with SingleTickerProviderStateMix
                 clipBehavior: Clip.none,
                 alignment: Alignment.center,
                 children: [
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: _open ? () => _select(i) : null,
-                    child: _glassCircle(
-                      size: _bubbleSize,
-                      blur: blur,
-                      color: active ? scheme.primary.withValues(alpha: .4) : Colors.black.withValues(alpha: .22),
-                      borderColor: active || hovered ? scheme.primary : Colors.white.withValues(alpha: .35),
-                      child: item.getIcon(context),
+                  Listener(
+                    behavior: HitTestBehavior.translucent,
+                    onPointerDown: (e) => _onBubbleDown(e, item),
+                    onPointerMove: _onBubbleMove,
+                    onPointerUp: (_) => _cancelSecret(),
+                    onPointerCancel: (_) => _cancelSecret(),
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: _open
+                          ? () {
+                              // releasing after the secret hold must not navigate
+                              if (_secretFired) {
+                                _secretFired = false;
+                                return;
+                              }
+                              _select(i);
+                            }
+                          : null,
+                      child: _glassCircle(
+                        size: _bubbleSize,
+                        blur: blur,
+                        color: active ? scheme.primary.withValues(alpha: .4) : Colors.black.withValues(alpha: .22),
+                        borderColor: active || hovered ? scheme.primary : Colors.white.withValues(alpha: .35),
+                        child: item.getIcon(context),
+                      ),
                     ),
                   ),
                   if (hovered)

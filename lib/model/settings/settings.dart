@@ -398,6 +398,7 @@ class Settings
           case SettingKeys.performanceModeKey:
           case SettingKeys.navLensKey:
           case SettingKeys.tabletModeKey:
+          case SettingKeys.tabletBubbleLeftKey:
           case SettingKeys.swipeTabsKey:
           case SettingKeys.explorerShowAllFoldersKey:
           case SettingKeys.glassEverywhereKey:

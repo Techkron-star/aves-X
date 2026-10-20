@@ -950,5 +950,7 @@
   "failsafeVoiceTestFailed": "El sistema de audio no reprodujo el sonido.",
   "settingsTabletMode": "Modo tablet",
   "settingsTabletModeSubtitle": "Navegación con burbujas para pantallas grandes: una burbuja grande junto al borde abre hasta 6 burbujas pequeñas; desliza de la grande a una pequeña para cambiar de pestaña. Sin barra de navegación ni Bat-Lens.",
+  "settingsTabletBubbleLeft": "Burbuja a la izquierda",
+  "settingsTabletBubbleLeftSubtitle": "Pone la burbuja grande del modo tablet en el borde izquierdo en vez del derecho (zurdos).",
   "bubbleNavTooltip": "Navegación"
 }
