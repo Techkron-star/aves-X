@@ -1,179 +1,120 @@
 # 🦇 Aves-X — Roadmap
 
-Guía de trabajo, no un plan rígido. `[x]` = hecho en el fork (compila; pendiente de probar en el teléfono), `[~]` = parcial o ya existía en Aves, `[ ]` = pendiente.
+Guía de trabajo, no un plan rígido. Organizado por **estado**: primero lo que ya está hecho, luego lo que está en curso y por último lo que falta, por prioridad.
 
-## 0.1 — Fundación de privacidad (credenciales + ocultos)
-- [x] Sistema central de credenciales reutilizable (`SecretLock`: sistema/biometría, patrón, PIN, contraseña).
-- [x] PIN, patrón y contraseña configurables; integración con la credencial del sistema.
-- [x] Bloqueo de papelera (Ajustes → Privacidad).
-- [x] Gesto secreto: mantener pulsado 5 s el botón **Álbumes** y confirmar el bloqueo de revelado. (Sustituye al gesto de 5 toques, imposible por la animación de la barra.)
-- [x] Autenticación después de la pulsación larga. Sin bloqueo configurado, no pasa nada. Hide sin pedir credencial.
-- [ ] Pulsación larga configurable (2–5 s) y ubicación del gesto elegible (Favoritos / Álbumes). Hoy: fijo en 5 s sobre Álbumes.
-- [~] Ocultar archivos/álbumes de la vista normal: ya lo hace Aves ("Ocultar"); el gesto los vuelve a mostrar.
-- [ ] Pestaña "Ocultos" al final de Álbumes (se sustituyó por el revelado con gesto).
-- [x] Evitar compartir desde vaults protegidas (ver 0.2). [ ] Extracción manual específica desde "Ocultos".
-- [~] Bloqueo automático: las vaults ya se bloquean al apagar pantalla; los ocultos se vuelven a ocultar al pasar a segundo plano.
-- [x] Decidido: la papelera y el revelado usan credenciales **independientes**.
+Leyenda: ✅ hecho (compila; se prueba en el teléfono) · 🔧 en curso o parcial · ⬜ pendiente
 
-## 0.2 — Vault-X + autenticación avanzada
-- [x] Doble autenticación opcional por vault (segundo bloqueo de otro tipo: huella + PIN, PIN + contraseña, etc.).
-- [x] Desactivar compartir desde una vault (compartir, abrir con, usar como, imprimir, portapapeles, editar fuera, convertir). La salida es mover manualmente.
-- [x] Ocultar las vaults de la lista de álbumes (se muestran al revelar). Solo en la lista de álbumes.
-- [~] Crear/administrar vaults, importar/extraer manualmente, bloqueo automático: ya existen en Aves.
-- [ ] Limpieza de sesión al salir, protección de thumbnails, contenido en recientes, comportamiento tras reinicio / al quitar de recientes.
-- [ ] Separar conceptualmente "Ocultos" y "Vaults" en la interfaz.
+**Principios:** todo lo nuevo de privacidad y lo experimental es *opt-in* (nunca activado por defecto). Nada se envía a ningún sitio: sin telemetría. Aves-X es un homenaje y fork personal de [Aves](https://github.com/deckerst/aves) (licencia BSD-3-Clause, créditos mantenidos).
 
-## 0.2b — Bloqueos de álbumes/fotos y confirmaciones
-- [x] Bloquear álbumes normales y fotos sueltas (acción "Bloquear / desbloquear" en selección, álbumes y visor): miniaturas borrosas con candado, y para abrirlos se pide el bloqueo (biometría, PIN, patrón…). Se vuelven a cerrar al pasar a segundo plano.
-- [x] Confirmación estricta de borrado: botón rojo con espera de 5 s y después escribir BORRAR.
-- [x] Ajustes de privacidad por secciones (Bloqueos y ocultos, Vaults, Bloqueo de la app, Seguridad y destrucción), con interruptores; desactivar una protección pide el Master Code.
-- [x] Durante el cooldown de 5 min no se puede escribir ninguna credencial.
-- [x] Bloquear la página de Favoritos. Cristal en diálogos, menú lateral y menús. Color por defecto rojo. Avisos de riesgo (botón rojo con espera) al activar nuke, bloqueo de app y PIN de pánico.
-- [ ] Al deslizar en el visor, las fotos bloqueadas vecinas aún podrían verse (pendiente).
+---
 
-## Principios
-- **Todo es opt-in**: ninguna función nueva de privacidad ni experimental viene activada por defecto.
-- Sección **EXPERIMENTAL** en Ajustes (con aviso al abrirla): Bat-Glass y efecto cristal en diálogos/menú lateral.
-- Feedback háptico y visual al bloquear/desbloquear álbumes, fotos y favoritos.
+## ✅ Hecho (Beta)
 
-- [x] Estilo de la barra de navegación (clásica, redondeada, flotante, rectangular). Botones sólidos → cristal rubí translúcido con Bat-Glass / cristal en todas partes. Acerca de actualizado (Aves-X alpha, basado en Aves).
+### Privacidad y bloqueos
+- ✅ Credenciales reutilizables (sistema/biometría, patrón, PIN, contraseña) para papelera, revelado, vaults, favoritos, álbumes y fotos sueltas.
+- ✅ Gesto secreto: mantener pulsado 5 s **Álbumes** para revelar ocultos y vaults.
+- ✅ Bloquear álbumes y fotos sueltas (miniaturas borrosas con candado; se vuelven a cerrar al pasar a segundo plano). Las fotos bloqueadas se saltan al deslizar en el visor.
+- ✅ Bloqueo de papelera y de Favoritos, con credenciales independientes.
+- ✅ Vaults: doble autenticación opcional, compartir desactivado desde vaults, vaults ocultas de la lista de álbumes.
+- ✅ Confirmación estricta de borrado (botón rojo con espera + escribir BORRAR) y avisos de riesgo al activar nuke, bloqueo de app y PIN de pánico.
+- ✅ Ajustes de privacidad por secciones; desactivar una protección pide el Master Code.
+- ✅ Pantalla de bloqueo al abrir la app (PIN de 6 dígitos + biometría opcional, se reactiva a los 30 s).
+- ✅ Hash Argon2id con sal aleatoria para todas las credenciales (opt-in, solo el Master Code puede desactivarlo).
 
-## 0.3 — Destrucción (nuke) y Master Code
-- [x] **Master Code** de 6 dígitos: se crea antes de cualquier PIN/contraseña, obligatorio para cambiar o quitar cualquier credencial (vaults, papelera, revelado, bloqueo de app, seguridad avanzada) y para el nuke manual. Sin recuperación.
-- [x] Contadores de intentos independientes (App PIN, Master Code, cada vault), guardados en disco tras cada fallo (almacén seguro).
-- [x] 3 fallos → espera de 5 min + vibración; 4º fallo → nuke automático (App PIN y Master Code: todo; vault: solo su contenido). Cooldown con reloj monotónico (resiste cambiar la hora; un reinicio lo reinicia).
-- [x] Bandera de nuke pendiente: se ejecuta al iniciar, antes de mostrar la interfaz.
-- [x] Nuke manual: Ajustes > Privacidad > "Nukear todas las vaults" (pide Master Code, sin más confirmación; fallo = intento de Master Code). No toca archivos fuera de las vaults.
-- [x] Biometría en el bloqueo de inicio: cada fallo cuenta en el mismo contador; tras 3 fallos biométricos se exige el PIN.
-- [x] PIN de pánico opcional: pantalla falsa "PIN incorrecto" y borrado total en segundo plano.
-- [x] Contadores de intentos también para papelera y bloqueo de revelado (hoy sin límite).
-- [ ] Root shredder opcional, registro local del resultado.
-- [ ] **Cifrado de los archivos de las vaults** (para que con root en `data/data` no se puedan abrir). Plan por fases:
-  1. Fase 1 (at-rest): AES-256-GCM por archivo (streaming, `javax.crypto`), clave maestra aleatoria guardada en Android Keystore (mejor StrongBox/TEE; no exportable). Al desbloquear una vault se descifra a una carpeta temporal privada (`cacheDir/vault_tmp/<vault>`) y al bloquear / cerrar / arrancar se borra y sobrescribe. Mantiene compatible todo el visor (rutas de archivo, vídeo, EXIF). Límite: mientras la vault está abierta, el texto plano existe en disco.
-  2. Fase 2 (clave ligada a la credencial): derivar la clave con PBKDF2/Argon2 desde PIN/contraseña de la vault, de modo que ni con root + app abierta se lean cerradas.
-  3. Fase 3 (sin texto plano en disco): descifrado en memoria (proveedor de datos propio para imágenes y ExoPlayer `DataSource`), cifrado de miniaturas y de la base de datos de entradas de vault.
-  4. Migración de vaults existentes (cifrar en segundo plano con marca de progreso reanudable) y limpieza segura al hacer nuke.
+### Master Code, intentos y nuke
+- ✅ Master Code de 6 dígitos (obligatorio para cambiar o quitar credenciales y para el nuke manual; sin recuperación).
+- ✅ Contadores de intentos independientes (App PIN, Master Code, cada vault, papelera, revelado, bloqueos), guardados en almacén seguro tras cada fallo.
+- ✅ Espera escalonada con reloj monotónico (no se evade cambiando la hora de del teléfono), máximo configurable (recomendado 5 min; aviso por encima de 2 h).
+- ✅ Nuke automático opcional tras 4 fallos; nuke manual; PIN de pánico (pantalla falsa + borrado en segundo plano); biometría contada en el mismo contador.
+- ✅ Borrado criptográfico primero: se destruyen claves y credenciales antes de borrar archivos.
 
-## 0.4 — Metadatos
-- [~] Borrar metadatos desde el visor y desde selección múltiple (por lotes): **ya incluido en Aves** (menú ⋮ → quitar metadatos).
-- [ ] Revisar formatos soportados (JPEG, HEIC, PNG, WebP, MP4/MOV), sobrescribir o crear copia, previsualización/resumen de lo que se elimina, selección de campos (GPS, fecha, cámara, software, copyright…).
-- [ ] Comprobar que se invalidan y regeneran las thumbnails tras modificar.
+### Fail-Safe (manejo local de errores)
+- ✅ Captura local de fallos con informe que el usuario puede compartir si quiere (copiar); diagnóstico por reglas.
+- ✅ Modo seguro tras un cierre inesperado: no se pueden bajar protecciones, abrir ni borrar vaults, ni borrar nada; salida manual con Master Code.
+- ✅ Lockdown: con el nuke por intentos desactivado, los fallos repetidos bloquean la app con "Protocolo Lockdown activado".
+- ✅ Sección de ajustes de Fail-Safe y asistente de bienvenida que sustituye a los términos y condiciones (deslizable, texto saltable con un toque, aceptar manteniendo pulsado).
 
-## 0.5 — Sistema (.nomedia y reglas por carpeta)
-- [ ] Detectar y mostrar carpetas con `.nomedia`, crear y quitar `.nomedia`, mostrar/ocultar.
-- [ ] Filtro global de visibilidad y reglas por carpeta (mostrar, ocultar, ocultar de álbumes, proteger, enviar a vault, política de metadatos), herencia y prioridad.
+### Metadatos y sistema
+- ✅ Quitar metadatos (JPEG, PNG, WebP) desde visor y selección múltiple; borrado automático.
+- ✅ `.nomedia`: crear/quitar desde el Explorador, mostrar todas las carpetas (botón visible) y marca en las carpetas con `.nomedia`.
+- ✅ Etiquetas/subtítulos libres en fotos y vídeos, buscables.
 
-## 0.6 — App lock
-- [x] Pantalla de bloqueo al abrir la app (App PIN de 6 dígitos + biometría opcional) antes de mostrar contenido; se reactiva tras 30 s en segundo plano.
-- [ ] Bloqueo inmediato / por tiempo configurable, ocultar contenido en multitarea y notificaciones.
+### Interfaz y efectos
+- ✅ Nombre y logo Aves-X (murciélago), Monet por defecto, modo rendimiento, pegatinas de funciones ("experimental").
+- ✅ Barra de navegación: estilos (clásica, redondeada, flotante, rectangular), **Bat-Lens** deslizante con efecto gota, deslizar entre pestañas con el dedo y transición tipo Instagram.
+- ✅ **Bat-Glass 2.0** (primera fase): cristal de diamante rojo facetado y translúcido con destello animado en el menú lateral, cristal en botones y barras difuminadas, íconos líquidos, animación de candado con cadenas.
+- ✅ **Glass-Everywhere**: vidrio esmerilado neutro (desenfoque fuerte) en diálogos, menús y superficies; separado de Bat-Glass.
+- ✅ Progreso de operaciones (mover/copiar/borrar) enviable a segundo plano.
 
-## 0.7 — Privacidad avanzada (hardening)
-- [ ] Revisar todas las rutas de compartir e intents externos, previews, thumbnails, cachés, logs, archivos temporales, backups, recientes, rotación, pantalla dividida, grabación de pantalla y reinicio.
-- [ ] Ocultar las vaults también del cajón lateral y de los buscadores.
+### Reproductor (Bat-Player)
+- ✅ Gestos tipo YouTube (brillo/volumen, doble toque para saltar) y botón de bucle de tres modos con icono propio.
+- ✅ Decodificación: desactivada, activada, forzada, copia, híbrida y opciones mpv personalizadas.
 
-## 0.8 — Interfaz
-- [~] Monet / Material You: ya incluido en Aves; ahora **activado por defecto**.
-- [x] Cristal más transparente (barras y botones con fondo casi translúcido).
-- [x] Logo de murciélago como icono y logo dentro de la app; nombre "Aves-X".
-- [x] Blur más fuerte y reutilizable (`Blurred*`) con reflejo y borde de cristal en barras y botones flotantes.
-- [~] **Tema "Bat-Glass"** (experimental, Ajustes → Pantalla): negro con cristal líquido rubí. Primera versión: esquema oscuro negro/rubí y reflejos rojos en las superficies de cristal; falta pulir.
-- [ ] Liquid glass avanzado (saturación y refracción del fondo), blur específico en el visor, animaciones.
-- [ ] Rediseño de Ajustes en niveles (básico / avanzado / experimental), gestos configurables.
-- [ ] Indicadores visuales de oculto / vault / bloqueado / protegido.
+### Privacidad general
+- ✅ Sin telemetría: se eliminaron Firebase/Crashlytics y servicios de Google.
 
-## 0.9 — Identidad
-- [ ] Nombre Aves-X, logo de murciélago, adaptive icon (foreground 108 dp, zona segura 66 dp), strings, manifest, gradle, canal de notificaciones, "Acerca de".
-- [ ] Créditos a Aves y licencia BSD-3-Clause (mantener el aviso), licencia del icono, decidir `applicationId` y package name definitivos (hoy: `deckers.thibault.aves.mio`).
+---
 
-## 1.0 — Privacy Gallery
-- [ ] Funciones críticas terminadas, auditorías (permisos, almacenamiento, autenticación, vault, nuke, metadatos, `.nomedia`), pruebas (archivos grandes, vídeos, miles de archivos, almacenamiento lleno, con/sin root, reinicio, actualización), README, changelog y build release.
+## 🔧 En curso
 
-## Después de 1.0 — Experimental
-- Reglas avanzadas por carpeta, más funciones con root, políticas de privacidad por carpeta, automatización de metadatos y vaults, nuevas estrategias de ocultación, opciones avanzadas de almacenamiento.
+- 🔧 **Bat-Glass 2.0 / Nebula Engine** (motor propio de cristal y efectos): extender el cristal facetado a más pantallas (barras de búsqueda y filtros, diálogos, tarjetas, selector de pestañas), mejores animaciones de íconos y transiciones (cristal que se rompe o se condensa), ajustes separados que se noten entre Bat-Glass y Glass-Everywhere. Posible renombrar Glass-Everywhere a **Bat-Cave**.
+- 🔧 Diálogos de Fail-Safe con efectos visuales (el Lockdown ya tiene fondo de cristal rubí).
+- 🔧 Reproductor: 4K/HD a ~10 fps en algunos vídeos (probar modos de hardware), barajar (shuffle).
+
+---
+
+## ⬜ Pendiente — próxima versión
+
+1. ⬜ **Personalidad de Fail-Safe**: personaje en una esquina que bromea según fallan los intentos, con sonido de balbuceo sintetizado (estilo Animal Crossing/Celeste, sin muestras con copyright). Requiere camino de audio propio.
+2. ⬜ **Bat-Curity fase 2**: fotos bloqueadas individualmente conservan metadatos y se mueven al almacenamiento privado de la app.
+3. ⬜ **Cifrado de archivos de las vaults** (que con root en `data/data` no se abran):
+   1. At-rest: AES-256-GCM por archivo con clave en Android Keystore; descifrado temporal al abrir y borrado/sobrescritura al cerrar.
+   2. Clave ligada a la credencial (PBKDF2/Argon2).
+   3. Sin texto plano en disco (descifrado en memoria; miniaturas y base de datos cifradas).
+   4. Migración de vaults existentes y limpieza segura tras el nuke.
+4. ⬜ Metadatos para HEIC, AVIF y GIF; previsualización de lo que se elimina y selección de campos (GPS, fecha, cámara…); regenerar miniaturas.
+5. ⬜ Transferencia más rápida entre álbumes (separar límite de la plataforma de lo optimizable).
+6. ⬜ Aviso de escaneo de medios que a veces no desaparece.
+7. ⬜ App lock: bloqueo inmediato o por tiempo configurable; ocultar contenido en multitarea y notificaciones.
+8. ⬜ Gesto secreto configurable (2–5 s, ubicación elegible) y pestaña "Ocultos" opcional; separar visualmente "Ocultos" y "Vaults"; indicadores visuales de oculto/vault/bloqueado.
+9. ⬜ Reproductor: ecualizador y opciones de subtítulos.
+10. ⬜ Más pegatinas para funciones nuevas.
+
+---
+
+## ⬜ Pendiente — hacia 1.0 (Privacy Gallery)
+
+- ⬜ Hardening: revisar rutas de compartir e intents externos, previews, miniaturas, cachés, logs, temporales, backups, recientes, rotación, pantalla dividida y grabación de pantalla; ocultar vaults del cajón y de los buscadores; limpieza de sesión al salir.
+- ⬜ Reglas por carpeta (mostrar, ocultar, proteger, enviar a vault, política de metadatos) con herencia y prioridad.
+- ⬜ Rediseño de Ajustes en niveles (básico / avanzado / experimental).
+- ⬜ Identidad definitiva: adaptive icon, `applicationId` y package final (hoy `deckers.thibault.aves.mio`), créditos y licencias.
+- ⬜ Auditorías y pruebas (archivos grandes, vídeos, miles de archivos, almacenamiento lleno, con/sin root, reinicio, actualización), README, changelog y build release.
+- ⬜ Optimización de código y compatibilidad amplia.
+
+---
+
+## 🌌 Futuro (ideas, sin prioridad)
+
+### Sistema Gargantua
+Las apps de seguridad suelen impedir que otros entren a tus fotos; Gargantua evita que tus archivos **salgan** sin permiso. Nombre del agujero negro de Interstellar: lo que entra en una zona protegida de Aves-X no sale a menos que el dueño lo ordene. Estética cósmica.
+- ⬜ Interceptar "Compartir" antes de que aparezca el menú de Android (WhatsApp, Telegram, correo…).
+- ⬜ Aduanas de archivos: reglas para bloquear la exportación de carpetas o fotos.
+- ⬜ Autenticación de salida: compartir un archivo protegido pide PIN o Master Code.
+- ⬜ Vaults y bloqueados bajo Gargantua por defecto.
+- ⬜ Con root, capacidades potenciadas (alcance aún por definir).
+
+### Black Hole (modo root opcional)
+- ⬜ Demonio root: nuke y borrado automático que siguen aunque se cierre o mate la app.
+- ⬜ Borrado más fuerte (sobrescribir/destruir), sellado y cifrado de carpetas en `data/data`.
+- ⬜ Se integrará con Gargantua.
+
+### Otras ideas
+- ⬜ Estrategias nuevas de ocultación, automatización de metadatos y vaults, opciones avanzadas de almacenamiento.
+
+---
 
 ## Notas de trabajo
-- No se compila en el entorno de Claude: se sube a `develop`, se lanza el workflow *Build libre APK* y los errores se leen de las anotaciones.
+- No se compila en el entorno de desarrollo: se sube a `develop`, se lanza el workflow *Build libre APK* y los errores se leen de las anotaciones.
 - Los archivos de `flavors/` del proyecto original están desactualizados; el workflow genera la variante libre a partir de `pubspec.yaml`.
-- El chequeo `Quality check` del fork marca avisos de estilo en análisis estático (no afectan al APK).
-
-## Bat-Curity (in progress)
-
-- [x] "Security" settings category (App lock, Master Code, nuke, hashing)
-- [x] Argon2id + random salt hashing of all credentials (opt-in, only the Master Code can disable it; offered after creating the Master Code)
-- [ ] Encryption of vault files with an Android Keystore key
-- [ ] Encryption of individually locked photos and albums (moved to app-private storage)
-
-## Other recent additions
-
-- [x] Lock animation (chains + padlock; ruby chains + bat padlock in Bat-Glass)
-- [x] Nav bar lens (rounded/rectangular), liquid icons in Bat-Glass, glass controls
-- [x] Performance mode, automatic deletion, PNG/WebP metadata removal, lock from the viewer
-- [x] Fix: nav bar vanishing after turning the TV layout off (inherited from Aves)
-
-## Next
-
-- [~] `.nomedia` (create/remove from the Explorer menu done; toggle to show hidden folders pending): a toggle to show folders that contain no media, and creating/removing `.nomedia` files so other apps do not see chosen folders
-- [ ] Stickers: small labels next to feature names (e.g. "experimental") in Settings
-- [x] Custom tags/captions for photos and videos (e.g. "foto madre 17/11/2017") searchable instead of the file name
-- [ ] Faster media transfer between albums (check what is a platform limit and what can be optimized)
-- [ ] Optional root mode: real secure destruction for the nuke (overwrite/shred instead of a normal delete) and other root-only improvements
-- [ ] Fix: the media scan notification sometimes never goes away
-- [x] Operation progress (move/delete/copy) can be sent to the background (`close_fullscreen` button) and uses the Bat-Glass / glass look; more dialogs and animations to follow
-- [ ] Glass-Everywhere 2.0 (to be renamed **Bat-Cave**): glass look for every screen, dialog and control, with a lower cost
-- [ ] Bat-Curity: encryption of individually locked photos and albums
-- [x] Attempt counters for bin / hidden-items / item locks
-- [ ] Metadata removal for HEIC, AVIF and GIF
-
-## Privacy
-
-- [x] No telemetry: Firebase/Crashlytics, Google services, their plugins, keys and settings were removed; errors are only logged on the device
-
-## Bat-Player (video player rewrite)
-
-- [~] Quick controls: loop (done), playback speed (already in Aves); shuffle pending
-- [x] YouTube-like gestures: slide on the left/right side of the screen for brightness/volume, double tap to seek
-- [~] Codec / decoder options already exist (Settings → Video → Hardware acceleration: disabled, enabled, forced; forced is the default). Still to investigate why some HD/4K videos play at ~10 fps
-- [ ] Equalizer-like and subtitle options as in other players
-
-## Bat-Cave (Glass-Everywhere 2.0) and Bat-Glass 2.0
-
-- [x] Side menu header with a translucent red diamond texture in the glass modes
-- [ ] Glass look for the search / filter area, the app bars and more screens
-- [ ] Bat-Lens: sliding effect when switching tabs
-- [x] Swipe horizontally to change between the main tabs (favourites, albums, ...)
-
-## Tags for photos (stickers)
-
-- [x] Free text labels / captions on photos and videos (e.g. "foto madre 17/11/2017"), searchable from the search page, not only file names and types
-
-## Major update (later)
-
-- [ ] Code optimization and wider compatibility
-
-## Failsafe (crash handling, replaces any crash reporting)
-
-- [x] Local crash capture: after a crash, show the log as a text the user can share if they want (nothing is sent anywhere)
-- [x] Safe mode after a crash: banner "Safe mode"; security options cannot be lowered, vaults cannot be opened or deleted, nothing can be deleted; back to normal after a clean launch
-- [x] Crypto-erase first nuke: destroy keys and credentials before deleting files, so an interrupted nuke still leaves nothing readable
-
-## Gargantua System (planned, not a priority)
-
-Most security apps keep people out of the photos (locks, PINs, encryption). Gargantua does the opposite: it stops files from leaving without permission. Named after the black hole in Interstellar: once a file is inside a protected zone of Aves-X, it does not leave unless the owner explicitly orders it. Cosmic look.
-
-- [ ] Share interception: the app intercepts "Share" before the Android chooser appears (WhatsApp, Telegram, mail, anything)
-- [ ] File customs: rules to make folders or photos fully blocked for export
-- [ ] Exit authentication: sharing a protected file asks for the PIN or Master Code; without it the file does not leave the phone
-- [ ] Vault protection: everything inside vaults or locked with a password is under Gargantua by default
-- [ ] Cosmic visual style
-- [ ] With root, its capabilities are boosted (this is the rework of the optional root mode below; scope still to be defined)
-
-## Black Hole (optional root mode)
-
-- [ ] Root daemon: nuke and automatic deletion that keep running with the app closed or killed
-- [ ] Stronger deletion, sealing and encrypting folders in the app data
-- [x] Failsafe lockdown: when the nuke by attempts is off, repeated wrong Master Code attempts lock the app instead of destroying data. Full screen "Fail-Safe has temporarily taken control, enter the Master Code to unlock"
-- [x] Escalating cooldown between attempts using a monotonic clock (immune to changing the phone clock), configurable maximum (recommended 5 min, warning above 2 h), lockdown on/off
-- [ ] Failsafe personality: a small character in a corner that jokes as attempts fail ("surely a misclick", "are you really the owner of this phone?", "you should call the owner, you seem very interested in their photos"), with a royalty-free babble sound
-- [x] Failsafe section in Settings and a welcome wizard that replaces the terms and conditions window: a welcome wizard on first launch that introduces it and explains the options
-- [ ] Locked individual photos: keep their metadata and move them to private app storage so other apps cannot reach them (Bat-Curity phase 2)
-- [x] Locked photos are skipped when swiping in the viewer
+- El chequeo `Quality check` marca avisos de estilo en análisis estático (no afectan al APK).
+- Pendiente del lado del usuario: avisar a Aves (upstream) del fallo de la barra de navegación en el diseño TV.
