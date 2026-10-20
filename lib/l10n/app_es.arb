@@ -945,5 +945,7 @@
   "blackHoleRootOptionSubtitle": "Experimental. Con root, la destrucción también descarta los bloques liberados del almacenamiento tras sobrescribir los archivos.",
   "blackHoleRootUnavailable": "No se concedió el acceso root o no está disponible en este dispositivo.",
   "failsafeVoiceOption": "Voz de Fail-Safe",
-  "failsafeVoiceOptionSubtitle": "El personaje balbucea mientras habla (sonido sintetizado, sigue el volumen del sistema)."
+  "failsafeVoiceOptionSubtitle": "El personaje balbucea mientras habla (sonido sintetizado, sigue el volumen del sistema).",
+  "failsafeVoiceTest": "Probar la voz",
+  "failsafeVoiceTestFailed": "El sistema de audio no reprodujo el sonido."
 }

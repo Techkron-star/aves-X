@@ -1,5 +1,6 @@
 import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/model/security/failsafe_config.dart';
+import 'package:aves/model/security/failsafe_voice.dart';
 import 'package:aves/theme/colors.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/widgets/common/basic/scaffold.dart';
@@ -171,6 +172,14 @@ class _FailsafeOptionsState extends State<_FailsafeOptions> {
           onChanged: (v) async {
             await FailsafeConfig.setVoiceEnabled(v);
             await _load();
+          },
+        ),
+        ListTile(
+          title: Text(l10n.failsafeVoiceTest),
+          leading: const Icon(Icons.volume_up_outlined),
+          onTap: () async {
+            final ok = await FailsafeVoice.say(l10n.failsafeBuddy1, force: true);
+            if (!ok && context.mounted) ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(l10n.failsafeVoiceTestFailed)));
           },
         ),
         SwitchListTile(

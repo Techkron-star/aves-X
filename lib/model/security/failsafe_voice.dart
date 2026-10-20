@@ -11,10 +11,11 @@ class FailsafeVoice {
   static const _rate = 16000;
   static const _maxLetters = 60;
 
-  static Future<void> say(String text) async {
-    if (!await FailsafeConfig.voiceEnabled) return;
+  // `force`: plays even if the voice is turned off (test button). Returns whether the clip was handed to the audio system.
+  static Future<bool> say(String text, {bool force = false}) async {
+    if (!force && !await FailsafeConfig.voiceEnabled) return false;
     final pcm = synthesize(text);
-    if (pcm.isNotEmpty) await securityService.playPcm(pcm, _rate);
+    return pcm.isNotEmpty && await securityService.playPcm(pcm, _rate);
   }
 
   static Uint8List synthesize(String text) {
@@ -59,7 +60,7 @@ class FailsafeVoice {
       final wave = sin(phase) + .35 * sin(3 * phase) + (isVowel ? .0 : .15 * sin(5 * phase));
       // quick attack, smooth decay: no clicks
       final env = min(1.0, t * 14) * pow(1 - t, 1.6);
-      out[i] = (wave * env * 6500).round().clamp(-32768, 32767);
+      out[i] = (wave * env * 14000).round().clamp(-32768, 32767);
     }
     return out;
   }
