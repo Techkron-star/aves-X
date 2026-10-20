@@ -87,7 +87,7 @@ Leyenda: ✅ hecho (compila; se prueba en el teléfono) · 🔧 en curso o parci
 - ⬜ Hardening: revisar rutas de compartir e intents externos, previews, miniaturas, cachés, logs, temporales, backups, recientes, rotación, pantalla dividida y grabación de pantalla; ocultar vaults del cajón y de los buscadores; limpieza de sesión al salir.
 
 - ⬜ Rediseño de Ajustes en niveles (básico / avanzado / experimental).
-- ⬜ Identidad definitiva: adaptive icon, `applicationId` y package final (hoy `deckers.thibault.aves.mio`), créditos y licencias.
+- ⬜ Identidad definitiva: adaptive icon, `applicationId` y package final (ahora `dev.techkron.avesx`; el namespace del código sigue siendo el de Aves), créditos y licencias.
 - ⬜ Auditorías y pruebas (archivos grandes, vídeos, miles de archivos, almacenamiento lleno, con/sin root, reinicio, actualización), README, changelog y build release.
 - ⬜ Optimización de código y compatibilidad amplia.
 

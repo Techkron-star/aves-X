@@ -33,9 +33,9 @@ jobs:
           keytool -genkeypair -v -keystore key.jks -storepass avesfork -keypass avesfork \
             -alias aves -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Aves fork"
 
-      # use another application ID, so that this build can be installed next to the original app
-      - name: Change application ID suffix
-        run: sed -i 's/applicationIdSuffix = ".libre"/applicationIdSuffix = ".mio"/' android/app/build.gradle.kts
+      # Aves-X has its own application ID, so that it installs next to the original Aves
+      - name: Set application ID
+        run: sed -i 's/applicationId = packageName/applicationId = "dev.techkron.avesx"/; s/applicationIdSuffix = ".libre"/applicationIdSuffix = ""/' android/app/build.gradle.kts
 
       - name: Build APK
         run: |
