@@ -52,12 +52,13 @@ class Device {
 
     final androidInfo = await deviceService.getAndroidInfo();
     _isPhysicalDevice = androidInfo.isPhysicalDevice;
-    _isTelevision = androidInfo.systemFeatures.contains('android.software.leanback');
 
     _canAuthenticateUser = await deviceService.canAuthenticateUser();
     _availableProcessors = await deviceService.getAvailableProcessors();
 
     final capabilities = await deviceService.getCapabilities();
+    // TV detection: `leanback` feature or the system's television UI mode
+    _isTelevision = androidInfo.systemFeatures.contains('android.software.leanback') || (capabilities['isTelevisionUiMode'] as bool? ?? false);
     _canPinShortcut = capabilities['canPinShortcut'] as bool? ?? false;
     _canRenderSubdivisionFlagEmojis = capabilities['canRenderSubdivisionFlagEmojis'] as bool? ?? false;
     _canRequestMediaManagementPermission = capabilities['canRequestMediaManagementPermission'] as bool? ?? false;

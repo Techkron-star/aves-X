@@ -7,6 +7,7 @@ import android.app.LocaleManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.location.Geocoder
 import android.os.Build
@@ -64,11 +65,18 @@ class DeviceHandler(private val context: Context) : MethodCallHandler {
                 "canRequestNotificationPermission" to (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU),
                 "hasGeocoder" to Geocoder.isPresent(),
                 "isDynamicColorAvailable" to DynamicColors.isDynamicColorAvailable(),
+                "isTelevisionUiMode" to isTelevisionUiMode(),
                 "showPinShortcutFeedback" to (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O),
                 "supportEdgeToEdgeUIMode" to (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q),
                 "supportPictureInPicture" to supportPictureInPicture(),
             )
         )
+    }
+
+    // some TV boxes do not declare the `leanback` feature, but the system still runs in the television UI mode
+    private fun isTelevisionUiMode(): Boolean {
+        val uiModeType = context.resources.configuration.uiMode and Configuration.UI_MODE_TYPE_MASK
+        return uiModeType == Configuration.UI_MODE_TYPE_TELEVISION
     }
 
     private fun supportPictureInPicture(): Boolean {
