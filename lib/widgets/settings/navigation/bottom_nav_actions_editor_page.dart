@@ -58,6 +58,8 @@ class _BottomNavigationActionEditorPageState extends State<BottomNavigationActio
     _controller = QuickActionEditorController(
       load: () => settings.bottomNavigationActions,
       save: (actions) => settings.bottomNavigationActions = actions,
+      // the tablet mode shows the items as bubbles, six at most
+      maxItems: () => settings.tabletMode ? 6 : null,
     );
   }
 

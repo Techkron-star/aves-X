@@ -20,6 +20,8 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 class QuickActionEditorController<T extends Object>({
   required final List<T> Function() load,
   required final void Function(List<T> actions) save,
+  // optional cap on the number of items (e.g. the bubbles of the tablet mode)
+  final int? Function()? maxItems,
 }) with ChangeNotifier {
   List<T> _currentItems = [];
   final StreamController<EditorControllerEvent<T>> _eventsController = StreamController.broadcast();
@@ -34,6 +36,8 @@ class QuickActionEditorController<T extends Object>({
 
   bool insert(int index, T? item) {
     if (item == null || _currentItems.contains(item)) return false;
+    final cap = maxItems?.call();
+    if (cap != null && _currentItems.length >= cap) return false;
 
     _currentItems.insert(index, item);
     _eventsController.add(_ItemAddedEvent(index, item));

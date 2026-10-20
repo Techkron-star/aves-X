@@ -397,6 +397,7 @@ class Settings
           case SettingKeys.batGlassKey:
           case SettingKeys.performanceModeKey:
           case SettingKeys.navLensKey:
+          case SettingKeys.tabletModeKey:
           case SettingKeys.swipeTabsKey:
           case SettingKeys.explorerShowAllFoldersKey:
           case SettingKeys.glassEverywhereKey:

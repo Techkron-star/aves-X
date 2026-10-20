@@ -44,6 +44,7 @@ class DisplaySection extends SettingsSection {
     if (!settings.useTvLayout) SettingsTileDisplayMaxBrightness(),
     if (!settings.useTvLayout) SettingsTileDisplayRefreshRateMode(),
     if (!device.isTelevision) SettingsTileDisplayForceTvLayout(),
+    if (!settings.useTvLayout) SettingsTileDisplayTabletMode(),
   ]);
 }
 
@@ -142,6 +143,23 @@ class SettingsTileDisplayRefreshRateMode extends SettingsTile {
     onSelection: (v) => settings.displayRefreshRateMode = v,
     tileTitle: title,
     dialogTitle: context.l10n.settingsDisplayRefreshRateModeDialogTitle,
+  );
+}
+
+class SettingsTileDisplayTabletMode extends SettingsTile {
+  @override
+  List<String> get settingKeys => [SettingKeys.tabletModeKey];
+
+  @override
+  String title(BuildContext context) => context.l10n.settingsTabletMode;
+
+  @override
+  Widget build(BuildContext context) => SettingsSwitchListTile(
+    selector: (context, s) => s.tabletMode,
+    onChanged: (v) => settings.tabletMode = v,
+    title: title,
+    subtitle: (context) => context.l10n.settingsTabletModeSubtitle,
+    sticker: const FeatureSticker(kind: StickerKind.experimental),
   );
 }
 

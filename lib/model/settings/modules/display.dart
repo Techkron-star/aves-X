@@ -62,6 +62,10 @@ mixin DisplaySettings on SettingsAccess {
 
   set forceTvLayout(bool newValue) => set(SettingKeys.forceTvLayoutKey, newValue);
 
+  bool get tabletMode => !useTvLayout && (getBool(SettingKeys.tabletModeKey) ?? SettingsDefaults.tabletMode);
+
+  set tabletMode(bool newValue) => set(SettingKeys.tabletModeKey, newValue);
+
   bool get useTvLayout => device.isTelevision || forceTvLayout;
 
   bool get isReadOnly => useTvLayout;

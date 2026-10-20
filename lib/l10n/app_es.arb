@@ -947,5 +947,8 @@
   "failsafeVoiceOption": "Voz de Fail-Safe",
   "failsafeVoiceOptionSubtitle": "El personaje balbucea mientras habla (sonido sintetizado, sigue el volumen del sistema).",
   "failsafeVoiceTest": "Probar la voz",
-  "failsafeVoiceTestFailed": "El sistema de audio no reprodujo el sonido."
+  "failsafeVoiceTestFailed": "El sistema de audio no reprodujo el sonido.",
+  "settingsTabletMode": "Modo tablet",
+  "settingsTabletModeSubtitle": "Navegación con burbujas para pantallas grandes: una burbuja grande junto al borde abre hasta 6 burbujas pequeñas; desliza de la grande a una pequeña para cambiar de pestaña. Sin barra de navegación ni Bat-Lens.",
+  "bubbleNavTooltip": "Navegación"
 }

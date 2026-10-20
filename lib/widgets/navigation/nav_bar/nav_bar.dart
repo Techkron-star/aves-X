@@ -18,6 +18,7 @@ import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/extensions/media_query.dart';
 import 'package:aves/widgets/filter_grids/albums_page.dart';
 import 'package:aves/widgets/navigation/nav_bar/floating.dart';
+import 'package:aves/widgets/navigation/nav_bar/bubble_nav.dart';
 import 'package:aves/widgets/navigation/nav_item.dart';
 import 'package:collection/collection.dart';
 import 'package:material_ui/material_ui.dart';
@@ -34,6 +35,8 @@ class const AppBottomNavBar({
   }
 
   static double getHeightWithMargin(double safeBottomPadding) {
+    // tablet mode: bubbles instead of the bar
+    if (settings.tabletMode) return BubbleNav.height + safeBottomPadding;
     return kBottomNavigationBarHeight + getMargin(safeBottomPadding).vertical;
   }
 
@@ -79,6 +82,16 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
   Widget build(BuildContext context) {
     final items = context.select<Settings, List<AvesNavItem>>((v) => v.bottomNavigationActions);
     if (items.length < 2) return const SizedBox();
+
+    // tablet mode: bubbles instead of the bar (no Bat-Lens either)
+    if (context.select<Settings, bool>((v) => v.tabletMode)) {
+      final bubbles = items.take(BubbleNav.maxBubbles).toList();
+      return BubbleNav(
+        items: bubbles,
+        currentIndex: _getCurrentIndex(context, bubbles),
+        onSelect: (index) => _goTo(context, bubbles, index),
+      );
+    }
 
     final navBarStyle = context.select<Settings, NavBarStyle>((v) => v.navBarStyle);
     // rebuild when the lens is toggled

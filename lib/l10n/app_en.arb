@@ -1267,5 +1267,8 @@
   "failsafeVoiceOption": "Fail-Safe voice",
   "failsafeVoiceOptionSubtitle": "The character babbles while it talks (synthesized sound, follows the system volume).",
   "failsafeVoiceTest": "Test the voice",
-  "failsafeVoiceTestFailed": "The audio system did not play the sound."
+  "failsafeVoiceTestFailed": "The audio system did not play the sound.",
+  "settingsTabletMode": "Tablet mode",
+  "settingsTabletModeSubtitle": "Bubble navigation for big screens: a big bubble near the edge opens up to 6 small bubbles; slide from the big one to a small one to change tab. No navigation bar, no Bat-Lens.",
+  "bubbleNavTooltip": "Navigation"
 }
