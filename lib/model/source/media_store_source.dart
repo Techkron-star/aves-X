@@ -53,9 +53,11 @@ class MediaStoreSource extends CollectionSource {
     addDirectories(albums: settings.pinnedFilters.whereType<StoredAlbumFilter>().map((v) => v.album).toSet());
     await updateGeneration();
     unawaited(
-      _loadEntries(
-        analysisController: analysisController,
-        loadTopEntriesFirst: loadTopEntriesFirst,
+      _guardLoading(
+        () => _loadEntries(
+          analysisController: analysisController,
+          loadTopEntriesFirst: loadTopEntriesFirst,
+        ),
       ),
     );
   }
@@ -237,7 +239,7 @@ class MediaStoreSource extends CollectionSource {
             newEntries.add(entry);
             setProgress(done: newEntries.length, total: 0);
           },
-          onDone: () async {
+          onDone: () => _guardLoading(() async {
             if (newEntries.isNotEmpty) {
               // TODO TLAD [perf] perform DB ops with `newEntries` by chunks
               debugPrint('$runtimeType load ${stopwatch.elapsed} save ${newEntries.length} new entries');
@@ -288,9 +290,19 @@ class MediaStoreSource extends CollectionSource {
             notifyAlbumsChanged();
 
             unawaited(reportService.log('$runtimeType load (new) done in ${stopwatch.elapsed.inSeconds}s for ${newEntries.length} new entries'));
-          },
+          }),
           onError: (error) => debugPrint('$runtimeType stream error=$error'),
         );
+  }
+
+  // whatever fails while loading new entries, the source must not stay in the loading state forever
+  Future<void> _guardLoading(Future<void> Function() task) async {
+    try {
+      await task();
+    } catch (error, stack) {
+      unawaited(reportService.recordError(error, stack));
+      state = SourceState.ready;
+    }
   }
 
   // returns URIs to retry later. They could be URIs that are:
@@ -303,6 +315,17 @@ class MediaStoreSource extends CollectionSource {
     if (!canRefresh || _essentialLoader == null || !isReady) return changedUris;
 
     state = SourceState.loading;
+    try {
+      return await _refreshUris(changedUris, analysisController: analysisController);
+    } catch (error, stack) {
+      unawaited(reportService.recordError(error, stack));
+      // do not retry the same URIs forever, a later store change will trigger a new refresh
+      state = SourceState.ready;
+      return <String>{};
+    }
+  }
+
+  Future<Set<String>> _refreshUris(Set<String> changedUris, {AnalysisController? analysisController}) async {
 
     final changedUriDetails = changedUris.length < 5 ? ' (${changedUris.join(', ')})' : '';
     unawaited(reportService.log('$runtimeType refresh start for ${changedUris.length} uris$changedUriDetails'));

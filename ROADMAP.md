@@ -74,7 +74,7 @@ Leyenda: ✅ hecho (compila; se prueba en el teléfono) · 🔧 en curso o parci
    4. Migración de vaults existentes y limpieza segura tras el nuke.
 4. 🔧 Metadatos: GIF hecho (conserva la animación); faltan HEIC y AVIF; previsualización de lo que se elimina y selección de campos (GPS, fecha, cámara…); regenerar miniaturas.
 5. ⬜ Transferencia más rápida entre álbumes (separar límite de la plataforma de lo optimizable).
-6. ⬜ Aviso de escaneo de medios que a veces no desaparece.
+6. 🔧 Aviso de escaneo de medios que a veces no desaparece: el estado "cargando" ahora vuelve siempre a "listo" aunque falle la carga inicial, el refresco por cambios del almacenamiento o el análisis (antes un error a mitad lo dejaba atascado). Sin probar; los errores quedan registrados en el informe local de Fail-Safe.
 7. ⬜ App lock: bloqueo inmediato o por tiempo configurable; ocultar contenido en multitarea y notificaciones.
 8. ⬜ Gesto secreto configurable (2–5 s, ubicación elegible) y pestaña "Ocultos" opcional; separar visualmente "Ocultos" y "Vaults"; indicadores visuales de oculto/vault/bloqueado.
 9. ⬜ Reproductor: ecualizador y opciones de subtítulos.

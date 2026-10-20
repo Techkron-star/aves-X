@@ -515,6 +515,17 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
   }
 
   Future<void> analyze(AnalysisController? analysisController, {Set<AvesEntry>? entries}) async {
+    try {
+      await _analyze(analysisController, entries: entries);
+    } catch (error, stack) {
+      unawaited(reportService.recordError(error, stack));
+    } finally {
+      // whatever happens, the scan/loading indicator must not stay on forever
+      state = SourceState.ready;
+    }
+  }
+
+  Future<void> _analyze(AnalysisController? analysisController, {Set<AvesEntry>? entries}) async {
     // not only visible entries, as hidden and vault items may be analyzed
     final todoEntries = entries ?? allEntries;
     final defaultAnalysisController = AnalysisController();
