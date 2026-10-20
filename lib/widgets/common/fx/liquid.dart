@@ -161,6 +161,7 @@ class GlassThemeScope extends StatelessWidget {
         final isDark = theme.brightness == Brightness.dark;
         final accent = bat ? Themes.batGlassRuby : theme.colorScheme.primary;
         final edge = bat ? const Color(0x80FF3B5C) : (isDark ? const Color(0x55FFFFFF) : const Color(0x55000000));
+        final surface = bat ? const Color(0xFF2A0710) : theme.colorScheme.surfaceContainerHigh;
         final tint = isDark ? const Color(0x12FFFFFF) : const Color(0x0C000000);
         return Theme(
           data: theme.copyWith(
@@ -178,6 +179,33 @@ class GlassThemeScope extends StatelessWidget {
             ),
             listTileTheme: theme.listTileTheme.copyWith(
               selectedTileColor: accent.withValues(alpha: .18),
+            ),
+            // Glass-Everywhere 2.0: every floating surface becomes translucent glass with a bright edge
+            // (menus, sheets, snack bars, cards, drawer); Bat-Glass tints them smoked ruby
+            popupMenuTheme: PopupMenuThemeData(
+              color: surface.withValues(alpha: .74),
+              surfaceTintColor: Colors.transparent,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18), side: BorderSide(color: edge, width: .8)),
+            ),
+            bottomSheetTheme: BottomSheetThemeData(
+              backgroundColor: surface.withValues(alpha: .78),
+              modalBackgroundColor: surface.withValues(alpha: .78),
+              surfaceTintColor: Colors.transparent,
+              shape: RoundedRectangleBorder(borderRadius: const BorderRadius.vertical(top: Radius.circular(24)), side: BorderSide(color: edge, width: .8)),
+            ),
+            snackBarTheme: theme.snackBarTheme.copyWith(
+              backgroundColor: surface.withValues(alpha: .86),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: edge, width: .8)),
+            ),
+            cardTheme: theme.cardTheme.copyWith(
+              color: surface.withValues(alpha: .6),
+              surfaceTintColor: Colors.transparent,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: edge, width: .8)),
+            ),
+            drawerTheme: theme.drawerTheme.copyWith(
+              backgroundColor: surface.withValues(alpha: .8),
+              surfaceTintColor: Colors.transparent,
             ),
           ),
           child: child,

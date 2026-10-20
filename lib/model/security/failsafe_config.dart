@@ -24,6 +24,11 @@ class FailsafeConfig {
 
   static Future<void> setNukeOnFailures(bool value) => securityService.writeValue<String>(_nukeKey, value ? '1' : '0');
 
+  // the Fail-Safe character's babble sound (on by default; follows the system sound volume)
+  static Future<bool> get voiceEnabled async => await securityService.readValue<String>('fs_voice') != '0';
+
+  static Future<void> setVoiceEnabled(bool value) => securityService.writeValue<String>('fs_voice', value ? '1' : '0');
+
   // Black Hole: optional root mode, off by default
   static Future<bool> get rootMode async => await securityService.readValue<String>('fs_root') == '1';
 

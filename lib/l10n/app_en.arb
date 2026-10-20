@@ -1263,5 +1263,7 @@
   "failsafeBuddy4": "You should call the phone's owner. You seem very interested in their photos.",
   "blackHoleRootOption": "Black Hole (root)",
   "blackHoleRootOptionSubtitle": "Experimental. With root, the destruction also discards the freed storage blocks after overwriting the files.",
-  "blackHoleRootUnavailable": "Root access was not granted or is not available on this device."
+  "blackHoleRootUnavailable": "Root access was not granted or is not available on this device.",
+  "failsafeVoiceOption": "Fail-Safe voice",
+  "failsafeVoiceOptionSubtitle": "The character babbles while it talks (synthesized sound, follows the system volume)."
 }

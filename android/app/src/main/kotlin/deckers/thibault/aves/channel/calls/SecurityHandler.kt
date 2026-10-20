@@ -37,6 +37,7 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
             "cryptSelfTest" -> ioScope.launch { safe(call, result, ::cryptSelfTest) }
             "destroyCryptoKeys" -> ioScope.launch { safe(call, result, ::destroyCryptoKeys) }
             "isRootAvailable" -> ioScope.launch { safe(call, result, ::isRootAvailable) }
+            "playPcm" -> safe(call, result, ::playPcm)
             "rootTrim" -> ioScope.launch { safe(call, result, ::rootTrim) }
             else -> result.notImplemented()
         }
@@ -174,6 +175,45 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
 
     private fun destroyCryptoKeys(@Suppress("unused_parameter") call: MethodCall, result: MethodChannel.Result) {
         result.success(vaultCrypto.destroyKeys())
+    }
+
+    // plays a short mono 16 bit PCM clip (the Fail-Safe voice), without any audio file or library
+    private fun playPcm(call: MethodCall, result: MethodChannel.Result) {
+        val pcm = call.argument<ByteArray>("pcm")
+        val rate = call.argument<Int>("rate") ?: 16000
+        if (pcm == null || pcm.isEmpty()) {
+            result.success(false)
+            return
+        }
+        val track = android.media.AudioTrack.Builder()
+            .setAudioAttributes(
+                android.media.AudioAttributes.Builder()
+                    .setUsage(android.media.AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build()
+            )
+            .setAudioFormat(
+                android.media.AudioFormat.Builder()
+                    .setEncoding(android.media.AudioFormat.ENCODING_PCM_16BIT)
+                    .setSampleRate(rate)
+                    .setChannelMask(android.media.AudioFormat.CHANNEL_OUT_MONO)
+                    .build()
+            )
+            .setBufferSizeInBytes(pcm.size)
+            .setTransferMode(android.media.AudioTrack.MODE_STATIC)
+            .build()
+        track.write(pcm, 0, pcm.size)
+        val frames = pcm.size / 2
+        track.setNotificationMarkerPosition(frames - 1)
+        track.setPlaybackPositionUpdateListener(object : android.media.AudioTrack.OnPlaybackPositionUpdateListener {
+            override fun onMarkerReached(t: android.media.AudioTrack?) {
+                t?.release()
+            }
+
+            override fun onPeriodicNotification(t: android.media.AudioTrack?) {}
+        })
+        track.play()
+        result.success(true)
     }
 
     // Black Hole (optional root mode): runs a command as root, with a timeout. `null` if root is not available.

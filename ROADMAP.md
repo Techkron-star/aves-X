@@ -57,7 +57,7 @@ Leyenda: ✅ hecho (compila; se prueba en el teléfono) · 🔧 en curso o parci
 
 ## 🔧 En curso
 
-- 🔧 **Bat-Glass 2.0 / Nebula Engine** (motor propio de cristal y efectos): extender el cristal facetado a más pantallas (barras de búsqueda y filtros, diálogos, tarjetas, selector de pestañas), mejores animaciones de íconos y transiciones (cristal que se rompe o se condensa), ajustes separados que se noten entre Bat-Glass y Glass-Everywhere. Posible renombrar Glass-Everywhere a **Bat-Cave**.
+- 🔧 **Bat-Glass 2.0 / Nebula Engine** (Glass-Everywhere 2.0: menús, hojas, avisos, tarjetas y cajón ya son cristal translúcido con borde; falta blur real en ellos) (motor propio de cristal y efectos): extender el cristal facetado a más pantallas (barras de búsqueda y filtros, diálogos, tarjetas, selector de pestañas), mejores animaciones de íconos y transiciones (cristal que se rompe o se condensa), ajustes separados que se noten entre Bat-Glass y Glass-Everywhere. Posible renombrar Glass-Everywhere a **Bat-Cave**.
 - 🔧 Diálogos de Fail-Safe con efectos visuales (el Lockdown ya tiene fondo de cristal rubí).
 - 🔧 Reproductor: 4K/HD a ~10 fps en algunos vídeos (probar modos de hardware), barajar (shuffle).
 
@@ -65,7 +65,7 @@ Leyenda: ✅ hecho (compila; se prueba en el teléfono) · 🔧 en curso o parci
 
 ## ⬜ Pendiente — próxima versión
 
-1. 🔧 **Personalidad de Fail-Safe** (personaje y comentarios ya en el Lockdown; falta el sonido y llevarlo a más pantallas): personaje en una esquina que bromea según fallan los intentos, con sonido de balbuceo sintetizado (estilo Animal Crossing/Celeste, sin muestras con copyright). Requiere camino de audio propio.
+1. ✅ **Personalidad de Fail-Safe**: personaje con comentarios y voz sintetizada (balbuceo procedural, sin muestras ni licencias) en Lockdown y bloqueo de la app; opción para desactivar la voz.
 2. ⬜ **Bat-Curity fase 2**: fotos bloqueadas individualmente conservan metadatos y se mueven al almacenamiento privado de la app.
 3. ⬜ **Cifrado de archivos de las vaults** (que con root en `data/data` no se abran):
    1. At-rest: AES-256-GCM por archivo con clave en Android Keystore; descifrado temporal al abrir y borrado/sobrescritura al cerrar.
@@ -85,7 +85,7 @@ Leyenda: ✅ hecho (compila; se prueba en el teléfono) · 🔧 en curso o parci
 ## ⬜ Pendiente — hacia 1.0 (Privacy Gallery)
 
 - ⬜ Hardening: revisar rutas de compartir e intents externos, previews, miniaturas, cachés, logs, temporales, backups, recientes, rotación, pantalla dividida y grabación de pantalla; ocultar vaults del cajón y de los buscadores; limpieza de sesión al salir.
-- ⬜ Reglas por carpeta (mostrar, ocultar, proteger, enviar a vault, política de metadatos) con herencia y prioridad.
+
 - ⬜ Rediseño de Ajustes en niveles (básico / avanzado / experimental).
 - ⬜ Identidad definitiva: adaptive icon, `applicationId` y package final (hoy `deckers.thibault.aves.mio`), créditos y licencias.
 - ⬜ Auditorías y pruebas (archivos grandes, vídeos, miles de archivos, almacenamiento lleno, con/sin root, reinicio, actualización), README, changelog y build release.
@@ -98,7 +98,6 @@ Leyenda: ✅ hecho (compila; se prueba en el teléfono) · 🔧 en curso o parci
 ### Sistema Gargantua
 Las apps de seguridad suelen impedir que otros entren a tus fotos; Gargantua evita que tus archivos **salgan** sin permiso. Nombre del agujero negro de Interstellar: lo que entra en una zona protegida de Aves-X no sale a menos que el dueño lo ordene. Estética cósmica.
 - ⬜ Interceptar "Compartir" antes de que aparezca el menú de Android (WhatsApp, Telegram, correo…).
-- ⬜ Aduanas de archivos: reglas para bloquear la exportación de carpetas o fotos.
 - 🔧 Autenticación de salida: compartir una foto o álbum bloqueado pide la credencial de bloqueos (hecho); falta Master Code por regla y otras salidas (abrir con, copiar, etc.)
 - ⬜ Vaults y bloqueados bajo Gargantua por defecto.
 - ⬜ Con root, capacidades potenciadas (alcance aún por definir).

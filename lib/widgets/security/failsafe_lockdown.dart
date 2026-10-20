@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:aves/model/security/failsafe_voice.dart';
+
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/widgets/common/fx/diamond.dart';
 import 'package:aves/model/security/attempt_guard.dart';

@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:aves/services/common/channel.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:flutter/services.dart';
@@ -41,6 +42,9 @@ abstract class SecurityService {
   Future<bool> isRootAvailable();
 
   Future<bool> rootTrim();
+
+  // plays a mono 16 bit PCM clip
+  Future<bool> playPcm(Uint8List pcm, int rate);
 }
 
 class VaultCryptoReport {
@@ -165,6 +169,15 @@ class PlatformSecurityService implements SecurityService {
   Future<bool> rootTrim() async {
     try {
       return await _platform.invokeMethod<bool>('rootTrim') ?? false;
+    } on PlatformException {
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> playPcm(Uint8List pcm, int rate) async {
+    try {
+      return await _platform.invokeMethod<bool>('playPcm', <String, Object?>{'pcm': pcm, 'rate': rate}) ?? false;
     } on PlatformException {
       return false;
     }

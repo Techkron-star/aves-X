@@ -77,6 +77,7 @@ class _FailsafeOptionsState extends State<_FailsafeOptions> {
   bool _lockdown = true;
   bool _nuke = false;
   bool _root = false;
+  bool _voice = true;
   bool _rootAvailable = true;
   int _maxMinutes = FailsafeConfig.recommendedMaxMinutes;
 
@@ -91,12 +92,14 @@ class _FailsafeOptionsState extends State<_FailsafeOptions> {
     final nuke = await FailsafeConfig.nukeOnFailures;
     final max = await FailsafeConfig.maxMinutes;
     final root = await FailsafeConfig.rootMode;
+    final voice = await FailsafeConfig.voiceEnabled;
     if (!mounted) return;
     setState(() {
       _lockdown = lockdown;
       _nuke = nuke;
       _maxMinutes = max;
       _root = root;
+      _voice = voice;
     });
   }
 
@@ -158,6 +161,15 @@ class _FailsafeOptionsState extends State<_FailsafeOptions> {
           onChanged: (v) async {
             if (v && !await showConfirmationDialog(context: context, message: l10n.failsafeNukeConfirm)) return;
             await FailsafeConfig.setNukeOnFailures(v);
+            await _load();
+          },
+        ),
+        SwitchListTile(
+          title: Text(l10n.failsafeVoiceOption),
+          subtitle: Text(l10n.failsafeVoiceOptionSubtitle),
+          value: _voice,
+          onChanged: (v) async {
+            await FailsafeConfig.setVoiceEnabled(v);
             await _load();
           },
         ),
