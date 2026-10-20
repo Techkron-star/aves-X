@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:aves/model/security/failsafe_quips.dart';
 import 'package:aves/model/security/failsafe_voice.dart';
 
 import 'package:aves/model/settings/settings.dart';
@@ -236,7 +237,7 @@ class FailsafeBuddy extends StatelessWidget {
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 350),
             child: Container(
-              key: ValueKey(fails.clamp(0, 4)),
+              key: ValueKey(fails),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: .08),
