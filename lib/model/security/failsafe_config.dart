@@ -24,6 +24,11 @@ class FailsafeConfig {
 
   static Future<void> setNukeOnFailures(bool value) => securityService.writeValue<String>(_nukeKey, value ? '1' : '0');
 
+  // Black Hole: optional root mode, off by default
+  static Future<bool> get rootMode async => await securityService.readValue<String>('fs_root') == '1';
+
+  static Future<void> setRootMode(bool value) => securityService.writeValue<String>('fs_root', value ? '1' : '0');
+
   static Future<int> get maxMinutes async => int.tryParse(await securityService.readValue<String>(_maxKey) ?? '') ?? recommendedMaxMinutes;
 
   static Future<void> setMaxMinutes(int minutes) => securityService.writeValue<String>(_maxKey, '$minutes');

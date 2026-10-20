@@ -1260,5 +1260,8 @@
   "failsafeBuddy1": "Wow, that was surely a misclick.",
   "failsafeBuddy2": "Are you sure you're the owner of this phone?",
   "failsafeBuddy3": "That's quite a few tries... I'm starting to doubt it.",
-  "failsafeBuddy4": "You should call the phone's owner. You seem very interested in their photos."
+  "failsafeBuddy4": "You should call the phone's owner. You seem very interested in their photos.",
+  "blackHoleRootOption": "Black Hole (root)",
+  "blackHoleRootOptionSubtitle": "Experimental. With root, the destruction also discards the freed storage blocks after overwriting the files.",
+  "blackHoleRootUnavailable": "Root access was not granted or is not available on this device."
 }

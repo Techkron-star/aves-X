@@ -36,6 +36,11 @@ abstract class SecurityService {
 
   // crypto-erase: destroys the vault encryption keys
   Future<bool> destroyCryptoKeys();
+
+  // Black Hole (optional root mode)
+  Future<bool> isRootAvailable();
+
+  Future<bool> rootTrim();
 }
 
 class VaultCryptoReport {
@@ -143,6 +148,24 @@ class PlatformSecurityService implements SecurityService {
       return await _platform.invokeMethod<bool>('destroyCryptoKeys') ?? false;
     } on PlatformException catch (e, stack) {
       await reportService.recordError(e, stack);
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> isRootAvailable() async {
+    try {
+      return await _platform.invokeMethod<bool>('isRootAvailable') ?? false;
+    } on PlatformException {
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> rootTrim() async {
+    try {
+      return await _platform.invokeMethod<bool>('rootTrim') ?? false;
+    } on PlatformException {
       return false;
     }
   }

@@ -36,6 +36,8 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
             "cryptAllVaults" -> ioScope.launch { safe(call, result, ::cryptAllVaults) }
             "cryptSelfTest" -> ioScope.launch { safe(call, result, ::cryptSelfTest) }
             "destroyCryptoKeys" -> ioScope.launch { safe(call, result, ::destroyCryptoKeys) }
+            "isRootAvailable" -> ioScope.launch { safe(call, result, ::isRootAvailable) }
+            "rootTrim" -> ioScope.launch { safe(call, result, ::rootTrim) }
             else -> result.notImplemented()
         }
     }
@@ -172,6 +174,34 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
 
     private fun destroyCryptoKeys(@Suppress("unused_parameter") call: MethodCall, result: MethodChannel.Result) {
         result.success(vaultCrypto.destroyKeys())
+    }
+
+    // Black Hole (optional root mode): runs a command as root, with a timeout. `null` if root is not available.
+    private fun runAsRoot(command: String, timeoutMillis: Long): String? {
+        return try {
+            val process = Runtime.getRuntime().exec(arrayOf("su", "-c", command))
+            val start = SystemClock.elapsedRealtime()
+            while (process.isAlive && SystemClock.elapsedRealtime() - start < timeoutMillis) {
+                Thread.sleep(50)
+            }
+            if (process.isAlive) {
+                process.destroy()
+                return null
+            }
+            if (process.exitValue() != 0) return null
+            process.inputStream.bufferedReader().use { it.readText() }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun isRootAvailable(@Suppress("unused_parameter") call: MethodCall, result: MethodChannel.Result) {
+        result.success(runAsRoot("id", 5000)?.contains("uid=0") == true)
+    }
+
+    // after deleting files: asks the file system to discard the freed blocks, so they are not left as is on flash storage
+    private fun rootTrim(@Suppress("unused_parameter") call: MethodCall, result: MethodChannel.Result) {
+        result.success(runAsRoot("fstrim /data", 30000) != null)
     }
 
     companion object {

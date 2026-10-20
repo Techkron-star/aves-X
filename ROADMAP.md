@@ -105,7 +105,7 @@ Las apps de seguridad suelen impedir que otros entren a tus fotos; Gargantua evi
 
 ### Black Hole (modo root opcional)
 - ⬜ Demonio root: nuke y borrado automático que siguen aunque se cierre o mate la app.
-- ⬜ Borrado más fuerte (sobrescribir/destruir), sellado y cifrado de carpetas en `data/data`.
+- 🔧 Borrado más fuerte: sobrescritura antes de borrar (nuke) y TRIM con root hechos; falta sellado y cifrado de carpetas en `data/data`.
 - ⬜ Se integrará con Gargantua.
 
 ### Otras ideas

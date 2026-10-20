@@ -8,6 +8,7 @@ import 'package:aves/widgets/common/fx/failsafe_badge.dart';
 import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/settings/common/tile_leading.dart';
 import 'package:aves/widgets/settings/settings_definition.dart';
+import 'package:aves/services/common/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
@@ -75,6 +76,8 @@ class _FailsafeOptions extends StatefulWidget {
 class _FailsafeOptionsState extends State<_FailsafeOptions> {
   bool _lockdown = true;
   bool _nuke = false;
+  bool _root = false;
+  bool _rootAvailable = true;
   int _maxMinutes = FailsafeConfig.recommendedMaxMinutes;
 
   @override
@@ -87,11 +90,13 @@ class _FailsafeOptionsState extends State<_FailsafeOptions> {
     final lockdown = await FailsafeConfig.lockdownEnabled;
     final nuke = await FailsafeConfig.nukeOnFailures;
     final max = await FailsafeConfig.maxMinutes;
+    final root = await FailsafeConfig.rootMode;
     if (!mounted) return;
     setState(() {
       _lockdown = lockdown;
       _nuke = nuke;
       _maxMinutes = max;
+      _root = root;
     });
   }
 
@@ -153,6 +158,23 @@ class _FailsafeOptionsState extends State<_FailsafeOptions> {
           onChanged: (v) async {
             if (v && !await showConfirmationDialog(context: context, message: l10n.failsafeNukeConfirm)) return;
             await FailsafeConfig.setNukeOnFailures(v);
+            await _load();
+          },
+        ),
+        SwitchListTile(
+          title: Text(l10n.blackHoleRootOption),
+          subtitle: Text(_rootAvailable ? l10n.blackHoleRootOptionSubtitle : l10n.blackHoleRootUnavailable),
+          value: _root,
+          onChanged: (v) async {
+            if (v) {
+              final available = await securityService.isRootAvailable();
+              if (!available) {
+                if (mounted) setState(() => _rootAvailable = false);
+                return;
+              }
+            }
+            await FailsafeConfig.setRootMode(v);
+            if (mounted) setState(() => _rootAvailable = true);
             await _load();
           },
         ),

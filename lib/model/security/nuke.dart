@@ -1,4 +1,7 @@
 import 'dart:io';
+import 'dart:math';
+
+import 'package:aves/model/security/failsafe_config.dart';
 
 import 'package:aves/model/db/db.dart';
 import 'package:aves/model/entry/origins.dart';
@@ -105,10 +108,47 @@ class Nuke {
     try {
       final dir = Directory(dirPath);
       if (await dir.exists()) {
+        await for (final entity in dir.list(recursive: true, followLinks: false)) {
+          if (entity is File) await _shred(entity);
+        }
         await dir.delete(recursive: true);
       }
     } catch (error, stack) {
       debugPrint('Failed to delete vault directory error=$error\n$stack');
+    }
+    await _trimIfRoot();
+  }
+
+  // overwrites the content with random data before the file is deleted, so that it is not left as is in the freed blocks
+  static Future<void> _shred(File file) async {
+    try {
+      final length = await file.length();
+      if (length == 0) return;
+      final random = Random.secure();
+      final raf = await file.open(mode: FileMode.writeOnly);
+      try {
+        const chunk = 64 * 1024;
+        var written = 0;
+        while (written < length) {
+          final n = min(chunk, length - written);
+          await raf.writeFrom(List<int>.generate(n, (_) => random.nextInt(256)));
+          written += n;
+        }
+        await raf.flush();
+      } finally {
+        await raf.close();
+      }
+    } catch (error) {
+      debugPrint('Failed to overwrite file error=$error');
+    }
+  }
+
+  // Black Hole (root mode): discards the freed blocks of the data partition
+  static Future<void> _trimIfRoot() async {
+    try {
+      if (await FailsafeConfig.rootMode) await securityService.rootTrim();
+    } catch (error) {
+      debugPrint('Failed to trim error=$error');
     }
   }
 
@@ -116,6 +156,7 @@ class Nuke {
     try {
       final file = File(path);
       if (await file.exists()) {
+        await _shred(file);
         await file.delete();
       }
     } catch (error) {
