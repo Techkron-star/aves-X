@@ -315,6 +315,8 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
   Future<void> _share(BuildContext context) async {
     final entries = _getTargetItems(context);
     if (!_checkSharingAllowed(context, entries)) return;
+    if (!await itemLocks.authorizeExit(context, entries)) return;
+    if (!context.mounted) return;
 
     try {
       if (!await appService.shareEntries(entries)) {

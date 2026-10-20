@@ -252,8 +252,11 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
       case .move:
         _move(context, targetEntry, moveType: MoveType.move);
       case .share:
-        appService.shareEntries({targetEntry}).then((success) {
-          if (!success) showNoMatchingAppDialog(context);
+        itemLocks.authorizeExit(context, {targetEntry}).then((allowed) {
+          if (!allowed || !context.mounted) return;
+          appService.shareEntries({targetEntry}).then((success) {
+            if (!success && context.mounted) showNoMatchingAppDialog(context);
+          });
         });
       case .toggleFavourite:
         targetEntry.toggleFavourite();

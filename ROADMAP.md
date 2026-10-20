@@ -99,7 +99,7 @@ Leyenda: ✅ hecho (compila; se prueba en el teléfono) · 🔧 en curso o parci
 Las apps de seguridad suelen impedir que otros entren a tus fotos; Gargantua evita que tus archivos **salgan** sin permiso. Nombre del agujero negro de Interstellar: lo que entra en una zona protegida de Aves-X no sale a menos que el dueño lo ordene. Estética cósmica.
 - ⬜ Interceptar "Compartir" antes de que aparezca el menú de Android (WhatsApp, Telegram, correo…).
 - ⬜ Aduanas de archivos: reglas para bloquear la exportación de carpetas o fotos.
-- ⬜ Autenticación de salida: compartir un archivo protegido pide PIN o Master Code.
+- 🔧 Autenticación de salida: compartir una foto o álbum bloqueado pide la credencial de bloqueos (hecho); falta Master Code por regla y otras salidas (abrir con, copiar, etc.)
 - ⬜ Vaults y bloqueados bajo Gargantua por defecto.
 - ⬜ Con root, capacidades potenciadas (alcance aún por definir).
 

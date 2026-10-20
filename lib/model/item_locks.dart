@@ -139,6 +139,12 @@ class ItemLocks extends ChangeNotifier {
     return true;
   }
 
+  // Gargantua: a locked photo does not leave the app (share) without authenticating again, even if it is currently open
+  Future<bool> authorizeExit(BuildContext context, Iterable<AvesEntry> entries) async {
+    if (!privacyOptions.itemLocks || !entries.any(isEntryMarked)) return true;
+    return SecretLock.items.authenticate(context);
+  }
+
   Future<bool> unlockAlbum(BuildContext context, String dirPath) async {
     if (!isAlbumLocked(dirPath)) return true;
     if (!await SecretLock.items.authenticate(context)) return false;
