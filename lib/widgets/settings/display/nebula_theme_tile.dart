@@ -30,34 +30,38 @@ class SettingsTileDisplayNebulaTheme extends SettingsTile {
         builder: (context, theme, _) {
           final l10n = context.l10n;
           return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  dense: true,
-                  title: Text(title(context) ?? ''),
-                  subtitle: Text(l10n.settingsNebulaThemeSubtitle),
-                  trailing: Text(
-                    _themeName(context, theme),
-                    style: const TextStyle(fontWeight: FontWeight.w700),
+            physics: const ClampingScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 600),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    dense: true,
+                    title: Text(title(context) ?? ''),
+                    subtitle: Text(l10n.settingsNebulaThemeSubtitle),
+                    trailing: Text(
+                      _themeName(context, theme),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: NebulaTheme.values.map((t) {
-                    final enabled = t.isPhase1;
-                    return _NebulaThemePill(
-                      theme: t,
-                      selected: theme == t,
-                      enabled: enabled,
-                      onSelected: enabled ? () => settings.nebulaTheme = t : null,
-                    );
-                  }).toList(),
-                ),
-              ],
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: NebulaTheme.values.map((t) {
+                      final enabled = t.isPhase1;
+                      return _NebulaThemePill(
+                        theme: t,
+                        selected: theme == t,
+                        enabled: enabled,
+                        onSelected: enabled ? () => settings.nebulaTheme = t : null,
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
             ),
           );
         },
