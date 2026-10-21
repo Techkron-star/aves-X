@@ -1,0 +1,46 @@
+﻿feat: Nebula Engine v1 — Nosferatu Glass + 4 temas + ItemLock + Logo M3
+
+=== Renombrado a nombres propios ===
+- Bat-Glass -> Nosferatu Glass (tema principal, paridad exacta)
+- Bat-Lens -> Nav Lens
+- Bat-Curity -> Master Guard
+- Bat-Mark -> App Mark
+- bat_curity.dart -> master_guard.dart (claves de storage intactas)
+
+=== Nebula Engine - Fase 1 completa ===
+- 4 temas nuevos con paletas completas + tokens Fail-Safe:
+  - Obsidian Glass (Night Demon) - sangre/obsidiana, phase 1
+  - Aureate Glass (Godly) - dorado/hoja de oro, phase 1
+  - Forge Glass (Cosmic Forge) - nebular/naranja, phase 2
+  - Hermetic Glass (Hermetisc) - alquímico/esmeralda, phase 2
+- Tratamientos de superficie: nosferatuGlass, obsidianGlass, aureateGlass, forgeGlass, hermeticGlass
+- Selector de tema en Ajustes -> Pantalla (pills por fase, stickers new/experimental)
+- Tokens Fail-Safe por tema (securityBubble*, securityInputField*, securityScrimOverlay, etc.)
+- Tests de paridad/contraste/interpolacion en test/theme/
+
+=== Item Lock Screen + desbloqueo ===
+- ItemLockScreen bonita con tokens Nebula + animacion de desbloqueo
+- LockedBadge.playUnlockAnimation() + _UnlockingThumbnail en thumbnail
+- _ensureEnabled navega a AppLockPage tras aceptar
+- Tokens Fail-Safe en FailsafeBuddy/Lockdown/AppLockGate
+
+=== Logo Material You / Material 3 Expressive ===
+- Icono adaptativo: foreground vectorial + monochrome (Android 13+ themed icon)
+- Splash nativo clair/oscur (launch_background.xml + values-night)
+- AppLogo widget Flutter con 5 variantes M3 (primary/secondary/tonal/outline/monochrome)
+- Splash nativo coherente con Dynamic Color
+
+=== Docs / l10n ===
+- README, ROADMAP, CHANGELOG, AGENTS.md actualizados a nombres propios
+- l10n EN/ES: Nosferatu Glass, Nav Lens, Master Guard, App Mark, 4 temas nuevos
+- Claves tecnicas intactas; solo valores actualizados
+
+=== Tests ===
+- nebula_palette_test.dart: paridad, contraste WCAG, darkOnly, phase, interpolacion, tokens FS
+
+=== Migracion segura ===
+- master_guard.dart: claves de storage 'batcurity_hash', 'batcurity_vault_enc', 'a2id' conservadas
+- zero cambios a logica de seguridad/vaults/locks
+
+=== Release ===
+v0.5.0

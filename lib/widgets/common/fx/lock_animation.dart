@@ -8,7 +8,7 @@ import 'package:material_ui/material_ui.dart';
 // Badge shown over locked thumbnails, in place of a plain padlock icon.
 // When the item was just locked (`fresh`), it plays a short animation over the thumbnail:
 // two chains crossing in an X, then the padlock falling on the crossing.
-// With "Bat-Glass": ruby chains and a translucent bat with a keyhole, with a shimmering light inside.
+// With "Nosferatu Glass": ruby chains and a translucent bat with a keyhole, with a shimmering light inside.
 // Call `playUnlockAnimation()` to play the unlock animation when the item is unlocked.
 class LockedBadge extends StatefulWidget {
   final bool fresh;
@@ -18,41 +18,6 @@ class LockedBadge extends StatefulWidget {
   @override
   State<LockedBadge> createState() => _LockedBadgeState();
 }
-
-class _LockedBadgeState extends State<LockedBadge> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1100));
-  late final AnimationController _unlockController = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
-  bool get _playing => widget.fresh && settings.animate && !settings.performanceMode;
-  bool _unlocking = false;
-
-  @override
-  void initState() {
-    super.initState();
-    if (_playing) {
-      _controller.forward();
-      // the "impact" of the padlock on the chains
-      Future.delayed(const Duration(milliseconds: 600), () => HapticFeedback.heavyImpact());
-    } else {
-      _controller.value = 1;
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _unlockController.dispose();
-    super.dispose();
-  }
-
-  void playUnlockAnimation() {
-    if (_unlocking) return;
-    _unlocking = true;
-    _unlockController.forward(from: 0).then((_) {
-      if (mounted) {
-        setState(() => _unlocking = false);
-      }
-    });
-  }
 
 class _LockedBadgeState extends State<LockedBadge> with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1100));
@@ -227,7 +192,9 @@ class _ChainsPainter extends CustomPainter {
 }
 
 class _PadlockPainter extends CustomPainter {
-  final bool bat, open, keyhole;
+  final bool bat;
+  final bool open;
+  final bool keyhole;
   final double openProgress;
 
   const _PadlockPainter({required this.bat, required this.open, this.keyhole = true, this.openProgress = 0.0});

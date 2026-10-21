@@ -2,6 +2,7 @@ import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
 import 'package:aves/widgets/common/basic/feature_sticker.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
+import 'package:aves_model/aves_model.dart';
 import 'package:aves/widgets/settings/settings_definition.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
@@ -99,7 +100,7 @@ class _NebulaThemePill extends StatelessWidget {
               ),
             ),
             child: Row(
-              mainSize: MainAxisSize.min,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 FeatureSticker(kind: kind),
                 const SizedBox(width: 8),

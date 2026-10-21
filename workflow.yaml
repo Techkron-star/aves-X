@@ -1,0 +1,134 @@
+name: "Aves-X Release Pipeline"
+version: "0.5.0"
+description: "Complete Aves-X build, test, and release pipeline"
+working_dir: "."
+max_parallel: 2
+default_timeout: 300.0
+on_failure: "stop"
+global_env:
+  FLUTTER_ENV: "production"
+  JAVA_HOME: "/usr/lib/jvm/java-17-openjdk"
+  ANDROID_HOME: "/opt/android-sdk"
+
+tasks:
+  - id: pre_check
+    name: "Pre-flight Checks"
+    description: "Verify environment and dependencies"
+    command: "flutter doctor -v && git status"
+    priority: "CRITICAL"
+    tags: ["ci", "pre-check"]
+
+  - id: gen_l10n
+    name: "Generate Localizations"
+    description: "Generate l10n files from ARB"
+    command: "flutter gen-l10n"
+    depends_on: ["pre_check"]
+    tags: ["ci", "l10n"]
+
+  - id: analyze
+    name: "Static Analysis"
+    description: "Run flutter analyze with strict rules"
+    command: "flutter analyze --no-fatal-infos"
+    depends_on: ["gen_l10n"]
+    tags: ["ci", "static-analysis"]
+
+  - id: test
+    name: "Run Tests"
+    description: "Run unit and widget tests with coverage"
+    command: "flutter test --coverage --reporter=expanded"
+    depends_on: ["analyze"]
+    timeout: 600.0
+    tags: ["ci", "test"]
+
+  - id: build_apk
+    name: "Build Release APKs"
+    description: "Build release APKs via GitHub Actions workflow"
+    script: |
+      echo "Triggering GitHub Actions build..."
+      gh workflow run "Build Aves-X libre APK" -f ref=develop
+      echo "Build triggered. Monitor at: https://github.com/Techkron-star/aves-X/actions"
+    depends_on: ["test"]
+    timeout: 1800.0
+    max_retries: 3
+    retry_delay: 30.0
+    tags: ["ci", "build", "release"]
+
+  - id: wait_build
+    name: "Wait for Build Completion"
+    description: "Poll GitHub Actions for build completion"
+    script: |
+      echo "Waiting for build to complete..."
+      # This would be implemented with gh api polling
+      # For now, manual intervention expected
+      echo "Please monitor GitHub Actions manually"
+      read -p "Press Enter when build is complete..."
+    depends_on: ["build_apk"]
+    timeout: 3600.0
+    tags: ["ci", "build", "manual"]
+
+  - id: verify_artifact
+    name: "Verify Artifacts"
+    description: "Verify APK artifacts exist and are valid"
+    command: |
+      echo "Checking for artifacts..."
+      ARTIFACT_DIR="build/app/outputs/flutter-apk"
+      if [ -d "$ARTIFACT_DIR" ]; then
+        ls -la "$ARTIFACT_DIR"/*.apk
+        for apk in "$ARTIFACT_DIR"/*.apk; do
+          echo "Verifying: $(basename $apk)"
+          unzip -l "$apk" | head -20
+        done
+      else
+        echo "ERROR: Artifact directory not found"
+        exit 1
+      fi
+    depends_on: ["wait_build"]
+    tags: ["ci", "verify"]
+
+  - id: tag_release
+    name: "Tag Release"
+    description: "Create git tag for release"
+    script: |
+      VERSION=$(grep 'version:' pubspec.yaml | awk '{print $2}' | tr -d '+')
+      echo "Creating tag v$VERSION..."
+      git tag -a "v$VERSION" -m "Release v$VERSION"
+      git push origin "v$VERSION"
+    depends_on: ["verify_artifact"]
+    tags: ["release", "git"]
+
+  - id: github_release
+    name: "Create GitHub Release"
+    description: "Create GitHub release with APKs and changelog"
+    script: |
+      VERSION=$(grep 'version:' pubspec.yaml | awk '{print $2}' | tr -d '+')
+      echo "Creating GitHub release v$VERSION..."
+      gh release create "v$VERSION" build/app/outputs/flutter-apk/*.apk \
+        --title "Aves-X v$VERSION" \
+        --notes-file CHANGELOG.md \
+        --latest
+    depends_on: ["tag_release"]
+    tags: ["release", "github"]
+
+  - id: notify
+    name: "Notify Completion"
+    description: "Send notification on completion"
+    script: |
+      echo "=========================================="
+      echo "🎉 Release pipeline completed successfully!"
+      echo "Version: $(grep 'version:' pubspec.yaml | awk '{print $2}' | tr -d '+')"
+      echo "Commit: $(git rev-parse --short HEAD)"
+      echo "Branch: $(git branch --show-current)"
+      echo "Time: $(date)"
+      echo "=========================================="
+    depends_on: ["github_release"]
+    tags: ["notify"]
+
+# Default workflow settings
+global_env:
+  FLUTTER_CHANNEL: "stable"
+  PUB_CACHE: "/tmp/pub-cache"
+  GRADLE_OPTS: "-Xmx4g"
+
+on_failure: "stop"
+max_parallel: 2
+default_timeout: 300.0
