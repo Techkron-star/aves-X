@@ -8,6 +8,7 @@ import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/dialogs/danger_confirmation.dart';
 import 'package:aves/widgets/settings/common/tile_leading.dart';
 import 'package:aves/widgets/settings/privacy/privacy.dart';
+import 'package:aves/widgets/settings/privacy/gargantua_page.dart';
 import 'package:aves/widgets/settings/settings_definition.dart';
 import 'package:flutter/widgets.dart';
 import 'package:material_ui/material_ui.dart';
@@ -40,6 +41,7 @@ class SecuritySection extends SettingsSection {
     // a sub menu inside the section (opens its own page), unlike the switches above that work right in the section
     SettingsTilePrivacyAppLock(),
     SettingsTilePrivacyGroup(PrivacyGroup.destruction),
+    SettingsTileGargantua(),
   ];
 
   // also used by the offer shown after the creation of the Master Code

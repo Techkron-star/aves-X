@@ -1,5 +1,6 @@
 import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/model/item_locks.dart';
+import 'package:aves/model/security/gargantua.dart';
 import 'package:aves/model/security/privacy_options.dart';
 import 'package:aves/widgets/dialogs/danger_confirmation.dart';
 import 'dart:async';
@@ -315,7 +316,7 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
   Future<void> _share(BuildContext context) async {
     final entries = _getTargetItems(context);
     if (!_checkSharingAllowed(context, entries)) return;
-    if (!await itemLocks.authorizeExit(context, entries)) return;
+    if (!await gargantua.authorizeExit(context, entries, GargantuaCategory.share)) return;
     if (!context.mounted) return;
 
     try {
@@ -991,7 +992,13 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
 
   Future<void> _pickMultipleMedia(BuildContext context) async {
     final selection = context.read<Selection<AvesEntry>>();
-    final uris = selection.selectedItems.map((entry) => entry.uri).toList();
+    // expand stacks, so the guard sees exactly the same entries that are handed off
+    final entries = selection.selectedItems.expand((entry) => entry.stackedEntries ?? {entry}).toSet();
+    // Gargantua: handing the selection to another app is an exit
+    if (!await gargantua.authorizeExit(context, entries, GargantuaCategory.share)) return;
+    if (!context.mounted) return;
+
+    final uris = entries.map((entry) => entry.uri).toList();
     try {
       await IntentService.submitPickedItems(uris);
     } on TooManyItemsException catch (_) {

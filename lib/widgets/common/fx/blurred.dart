@@ -22,9 +22,9 @@ const _frostEdgeColor = Color(0x55FFFFFF);
 ImageFilterConfig _configFor(bool bat, bool frost) => bat ? _crystalConfig : (frost ? _frostConfig : _blurConfig);
 Gradient _gradientFor(bool bat, bool frost) => bat ? _rubyHighlight : (frost ? _frostHighlight : _glassHighlight);
 Color _edgeFor(bool bat, bool frost) => bat ? _rubyEdgeColor : (frost ? _frostEdgeColor : _glassEdgeColor);
-// do not use `ColorFilter.matrix` for identity,
-// as it yields performance issues when there are other layers on top
-final _identity = ImageFilter.matrix(Matrix4.identity().storage);
+// when the effect is disabled, no `BackdropFilter` is installed at all: an identity filter
+// (or `ColorFilter.matrix`) would still force a backdrop layer and a per-frame sample
+// without changing a single pixel.
 
 // subtle light reflection and edge highlight painted over the blurred content
 const _glassHighlight = LinearGradient(
@@ -53,11 +53,11 @@ class BlurredRect extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!enabled) return ClipRect(child: child);
     return ClipRect(
       child: BackdropFilter.grouped(
-        // do not modify tree when disabling filter
-        filter: enabled ? null : _identity,
-        filterConfig: enabled ? _blurConfig : null,
+        filter: null,
+        filterConfig: _blurConfig,
         child: child,
       ),
     );
@@ -92,24 +92,25 @@ class BlurredRRect extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final radius = borderRadius ?? BorderRadius.zero;
+    // disabling the effect must not install a backdrop layer, as the identity filter is a no-op that still costs a sample per frame
+    if (!enabled) return ClipRRect(borderRadius: radius, child: child);
+    final bat = context.select<Settings, bool>((v) => v.batGlass);
+    final frost = context.select<Settings, bool>((v) => v.glassEverywhere);
     return ClipRRect(
-      borderRadius: borderRadius ?? BorderRadius.zero,
+      borderRadius: radius,
       child: BackdropFilter.grouped(
-        // do not modify tree when disabling filter
-        filter: enabled ? null : _identity,
-        filterConfig: enabled ? _configFor(context.select<Settings, bool>((v) => v.batGlass), context.select<Settings, bool>((v) => v.glassEverywhere)) : null,
+        filter: null,
+        filterConfig: _configFor(bat, frost),
         child: DecoratedBox(
-          // the decoration is always present so that the tree does not change when toggling the effect
           position: DecorationPosition.foreground,
-          decoration: enabled
-              ? BoxDecoration(
-                  borderRadius: borderRadius,
-                  gradient: _gradientFor(context.select<Settings, bool>((v) => v.batGlass), context.select<Settings, bool>((v) => v.glassEverywhere)),
-                  border: Border.all(color: _edgeFor(context.select<Settings, bool>((v) => v.batGlass), context.select<Settings, bool>((v) => v.glassEverywhere)), width: .8),
-                )
-              : const BoxDecoration(),
+          decoration: BoxDecoration(
+            borderRadius: borderRadius,
+            gradient: _gradientFor(bat, frost),
+            border: Border.all(color: _edgeFor(bat, frost), width: .8),
+          ),
           // Bat-Glass: the surface itself becomes a see-through ruby crystal
-          child: enabled && context.select<Settings, bool>((v) => v.batGlass) ? DecoratedBox(decoration: const DiamondDecoration(opacity: .34), child: child) : child,
+          child: bat ? DecoratedBox(decoration: const DiamondDecoration(opacity: .34), child: child) : child,
         ),
       ),
     );
@@ -128,23 +129,23 @@ class BlurredOval extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // disabling the effect must not install a backdrop layer, as the identity filter is a no-op that still costs a sample per frame
+    if (!enabled) return ClipOval(child: child);
+    final bat = context.select<Settings, bool>((v) => v.batGlass);
+    final frost = context.select<Settings, bool>((v) => v.glassEverywhere);
     return ClipOval(
       child: BackdropFilter.grouped(
-        // do not modify tree when disabling filter
-        filter: enabled ? null : _identity,
-        filterConfig: enabled ? _configFor(context.select<Settings, bool>((v) => v.batGlass), context.select<Settings, bool>((v) => v.glassEverywhere)) : null,
+        filter: null,
+        filterConfig: _configFor(bat, frost),
         child: DecoratedBox(
-          // the decoration is always present so that the tree does not change when toggling the effect
           position: DecorationPosition.foreground,
-          decoration: enabled
-              ? BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: _gradientFor(context.select<Settings, bool>((v) => v.batGlass), context.select<Settings, bool>((v) => v.glassEverywhere)),
-                  border: Border.fromBorderSide(BorderSide(color: _edgeFor(context.select<Settings, bool>((v) => v.batGlass), context.select<Settings, bool>((v) => v.glassEverywhere)), width: .8)),
-                )
-              : const BoxDecoration(),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: _gradientFor(bat, frost),
+            border: Border.fromBorderSide(BorderSide(color: _edgeFor(bat, frost), width: .8)),
+          ),
           // Bat-Glass: the surface itself becomes a see-through ruby crystal
-          child: enabled && context.select<Settings, bool>((v) => v.batGlass) ? DecoratedBox(decoration: const DiamondDecoration(opacity: .34), child: child) : child,
+          child: bat ? DecoratedBox(decoration: const DiamondDecoration(opacity: .34), child: child) : child,
         ),
       ),
     );

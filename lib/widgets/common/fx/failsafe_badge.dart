@@ -3,13 +3,14 @@ import 'dart:math' as math;
 
 import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/model/settings/settings.dart';
+import 'package:aves/theme/nebula/nebula_tokens.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/fx/lock_animation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 
-const _ok = Color(0xFF3DDC84);
+// only the safe-mode banner still uses a fixed alert red (tokenized in the lockdown phase)
 const _alert = Color(0xFFFF3B3B);
 
 // "Failsafe: online" indicator with a radar pulse. Tap to see the diagnosis.
@@ -26,15 +27,39 @@ class FailsafeBadge extends StatefulWidget {
 
 class _FailsafeBadgeState extends State<FailsafeBadge> with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 2600));
+  // irrelevant when the pulse is disabled: the radar stays still
+  bool _animating = false;
 
   @override
   void initState() {
     super.initState();
-    if (!settings.performanceMode) _controller.repeat();
+    _syncAnimation();
+    // accessibility change ('animate') or performance mode can be toggled while the badge is alive
+    settings.addListener(_onSettingsChanged);
+  }
+
+  void _onSettingsChanged() {
+    if (settings.animate == _animating) return;
+    // settings can notify during a build: start/stop the ticker after the frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _syncAnimation();
+    });
+  }
+
+  void _syncAnimation() {
+    // settings.animate already includes !performanceMode
+    _animating = settings.animate;
+    if (_animating) {
+      if (!_controller.isAnimating) _controller.repeat();
+    } else {
+      _controller.stop();
+      _controller.value = 0;
+    }
   }
 
   @override
   void dispose() {
+    settings.removeListener(_onSettingsChanged);
     _controller.dispose();
     super.dispose();
   }
@@ -45,7 +70,8 @@ class _FailsafeBadgeState extends State<FailsafeBadge> with SingleTickerProvider
       valueListenable: failsafe.safeMode,
       builder: (context, safeMode, _) {
         final safe = safeMode || widget.forceAlert;
-        final color = safe ? _alert : _ok;
+        final nebula = Theme.of(context).nebula;
+        final color = safe ? nebula.securityAlert : nebula.securityOk;
         return InkWell(
           onTap: (widget.forceAlert || !widget.interactive) ? null : () => showFailsafeReport(context),
           child: Padding(
@@ -58,11 +84,14 @@ class _FailsafeBadgeState extends State<FailsafeBadge> with SingleTickerProvider
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      AnimatedBuilder(
-                        animation: _controller,
-                        builder: (context, _) => CustomPaint(
-                          size: const Size.square(36),
-                          painter: _RadarPainter(_controller.value, color, safe),
+                      // the pulse repaints a few dozen pixels, keep it away from the tile/parent
+                      RepaintBoundary(
+                        child: AnimatedBuilder(
+                          animation: _controller,
+                          builder: (context, _) => CustomPaint(
+                            size: const Size.square(36),
+                            painter: _RadarPainter(_controller.value, color, safe),
+                          ),
                         ),
                       ),
                       const BatMark(size: 16),

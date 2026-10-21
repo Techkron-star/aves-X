@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/entry/extensions/keys.dart';
+import 'package:aves/model/security/gargantua.dart';
 import 'package:aves/ref/mime_types.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/theme/durations.dart';
@@ -63,6 +64,10 @@ class EmbeddedDataOpener extends StatelessWidget with FeedbackMixin {
     }
 
     if (!MimeTypes.isImage(mimeType) && !MimeTypes.isVideo(mimeType)) {
+      // Gargantua: this embedded part is about to leave the app (opened with another app, or shared as a fallback)
+      if (!await gargantua.authorizeExit(context, {entry}, GargantuaCategory.share)) return;
+      if (!context.mounted) return;
+
       // open with another app
       unawaited(
         appService.open(uri, mimeType, forceChooser: true).then((success) {

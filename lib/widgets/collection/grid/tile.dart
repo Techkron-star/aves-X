@@ -1,5 +1,6 @@
 import 'package:aves/app_mode.dart';
 import 'package:aves/model/entry/entry.dart';
+import 'package:aves/model/security/gargantua.dart';
 import 'package:aves/model/selection.dart';
 import 'package:aves/model/source/collection_lens.dart';
 import 'package:aves/services/intent_service.dart';
@@ -36,7 +37,7 @@ class const InteractiveTile({
               OpenViewerNotification(entry).dispatch(context);
             }
           case .pickSingleMediaExternal:
-            IntentService.submitPickedItems([entry.uri]);
+            _pickSingle(context, entry);
           case .pickMultipleMediaExternal:
             final selection = context.read<Selection<AvesEntry>>();
             selection.toggleSelection(entry);
@@ -60,6 +61,13 @@ class const InteractiveTile({
         ),
       ),
     );
+  }
+
+  // Gargantua: handing the item to another app is an exit
+  static Future<void> _pickSingle(BuildContext context, AvesEntry entry) async {
+    if (!await gargantua.authorizeExit(context, {entry}, GargantuaCategory.share)) return;
+    if (!context.mounted) return;
+    await IntentService.submitPickedItems([entry.uri]);
   }
 }
 

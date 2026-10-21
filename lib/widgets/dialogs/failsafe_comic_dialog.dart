@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:aves/model/security/failsafe_voice.dart';
+import 'package:aves/theme/nebula/nebula_tokens.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/fx/lock_animation.dart';
 import 'package:material_ui/material_ui.dart';
@@ -19,9 +20,6 @@ class FailsafeComicDialog extends StatefulWidget {
 }
 
 class _FailsafeComicDialogState extends State<FailsafeComicDialog> {
-  static const _ink = Color(0xFF14121A);
-  static const _paper = Color(0xFFFFFBF0);
-
   @override
   void initState() {
     super.initState();
@@ -39,6 +37,7 @@ class _FailsafeComicDialogState extends State<FailsafeComicDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final t = theme.nebula;
     final maxHeight = MediaQuery.sizeOf(context).height * .5;
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -56,13 +55,23 @@ class _FailsafeComicDialogState extends State<FailsafeComicDialog> {
                 height: 48,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.black87,
-                  border: Border.all(color: const Color(0xFFFF5A6E), width: 2),
+                  color: t.securityScrim,
+                  border: Border.all(color: t.securityAccent, width: 2),
                 ),
                 child: const Center(child: BatMark(size: 24)),
               ),
               const SizedBox(width: 10),
-              const Text('Fail-Safe', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, letterSpacing: .5)),
+              // name plate: `securityOnSurface` is the readable ink on `securitySurface`, which is not the
+              // barrier colour behind the transparent dialog, so the name needs its own surface
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: t.securitySurface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: t.securityBubbleBorder.withValues(alpha: .5)),
+                ),
+                child: Text('Fail-Safe', style: TextStyle(color: t.securityOnSurface, fontWeight: FontWeight.w800, letterSpacing: .5)),
+              ),
             ],
           ),
           const SizedBox(height: 18),
@@ -74,11 +83,15 @@ class _FailsafeComicDialogState extends State<FailsafeComicDialog> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
                   decoration: BoxDecoration(
-                    color: _paper,
+                    color: t.securityBubbleSurface,
                     borderRadius: BorderRadius.circular(22),
-                    border: Border.all(color: _ink, width: 3),
-                    // hard comic-style shadow
-                    boxShadow: const [BoxShadow(color: _ink, offset: Offset(5, 5))],
+                    border: Border.all(color: t.securityBubbleBorder, width: 3),
+                    boxShadow: [
+                      // soft glow for depth, under the hard comic shadow
+                      BoxShadow(color: t.securityBubbleGlow, blurRadius: 13, spreadRadius: 1),
+                      // hard comic-style shadow
+                      BoxShadow(color: t.securityBubbleShadow, offset: const Offset(5, 5)),
+                    ],
                   ),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(maxHeight: maxHeight),
@@ -89,11 +102,11 @@ class _FailsafeComicDialogState extends State<FailsafeComicDialog> {
                         children: [
                           Text(
                             widget.message,
-                            style: const TextStyle(color: _ink, fontSize: 15, fontWeight: FontWeight.w600, height: 1.3),
+                            style: TextStyle(color: t.securityBubbleInk, fontSize: 15, fontWeight: FontWeight.w600, height: 1.3),
                           ),
                           if (_voiceError != null) ...[
                             const SizedBox(height: 8),
-                            Text(_voiceError!, style: const TextStyle(color: Color(0xFFB3122D), fontSize: 11, fontStyle: FontStyle.italic)),
+                            Text(_voiceError!, style: TextStyle(color: t.securityAlert, fontSize: 11, fontStyle: FontStyle.italic)),
                           ],
                         ],
                       ),
@@ -102,10 +115,10 @@ class _FailsafeComicDialogState extends State<FailsafeComicDialog> {
                 ),
               ),
               // tail of the bubble, pointing up to the character
-              const PositionedDirectional(
+              PositionedDirectional(
                 top: -17,
                 start: 20,
-                child: CustomPaint(size: Size(26, 20), painter: _TailPainter(fill: _paper, line: _ink)),
+                child: CustomPaint(size: const Size(26, 20), painter: _TailPainter(fill: t.securityBubbleTail, line: t.securityBubbleBorder)),
               ),
             ],
           ),
@@ -113,12 +126,13 @@ class _FailsafeComicDialogState extends State<FailsafeComicDialog> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: .65),
+              color: t.securitySurface,
               borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: t.securityBubbleBorder.withValues(alpha: .5)),
             ),
             child: Theme(
               data: theme.copyWith(
-                textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(foregroundColor: Colors.white)),
+                textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(foregroundColor: t.securityOnSurface)),
               ),
               child: Wrap(
                 alignment: WrapAlignment.end,

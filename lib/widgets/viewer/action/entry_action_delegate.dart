@@ -1,6 +1,7 @@
 import 'package:aves/model/captions.dart';
 import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/model/item_locks.dart';
+import 'package:aves/model/security/gargantua.dart';
 import 'package:aves/model/security/privacy_options.dart';
 import 'package:aves/widgets/dialogs/danger_confirmation.dart';
 import 'dart:async';
@@ -252,7 +253,7 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
       case .move:
         _move(context, targetEntry, moveType: MoveType.move);
       case .share:
-        itemLocks.authorizeExit(context, {targetEntry}).then((allowed) {
+        gargantua.authorizeExit(context, {targetEntry}, GargantuaCategory.share).then((allowed) {
           if (!allowed || !context.mounted) return;
           appService.shareEntries({targetEntry}).then((success) {
             if (!success && context.mounted) showNoMatchingAppDialog(context);
@@ -397,6 +398,10 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
   }
 
   Future<void> quickShare(BuildContext context, ShareAction action) async {
+    // Gargantua: the guard is asked once, before extracting the part to send out
+    if (!await gargantua.authorizeExit(context, {mainEntry}, GargantuaCategory.share)) return;
+    if (!context.mounted) return;
+
     switch (action) {
       case .imageOnly:
         if (mainEntry.isMotionPhoto) {
@@ -415,9 +420,8 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
     final uri = fields['uri'] as String?;
     final mimeType = fields['mimeType'] as String?;
     if (uri != null && mimeType != null) {
-      await appService.shareSingle(uri, mimeType).then((success) {
-        if (!success) showNoMatchingAppDialog(context);
-      });
+      final success = await appService.shareSingle(uri, mimeType);
+      if (!success && context.mounted) showNoMatchingAppDialog(context);
     }
   }
 

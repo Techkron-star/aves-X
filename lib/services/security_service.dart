@@ -21,6 +21,10 @@ abstract class SecurityService {
 
   Future<T?> readValue<T>(String key);
 
+  // same as `readValue`, but a failure is thrown instead of being reported as "no value":
+  // callers that must fail closed need to tell "unset" from "unreadable"
+  Future<T?> readValueStrict<T>(String key);
+
   Future<SecurityClockInfo?> getClockInfo();
 
   // clears all the data of the app (vaults included) and stops the app, `false` if it failed
@@ -86,6 +90,15 @@ class PlatformSecurityService implements SecurityService {
     } on PlatformException catch (e, stack) {
       await reportService.recordError(e, stack);
     }
+    return null;
+  }
+
+  @override
+  Future<T?> readValueStrict<T>(String key) async {
+    final result = await _platform.invokeMethod('readValue', <String, Object?>{
+      'key': key,
+    });
+    if (result != null) return result as T;
     return null;
   }
 

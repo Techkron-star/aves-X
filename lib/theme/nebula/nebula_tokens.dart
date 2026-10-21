@@ -41,6 +41,8 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
   final Color securityBubbleTail;
   final Color securityBubbleGlow;
   final Color securityBubbleShadow;
+  // readable text on the comic bubble, independent from the main surface contrast
+  final Color securityBubbleInk;
 
   // crystal material (lockdown, badges)
   final Color securityCrystalEdge;
@@ -61,6 +63,7 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
     required this.securityBubbleTail,
     required this.securityBubbleGlow,
     required this.securityBubbleShadow,
+    required this.securityBubbleInk,
     required this.securityCrystalEdge,
     required this.securityCrystalHighlight,
     required this.securityCrystalBody,
@@ -82,6 +85,7 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
     securityBubbleTail: _legacyComicPaper,
     securityBubbleGlow: Color(0x66E0183E),
     securityBubbleShadow: _legacyComicInk,
+    securityBubbleInk: _legacyComicInk,
     securityCrystalEdge: Color(0x80FF3B5C),
     securityCrystalHighlight: Color(0x55E0183E),
     securityCrystalBody: [
@@ -113,6 +117,7 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
     securityBubbleTail: _legacyComicPaper,
     securityBubbleGlow: palette.glow.withValues(alpha: .4),
     securityBubbleShadow: _legacyComicInk,
+    securityBubbleInk: _legacyComicInk,
     securityCrystalEdge: palette.crystalEdge,
     securityCrystalHighlight: palette.crystalHighlight,
     securityCrystalBody: palette.crystalBody,
@@ -136,6 +141,7 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
       securityBubbleTail: surface,
       securityBubbleGlow: colors.primary.withValues(alpha: .35),
       securityBubbleShadow: colors.shadow,
+      securityBubbleInk: colors.onSurface,
       securityCrystalEdge: palette.crystalEdge,
       securityCrystalHighlight: palette.crystalHighlight,
       securityCrystalBody: palette.crystalBody,
@@ -157,6 +163,7 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
     Color? securityBubbleTail,
     Color? securityBubbleGlow,
     Color? securityBubbleShadow,
+    Color? securityBubbleInk,
     Color? securityCrystalEdge,
     Color? securityCrystalHighlight,
     List<Color>? securityCrystalBody,
@@ -175,6 +182,7 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
       securityBubbleTail: securityBubbleTail ?? this.securityBubbleTail,
       securityBubbleGlow: securityBubbleGlow ?? this.securityBubbleGlow,
       securityBubbleShadow: securityBubbleShadow ?? this.securityBubbleShadow,
+      securityBubbleInk: securityBubbleInk ?? this.securityBubbleInk,
       securityCrystalEdge: securityCrystalEdge ?? this.securityCrystalEdge,
       securityCrystalHighlight: securityCrystalHighlight ?? this.securityCrystalHighlight,
       securityCrystalBody: securityCrystalBody ?? this.securityCrystalBody,
@@ -199,6 +207,7 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
       securityBubbleTail: Color.lerp(securityBubbleTail, other.securityBubbleTail, t)!,
       securityBubbleGlow: Color.lerp(securityBubbleGlow, other.securityBubbleGlow, t)!,
       securityBubbleShadow: Color.lerp(securityBubbleShadow, other.securityBubbleShadow, t)!,
+      securityBubbleInk: Color.lerp(securityBubbleInk, other.securityBubbleInk, t)!,
       securityCrystalEdge: Color.lerp(securityCrystalEdge, other.securityCrystalEdge, t)!,
       securityCrystalHighlight: Color.lerp(securityCrystalHighlight, other.securityCrystalHighlight, t)!,
       securityCrystalBody: _lerpColors(securityCrystalBody, other.securityCrystalBody, t),
@@ -221,6 +230,7 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
       other.securityBubbleTail == securityBubbleTail &&
       other.securityBubbleGlow == securityBubbleGlow &&
       other.securityBubbleShadow == securityBubbleShadow &&
+      other.securityBubbleInk == securityBubbleInk &&
       other.securityCrystalEdge == securityCrystalEdge &&
       other.securityCrystalHighlight == securityCrystalHighlight &&
       listEquals(other.securityCrystalBody, securityCrystalBody);
@@ -240,6 +250,7 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
     securityBubbleTail,
     securityBubbleGlow,
     securityBubbleShadow,
+    securityBubbleInk,
     securityCrystalEdge,
     securityCrystalHighlight,
     Object.hashAll(securityCrystalBody),

@@ -17,7 +17,7 @@ class MasterCode {
   static Future<bool> get isSet async => await securityService.readValue<String>(_key) != null;
 
   // creates the code if none exists yet; `true` if a code exists afterwards
-  static Future<bool> ensure(BuildContext context) async {
+  static Future<bool> ensure(BuildContext context, {bool proposeExtraSecurity = true}) async {
     if (await isSet) return true;
     if (!context.mounted) return false;
 
@@ -29,15 +29,15 @@ class MasterCode {
     if (code == null || !await batCurity.store(_key, code)) return false;
 
     // extra security is only offered: the user has to enable it by hand in the Security section
-    if (context.mounted && await showConfirmationDialog(context: context, message: context.l10n.batCurityOfferMessage, ok: context.l10n.batCurityOfferGo) && context.mounted) {
+    if (proposeExtraSecurity && context.mounted && await showConfirmationDialog(context: context, message: context.l10n.batCurityOfferMessage, ok: context.l10n.batCurityOfferGo) && context.mounted) {
       await SecuritySection().open(context);
     }
     return true;
   }
 
   // asks for the code (creating it first if needed); `true` if the user can proceed
-  static Future<bool> require(BuildContext context) async {
-    if (!await isSet) return ensure(context);
+  static Future<bool> require(BuildContext context, {String? message, bool proposeExtraSecurity = true}) async {
+    if (!await isSet) return ensure(context, proposeExtraSecurity: proposeExtraSecurity);
     if (!context.mounted) return false;
 
     final guard = AttemptGuard.master;
@@ -50,7 +50,7 @@ class MasterCode {
 
     final code = await showAvesDialog<String>(
       context: context,
-      builder: (context) => CodeDialog(needConfirmation: false, message: context.l10n.masterCodeEnterMessage),
+      builder: (context) => CodeDialog(needConfirmation: false, message: message ?? context.l10n.masterCodeEnterMessage),
       routeSettings: const RouteSettings(name: CodeDialog.routeName),
     );
     if (code == null) return false;

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'dart:ui' as ui;
 
@@ -216,16 +217,57 @@ class AnimatedCrystal extends StatefulWidget {
 }
 
 class _AnimatedCrystalState extends State<AnimatedCrystal> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(seconds: 7));
+  // the glint is only visible during the first part of the cycle, the rest of the cycle is a static rest
+  static const _cycle = Duration(seconds: 7);
+  static const _glintEnd = .45;
+  static const _rest = Duration(milliseconds: 3850);
+
+  late final AnimationController _controller = AnimationController(vsync: this, duration: _cycle);
+  Timer? _restTimer;
 
   @override
   void initState() {
     super.initState();
-    if (widget.animate) _controller.repeat();
+    _controller.addListener(_onTick);
+    if (widget.animate) _startGlint();
+  }
+
+  void _startGlint() {
+    _restTimer?.cancel();
+    _restTimer = null;
+    _controller.forward(from: 0);
+  }
+
+  void _onTick() {
+    if (_controller.value < _glintEnd) return;
+    // the glint is over: pause instead of rebuilding the static crystal for the rest of the cycle
+    _controller.stop(canceled: false);
+    // resume at the same point of the 7s cycle, so the total period is unchanged
+    _restTimer?.cancel();
+    _restTimer = Timer(_rest, () {
+      _restTimer = null;
+      if (mounted) _startGlint();
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant AnimatedCrystal oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.animate == oldWidget.animate) return;
+    if (widget.animate) {
+      _startGlint();
+    } else {
+      _restTimer?.cancel();
+      _restTimer = null;
+      _controller.stop();
+      _controller.value = 0;
+    }
   }
 
   @override
   void dispose() {
+    _restTimer?.cancel();
+    _controller.removeListener(_onTick);
     _controller.dispose();
     super.dispose();
   }
@@ -242,7 +284,7 @@ class _AnimatedCrystalState extends State<AnimatedCrystal> with SingleTickerProv
               animation: _controller,
               // the glint crosses during the first part of the cycle, then the stone rests
               builder: (context, _) => DecoratedBox(
-                decoration: DiamondDecoration(glint: _controller.value < .45 ? _controller.value / .45 : -1, opacity: widget.opacity),
+                decoration: DiamondDecoration(glint: _controller.value < _glintEnd ? _controller.value / _glintEnd : -1, opacity: widget.opacity),
               ),
             ),
           ),
