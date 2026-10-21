@@ -34,8 +34,8 @@ class AvesLogo extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final tokens = theme.nebula;
-    final palette = nebulaPaletteFor(settings.effectiveNebulaTheme);
     final settings = context.watch<Settings>();
+    final palette = nebulaPaletteFor(settings.effectiveNebulaTheme);
 
     final monochrome = settings.themeColorMode == AvesThemeColorMode.monochrome;
     final dynamicColor = palette.allowDynamicColor;
