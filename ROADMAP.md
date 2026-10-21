@@ -121,6 +121,18 @@ Las apps de seguridad suelen impedir que otros entren a tus fotos; Gargantua evi
 - 🔧 Detección automática de Android TV: ahora también se considera TV cuando el `uiMode` del sistema es televisión (cajas que no declaran `leanback`). Sin probar; falta revisar errores de estado al cambiar de interfaz.
 - 🔧 Cambio en caliente: el modo tablet automático se recalcula cuando cambian las métricas de la ventana (plegar, pantalla externa, pantalla dividida). Sin probar; falta el cambio en caliente entre interfaz TV y normal.
 
+### Nebula Engine — temas (post-beta)
+
+Idea: que **Nebula Engine** sea el paraguas de personalización visual (Ajustes → **Opciones del Nebula Engine**) y que **Bat-Glass** deje de ser "el" tema para convertirse en uno más, junto a **Night Demon**, **Godly**, **Cosmic Forge** y **Hermetisc** (temática mágica/hermética). No entra en la beta: primero estabilizar Bat-Glass y el rendimiento.
+
+- ⬜ Selector de temas con vista previa (paleta, superficies, iconos, animaciones y, opcionalmente, sonidos).
+- ⬜ Fase 1 (bajo riesgo): temas de paleta y tratamiento de superficie reutilizando la base de Bat-Glass (Night Demon, Godly).
+- ⬜ Fase 2 (más trabajo): efectos propios con shaders/animaciones para Cosmic Forge y Hermetisc.
+- ⬜ Persistencia por tema, respeto al modo rendimiento (sin blur/shaders) y a la accesibilidad (contraste, tamaños).
+- ⬜ Los temas no deben tocar la lógica de seguridad: Fail-Safe, bloqueos y vaults se ven igual con cualquier tema.
+
+**Viabilidad:** alta para el selector y los temas de paleta, porque la app ya construye `ThemeData` desde un `ColorScheme` y ya separa las capas de cristal (Bat-Glass / Glass-Everywhere). Media para los efectos únicos: el coste real es rendimiento (blur y shaders en gama baja) y coherencia visual, no la arquitectura. Recomendación: lanzarlo después de la beta, empezando por 2 temas de paleta y midiendo FPS antes de añadir shaders.
+
 ### Otras ideas
 - ⬜ Estrategias nuevas de ocultación, automatización de metadatos y vaults, opciones avanzadas de almacenamiento.
 
