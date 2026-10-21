@@ -26,6 +26,9 @@ class FailsafeVoice {
     return securityService.playPcm(pcm, _rate);
   }
 
+  // interrupts any clip that is currently playing
+  static Future<void> stop() => securityService.stopPcm();
+
   // whether the voice should have been heard but was not
   static bool isFailure(String status) => status != statusOk && status != statusOff && status != statusEmpty;
 

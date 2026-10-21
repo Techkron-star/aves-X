@@ -399,15 +399,14 @@ class _UnlockingThumbnail extends StatefulWidget {
 }
 
 class _UnlockingThumbnailState extends State<_UnlockingThumbnail> {
-  late final GlobalKey _badgeKey = GlobalKey();
+  final GlobalKey<LockedBadgeState> _badgeKey = GlobalKey<LockedBadgeState>();
 
   @override
   void initState() {
     super.initState();
     // Find the LockedBadge and play unlock animation
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final state = _badgeKey.currentState as _LockedBadgeState?;
-      state?.playUnlockAnimation();
+      _badgeKey.currentState?.playUnlockAnimation();
     });
   }
 
@@ -419,8 +418,7 @@ class _UnlockingThumbnailState extends State<_UnlockingThumbnail> {
         widget.child,
         // Show the LockedBadge with unlock animation on top
         Center(
-          key: _badgeKey,
-          child: LockedBadge(fresh: false),
+          child: LockedBadge(key: _badgeKey, fresh: false),
         ),
       ],
     );

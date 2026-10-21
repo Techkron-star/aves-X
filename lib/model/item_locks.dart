@@ -3,7 +3,6 @@ import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/settings/privacy/app_lock_page.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/material.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/security/privacy_options.dart';

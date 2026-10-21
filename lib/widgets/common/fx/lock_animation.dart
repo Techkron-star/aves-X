@@ -16,10 +16,10 @@ class LockedBadge extends StatefulWidget {
   const LockedBadge({super.key, this.fresh = false});
 
   @override
-  State<LockedBadge> createState() => _LockedBadgeState();
+  State<LockedBadge> createState() => LockedBadgeState();
 }
 
-class _LockedBadgeState extends State<LockedBadge> with SingleTickerProviderStateMixin {
+class LockedBadgeState extends State<LockedBadge> with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1100));
   late final AnimationController _unlockController = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
   bool get _playing => widget.fresh && settings.animate && !settings.performanceMode;
