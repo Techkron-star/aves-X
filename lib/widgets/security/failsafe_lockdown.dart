@@ -126,15 +126,24 @@ class _LockdownScreenState extends State<_LockdownBody> {
       _controller.clear();
       return;
     }
-    final ok = await masterGuard.matches('master_code', code);
+    bool ok = false;
+    try {
+      ok = await masterGuard.matches('master_code', code);
+    } catch (e, stack) {
+      await reportService.recordError(e, stack);
+      // If matching fails unexpectedly, treat as incorrect code but log the error
+      ok = false;
+    }
     _controller.clear();
     if (ok) {
+      // Master Code correct: reset attempt guards and release lockdown
+      // CRITICAL: Never register a failure for the Master Code
       await AttemptGuard.master.reset();
       await AttemptGuard.app.reset();
       await failsafe.releaseLockdown();
       return;
     }
-    // every failure makes the cooldown longer
+    // Incorrect code: register failure normally
     await AttemptGuard.master.registerFailure();
     final fails = await AttemptGuard.master.failures();
     if (mounted) setState(() => _fails = fails);
