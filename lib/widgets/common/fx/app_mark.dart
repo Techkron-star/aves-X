@@ -1,12 +1,15 @@
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
 import 'package:aves/theme/nebula/nebula_tokens.dart';
-import 'package:flutter/foundation.dart';
+import 'package:aves/widgets/common/identity/aves_logo_art.dart';
 import 'package:material_ui/material_ui.dart';
 
-// Translucent bat mark: the "bat" of the former Bat-Glass, drawn without a padlock.
+// Bat mark: the Aves-X artwork of `aves_logo.svg`, drawn without a padlock.
 // Used by the About screen, the Fail-Safe comic bubble and the lockdown screen.
 // The padlock itself is drawn by `_PadlockPainter` in `lock_animation.dart`.
+//
+// The geometry is shared with [AvesLogo] and with the Android launcher icon, so
+// the same drawing appears everywhere; the tone only decides the ink.
 
 /// Color source of the mark.
 enum AppMarkTone {
@@ -14,10 +17,11 @@ enum AppMarkTone {
   /// dynamic Material You colors for every other theme.
   auto,
 
-  /// Fixed crystal identity from the Nebula tokens (ruby by default).
+  /// Original artwork fills, exactly as the source SVG (ruby, black, highlights).
   brand,
 
-  /// Dynamic colors derived from `ColorScheme` (Material You seed).
+  /// Silhouette painted with a gradient derived from `ColorScheme`
+  /// (Material You seed).
   scheme,
 
   /// Single ink color from `IconTheme.of(context).color`, else `onSurface`.
@@ -66,39 +70,34 @@ class AppMark extends StatelessWidget {
     final iconColor = IconTheme.of(context).color;
     final effectiveTone = _effectiveTone;
 
-    final List<Color> gradient;
-    final Color? stroke;
+    final Color? tint;
+    final List<Color>? gradient;
     switch (effectiveTone) {
       case AppMarkTone.brand:
-        // fixed ruby/black identity, exactly the former Bat-Glass mark
-        final body = tokens.securityCrystalBody;
-        gradient = [
-          tokens.securityAccent.withValues(alpha: .70),
-          tokens.securityAccent.withValues(alpha: .60),
-          body.length > 2 ? body[2] : tokens.securityAccent,
-        ];
-        stroke = tokens.securityCrystalEdge;
+        // exact artwork fills, no injected color
+        tint = null;
+        gradient = null;
       case AppMarkTone.scheme:
         // Material You: the seed drives primary/secondary/tertiary
+        tint = null;
         gradient = [
           colors.primary.withValues(alpha: .85),
           colors.secondary.withValues(alpha: .75),
           colors.tertiary,
         ];
-        stroke = colors.primary.withValues(alpha: .55);
       case AppMarkTone.monochrome:
-        gradient = <Color>[iconColor ?? colors.onSurface];
-        stroke = null;
+        tint = iconColor ?? colors.onSurface;
+        gradient = null;
       case AppMarkTone.auto:
         // resolved by `_effectiveTone`, kept for exhaustiveness
-        gradient = <Color>[colors.primary];
-        stroke = null;
+        tint = tokens.securityAccent;
+        gradient = null;
     }
 
     final motion = (animate && settings.animate) ? const Duration(milliseconds: 240) : Duration.zero;
     // the key changes only with the look or the size, so plain rebuilds do not
     // restart the switch animation
-    final look = '${effectiveTone.name}-$size-${Object.hashAll(gradient)}-${stroke?.hashCode}';
+    final look = '${effectiveTone.name}-$size-${Object.hashAll(gradient ?? const <Color>[])}-${tint?.hashCode}';
 
     final Widget mark = SizedBox.square(
       dimension: size,
@@ -120,7 +119,7 @@ class AppMark extends StatelessWidget {
           key: ValueKey(look),
           dimension: size,
           child: CustomPaint(
-            painter: AppMarkPainter(gradient: gradient, strokeColor: stroke),
+            painter: AvesLogoArtPainter(tint: tint, gradient: gradient, fit: .95),
             isComplex: true,
             willChange: false,
           ),
@@ -134,82 +133,4 @@ class AppMark extends StatelessWidget {
       child: Transform.flip(flipX: mirrored, child: mark),
     );
   }
-}
-
-// Bat with a keyhole-free silhouette (static: no open/animate state).
-// Colors are injected so the mark follows the Nebula theme or Material You.
-class AppMarkPainter extends CustomPainter {
-  // former Bat-Glass recipe, kept as the default for call sites that still
-  // draw the mark without a theme
-  static const defaultGradient = <Color>[Color(0xB3FF6A80), Color(0x99C4122F), Color(0xB37A0A1E)];
-  static const defaultStroke = Color(0xCCFFB3BF);
-
-  /// Gradient from the top-left facet to the deepest one. A single color draws
-  /// a flat, monochrome mark.
-  final List<Color> gradient;
-
-  /// Edge color. `null` draws no outline (monochrome tone).
-  final Color? strokeColor;
-
-  final double strokeWidth;
-
-  const AppMarkPainter({
-    this.gradient = defaultGradient,
-    this.strokeColor = defaultStroke,
-    this.strokeWidth = 2,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final s = size.shortestSide / 100;
-    canvas.scale(s);
-    final path = Path()
-      // body and head
-      ..moveTo(50, 22)
-      ..lineTo(43, 8)
-      ..lineTo(41, 26)
-      // left wing
-      ..cubicTo(26, 20, 8, 28, 2, 48)
-      ..quadraticBezierTo(10, 50, 15, 47)
-      ..quadraticBezierTo(21, 62, 29, 56)
-      ..quadraticBezierTo(33, 72, 42, 64)
-      ..lineTo(50, 92)
-      // right wing (mirrored)
-      ..lineTo(58, 64)
-      ..quadraticBezierTo(67, 72, 71, 56)
-      ..quadraticBezierTo(79, 62, 85, 47)
-      ..quadraticBezierTo(90, 50, 98, 48)
-      ..cubicTo(92, 28, 74, 20, 59, 26)
-      ..lineTo(57, 8)
-      ..close();
-
-    final Paint fill;
-    if (gradient.length < 2) {
-      fill = Paint()..color = gradient.isEmpty ? const Color(0x00FF6A80) : gradient.first;
-    } else {
-      fill = Paint()
-        ..shader = LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: gradient,
-        ).createShader(path.getBounds());
-    }
-    canvas.drawPath(path, fill);
-
-    final stroke = strokeColor;
-    if (stroke != null) {
-      canvas.drawPath(
-        path,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = strokeWidth
-          ..strokeJoin = StrokeJoin.round
-          ..color = stroke,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant AppMarkPainter old) =>
-      old.strokeColor != strokeColor || old.strokeWidth != strokeWidth || !listEquals(old.gradient, gradient);
 }

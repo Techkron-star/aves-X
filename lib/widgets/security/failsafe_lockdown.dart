@@ -3,11 +3,13 @@ import 'dart:async';
 import 'package:aves/model/security/failsafe_quips.dart';
 import 'package:aves/model/security/failsafe_voice.dart';
 
+import 'package:aves_report/aves_report.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/nebula/nebula_tokens.dart';
 import 'package:aves/widgets/common/fx/diamond.dart';
 import 'package:aves/model/security/attempt_guard.dart';
 import 'package:aves/model/security/master_guard.dart';
+import 'package:aves/model/security/nuke.dart';
 import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/fx/app_mark.dart';
@@ -74,6 +76,8 @@ class _LockdownScreenState extends State<_LockdownBody> {
   String? _message;
   Timer? _timer;
   int _fails = 0;
+  // a completed code can be reported twice by the field: one entry must never be counted twice
+  bool _checking = false;
 
   @override
   void initState() {
