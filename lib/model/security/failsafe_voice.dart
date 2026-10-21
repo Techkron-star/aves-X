@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:aves/l10n/l10n.dart';
 import 'package:aves/model/security/failsafe_config.dart';
 import 'package:aves/services/common/services.dart';
 
@@ -11,11 +12,31 @@ class FailsafeVoice {
   static const _rate = 16000;
   static const _maxLetters = 60;
 
-  // `force`: plays even if the voice is turned off (test button). Returns whether the clip was handed to the audio system.
-  static Future<bool> say(String text, {bool force = false}) async {
-    if (!force && !await FailsafeConfig.voiceEnabled) return false;
+  static const statusOk = 'ok';
+  static const statusOff = 'off';
+  static const statusEmpty = 'empty';
+
+  // `force`: plays even if the voice is turned off (test button).
+  // Returns `ok`, `off` (the voice is turned off), `empty` (nothing to say) or the reason why the clip was not played.
+  static Future<String> say(String text, {bool force = false}) async {
+    if (!force && !await FailsafeConfig.voiceEnabled) return statusOff;
     final pcm = synthesize(text);
-    return pcm.isNotEmpty && await securityService.playPcm(pcm, _rate);
+    if (pcm.isEmpty) return statusEmpty;
+    return securityService.playPcm(pcm, _rate);
+  }
+
+  // whether the voice should have been heard but was not
+  static bool isFailure(String status) => status != statusOk && status != statusOff && status != statusEmpty;
+
+  // readable message for the user, shown wherever Fail-Safe speaks
+  static String describe(AppLocalizations l10n, String status) {
+    final reason = switch (status) {
+      'muted' => l10n.failsafeVoiceMuted,
+      'init' => l10n.failsafeVoiceInitFailed,
+      'write' => l10n.failsafeVoiceWriteFailed,
+      _ => status,
+    };
+    return '${l10n.failsafeVoiceError} $reason';
   }
 
   static Uint8List synthesize(String text) {

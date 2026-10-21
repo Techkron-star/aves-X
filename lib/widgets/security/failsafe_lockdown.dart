@@ -218,6 +218,7 @@ class FailsafeBuddy extends StatefulWidget {
 class _FailsafeBuddyState extends State<FailsafeBuddy> {
   String? _line;
   int? _lineFails;
+  String? _voiceError;
 
   // picks a new line when the number of failures changes, and says it (when there is something to react to)
   String _currentLine(BuildContext context) {
@@ -227,8 +228,12 @@ class _FailsafeBuddyState extends State<FailsafeBuddy> {
       final line = FailsafeQuips.pick(Localizations.localeOf(context).languageCode, fails);
       _line = line;
       if (fails > 0) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted && _line == line) unawaited(FailsafeVoice.say(line));
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          if (!mounted || _line != line) return;
+          final status = await FailsafeVoice.say(line);
+          if (!mounted || _line != line) return;
+          // these screens have no scaffold for a snack bar, so a failure is shown right under the bubble
+          setState(() => _voiceError = FailsafeVoice.isFailure(status) ? FailsafeVoice.describe(context.l10n, status) : null);
         });
       }
     }
@@ -241,37 +246,55 @@ class _FailsafeBuddyState extends State<FailsafeBuddy> {
     final text = _currentLine(context);
     final alert = fails >= 3;
     final color = alert ? const Color(0xFFFF5A6E) : const Color(0xFF3DDC84);
-    return Row(
+    final voiceError = _voiceError;
+    return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: color, width: 1.5), color: Colors.black54),
-          child: const Center(child: BatMark(size: 22)),
-        ),
-        const SizedBox(width: 10),
-        Flexible(
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 350),
-            child: Container(
-              key: ValueKey('$fails$text'),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: .08),
-                border: Border.all(color: color.withValues(alpha: .6)),
-                borderRadius: const BorderRadiusDirectional.only(
-                  topStart: Radius.circular(16),
-                  topEnd: Radius.circular(16),
-                  bottomEnd: Radius.circular(16),
-                  bottomStart: Radius.circular(3),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: color, width: 1.5), color: Colors.black54),
+              child: const Center(child: BatMark(size: 22)),
+            ),
+            const SizedBox(width: 10),
+            Flexible(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 350),
+                child: Container(
+                  key: ValueKey('$fails$text'),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: .08),
+                    border: Border.all(color: color.withValues(alpha: .6)),
+                    borderRadius: const BorderRadiusDirectional.only(
+                      topStart: Radius.circular(16),
+                      topEnd: Radius.circular(16),
+                      bottomEnd: Radius.circular(16),
+                      bottomStart: Radius.circular(3),
+                    ),
+                  ),
+                  child: Text(text, style: const TextStyle(color: Colors.white, fontSize: 13)),
                 ),
               ),
-              child: Text(text, style: const TextStyle(color: Colors.white, fontSize: 13)),
+            ),
+          ],
+        ),
+        if (voiceError != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.volume_off, size: 14, color: Color(0xFFFFB3BF)),
+                const SizedBox(width: 6),
+                Flexible(child: Text(voiceError, style: const TextStyle(color: Color(0xFFFFB3BF), fontSize: 11, fontStyle: FontStyle.italic))),
+              ],
             ),
           ),
-        ),
       ],
     );
   }

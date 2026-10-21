@@ -45,11 +45,13 @@ class _PopupMenuExpansionPanelState<T> extends State<PopupMenuExpansionPanel<T>>
 
   @override
   Widget build(BuildContext context) {
-    final style = PopupMenuTheme.of(context).labelTextStyle!.resolve(
-      <WidgetState>{
-        if (!widget.enabled) WidgetState.disabled,
-      },
-    )!;
+    final theme = Theme.of(context);
+    final states = <WidgetState>{
+      if (!widget.enabled) WidgetState.disabled,
+    };
+    // never assume the theme defines the label style: a missing value would throw while building,
+    // and a release build then shows a big gray box in place of the panel
+    final style = PopupMenuTheme.of(context).labelTextStyle?.resolve(states) ?? (theme.textTheme.labelLarge ?? const TextStyle()).apply(color: widget.enabled ? theme.colorScheme.onSurface : theme.disabledColor);
     final animationDuration = context.select<DurationsData, Duration>((v) => v.expansionTileAnimation);
 
     // a simple header + collapsible body, instead of `ExpansionPanelList`, which does not size well inside a popup menu

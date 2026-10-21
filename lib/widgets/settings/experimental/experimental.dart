@@ -2,7 +2,6 @@ import 'package:aves/widgets/common/basic/feature_sticker.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/colors.dart';
 import 'package:aves/theme/icons.dart';
-import 'package:aves/widgets/common/basic/scaffold.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/settings/common/tile_leading.dart';
@@ -34,39 +33,64 @@ class ExperimentalSection extends SettingsSection {
     SettingsTileExperimentalGlassEverywhere(),
   ]);
 
+  // expandable like the other sections, but opening it shows a warning first (once per app session)
   @override
   Widget build(BuildContext sectionContext, ValueNotifier<String?> expandedNotifier) {
-    return Builder(
-      builder: (context) => ListTile(
-        key: const Key('section-experimental'),
-        leading: icon(context),
-        title: Text(title(context).toUpperCase(), style: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1)),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: () async {
-          final accepted = await showConfirmationDialog(
-            context: context,
-            message: context.l10n.experimentalWarningMessage,
-            ok: context.l10n.riskWarningContinue,
-          );
-          if (!accepted || !context.mounted) return;
-
-          final items = await tiles(context);
-          if (!context.mounted) return;
-          await Navigator.maybeOf(context)?.push(
-            MaterialPageRoute(
-              settings: const RouteSettings(name: '/settings/experimental'),
-              builder: (context) => AvesScaffold(
-                appBar: AppBar(title: Text(title(context).toUpperCase())),
-                body: SafeArea(
-                  child: ListView(children: items.map((tile) => tile.build(context)).toList()),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
+    return _ExperimentalGate(
+      sectionKey: key,
+      expandedNotifier: expandedNotifier,
+      child: super.build(sectionContext, expandedNotifier),
     );
   }
+}
+
+class _ExperimentalGate extends StatefulWidget {
+  final String sectionKey;
+  final ValueNotifier<String?> expandedNotifier;
+  final Widget child;
+
+  const _ExperimentalGate({required this.sectionKey, required this.expandedNotifier, required this.child});
+
+  @override
+  State<_ExperimentalGate> createState() => _ExperimentalGateState();
+}
+
+class _ExperimentalGateState extends State<_ExperimentalGate> {
+  static bool _accepted = false;
+  bool _asking = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.expandedNotifier.addListener(_onExpandedChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.expandedNotifier.removeListener(_onExpandedChanged);
+    super.dispose();
+  }
+
+  Future<void> _onExpandedChanged() async {
+    if (widget.expandedNotifier.value != widget.sectionKey || _accepted || _asking) return;
+    _asking = true;
+    final accepted = await showConfirmationDialog(
+      context: context,
+      message: context.l10n.experimentalWarningMessage,
+      ok: context.l10n.riskWarningContinue,
+    );
+    _asking = false;
+    if (!mounted) return;
+    if (accepted) {
+      _accepted = true;
+    } else if (widget.expandedNotifier.value == widget.sectionKey) {
+      // declined: collapse the section again
+      widget.expandedNotifier.value = null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
 
 class SettingsTileExperimentalGlassEverywhere extends SettingsTile {

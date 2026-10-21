@@ -29,19 +29,22 @@ class SecuritySection extends SettingsSection {
   @override
   String title(BuildContext context) => context.l10n.settingsSecuritySectionTitle;
 
+  // security options cannot be lowered in safe mode: the tiles are absorbed, but the section can still be opened
   @override
-  Future<List<SettingsTile>> tiles(BuildContext context) => Future.value([
+  Future<List<SettingsTile>> tiles(BuildContext context) => Future.value(_rawTiles().map(SafeModeGuardTile.new).toList());
+
+  List<SettingsTile> _rawTiles() => [
     SettingsTileSecurityHashing(),
     SettingsTileSecurityVaultEncryption(),
     SettingsTileSecurityForceDecrypt(),
-    SettingsTilePrivacyGroup(PrivacyGroup.appLock),
+    // a sub menu inside the section (opens its own page), unlike the switches above that work right in the section
+    SettingsTilePrivacyAppLock(),
     SettingsTilePrivacyGroup(PrivacyGroup.destruction),
-  ]);
+  ];
 
   // also used by the offer shown after the creation of the Master Code
   Future<void> open(BuildContext context) async {
-    final items = await tiles(context);
-    if (!context.mounted) return;
+    final items = _rawTiles();
     await Navigator.maybeOf(context)?.push(
       MaterialPageRoute(
         settings: const RouteSettings(name: routeName),
@@ -59,19 +62,26 @@ class SecuritySection extends SettingsSection {
       ),
     );
   }
+}
+
+// wraps a tile so that it cannot be used in safe mode (security options cannot be lowered then)
+class SafeModeGuardTile extends SettingsTile {
+  final SettingsTile inner;
+
+  SafeModeGuardTile(this.inner);
 
   @override
-  Widget build(BuildContext sectionContext, ValueNotifier<String?> expandedNotifier) {
-    return Builder(
-      builder: (context) => ListTile(
-        key: const Key('section-security'),
-        leading: icon(context),
-        title: Text(title(context).toUpperCase(), style: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1)),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: () => open(context),
-      ),
-    );
-  }
+  List<String> get settingKeys => inner.settingKeys;
+
+  @override
+  String title(BuildContext context) => inner.title(context);
+
+  @override
+  Widget build(BuildContext context) => ValueListenableBuilder<bool>(
+    valueListenable: failsafe.safeMode,
+    builder: (context, safe, child) => AbsorbPointer(absorbing: safe, child: Opacity(opacity: safe ? .45 : 1, child: child)),
+    child: inner.build(context),
+  );
 }
 
 class SettingsTileSecurityHashing extends SettingsTile {

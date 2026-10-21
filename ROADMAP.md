@@ -34,6 +34,9 @@ Leyenda: ✅ hecho (compila; se prueba en el teléfono) · 🔧 en curso o parci
 - ✅ Lockdown: con el nuke por intentos desactivado, los fallos repetidos bloquean la app con "Protocolo Lockdown activado".
 - ✅ Sección de ajustes de Fail-Safe y asistente de bienvenida que sustituye a los términos y condiciones (deslizable, texto saltable con un toque, aceptar manteniendo pulsado).
 
+- ✅ Ajustes: Seguridad, Fail-Safe y Experimental ahora son secciones desplegables como Vídeo (antes eran filas en negrita que abrían otra pantalla); dentro de Seguridad, hasheo/cifrado se activan al desplegar y el bloqueo de la app y la destrucción son submenús. Experimental pide confirmación al desplegarse (una vez por sesión). Sin probar.
+- ✅ Corregida la "barra gris infinita" de los menús con cristal: el tema de cristal reemplazaba el estilo de texto de los menús y el panel de Exportar/Editar fallaba al construirse (en release Flutter pinta un rectángulo gris). Sin probar.
+- ✅ Si la voz de Fail-Safe no puede sonar (volumen multimedia a cero, error del sistema de audio…), el motivo se muestra bajo la burbuja en el Lockdown, el bloqueo y los avisos en cómic. Sin probar.
 - ✅ Voz y frases: la voz sonaba solo en la prueba; ahora Fail-Safe dice en voz alta una frase aleatoria (muchas por nivel, es/en, con nivel de calma) en el Lockdown y en el bloqueo de la app. Sin probar.
 - ✅ Avisos en modo cómic (Ajustes → Fail-Safe): los avisos y confirmaciones salen como burbuja de cómic de Fail-Safe, que los narra (tocar la burbuja repite la voz). Sin probar.
 

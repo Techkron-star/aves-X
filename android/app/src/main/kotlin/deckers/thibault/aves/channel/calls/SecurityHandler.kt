@@ -181,18 +181,19 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
     }
 
     // plays a short mono 16 bit PCM clip (the Fail-Safe voice), without any audio file or library.
-    // Returns `false` when the clip could not be played, including when the media volume is at zero (nothing would be heard).
+    // Returns "ok" when the clip was handed to the audio system, otherwise the reason it was not:
+    // "empty", "muted" (media volume at zero: nothing would be heard), "init", "write" or "error:<details>".
     private fun playPcm(call: MethodCall, result: MethodChannel.Result) {
         val pcm = call.argument<ByteArray>("pcm")
         val rate = call.argument<Int>("rate") ?: 16000
         if (pcm == null || pcm.isEmpty()) {
-            result.success(false)
+            result.success("empty")
             return
         }
 
         val audioManager = context.getSystemService(android.content.Context.AUDIO_SERVICE) as? android.media.AudioManager
         if (audioManager != null && audioManager.getStreamVolume(android.media.AudioManager.STREAM_MUSIC) == 0) {
-            result.success(false)
+            result.success("muted")
             return
         }
 
@@ -217,13 +218,13 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
                 .build()
             if (track.state != android.media.AudioTrack.STATE_INITIALIZED) {
                 track.release()
-                result.success(false)
+                result.success("init")
                 return
             }
             val written = track.write(pcm, 0, pcm.size)
             if (written <= 0) {
                 track.release()
-                result.success(false)
+                result.success("write")
                 return
             }
             track.play()
@@ -231,14 +232,14 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
             val durationMillis = pcm.size / 2 * 1000L / rate
             val toRelease = track
             android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({ toRelease.release() }, durationMillis + 300)
-            result.success(true)
+            result.success("ok")
         } catch (e: Exception) {
             Log.w(LOG_TAG, "failed to play the Fail-Safe voice", e)
             try {
                 track?.release()
             } catch (_: Exception) {
             }
-            result.success(false)
+            result.success("error:${e.javaClass.simpleName}:${e.message}")
         }
     }
 

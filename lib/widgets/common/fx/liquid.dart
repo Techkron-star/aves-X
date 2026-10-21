@@ -182,12 +182,13 @@ class GlassThemeScope extends StatelessWidget {
             ),
             // Glass-Everywhere 2.0: every floating surface becomes translucent glass with a bright edge
             // (menus, sheets, snack bars, cards, drawer); Bat-Glass tints them smoked ruby
-            popupMenuTheme: PopupMenuThemeData(
+            // `copyWith` keeps the label text style and icon color of the base theme (the menu panels rely on them)
+            popupMenuTheme: theme.popupMenuTheme.copyWith(
               color: surface.withValues(alpha: .74),
               surfaceTintColor: Colors.transparent,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18), side: BorderSide(color: edge, width: .8)),
             ),
-            bottomSheetTheme: BottomSheetThemeData(
+            bottomSheetTheme: theme.bottomSheetTheme.copyWith(
               backgroundColor: surface.withValues(alpha: .78),
               modalBackgroundColor: surface.withValues(alpha: .78),
               surfaceTintColor: Colors.transparent,

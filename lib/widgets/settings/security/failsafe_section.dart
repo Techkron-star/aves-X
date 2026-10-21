@@ -10,6 +10,7 @@ import 'package:aves/widgets/common/fx/black_hole.dart';
 import 'package:aves/widgets/common/fx/failsafe_badge.dart';
 import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/settings/common/tile_leading.dart';
+import 'package:aves/widgets/settings/security/security.dart';
 import 'package:aves/widgets/settings/settings_definition.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:flutter/widgets.dart';
@@ -33,7 +34,7 @@ class FailsafeSection extends SettingsSection {
   String title(BuildContext context) => context.l10n.settingsFailsafeSectionTitle;
 
   @override
-  Future<List<SettingsTile>> tiles(BuildContext context) => Future.value([]);
+  Future<List<SettingsTile>> tiles(BuildContext context) => Future.value([SafeModeGuardTile(_FailsafeOptionsTile())]);
 
   static Future<void> open(BuildContext context) async {
     final section = FailsafeSection();
@@ -47,26 +48,25 @@ class FailsafeSection extends SettingsSection {
               valueListenable: failsafe.safeMode,
               // security options cannot be lowered in safe mode
               builder: (context, safe, child) => AbsorbPointer(absorbing: safe, child: Opacity(opacity: safe ? .45 : 1, child: child)),
-              child: const _FailsafeOptions(),
+              child: const SingleChildScrollView(child: _FailsafeOptions()),
             ),
           ),
         ),
       ),
     );
   }
+}
+
+// all the Fail-Safe options, as the content of the (expandable) section
+class _FailsafeOptionsTile extends SettingsTile {
+  @override
+  List<String> get settingKeys => [];
 
   @override
-  Widget build(BuildContext sectionContext, ValueNotifier<String?> expandedNotifier) {
-    return Builder(
-      builder: (context) => ListTile(
-        key: const Key('section-failsafe'),
-        leading: icon(context),
-        title: Text(title(context).toUpperCase(), style: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1)),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: () => open(context),
-      ),
-    );
-  }
+  String title(BuildContext context) => context.l10n.settingsFailsafeSectionTitle;
+
+  @override
+  Widget build(BuildContext context) => const _FailsafeOptions();
 }
 
 class _FailsafeOptions extends StatefulWidget {
@@ -139,7 +139,9 @@ class _FailsafeOptionsState extends State<_FailsafeOptions> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return ListView(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const FailsafeBadge(),
         const Divider(),
@@ -180,8 +182,10 @@ class _FailsafeOptionsState extends State<_FailsafeOptions> {
           title: Text(l10n.failsafeVoiceTest),
           leading: const Icon(Icons.volume_up_outlined),
           onTap: () async {
-            final ok = await FailsafeVoice.say(l10n.failsafeBuddy1, force: true);
-            if (!ok && context.mounted) ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(l10n.failsafeVoiceTestFailed)));
+            final status = await FailsafeVoice.say(l10n.failsafeBuddy1, force: true);
+            if (FailsafeVoice.isFailure(status) && context.mounted) {
+              ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(FailsafeVoice.describe(l10n, status))));
+            }
           },
         ),
         SwitchListTile(

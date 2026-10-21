@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:aves/model/security/failsafe_voice.dart';
+import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/fx/lock_animation.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -24,10 +25,16 @@ class _FailsafeComicDialogState extends State<FailsafeComicDialog> {
   @override
   void initState() {
     super.initState();
-    _narrate();
+    unawaited(_narrate());
   }
 
-  void _narrate() => unawaited(FailsafeVoice.say(widget.message));
+  String? _voiceError;
+
+  Future<void> _narrate() async {
+    final status = await FailsafeVoice.say(widget.message);
+    if (!mounted) return;
+    setState(() => _voiceError = FailsafeVoice.isFailure(status) ? FailsafeVoice.describe(context.l10n, status) : null);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,9 +83,19 @@ class _FailsafeComicDialogState extends State<FailsafeComicDialog> {
                   child: ConstrainedBox(
                     constraints: BoxConstraints(maxHeight: maxHeight),
                     child: SingleChildScrollView(
-                      child: Text(
-                        widget.message,
-                        style: const TextStyle(color: _ink, fontSize: 15, fontWeight: FontWeight.w600, height: 1.3),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            widget.message,
+                            style: const TextStyle(color: _ink, fontSize: 15, fontWeight: FontWeight.w600, height: 1.3),
+                          ),
+                          if (_voiceError != null) ...[
+                            const SizedBox(height: 8),
+                            Text(_voiceError!, style: const TextStyle(color: Color(0xFFB3122D), fontSize: 11, fontStyle: FontStyle.italic)),
+                          ],
+                        ],
                       ),
                     ),
                   ),

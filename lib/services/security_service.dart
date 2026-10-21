@@ -46,8 +46,8 @@ abstract class SecurityService {
   // starts a detached root process that finishes erasing the app data even if the app is killed
   Future<bool> rootSeal();
 
-  // plays a mono 16 bit PCM clip
-  Future<bool> playPcm(Uint8List pcm, int rate);
+  // plays a mono 16 bit PCM clip. Returns `ok`, or the reason why it was not played (`muted`, `init`, `write`, `error:...`)
+  Future<String> playPcm(Uint8List pcm, int rate);
 }
 
 class VaultCryptoReport {
@@ -187,11 +187,11 @@ class PlatformSecurityService implements SecurityService {
   }
 
   @override
-  Future<bool> playPcm(Uint8List pcm, int rate) async {
+  Future<String> playPcm(Uint8List pcm, int rate) async {
     try {
-      return await _platform.invokeMethod<bool>('playPcm', <String, Object?>{'pcm': pcm, 'rate': rate}) ?? false;
-    } on PlatformException {
-      return false;
+      return await _platform.invokeMethod<String>('playPcm', <String, Object?>{'pcm': pcm, 'rate': rate}) ?? 'error:no-answer';
+    } on PlatformException catch (e) {
+      return 'error:${e.code}';
     }
   }
 }
