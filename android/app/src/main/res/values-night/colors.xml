@@ -2,4 +2,8 @@
 <resources>
     <!-- Dark launch surface: keeps the first frame in sync with the app's dark theme -->
     <color name="launch_background">#121212</color>
+
+    <!-- Nosferatu Glass bat mark (lighter ruby for dark mode) -->
+    <color name="ic_launcher_bat">#FF5A6E</color>
+    <color name="ic_launcher_keyhole">#FFFBF0</color>
 </resources>

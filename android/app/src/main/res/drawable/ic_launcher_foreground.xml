@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Aves-X bat mark, adaptive icon foreground (Material 3 / Material You).
-  Only flat shapes: no gradients, so the artwork stays crisp at every launcher size.
+  Aves-X Nosferatu bat mark, adaptive icon foreground (Material 3 / Material You).
+  Single bat shape with wings, ruby crystal style.
   The mark lives inside the 66/108 dp safe zone so launchers can apply any mask.
   Colors come from `@color/ic_launcher_*` so a themed/monochrome build only needs
   a resource override, never a new vector.
@@ -12,26 +12,17 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
     <group
-        android:scaleX="0.6"
-        android:scaleY="0.6"
+        android:scaleX="0.55"
+        android:scaleY="0.55"
         android:translateX="24"
         android:translateY="24">
-        <!-- lower left wing -->
+        <!-- Single bat shape: body, head, wings, keyhole -->
         <path
-            android:fillColor="@color/ic_launcher_logo_1"
-            android:pathData="M31.784,63.612L48.252,80.08A2.911,2.911 0 0 1 48.252,84.196L40.379,92.069A15.067,15.067 0 0 1 19.072,92.069L11.2,84.197A2.911,2.911 0 0 1 11.2,80.08L27.668,63.612A2.911,2.911 0 0 1 31.785,63.612Z" />
-        <!-- centre diamond -->
+            android:fillColor="@color/ic_launcher_bat"
+            android:pathData="M50,22L43,8L41,26C26,20 8,28 2,48Q10,50 15,47Q21,62 29,56Q33,72 42,64L50,92L58,64Q67,72 71,56Q79,62 85,47Q90,50 98,48C92,28 74,20 59,26L57,8Z" />
+        <!-- Keyhole -->
         <path
-            android:fillColor="@color/ic_launcher_logo_2"
-            android:pathData="M56.368,39.026L72.837,55.494A2.904,2.904 0 0 1 72.837,59.611L56.367,76.079A2.904,2.904 0 0 1 52.252,76.079L35.784,59.611A2.904,2.904 0 0 1 35.784,55.495L52.252,39.027A2.904,2.904 0 0 1 56.368,39.027Z" />
-        <!-- right wing, with the inner counter as an even-odd hole -->
-        <path
-            android:fillColor="@color/ic_launcher_logo_3"
-            android:fillType="evenOdd"
-            android:pathData="M60.37,30.908A2.91,2.91 0 0 0 60.37,35.025L76.838,51.492A2.91,2.91 0 0 0 80.954,51.492L97.422,35.025A2.91,2.91 0 0 0 97.422,30.908L89.248,22.734A14.64,14.64 0 0 0 68.544,22.734ZM76.624,30.695A3.213,3.213 0 0 1 81.167,30.695A3.213,3.213 0 0 1 81.167,35.237A3.213,3.213 0 0 1 76.624,35.237A3.213,3.213 0 0 1 76.624,30.694Z" />
-        <!-- upper left wing -->
-        <path
-            android:fillColor="@color/ic_launcher_logo_4"
-            android:pathData="M24.305,6.96L48.35,31.004A2.911,2.911 0 0 1 48.35,35.121L31.882,51.588A2.911,2.911 0 0 1 27.765,51.588L17.084,40.907A22.738,22.738 0 0 1 17.084,8.75L18.874,6.96A3.84,3.84 0 0 1 24.305,6.96Z" />
+            android:fillColor="@color/ic_launcher_keyhole"
+            android:pathData="M50,50m-6,0a6,6 0 1,1 12,0a6,6 0 1,1 -12,0ZM50,54L53.5,54L55.5,70L44.5,70Z" />
     </group>
 </vector>
