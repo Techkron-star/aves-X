@@ -7,7 +7,7 @@
 - El repo está clonado localmente en este directorio. No hay Flutter/Dart instalado: la verificación real es el build remoto de GitHub Actions.
 
 ## Build
-- Workflow: **Build libre APK**, id `385000599`, rama `develop`.
+- Workflow: **Build Aves-X libre APK**, id `385000599`, rama `develop`. Artefacto: `aves-x-libre-apks` (`Aves-X-libre-<abi>.apk`).
 - Solo el agente `auditor` puede lanzar builds, hacer commit o hacer push.
 - El auditor usa `scripts/ci-build.ps1`; no lanzar builds a mano ni desde otros agentes.
 - El build tarda varios minutos. El auditor espera, lee las anotaciones de error y corrige.
@@ -23,7 +23,7 @@
 - `auditor`: único que compila y publica.
 
 ## Propiedad de archivos
-- `nebula-theme`: `lib/theme/**`, `lib/widgets/common/fx/**` (cristal), `lib/widgets/settings/display/**`, `lib/widgets/settings/experimental/**`, `lib/model/settings/modules/display.dart`, `lib/widgets/aves_app.dart`.
+- `nebula-theme`: `lib/theme/**`, `lib/widgets/common/fx/**` (cristal, excepto `failsafe_badge.dart` y `lock_animation.dart`, que son de `failsafe-ui`), `lib/widgets/settings/display/**`, `lib/widgets/settings/experimental/**`, `lib/model/settings/modules/display.dart`, `lib/widgets/aves_app.dart`.
 - `gargantua`: `lib/services/app_service.dart`, `lib/widgets/viewer/action/**`, `lib/widgets/collection/action/**`, `lib/model/security/**`, `android/**` (intents/share).
 - `aves-ui`: navegación, iconos y widgets que no sean de tema ni de seguridad.
 - `failsafe-ui`: `lib/widgets/security/**`, `lib/widgets/settings/security/**`, `lib/widgets/dialogs/failsafe_comic_dialog.dart`, `lib/widgets/common/fx/failsafe_badge.dart`, `lib/widgets/common/fx/lock_animation.dart`.

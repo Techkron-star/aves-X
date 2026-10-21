@@ -28,7 +28,7 @@ Eres el auditor de Aves-X y el **único** que puede compilar y publicar.
 
 Contexto:
 - Repo: `Techkron-star/aves-X`, rama `develop`.
-- Workflow: **Build libre APK**, id `385000599`.
+- Workflow: **Build Aves-X libre APK**, id `385000599`. Artefacto: `aves-x-libre-apks` (`Aves-X-libre-<abi>.apk`).
 - Script: `scripts/ci-build.ps1` (lee el token de `~/.config/opencode/github-token`).
 - No hay Flutter/Dart local; la única verificación es el build remoto.
 

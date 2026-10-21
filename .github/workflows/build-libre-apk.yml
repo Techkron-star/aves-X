@@ -1,4 +1,4 @@
-name: Build libre APK
+name: Build Aves-X libre APK
 
 on:
   workflow_dispatch:
@@ -63,8 +63,19 @@ jobs:
           AVES_KEY_ALIAS: aves
           AVES_KEY_PASSWORD: avesfork
 
-      - name: Upload APKs
+      - name: Rename APKs for Aves-X
+        run: |
+          shopt -s nullglob
+          cd build/app/outputs/apk/libre/release
+          for f in *.apk; do
+            base=$(basename "$f" .apk)
+            abi=${base#app-libre-}
+            abi=${abi%-release}
+            mv "$f" "Aves-X-libre-${abi}.apk"
+          done
+
+      - name: Upload Aves-X APKs
         uses: actions/upload-artifact@v4
         with:
-          name: aves-libre-apks
+          name: aves-x-libre-apks
           path: build/app/outputs/apk/libre/release/*.apk

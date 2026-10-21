@@ -6,6 +6,8 @@ Leyenda: ✅ hecho (compila; se prueba en el teléfono) · 🔧 en curso o parci
 
 **Principios:** todo lo nuevo de privacidad y lo experimental es *opt-in* (nunca activado por defecto). Nada se envía a ningún sitio: sin telemetría. Aves-X es un homenaje y fork personal de [Aves](https://github.com/deckerst/aves) (licencia BSD-3-Clause, créditos mantenidos).
 
+**Versión actual:** `0.3.0+300` · Artefacto libre: `aves-x-libre-apks` (`Aves-X-libre-<abi>.apk`).
+
 ---
 
 ## ✅ Hecho (Beta)
@@ -46,7 +48,8 @@ Leyenda: ✅ hecho (compila; se prueba en el teléfono) · 🔧 en curso o parci
 - ✅ Etiquetas/subtítulos libres en fotos y vídeos, buscables.
 
 ### Interfaz y efectos
-- ✅ Nombre y logo Aves-X (murciélago), Monet por defecto, modo rendimiento, pegatinas de funciones ("experimental").
+- ✅ Nombre y logo Aves-X (murciélago), Monet por defecto, modo rendimiento, pegatinas de funciones ("NEW"/"Experimental") theme-aware y con variante de cristal cuando Glass-Everywhere o Bat-Glass están activos.
+- ✅ Artefactos de build con identidad propia: `aves-x-libre-apks` y APKs `Aves-X-libre-<abi>.apk`; versión `0.3.0+300`.
 - ✅ Barra de navegación: estilos (clásica, redondeada, flotante, rectangular), **Bat-Lens** deslizante con efecto gota, deslizar entre pestañas con el dedo y transición tipo Instagram.
 - ✅ **Bat-Glass 2.0** (primera fase): cristal de diamante rojo facetado y translúcido con destello animado en el menú lateral, cristal en botones y barras difuminadas, íconos líquidos, animación de candado con cadenas.
 - ✅ **Glass-Everywhere**: vidrio esmerilado neutro (desenfoque fuerte) en diálogos, menús y superficies; separado de Bat-Glass.
@@ -64,6 +67,10 @@ Leyenda: ✅ hecho (compila; se prueba en el teléfono) · 🔧 en curso o parci
 ## 🔧 En curso
 
 - 🔧 **Bat-Glass 2.0 / Nebula Engine** (Glass-Everywhere 2.0: menús, hojas, avisos, tarjetas y cajón ya son cristal translúcido con borde; falta blur real en ellos) (motor propio de cristal y efectos): extender el cristal facetado a más pantallas (barras de búsqueda y filtros, diálogos, tarjetas, selector de pestañas), mejores animaciones de íconos y transiciones (cristal que se rompe o se condensa), ajustes separados que se noten entre Bat-Glass y Glass-Everywhere. Posible renombrar Glass-Everywhere a **Bat-Cave**.
+- 🔧 **Nebula Engine — Fase 1**: modelo `NebulaTheme`/`NebulaPalette`/`NebulaTokens`, Bat-Glass como tema built-in y selector con vista previa. La base no cambia el aspecto actual; después entran Night Demon y Godly.
+- 🔧 **Bat-Glass — rendimiento**: quitar render que no se ve (blur bajo superficies opacas, animaciones fuera de pantalla, capas tapadas) sin cambiar el aspecto; medir en gama baja antes de añadir efectos.
+- 🔧 **Gargantua — política de salidas**: agrupar las salidas por categorías (compartir, exportar/guardar, portapapeles, abrir con/editar, cast/superficies) y pedir Master Code al compartir. Diseño en curso; no 24 interruptores.
+- 🔧 **Fail-Safe visual**: auditoría hecha. Fase 1 = burbuja cómic + badge con tokens del tema; fase 2 = ajustes/welcome; fase 3 = lockdown/app lock. La forma y la semántica de seguridad no cambian.
 - 🔧 Diálogos de Fail-Safe con efectos visuales (el Lockdown ya tiene fondo de cristal rubí).
 - 🔧 Reproductor: 4K/HD a ~10 fps en algunos vídeos (probar modos de hardware), barajar (shuffle).
 
@@ -99,13 +106,15 @@ Leyenda: ✅ hecho (compila; se prueba en el teléfono) · 🔧 en curso o parci
 
 ---
 
-## 🌌 Futuro (ideas, sin prioridad)
+## 🌌 Sistemas propios (en curso y largo plazo)
 
 ### Sistema Gargantua
 Las apps de seguridad suelen impedir que otros entren a tus fotos; Gargantua evita que tus archivos **salgan** sin permiso. Nombre del agujero negro de Interstellar: lo que entra en una zona protegida de Aves-X no sale a menos que el dueño lo ordene. Estética cósmica.
+- 🔧 Política agregada de salidas: categorías (compartir, exportar/guardar, portapapeles, abrir con/editar, cast/superficies) con un interruptor maestro y reglas de Master Code. Sin 24 toggles.
+- 🔧 Compartir fotos/vídeos con Master Code: la fase 1 mínima, reutilizando `MasterCode.require` y `itemLocks.authorizeExit` en un único guardia.
 - ⬜ Interceptar "Compartir" antes de que aparezca el menú de Android (WhatsApp, Telegram, correo…).
-- 🔧 Autenticación de salida: compartir una foto o álbum bloqueado pide la credencial de bloqueos (hecho); falta Master Code por regla y otras salidas (abrir con, copiar, etc.)
-- ⬜ Vaults y bloqueados bajo Gargantua por defecto.
+- ⬜ Vaults y bloqueados bajo Gargantua por defecto, y excluir `filesDir/vault` del backup.
+- ⬜ Cast y superficies de fondo (salvapantallas, widget) solo con ítems autorizados.
 - ⬜ Con root, capacidades potenciadas (alcance aún por definir).
 
 ### Black Hole (modo root opcional)
@@ -121,17 +130,17 @@ Las apps de seguridad suelen impedir que otros entren a tus fotos; Gargantua evi
 - 🔧 Detección automática de Android TV: ahora también se considera TV cuando el `uiMode` del sistema es televisión (cajas que no declaran `leanback`). Sin probar; falta revisar errores de estado al cambiar de interfaz.
 - 🔧 Cambio en caliente: el modo tablet automático se recalcula cuando cambian las métricas de la ventana (plegar, pantalla externa, pantalla dividida). Sin probar; falta el cambio en caliente entre interfaz TV y normal.
 
-### Nebula Engine — temas (post-beta)
+### Nebula Engine — temas (Fase 1 en curso)
 
-Idea: que **Nebula Engine** sea el paraguas de personalización visual (Ajustes → **Opciones del Nebula Engine**) y que **Bat-Glass** deje de ser "el" tema para convertirse en uno más, junto a **Night Demon**, **Godly**, **Cosmic Forge** y **Hermetisc** (temática mágica/hermética). No entra en la beta: primero estabilizar Bat-Glass y el rendimiento.
+Idea: que **Nebula Engine** sea el paraguas de personalización visual (Ajustes → **Opciones del Nebula Engine**) y que **Bat-Glass** deje de ser "el" tema para convertirse en uno más, junto a **Night Demon**, **Godly**, **Cosmic Forge** y **Hermetisc** (temática mágica/hermética). La base entra ahora; los shaders siguen después de estabilizar Bat-Glass y el rendimiento.
 
-- ⬜ Selector de temas con vista previa (paleta, superficies, iconos, animaciones y, opcionalmente, sonidos).
-- ⬜ Fase 1 (bajo riesgo): temas de paleta y tratamiento de superficie reutilizando la base de Bat-Glass (Night Demon, Godly).
+- 🔧 Selector de temas con vista previa (paleta, superficies, iconos, animaciones y, opcionalmente, sonidos).
+- 🔧 Fase 1 (bajo riesgo): modelo de temas y tokens, Bat-Glass como tema built-in, y después Night Demon/Godly reutilizando la base.
 - ⬜ Fase 2 (más trabajo): efectos propios con shaders/animaciones para Cosmic Forge y Hermetisc.
 - ⬜ Persistencia por tema, respeto al modo rendimiento (sin blur/shaders) y a la accesibilidad (contraste, tamaños).
-- ⬜ Los temas no deben tocar la lógica de seguridad: Fail-Safe, bloqueos y vaults se ven igual con cualquier tema.
+- ⬜ Los temas no deben tocar la lógica de seguridad: la forma y la semántica de Fail-Safe/bloqueos se mantienen; superficie, borde, glow y acento siguen el tema, y el rojo/ámbar de peligro se conserva con contraste garantizado.
 
-**Viabilidad:** alta para el selector y los temas de paleta, porque la app ya construye `ThemeData` desde un `ColorScheme` y ya separa las capas de cristal (Bat-Glass / Glass-Everywhere). Media para los efectos únicos: el coste real es rendimiento (blur y shaders en gama baja) y coherencia visual, no la arquitectura. Recomendación: lanzarlo después de la beta, empezando por 2 temas de paleta y midiendo FPS antes de añadir shaders.
+**Viabilidad:** alta para el selector y los temas de paleta, porque la app ya construye `ThemeData` desde un `ColorScheme` y ya separa las capas de cristal (Bat-Glass / Glass-Everywhere). Media para los efectos únicos: el coste real es rendimiento (blur y shaders en gama baja) y coherencia visual, no la arquitectura. Recomendación: la base de tokens entra ya; los shaders, después de medir FPS en gama baja.
 
 ### Otras ideas
 - ⬜ Estrategias nuevas de ocultación, automatización de metadatos y vaults, opciones avanzadas de almacenamiento.
@@ -139,7 +148,8 @@ Idea: que **Nebula Engine** sea el paraguas de personalización visual (Ajustes 
 ---
 
 ## Notas de trabajo
-- No se compila en el entorno de desarrollo: se sube a `develop`, se lanza el workflow *Build libre APK* y los errores se leen de las anotaciones.
+- No se compila en el entorno de desarrollo: se sube a `develop`, se lanza el workflow *Build Aves-X libre APK* y los errores se leen de las anotaciones.
+- El artefacto se llama `aves-x-libre-apks` y contiene APKs `Aves-X-libre-<abi>.apk`; la versión sale de `pubspec.yaml` (`0.3.0+300`).
 - Los archivos de `flavors/` del proyecto original están desactualizados; el workflow genera la variante libre a partir de `pubspec.yaml`.
 - El chequeo `Quality check` marca avisos de estilo en análisis estático (no afectan al APK).
 - Pendiente del lado del usuario: avisar a Aves (upstream) del fallo de la barra de navegación en el diseño TV.

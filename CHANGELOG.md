@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## Aves-X — 0.3.0 (in progress)
+
+### Added
+
+- Theme-aware NEW/Experimental feature stickers, with a glass treatment when Glass-Everywhere or Bat-Glass is active.
+
+### Changed
+
+- Libre build artifacts renamed to `aves-x-libre-apks` / `Aves-X-libre-<abi>.apk`.
+- Version bumped to `0.3.0+300`.
+
+### Work in progress
+
+- Nebula Engine base: theme model, palettes and tokens; Bat-Glass becomes a built-in theme.
+- Fail-Safe visual rework: theme-aware comic bubble, badge, settings, welcome, lockdown and app lock.
+- Gargantua grouped exit policy: categories instead of 24 toggles, with Master Code for sharing.
+
 ## <a id="unreleased"></a>[Unreleased]
 
 ### Added

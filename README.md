@@ -53,8 +53,9 @@ It keeps Aves' core features — media viewer, albums, metadata, tags, maps, tra
 
 - **Custom Navigation Bar** — Multiple navigation styles to personalize the interface.
 - **Bat-Lens** — Glass-lens effect over the active navigation section.
-- **Bat-Glass** — Experimental theme inspired by dark glass aesthetics.
-- **Glass-Everywhere** — Experimental glass effects throughout the interface.
+- **Bat-Glass** — Dark glass theme, now becoming one theme inside the Nebula Engine.
+- **Nebula Engine (in progress)** — Theme tokens shared by Godly, Night Demon, Cosmic Forge and Hermetisc. Custom theme presets are planned.
+- **Glass-Everywhere** — Experimental glass effects throughout the interface, including the NEW/Experimental feature stickers.
 
 ### ⚡ Performance & Utilities
 
@@ -74,13 +75,22 @@ The main features are implemented, but development is ongoing. Some features, es
 
 **Do not use Aves-X as the only place where you store irreplaceable files.** Some security features, such as the Nuke, are intentionally irreversible.
 
+## Builds
+
+The manual **Build Aves-X libre APK** workflow publishes the `aves-x-libre-apks` artifact with per-ABI APKs named `Aves-X-libre-<abi>.apk`. The app installs next to the original Aves (`dev.techkron.avesx`).
+
+Current version: **0.3.0+300**.
+
 ## Roadmap
 
 Planned features include:
 
 - Photo and locked-album encryption
+- Nebula Engine themes, selector and custom theme presets
+- Bat-Glass performance pass without changing its look
+- Batch and grouped Gargantua exit controls, with Master Code for sharing
+- Theme-aware Fail-Safe bubbles
 - Glass-Everywhere 2.0
-- Bat-Glass improvements
 - `.nomedia` support
 - Attempt limits for trash and protected items
 - Metadata removal for HEIC, AVIF, and GIF
@@ -119,6 +129,9 @@ If you are looking for a complete, stable, and actively maintained gallery, cons
 - 🛡️ Bat-Curity para proteger las credenciales
 - 🧹 Borrado automático de contenido y papelera
 - 🎨 Estilos de navegación personalizados e interfaz experimental de cristal
+- 🌌 Nebula Engine (en curso): Bat-Glass como un tema más y temas personalizados
+- 🚪 Gargantua (en curso): salidas protegidas por categorías con Master Code
+- 🏷️ Pegatinas NEW/Experimental con tratamiento de cristal
 - ⚡ Modo rendimiento para dispositivos modestos
 - 📝 Compatibilidad ampliada para eliminar metadatos
 

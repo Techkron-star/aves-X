@@ -1,6 +1,6 @@
 name: aves
 description: A visual media gallery and metadata explorer app.
-repository: https://github.com/deckerst/aves
+repository: https://github.com/Techkron-star/aves-X
 publish_to: none
 
 # version bump checklist:
@@ -8,7 +8,7 @@ publish_to: none
 # - edit GitHub changelog:     /CHANGELOG.md
 # - edit Play Store changelog: /whatsnew/whatsnew-en-US
 # - run `scripts/apply_version_bump.sh`
-version: 0.2.0+200
+version: 0.3.0+300
 
 environment:
   # this project bundles Flutter SDK via `flutter_wrapper`
