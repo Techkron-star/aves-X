@@ -280,7 +280,7 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
     }
 
     // stops the currently playing Fail-Safe voice clip (if any)
-    private fun stopPcm(result: MethodChannel.Result) {
+    private fun stopPcm(@Suppress("unused_parameter") call: MethodCall, result: MethodChannel.Result) {
         val track = _currentTrack
         if (track != null) {
             try {
