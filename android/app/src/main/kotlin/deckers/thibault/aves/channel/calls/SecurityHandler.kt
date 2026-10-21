@@ -181,11 +181,12 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
     }
 
     // plays a short mono 16 bit PCM clip (the Fail-Safe voice), without any audio file or library.
-    // Returns "ok" when the clip was handed to the audio system, otherwise the reason it was not:
+    // A streaming track is used instead of a static one: static tracks failed to initialize on some devices,
+    // and the clip can be larger than their buffer. Returns "ok" when playback started, otherwise the reason:
     // "empty", "muted" (media volume at zero: nothing would be heard), "init", "write" or "error:<details>".
     private fun playPcm(call: MethodCall, result: MethodChannel.Result) {
         val pcm = call.argument<ByteArray>("pcm")
-        val rate = call.argument<Int>("rate") ?: 16000
+        val rate = call.argument<Int>("rate") ?: 44100
         if (pcm == null || pcm.isEmpty()) {
             result.success("empty")
             return
@@ -199,7 +200,17 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
 
         var track: android.media.AudioTrack? = null
         try {
-            track = android.media.AudioTrack.Builder()
+            val minBuffer = android.media.AudioTrack.getMinBufferSize(
+                rate,
+                android.media.AudioFormat.CHANNEL_OUT_MONO,
+                android.media.AudioFormat.ENCODING_PCM_16BIT
+            )
+            if (minBuffer <= 0) {
+                Log.w(LOG_TAG, "unsupported audio format: rate=$rate minBuffer=$minBuffer")
+                result.success("init")
+                return
+            }
+            val built = android.media.AudioTrack.Builder()
                 .setAudioAttributes(
                     android.media.AudioAttributes.Builder()
                         .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
@@ -213,25 +224,44 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
                         .setChannelMask(android.media.AudioFormat.CHANNEL_OUT_MONO)
                         .build()
                 )
-                .setBufferSizeInBytes(pcm.size)
-                .setTransferMode(android.media.AudioTrack.MODE_STATIC)
+                .setBufferSizeInBytes(maxOf(minBuffer * 2, 16384))
+                .setTransferMode(android.media.AudioTrack.MODE_STREAM)
                 .build()
-            if (track.state != android.media.AudioTrack.STATE_INITIALIZED) {
-                track.release()
+            track = built
+            if (built.state != android.media.AudioTrack.STATE_INITIALIZED) {
+                built.release()
+                Log.w(LOG_TAG, "could not initialize the audio track: rate=$rate minBuffer=$minBuffer")
                 result.success("init")
                 return
             }
-            val written = track.write(pcm, 0, pcm.size)
-            if (written <= 0) {
-                track.release()
-                result.success("write")
-                return
-            }
-            track.play()
-            // release once the clip is over (with some margin, so that its end is not cut)
+            built.setVolume(1f)
+            built.play()
+            val toPlay = built
             val durationMillis = pcm.size / 2 * 1000L / rate
-            val toRelease = track
-            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({ toRelease.release() }, durationMillis + 300)
+            Thread {
+                try {
+                    android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_AUDIO)
+                    var offset = 0
+                    while (offset < pcm.size) {
+                        val written = toPlay.write(pcm, offset, pcm.size - offset)
+                        if (written <= 0) {
+                            Log.w(LOG_TAG, "audio write stopped at $offset/${pcm.size}")
+                            break
+                        }
+                        offset += written
+                    }
+                    // wait for the buffered clip to be played before releasing the track
+                    Thread.sleep(durationMillis + 200)
+                } catch (e: Exception) {
+                    Log.w(LOG_TAG, "failed to play the Fail-Safe voice", e)
+                } finally {
+                    try {
+                        toPlay.stop()
+                    } catch (_: Exception) {
+                    }
+                    toPlay.release()
+                }
+            }.start()
             result.success("ok")
         } catch (e: Exception) {
             Log.w(LOG_TAG, "failed to play the Fail-Safe voice", e)
