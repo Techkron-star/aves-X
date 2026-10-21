@@ -1,7 +1,10 @@
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/filters/filters.dart';
+import 'package:aves/model/security/failsafe_config.dart';
+import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
+import 'package:aves/widgets/common/fx/black_hole.dart';
 import 'package:flutter/widgets.dart';
 
 class TrashFilter extends CollectionFilter {
@@ -40,8 +43,14 @@ class TrashFilter extends CollectionFilter {
   @override
   String getLabel(BuildContext context) => context.l10n.filterBinLabel;
 
+  // With Black Hole active, the bin wears the same event horizon and accretion disk as its settings card.
   @override
-  Widget? iconBuilder(BuildContext context, double size, {bool allowGenericIcon = true}) => Icon(AIcons.bin, size: size);
+  Widget? iconBuilder(BuildContext context, double size, {bool allowGenericIcon = true}) => ValueListenableBuilder<bool>(
+    valueListenable: FailsafeConfig.rootModeActive,
+    builder: (context, blackHole, _) => blackHole
+        ? BlackHoleDisc(size: size, animate: !settings.performanceMode)
+        : Icon(AIcons.bin, size: size),
+  );
 
   @override
   String get category => type;

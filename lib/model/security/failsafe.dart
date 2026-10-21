@@ -73,6 +73,8 @@ class Failsafe with WidgetsBindingObserver {
       await securityService.writeValue<String>(_errorsKey, '0');
       safeMode.value = _crashes > 0;
       lockdown.value = await FailsafeConfig.lockdownActive;
+      // load the Black Hole mode too, so that its themed widgets (e.g. the trash icon) know it from launch
+      await FailsafeConfig.rootMode;
       if (safeMode.value) _add('SAFE', 'Safe mode enabled for this session (failures=$_crashes)');
       _add('BOOT', 'Launch');
       await securityService.writeValue<String>(_crashesKey, '$_crashes');

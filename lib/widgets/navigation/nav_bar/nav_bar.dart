@@ -2,6 +2,7 @@ import 'package:aves/theme/themes.dart';
 import 'dart:ui';
 import 'package:aves/widgets/common/fx/liquid.dart';
 import 'package:aves/model/settings/enums/nav_bar_style.dart';
+import 'package:aves/model/security/failsafe_config.dart';
 import 'package:aves/model/security/privacy_options.dart';
 import 'dart:async';
 import 'dart:math';
@@ -132,9 +133,9 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
                     items: items.map((item) {
                       final label = item.getText(context);
                       return BottomNavigationBarItem(
-                        icon: LiquidIcon(child: item.getIcon(context)),
+                        icon: _navIcon(context, item),
                         // without the lens, the current tab glows so that it can be told apart
-                        activeIcon: settings.navLens ? null : _glow(context, LiquidIcon(child: item.getIcon(context))),
+                        activeIcon: settings.navLens ? null : _glow(context, _navIcon(context, item)),
                         label: label,
                         tooltip: label,
                       );
@@ -174,6 +175,17 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
   }
 
   void _onCollectionFilterChanged() => setState(() {});
+
+  // The Black Hole bin is a painted disc: it must not go through the liquid highlight,
+  // which would tint its colours.
+  Widget _navIcon(BuildContext context, AvesNavItem item) {
+    final icon = item.getIcon(context);
+    if (!item.opensBin) return LiquidIcon(child: icon);
+    return ValueListenableBuilder<bool>(
+      valueListenable: FailsafeConfig.rootModeActive,
+      builder: (context, blackHole, _) => blackHole ? icon : LiquidIcon(child: icon),
+    );
+  }
 
   Widget _glow(BuildContext context, Widget icon) {
     final color = settings.batGlass ? Themes.batGlassRuby : Theme.of(context).colorScheme.primary;

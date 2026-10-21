@@ -1,4 +1,5 @@
 import 'package:aves/services/common/services.dart';
+import 'package:flutter/foundation.dart';
 
 // Failsafe lockdown options, kept in the secure store.
 // Failed attempts first start a cooldown that grows with each failure up to a configurable maximum.
@@ -29,10 +30,21 @@ class FailsafeConfig {
 
   static Future<void> setVoiceEnabled(bool value) => securityService.writeValue<String>('fs_voice', value ? '1' : '0');
 
-  // Black Hole: optional root mode, off by default
-  static Future<bool> get rootMode async => await securityService.readValue<String>('fs_root') == '1';
+  // Black Hole: optional root mode, off by default.
+  // `rootModeActive` mirrors the stored value, so that widgets (e.g. the trash icon) can follow it
+  // synchronously and rebuild when it changes.
+  static final ValueNotifier<bool> rootModeActive = ValueNotifier(false);
 
-  static Future<void> setRootMode(bool value) => securityService.writeValue<String>('fs_root', value ? '1' : '0');
+  static Future<bool> get rootMode async {
+    final value = await securityService.readValue<String>('fs_root') == '1';
+    rootModeActive.value = value;
+    return value;
+  }
+
+  static Future<void> setRootMode(bool value) async {
+    await securityService.writeValue<String>('fs_root', value ? '1' : '0');
+    rootModeActive.value = value;
+  }
 
   static Future<int> get maxMinutes async => int.tryParse(await securityService.readValue<String>(_maxKey) ?? '') ?? recommendedMaxMinutes;
 

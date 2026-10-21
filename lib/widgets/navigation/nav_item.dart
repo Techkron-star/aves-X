@@ -57,11 +57,11 @@ class AvesNavItem extends Equatable {
     return NavigationDisplay.getPageTitle(context, route);
   }
 
-  bool get _opensBin => route == CollectionPage.routeName && (filters?.contains(TrashFilter.instance) ?? false);
+  bool get opensBin => route == CollectionPage.routeName && (filters?.contains(TrashFilter.instance) ?? false);
 
   Future<void> goTo(BuildContext context, {bool? topLevel}) async {
     // the recycle bin may have its own lock
-    if (_opensBin) {
+    if (opensBin) {
       if (!await SecretLock.bin.authenticate(context)) return;
       if (!context.mounted) return;
     }
