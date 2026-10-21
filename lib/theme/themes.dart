@@ -293,15 +293,17 @@ class Themes {
 
   // black
 
-  // experimental "Bat glass": black backgrounds with ruby red translucent glass
-  static const batGlassRuby = Color(0xFFE0183E);
+  // experimental glass theme: black backgrounds with ruby red translucent glass.
+  // Kept under the legacy name for existing call sites; the theme itself is Nosferatu Glass.
+  static const nosferatuRuby = Color(0xFFE0183E);
+  static const batGlassRuby = nosferatuRuby;
 
   // Nebula Engine
 
   // Builds the theme of a Nebula palette.
   //
   // The default Aves theme delegates to the legacy light/dark/black themes, so it keeps its current look.
-  // Palette themes reuse the legacy Bat-Glass base, and only change colors and surface treatment.
+  // Palette themes reuse the Nosferatu Glass base, and only change colors and surface treatment.
   static ThemeData nebulaTheme(
     NebulaPalette palette,
     bool deviceInitialized,
@@ -375,11 +377,14 @@ class Themes {
     );
   }
 
-  static ThemeData batGlassTheme(bool deviceInitialized, KnownLocale locale) => nebulaTheme(
-    nebulaPalettes[NebulaTheme.batGlass]!,
+  static ThemeData nosferatuGlassTheme(bool deviceInitialized, KnownLocale locale) => nebulaTheme(
+    nebulaPalettes[NebulaTheme.nosferatuGlass]!,
     deviceInitialized,
     locale,
   );
+
+  // legacy entry point, kept so that installs and call sites that predate the rename keep working
+  static ThemeData batGlassTheme(bool deviceInitialized, KnownLocale locale) => nosferatuGlassTheme(deviceInitialized, locale);
 
   static ThemeData blackTheme(Color accentColor, bool deviceInitialized, KnownLocale locale) {
     final colors = _darkColorScheme(accentColor).copyWith(

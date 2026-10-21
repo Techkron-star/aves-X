@@ -1,4 +1,4 @@
-import 'package:aves/model/security/bat_curity.dart';
+import 'package:aves/model/security/master_guard.dart';
 import 'package:aves/model/security/attempt_guard.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:flutter/foundation.dart';
@@ -55,7 +55,7 @@ class AppLock extends ChangeNotifier {
   }
 
   Future<bool> setPin(String pin) async {
-    final ok = await batCurity.store(_pinKey, pin);
+    final ok = await masterGuard.store(_pinKey, pin);
     if (ok) {
       _enabled = true;
       notifyListeners();
@@ -90,7 +90,7 @@ class AppLock extends ChangeNotifier {
   }
 
   Future<bool> setPanicPin(String? pin) async {
-    final ok = pin == null ? await securityService.writeValue<String>(_panicKey, null) : await batCurity.store(_panicKey, pin);
+    final ok = pin == null ? await securityService.writeValue<String>(_panicKey, null) : await masterGuard.store(_panicKey, pin);
     if (ok) {
       _hasPanic = pin != null;
       notifyListeners();
@@ -99,19 +99,19 @@ class AppLock extends ChangeNotifier {
   }
 
   // the panic PIN has to differ from the app PIN, otherwise it would never be usable
-  Future<bool> isSameAsPin(String code) => batCurity.matches(_pinKey, code);
+  Future<bool> isSameAsPin(String code) => masterGuard.matches(_pinKey, code);
 
   Future<AppLockResult> attemptPin(String code) async {
     final guard = AttemptGuard.app;
     if (await guard.remainingCooldown() != null) return AppLockResult.cooldown;
 
-    if (await batCurity.matches(_pinKey, code)) {
+    if (await masterGuard.matches(_pinKey, code)) {
       await guard.reset();
       _locked = false;
       notifyListeners();
       return AppLockResult.unlocked;
     }
-    if (_hasPanic && await batCurity.matches(_panicKey, code)) {
+    if (_hasPanic && await masterGuard.matches(_panicKey, code)) {
       return AppLockResult.panic;
     }
     return _fail(guard.registerFailure());

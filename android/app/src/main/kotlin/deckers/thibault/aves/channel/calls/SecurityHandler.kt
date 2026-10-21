@@ -40,6 +40,7 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
             "destroyCryptoKeys" -> ioScope.launch { safe(call, result, ::destroyCryptoKeys) }
             "isRootAvailable" -> ioScope.launch { safe(call, result, ::isRootAvailable) }
             "playPcm" -> safe(call, result, ::playPcm)
+            "stopPcm" -> safe(call, result, ::stopPcm)
             "rootTrim" -> ioScope.launch { safe(call, result, ::rootTrim) }
             "rootSeal" -> ioScope.launch { safe(call, result, ::rootSeal) }
             else -> result.notImplemented()
@@ -184,6 +185,9 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
     // A streaming track is used instead of a static one: static tracks failed to initialize on some devices,
     // and the clip can be larger than their buffer. Returns "ok" when playback started, otherwise the reason:
     // "empty", "muted" (media volume at zero: nothing would be heard), "init", "write" or "error:<details>".
+    // static reference to the currently playing track, so we can stop it
+    private var _currentTrack: android.media.AudioTrack? = null
+
     private fun playPcm(call: MethodCall, result: MethodChannel.Result) {
         val pcm = call.argument<ByteArray>("pcm")
         val rate = call.argument<Int>("rate") ?: 44100
@@ -236,6 +240,7 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
             }
             built.setVolume(1f)
             built.play()
+            _currentTrack = built
             val toPlay = built
             val durationMillis = pcm.size / 2 * 1000L / rate
             Thread {
@@ -260,6 +265,7 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
                     } catch (_: Exception) {
                     }
                     toPlay.release()
+                    _currentTrack = null
                 }
             }.start()
             result.success("ok")
@@ -270,6 +276,25 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
             } catch (_: Exception) {
             }
             result.success("error:${e.javaClass.simpleName}:${e.message}")
+        }
+    }
+
+    // stops the currently playing Fail-Safe voice clip (if any)
+    private fun stopPcm(result: MethodChannel.Result) {
+        val track = _currentTrack
+        if (track != null) {
+            try {
+                track.stop()
+            } catch (_: Exception) {
+            }
+            try {
+                track.release()
+            } catch (_: Exception) {
+            }
+            _currentTrack = null
+            result.success("ok")
+        } else {
+            result.success("none")
         }
     }
 

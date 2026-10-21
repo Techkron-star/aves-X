@@ -1,7 +1,9 @@
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
+import 'package:aves/widgets/settings/privacy/app_lock_page.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/security/privacy_options.dart';
@@ -29,12 +31,21 @@ class ItemLocks extends ChangeNotifier {
   final Set<String> _open = {};
   // just locked: the thumbnails play the lock animation
   final Set<String> _fresh = {};
+  // recently unlocked: thumbnails play the unlock animation
+  final Set<String> _recentlyUnlocked = {};
 
   bool isFresh(AvesEntry entry) => _fresh.contains(entryKey(entry)) || (entry.directory != null && _fresh.contains('dir:${entry.directory}'));
+
+  bool isRecentlyUnlocked(AvesEntry entry) => _recentlyUnlocked.contains(entryKey(entry));
 
   void _markFresh(Iterable<String> keys) {
     _fresh.addAll(keys);
     Future.delayed(const Duration(seconds: 3), () => _fresh.removeAll(keys.toList()));
+  }
+
+  void _markRecentlyUnlocked(String key) {
+    _recentlyUnlocked.add(key);
+    Future.delayed(const Duration(milliseconds: 800), () => _recentlyUnlocked.remove(key));
   }
 
   Future<void> init() async {
@@ -130,11 +141,13 @@ class ItemLocks extends ChangeNotifier {
     if (!isEntryLocked(entry)) return true;
     if (!await SecretLock.items.authenticate(context)) return false;
 
+    final key = entryKey(entry);
     if (isAlbumLocked(entry.directory)) {
       _open.add('a:${entry.directory}');
     } else {
-      _open.add('i:${entryKey(entry)}');
+      _open.add('i:$key');
     }
+    _markRecentlyUnlocked(key);
     notifyListeners();
     return true;
   }
@@ -164,7 +177,17 @@ class ItemLocks extends ChangeNotifier {
     );
     if (!accepted || !context.mounted) return false;
 
-    return privacyOptions.change(context, PrivacyOptions.itemLocksKey, true);
+    final enabled = await privacyOptions.change(context, PrivacyOptions.itemLocksKey, true);
+    if (!enabled || !context.mounted) return false;
+
+    // take the user to set up a lock, instead of only flipping the switch
+    await Navigator.maybeOf(context)?.push(
+      MaterialPageRoute(
+        settings: const RouteSettings(name: AppLockPage.routeName),
+        builder: (_) => const AppLockPage(),
+      ),
+    );
+    return context.mounted && privacyOptions.itemLocks;
   }
 
   // the lock must exist before locking anything: creates it if needed (requires the Master Code)

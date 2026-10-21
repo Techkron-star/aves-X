@@ -30,7 +30,7 @@ It keeps Aves' core features — media viewer, albums, metadata, tags, maps, tra
 - **Fail-Safe** — Always-on local crash diagnosis (nothing is ever sent anywhere), a safe mode after failures that blocks weakening security, opening or deleting vaults and deleting photos, and a lockdown screen that only the Master Code lifts when someone keeps guessing your codes.
 - **Nuke** — Manual or automatic emergency wipe for vaults and their contents. Keys are destroyed first, so an interrupted wipe still leaves nothing readable.
 - **Panic PIN** — Triggers an emergency wipe while displaying a fake incorrect-PIN screen.
-- **Bat-Curity** — Optional credential protection using Argon2id hashing.
+- **Master Guard** — Optional credential protection using Argon2id hashing.
 - **Encrypted Vaults** — Experimental AES-256 encryption for files stored inside vaults.
 
 ### 🕵️ Privacy
@@ -52,9 +52,9 @@ It keeps Aves' core features — media viewer, albums, metadata, tags, maps, tra
 ### 🎨 Customization
 
 - **Custom Navigation Bar** — Multiple navigation styles to personalize the interface.
-- **Bat-Lens** — Glass-lens effect over the active navigation section.
-- **Bat-Glass** — Dark glass theme, now becoming one theme inside the Nebula Engine.
-- **Nebula Engine (in progress)** — Theme tokens shared by Godly, Night Demon, Cosmic Forge and Hermetisc. Custom theme presets are planned.
+- **Nav Lens** — Glass-lens effect over the active navigation section.
+- **Nosferatu Glass** — Dark glass theme, now one theme inside the Nebula Engine.
+- **Nebula Engine (in progress)** — Theme tokens shared by **Nosferatu Glass**, **Obsidian Glass**, **Aureate Glass**, **Forge Glass** and **Hermetic Glass**. Custom theme presets are planned.
 - **Glass-Everywhere** — Experimental glass effects throughout the interface, including the NEW/Experimental feature stickers.
 
 ### ⚡ Performance & Utilities
@@ -81,7 +81,7 @@ Planned features include:
 
 - Photo and locked-album encryption
 - Nebula Engine themes, selector and custom theme presets
-- Bat-Glass performance pass without changing its look
+- Nosferatu Glass performance pass without changing its look
 - Batch and grouped Gargantua exit controls, with Master Code for sharing
 - Theme-aware Fail-Safe bubbles
 - Glass-Everywhere 2.0
@@ -120,10 +120,10 @@ If you are looking for a complete, stable, and actively maintained gallery, cons
 - 💣 Borrado de emergencia manual y automático
 - 🕵️ Álbumes, fotos, favoritos y papelera protegidos
 - 🔒 Vaults avanzadas con cifrado opcional
-- 🛡️ Bat-Curity para proteger las credenciales
+- 🛡️ Master Guard para proteger las credenciales
 - 🧹 Borrado automático de contenido y papelera
 - 🎨 Estilos de navegación personalizados e interfaz experimental de cristal
-- 🌌 Nebula Engine (en curso): Bat-Glass como un tema más y temas personalizados
+- 🌌 Nebula Engine (en curso): Nosferatu Glass, Obsidian Glass, Aureate Glass, Forge Glass y Hermetic Glass, más temas personalizados
 - 🚪 Gargantua (en curso): salidas protegidas por categorías con Master Code
 - 🏷️ Pegatinas NEW/Experimental con tratamiento de cristal
 - ⚡ Modo rendimiento para dispositivos modestos

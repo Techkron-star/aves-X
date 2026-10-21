@@ -6,11 +6,19 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Theme-aware NEW/Experimental feature stickers, with a glass treatment when Glass-Everywhere or Bat-Glass is active.
+- Theme-aware NEW/Experimental feature stickers, with a glass treatment when Glass-Everywhere or Nosferatu Glass is active.
+
+### Renombrado a nombres propios
+
+- Bat-Glass → **Nosferatu Glass**
+- Bat-Lens → **Nav Lens**
+- Bat-Curity → **Master Guard**
+- Bat-Mark → **App Mark**
+- Nuevos temas: Obsidian Glass, Aureate Glass, Forge Glass, Hermetic Glass
 
 ### Work in progress
 
-- Nebula Engine base: theme model, palettes and tokens; Bat-Glass becomes a built-in theme.
+- Nebula Engine base: theme model, palettes and tokens; Nosferatu Glass becomes a built-in theme.
 - Fail-Safe visual rework: theme-aware comic bubble, badge, settings, welcome, lockdown and app lock.
 - Gargantua grouped exit policy: categories instead of 24 toggles, with Master Code for sharing.
 

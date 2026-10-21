@@ -45,10 +45,11 @@ mixin DisplaySettings on SettingsAccess {
   set navBarStyle(NavBarStyle newValue) => set(SettingKeys.navBarStyleKey, newValue.name);
 
   // performance mode always wins over the visual effects
-  bool get batGlass => !performanceMode && nebulaTheme == NebulaTheme.batGlass;
+  bool get nosferatuGlass => !performanceMode && nebulaTheme == NebulaTheme.nosferatuGlass;
 
-  // kept for compatibility with the existing call sites of the Bat-Glass toggle
-  set batGlass(bool newValue) => nebulaTheme = newValue ? NebulaTheme.batGlass : NebulaTheme.aves;
+  // kept for compatibility with the existing call sites of the former Bat-Glass toggle
+  bool get batGlass => nosferatuGlass;
+  set batGlass(bool newValue) => nebulaTheme = newValue ? NebulaTheme.nosferatuGlass : NebulaTheme.aves;
 
   // selected Nebula theme.
   // installs that predate the selector are migrated from the legacy `bat_glass` toggle
@@ -56,14 +57,14 @@ mixin DisplaySettings on SettingsAccess {
     final stored = nebulaThemeFromId(getString(SettingKeys.nebulaThemeKey));
     if (stored != null) return stored;
     final legacyBatGlass = getBool(SettingKeys.batGlassKey) ?? SettingsDefaults.batGlass;
-    return legacyBatGlass ? NebulaTheme.batGlass : NebulaTheme.aves;
+    return legacyBatGlass ? NebulaTheme.nosferatuGlass : NebulaTheme.aves;
   }
 
   set nebulaTheme(NebulaTheme newValue) {
     set(SettingKeys.nebulaThemeKey, newValue.id);
-    // mirror the legacy toggle too, so that a settings export/import keeps the Bat-Glass choice
+    // mirror the legacy toggle too, so that a settings export/import keeps the Nosferatu Glass choice
     // working until `nebula_theme` is a registered setting key
-    set(SettingKeys.batGlassKey, newValue == NebulaTheme.batGlass);
+    set(SettingKeys.batGlassKey, newValue == NebulaTheme.nosferatuGlass);
   }
 
   // selected theme actually applied.

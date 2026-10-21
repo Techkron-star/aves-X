@@ -11,8 +11,8 @@ import 'package:material_ui/material_ui.dart';
 @immutable
 class NebulaTokens extends ThemeExtension<NebulaTokens> {
   // Legacy Fail-Safe look (ruby crystal over black, comic paper bubble).
-  // Used as the fallback for a `ThemeData` that does not carry the extension, and as the Bat-Glass recipe,
-  // so that Bat-Glass keeps looking exactly as before the Nebula Engine.
+  // Used as the fallback for a `ThemeData` that does not carry the extension, and as the Nosferatu Glass recipe,
+  // so that Nosferatu Glass keeps looking exactly as before the Nebula Engine.
   static const _legacyScrim = Color(0xFF000000);
   static const _legacySecuritySurface = Color(0xFF24060E);
   static const _legacyComicPaper = Color(0xFFFFFBF0);
@@ -109,12 +109,17 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
 
   // Tokens of a palette applied on top of the effective color scheme.
   factory NebulaTokens.fromPalette(NebulaPalette palette, ColorScheme colors) => switch (palette.treatment) {
-    NebulaSurfaceTreatment.rubyCrystal => _ruby(palette),
-    NebulaSurfaceTreatment.flat || NebulaSurfaceTreatment.frosted || NebulaSurfaceTreatment.goldCrystal => _fromScheme(palette, colors),
+    NebulaSurfaceTreatment.nosferatuGlass => _nosferatu(palette),
+    NebulaSurfaceTreatment.obsidianGlass => _obsidian(palette),
+    NebulaSurfaceTreatment.aureateGlass => _aureate(palette),
+    NebulaSurfaceTreatment.forgeGlass => _forge(palette),
+    NebulaSurfaceTreatment.hermeticGlass => _hermetic(palette),
+    NebulaSurfaceTreatment.flat || NebulaSurfaceTreatment.frosted => _fromScheme(palette, colors),
   };
 
-  // Bat-Glass: the current Fail-Safe look, with the palette accent/edges/body
-  static NebulaTokens _ruby(NebulaPalette palette) => NebulaTokens(
+  // Nosferatu Glass (former Bat-Glass): the current Fail-Safe look, with the palette accent/edges/body.
+  // Values are intentionally identical to the pre-Nebula Bat-Glass recipe.
+  static NebulaTokens _nosferatu(NebulaPalette palette) => NebulaTokens(
     securityScrim: _legacyScrim,
     securitySurface: _legacySecuritySurface,
     securityOnSurface: const Color(0xFFFFFFFF),
@@ -135,6 +140,102 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
     securityInputFieldBg: _legacySecuritySurface,
     securityInputFieldBorder: palette.accent,
     securityScrimOverlay: _legacyScrim.withValues(alpha: .8),
+  );
+
+  // Obsidian Glass (former Night Demon): near-black blood crystal, dark bubble with white ink.
+  static NebulaTokens _obsidian(NebulaPalette palette) => NebulaTokens(
+    securityScrim: const Color(0xFF000000),
+    securitySurface: const Color(0xFF1A0000),
+    securityOnSurface: const Color(0xFFFFFFFF),
+    securityAccent: const Color(0xFFFF3B30),
+    securityAlert: const Color(0xFFFF3B30),
+    securityOk: _ok,
+    securityWarning: _warning,
+    securityInfo: _info,
+    securityBubbleSurface: const Color(0xFF2A0000),
+    securityBubbleBorder: const Color(0xFFFF3B30),
+    securityBubbleTail: const Color(0xFF2A0000),
+    securityBubbleGlow: const Color(0x66FF3B30),
+    securityBubbleShadow: const Color(0xFF000000),
+    securityBubbleInk: const Color(0xFFFFFFFF),
+    securityCrystalEdge: const Color(0x80FF3B5C),
+    securityCrystalHighlight: const Color(0x55FF3B30),
+    securityCrystalBody: palette.crystalBody,
+    securityInputFieldBg: const Color(0xFF1A0000),
+    securityInputFieldBorder: const Color(0xFFFF3B30),
+    securityScrimOverlay: const Color(0xCC000000),
+  );
+
+  // Aureate Glass (former Godly): warm gold crystal with a parchment comic bubble.
+  static NebulaTokens _aureate(NebulaPalette palette) => NebulaTokens(
+    securityScrim: const Color(0xFF000000),
+    securitySurface: const Color(0xFF1A1409),
+    securityOnSurface: const Color(0xFFFFF8E7),
+    securityAccent: const Color(0xFFE8C547),
+    securityAlert: _alert,
+    securityOk: _ok,
+    securityWarning: _warning,
+    securityInfo: _info,
+    securityBubbleSurface: const Color(0xFFFFF4D6),
+    securityBubbleBorder: const Color(0xFF8A6A1F),
+    securityBubbleTail: const Color(0xFFFFF4D6),
+    securityBubbleGlow: const Color(0x66E8C547),
+    securityBubbleShadow: const Color(0xFF3A2A08),
+    securityBubbleInk: const Color(0xFF20180A),
+    securityCrystalEdge: const Color(0x80FFE08A),
+    securityCrystalHighlight: const Color(0x55FFF2C0),
+    securityCrystalBody: palette.crystalBody,
+    securityInputFieldBg: const Color(0xFF2C2312),
+    securityInputFieldBorder: const Color(0xFFE8C547),
+    securityScrimOverlay: const Color(0xCC000000),
+  );
+
+  // Forge Glass (former Cosmic Forge): cosmic violet crystal with molten-orange accents.
+  static NebulaTokens _forge(NebulaPalette palette) => NebulaTokens(
+    securityScrim: const Color(0xFF000000),
+    securitySurface: const Color(0xFF1B1533),
+    securityOnSurface: const Color(0xFFF3EEFF),
+    securityAccent: const Color(0xFFFF7A18),
+    securityAlert: const Color(0xFFFF4D4D),
+    securityOk: _ok,
+    securityWarning: _warning,
+    securityInfo: _info,
+    securityBubbleSurface: const Color(0xFF241B44),
+    securityBubbleBorder: const Color(0xFFB07CFF),
+    securityBubbleTail: const Color(0xFF241B44),
+    securityBubbleGlow: const Color(0x66FF7A18),
+    securityBubbleShadow: const Color(0xFF000000),
+    securityBubbleInk: const Color(0xFFF3EEFF),
+    securityCrystalEdge: const Color(0x80B07CFF),
+    securityCrystalHighlight: const Color(0x55FFB067),
+    securityCrystalBody: palette.crystalBody,
+    securityInputFieldBg: const Color(0xFF1B1533),
+    securityInputFieldBorder: const Color(0xFFB07CFF),
+    securityScrimOverlay: const Color(0xCC000000),
+  );
+
+  // Hermetic Glass (former Hermetisc): emerald crystal with violet edges.
+  static NebulaTokens _hermetic(NebulaPalette palette) => NebulaTokens(
+    securityScrim: const Color(0xFF000000),
+    securitySurface: const Color(0xFF112B21),
+    securityOnSurface: const Color(0xFFEAFBF3),
+    securityAccent: const Color(0xFF35E0A1),
+    securityAlert: const Color(0xFFFF5252),
+    securityOk: _ok,
+    securityWarning: _warning,
+    securityInfo: _info,
+    securityBubbleSurface: const Color(0xFF17382B),
+    securityBubbleBorder: const Color(0x809B7BFF),
+    securityBubbleTail: const Color(0xFF17382B),
+    securityBubbleGlow: const Color(0x6635E0A1),
+    securityBubbleShadow: const Color(0xFF000000),
+    securityBubbleInk: const Color(0xFFEAFBF3),
+    securityCrystalEdge: const Color(0x809B7BFF),
+    securityCrystalHighlight: const Color(0x5535E0A1),
+    securityCrystalBody: palette.crystalBody,
+    securityInputFieldBg: const Color(0xFF112B21),
+    securityInputFieldBorder: const Color(0x809B7BFF),
+    securityScrimOverlay: const Color(0xCC000000),
   );
 
   // other themes: surface, border, glow and accent come from the effective scheme,

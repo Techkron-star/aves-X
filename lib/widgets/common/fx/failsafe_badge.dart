@@ -5,7 +5,7 @@ import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/nebula/nebula_tokens.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
-import 'package:aves/widgets/common/fx/lock_animation.dart';
+import 'package:aves/widgets/common/fx/app_mark.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:material_ui/material_ui.dart';
@@ -94,7 +94,7 @@ class _FailsafeBadgeState extends State<FailsafeBadge> with SingleTickerProvider
                           ),
                         ),
                       ),
-                      const BatMark(size: 16),
+                      const AppMark(size: 16),
                     ],
                   ),
                 ),

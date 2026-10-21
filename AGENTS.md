@@ -15,7 +15,7 @@
 
 ## Equipo
 - `coordinator`: reparte tareas, decide prioridades y llama al auditor.
-- `nebula-theme`: Nebula Engine, temas, selector, Bat-Glass, Night Demon, Godly, Cosmic Forge, Hermetisc.
+- `nebula-theme`: Nebula Engine, temas, selector, **Nosferatu Glass**, **Obsidian Glass**, **Aureate Glass**, **Forge Glass** y **Hermetic Glass**.
 - `gargantua`: Sistema Gargantua, salidas de archivos, share/export/open-with/copy, vaults y bloqueos.
 - `aves-ui`: UI general, navegación, iconos y ajustes visuales.
 - `failsafe-ui`: rediseño visual de Fail-Safe, sus tarjetas y sus burbujas, usando los tokens del tema.
@@ -23,10 +23,10 @@
 - `auditor`: único que compila y publica.
 
 ## Propiedad de archivos
-- `nebula-theme`: `lib/theme/**`, `lib/widgets/common/fx/**` (cristal, excepto `failsafe_badge.dart` y `lock_animation.dart`, que son de `failsafe-ui`), `lib/widgets/settings/display/**`, `lib/widgets/settings/experimental/**`, `lib/model/settings/modules/display.dart`, `lib/widgets/aves_app.dart`.
-- `gargantua`: `lib/services/app_service.dart`, `lib/widgets/viewer/action/**`, `lib/widgets/collection/action/**`, `lib/model/security/**`, `android/**` (intents/share).
-- `aves-ui`: navegación, iconos y widgets que no sean de tema ni de seguridad.
-- `failsafe-ui`: `lib/widgets/security/**`, `lib/widgets/settings/security/**`, `lib/widgets/dialogs/failsafe_comic_dialog.dart`, `lib/widgets/common/fx/failsafe_badge.dart`, `lib/widgets/common/fx/lock_animation.dart`.
+- `nebula-theme`: `lib/theme/**`, `lib/widgets/common/fx/**` (cristal, excepto `failsafe_badge.dart` y `lock_animation.dart`, que son de `failsafe-ui`), `lib/widgets/common/fx/app_mark.dart` (App Mark, antes `bat_mark.dart`), `lib/widgets/settings/display/**`, `lib/widgets/settings/experimental/**`, `lib/model/settings/modules/display.dart`, `lib/widgets/aves_app.dart`.
+- `gargantua`: `lib/services/app_service.dart`, `lib/widgets/viewer/action/**`, `lib/widgets/collection/action/**`, `lib/model/security/**` (incluido `lib/model/security/master_guard.dart`, antes `bat_curity.dart`), `android/**` (intents/share).
+- `aves-ui`: navegación, iconos y widgets que no sean de tema ni de seguridad; también `lib/widgets/navigation/nav_bar/nav_bar.dart` (Nav Lens) y `lib/widgets/settings/display/nebula_theme_tile.dart` (selector de tema, compartido con `nebula-theme`).
+- `failsafe-ui`: `lib/widgets/security/**` (incluidos `lib/widgets/security/app_lock_gate.dart` y `lib/widgets/security/failsafe_lockdown.dart`), `lib/widgets/settings/security/**`, `lib/widgets/dialogs/failsafe_comic_dialog.dart`, `lib/widgets/common/fx/failsafe_badge.dart`, `lib/widgets/common/fx/lock_animation.dart`.
 - `reviewer` y `auditor`: lectura global; el auditor puede editar cualquier archivo para arreglar un build, pero debe tocar lo mínimo.
 
 ## Reglas
@@ -45,5 +45,5 @@
 - Si el build falla, el auditor corrige la causa raíz, no solo el síntoma.
 
 ## Roadmap
-- Nebula Engine: post-beta. Fase 1 = paleta/superficies reutilizando Bat-Glass; Fase 2 = shaders/animaciones.
+- Nebula Engine: post-beta. Fase 1 = paleta/superficies reutilizando Nosferatu Glass; Fase 2 = shaders/animaciones.
 - Gargantua: futuro. Lo que entra en una zona protegida no sale sin permiso. Compartir ya pide credencial; faltan Master Code por regla y otras salidas.

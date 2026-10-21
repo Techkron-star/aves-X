@@ -7,6 +7,7 @@ import 'package:aves/model/security/attempt_guard.dart';
 import 'package:aves/model/security/nuke.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/dialogs/filter_editors/code_dialog.dart';
+import 'package:aves/theme/nebula/nebula_tokens.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:material_ui/material_ui.dart';
@@ -25,13 +26,14 @@ class AppLockGate extends StatelessWidget {
       listenable: appLock,
       builder: (context, _) {
         final covered = !appLock.ready || appLock.locked;
+        final nebula = Theme.of(context).nebula;
         return Stack(
           fit: StackFit.expand,
           children: [
             if (appLock.ready && child != null) ExcludeSemantics(excluding: covered, child: child!),
             if (covered)
               Positioned.fill(
-                child: appLock.ready ? const _LockScreen() : const ColoredBox(color: Color(0xFF000000)),
+                child: appLock.ready ? const _LockScreen() : ColoredBox(color: nebula.securityScrim),
               ),
           ],
         );

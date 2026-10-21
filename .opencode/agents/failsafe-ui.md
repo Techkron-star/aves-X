@@ -31,7 +31,7 @@ Objetivo:
 Reglas:
 - Lee los tokens desde `Theme.of(context).extension<...>()` o el mecanismo que defina `nebula-theme`. Si falta un token, pídelo; no metas un color hardcodeado en el widget.
 - Mantén la semántica de seguridad: lockdown, errores y advertencias deben seguir siendo inequívocos.
-- Respeta modo rendimiento, claro/oscuro, Bat-Glass, Glass-Everywhere, tamaños de texto, contraste y accesibilidad.
+- Respeta modo rendimiento, claro/oscuro, Nosferatu Glass, Glass-Everywhere, tamaños de texto, contraste y accesibilidad.
 - No toques `lib/model/security/**` ni la lógica de autenticación/bloqueo.
 - No edites `lib/theme/**`: eso es de `nebula-theme`.
 - No lances builds, no hagas commit ni push.

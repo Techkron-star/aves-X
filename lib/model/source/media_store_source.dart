@@ -1,5 +1,5 @@
 import 'package:aves/model/captions.dart';
-import 'package:aves/model/security/bat_curity.dart';
+import 'package:aves/model/security/master_guard.dart';
 import 'package:aves/model/security/auto_delete.dart';
 import 'package:aves/model/security/nuke.dart';
 import 'dart:async';
@@ -68,7 +68,7 @@ class MediaStoreSource extends CollectionSource {
     await localMediaDb.init();
     await vaults.init();
     await Nuke.runPendingVaults();
-    unawaited(batCurity.encryptAllAtStartup());
+    unawaited(masterGuard.encryptAllAtStartup());
     await favourites.init();
     await captions.init();
     albumGrouping.init();

@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ic_launcher_background">#FFFFFF</color>
+    <!-- Adaptive icon -->
+    <!-- Launcher icon backgrounds are not themed by Material You: the themed variant
+         is the `monochrome` layer in mipmap-anydpi-v26. This is the brand surface. -->
+    <color name="ic_launcher_background">#101216</color>
+
+    <!-- Brand mark, flat colors (mirrors AvesLogoPainter) -->
+    <color name="ic_launcher_logo_1">#EF435A</color>
+    <color name="ic_launcher_logo_2">#E0E0E0</color>
+    <color name="ic_launcher_logo_3">#FFC11F</color>
+    <color name="ic_launcher_logo_4">#1CC8EB</color>
+
+    <!-- Launch/Flutter first-frame surface, overridden in values-night -->
+    <color name="launch_background">#FFFFFF</color>
+
     <color name="ic_shortcut_background">#FFFFFF</color>
     <color name="ic_shortcut_foreground">#455A64</color>
     <color name="ic_launcher_flavour">#1cc8eb</color>

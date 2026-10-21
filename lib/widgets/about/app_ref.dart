@@ -1,4 +1,4 @@
-import 'package:aves/widgets/common/fx/lock_animation.dart';
+import 'package:aves/widgets/common/fx/app_mark.dart';
 import 'package:aves/model/device.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/theme/styles.dart';
@@ -68,7 +68,7 @@ class AppReference extends StatelessWidget {
               spacing: 6,
               children: [
                 // both bats look towards the name
-                BatMark(size: 30),
+                AppMark(size: 30),
                 LinkChip(
                   leading: Icon(
                     AIcons.github,
@@ -78,7 +78,7 @@ class AppReference extends StatelessWidget {
                   text: 'Techkron-star',
                   urlString: 'https://github.com/Techkron-star',
                 ),
-                BatMark(size: 30, mirrored: true),
+                AppMark(size: 30, mirrored: true),
               ],
             ),
           ),

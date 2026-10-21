@@ -47,10 +47,10 @@ Leyenda: ✅ hecho (compila; se prueba en el teléfono) · 🔧 en curso o parci
 
 ### Interfaz y efectos
 - ✅ Nombre y logo Aves-X (murciélago), Monet por defecto y modo rendimiento.
-- 🔧 Pegatinas de funciones ("NEW"/"Experimental") theme-aware y con variante de cristal cuando Glass-Everywhere o Bat-Glass están activos (implementadas; falta verlas en el teléfono).
-- ✅ Barra de navegación: estilos (clásica, redondeada, flotante, rectangular), **Bat-Lens** deslizante con efecto gota, deslizar entre pestañas con el dedo y transición tipo Instagram.
-- ✅ **Bat-Glass 2.0** (primera fase): cristal de diamante rojo facetado y translúcido con destello animado en el menú lateral, cristal en botones y barras difuminadas, íconos líquidos, animación de candado con cadenas.
-- ✅ **Glass-Everywhere**: vidrio esmerilado neutro (desenfoque fuerte) en diálogos, menús y superficies; separado de Bat-Glass.
+- 🔧 Pegatinas de funciones ("NEW"/"Experimental") theme-aware y con variante de cristal cuando Glass-Everywhere o Nosferatu Glass están activos (implementadas; falta verlas en el teléfono).
+- ✅ Barra de navegación: estilos (clásica, redondeada, flotante, rectangular), **Nav Lens** deslizante con efecto gota, deslizar entre pestañas con el dedo y transición tipo Instagram.
+- ✅ **Nosferatu Glass 2.0** (primera fase): cristal de diamante rojo facetado y translúcido con destello animado en el menú lateral, cristal en botones y barras difuminadas, íconos líquidos, animación de candado con cadenas.
+- ✅ **Glass-Everywhere**: vidrio esmerilado neutro (desenfoque fuerte) en diálogos, menús y superficies; separado de Nosferatu Glass.
 - ✅ Progreso de operaciones (mover/copiar/borrar) enviable a segundo plano.
 
 ### Reproductor (Bat-Player)
@@ -64,9 +64,9 @@ Leyenda: ✅ hecho (compila; se prueba en el teléfono) · 🔧 en curso o parci
 
 ## 🔧 En curso
 
-- 🔧 **Bat-Glass 2.0 / Nebula Engine** (Glass-Everywhere 2.0: menús, hojas, avisos, tarjetas y cajón ya son cristal translúcido con borde; falta blur real en ellos) (motor propio de cristal y efectos): extender el cristal facetado a más pantallas (barras de búsqueda y filtros, diálogos, tarjetas, selector de pestañas), mejores animaciones de íconos y transiciones (cristal que se rompe o se condensa), ajustes separados que se noten entre Bat-Glass y Glass-Everywhere. Posible renombrar Glass-Everywhere a **Bat-Cave**.
-- 🔧 **Nebula Engine — Fase 1**: modelo `NebulaTheme`/`NebulaPalette`/`NebulaTokens`, Bat-Glass como tema built-in y selector con vista previa. La base no cambia el aspecto actual; después entran Night Demon y Godly.
-- 🔧 **Bat-Glass — rendimiento**: quitar render que no se ve (blur bajo superficies opacas, animaciones fuera de pantalla, capas tapadas) sin cambiar el aspecto; medir en gama baja antes de añadir efectos.
+- 🔧 **Nosferatu Glass 2.0 / Nebula Engine** (Glass-Everywhere 2.0: menús, hojas, avisos, tarjetas y cajón ya son cristal translúcido con borde; falta blur real en ellos) (motor propio de cristal y efectos): extender el cristal facetado a más pantallas (barras de búsqueda y filtros, diálogos, tarjetas, selector de pestañas), mejores animaciones de íconos y transiciones (cristal que se rompe o se condensa), ajustes separados que se noten entre Nosferatu Glass y Glass-Everywhere. Glass-Everywhere se mantiene como acabado neutro, separado de Nosferatu Glass.
+- 🔧 **Nebula Engine — Fase 1**: modelo `NebulaTheme`/`NebulaPalette`/`NebulaTokens`, Nosferatu Glass como tema built-in y selector con vista previa. La base no cambia el aspecto actual; después entran Obsidian Glass y Aureate Glass.
+- 🔧 **Nosferatu Glass — rendimiento**: quitar render que no se ve (blur bajo superficies opacas, animaciones fuera de pantalla, capas tapadas) sin cambiar el aspecto; medir en gama baja antes de añadir efectos.
 - 🔧 **Gargantua — política de salidas**: agrupar las salidas por categorías (compartir, exportar/guardar, portapapeles, abrir con/editar, cast/superficies) y pedir Master Code al compartir. Diseño en curso; no 24 interruptores.
 - 🔧 **Fail-Safe visual**: auditoría hecha. Fase 1 = burbuja cómic + badge con tokens del tema; fase 2 = ajustes/welcome; fase 3 = lockdown/app lock. La forma y la semántica de seguridad no cambian.
 - 🔧 Diálogos de Fail-Safe con efectos visuales (el Lockdown ya tiene fondo de cristal rubí).
@@ -77,7 +77,7 @@ Leyenda: ✅ hecho (compila; se prueba en el teléfono) · 🔧 en curso o parci
 ## ⬜ Pendiente — próxima versión
 
 1. ✅ **Personalidad de Fail-Safe**: personaje con comentarios y voz sintetizada (balbuceo procedural, sin muestras ni licencias) en Lockdown y bloqueo de la app; opción para desactivar la voz.
-2. ⬜ **Bat-Curity fase 2**: fotos bloqueadas individualmente conservan metadatos y se mueven al almacenamiento privado de la app.
+2. ⬜ **Master Guard fase 2**: fotos bloqueadas individualmente conservan metadatos y se mueven al almacenamiento privado de la app.
 3. ⬜ **Cifrado de archivos de las vaults** (que con root en `data/data` no se abran):
    1. At-rest: AES-256-GCM por archivo con clave en Android Keystore; descifrado temporal al abrir y borrado/sobrescritura al cerrar.
    2. Clave ligada a la credencial (PBKDF2/Argon2).
@@ -122,23 +122,23 @@ Las apps de seguridad suelen impedir que otros entren a tus fotos; Gargantua evi
 - ⬜ Se integrará con Gargantua.
 
 ### Modo tablet y ergonomía (Bubble Navigation)
-- 🔧 Navegación flotante para pantallas grandes (**Modo tablet**, Ajustes → Pantalla, bajo el modo TV): burbuja grande al borde que abre hasta 6 burbujas en arco; deslizar de la grande a una pequeña cambia de pestaña. Sin Bat-Lens; el editor limita a 6 acciones. Primera versión, sin probar. Ya incluye el ajuste "Burbuja a la izquierda" (zurdos) y el gesto secreto de Álbumes (mantener 5 s la burbuja de Álbumes con el menú abierto); ambos sin probar.
-- ⬜ Animaciones de escala y desvanecimiento de las burbujas, con la estética de Bat-Glass.
+- 🔧 Navegación flotante para pantallas grandes (**Modo tablet**, Ajustes → Pantalla, bajo el modo TV): burbuja grande al borde que abre hasta 6 burbujas en arco; deslizar de la grande a una pequeña cambia de pestaña. Sin Nav Lens; el editor limita a 6 acciones. Primera versión, sin probar. Ya incluye el ajuste "Burbuja a la izquierda" (zurdos) y el gesto secreto de Álbumes (mantener 5 s la burbuja de Álbumes con el menú abierto); ambos sin probar.
+- ⬜ Animaciones de escala y desvanecimiento de las burbujas, con la estética de Nosferatu Glass.
 - ✅ Detección automática de tablet (lado menor ≥ 600 dp) para activar este modo sin pasar por Ajustes: mientras el usuario no elija el interruptor, la interfaz sigue a la pantalla; si elige, manda su ajuste. Sin probar.
 - 🔧 Detección automática de Android TV: ahora también se considera TV cuando el `uiMode` del sistema es televisión (cajas que no declaran `leanback`). Sin probar; falta revisar errores de estado al cambiar de interfaz.
 - 🔧 Cambio en caliente: el modo tablet automático se recalcula cuando cambian las métricas de la ventana (plegar, pantalla externa, pantalla dividida). Sin probar; falta el cambio en caliente entre interfaz TV y normal.
 
 ### Nebula Engine — temas (Fase 1 en curso)
 
-Idea: que **Nebula Engine** sea el paraguas de personalización visual (Ajustes → **Opciones del Nebula Engine**) y que **Bat-Glass** deje de ser "el" tema para convertirse en uno más, junto a **Night Demon**, **Godly**, **Cosmic Forge** y **Hermetisc** (temática mágica/hermética). La base entra ahora; los shaders siguen después de estabilizar Bat-Glass y el rendimiento.
+Idea: que **Nebula Engine** sea el paraguas de personalización visual (Ajustes → **Opciones del Nebula Engine**) y que **Nosferatu Glass** deje de ser "el" tema para convertirse en uno más, junto a **Obsidian Glass**, **Aureate Glass**, **Forge Glass** y **Hermetic Glass** (temática mágica/hermética). La base entra ahora; los shaders siguen después de estabilizar Nosferatu Glass y el rendimiento.
 
 - 🔧 Selector de temas con vista previa (paleta, superficies, iconos, animaciones y, opcionalmente, sonidos).
-- 🔧 Fase 1 (bajo riesgo): modelo de temas y tokens, Bat-Glass como tema built-in, y después Night Demon/Godly reutilizando la base.
-- ⬜ Fase 2 (más trabajo): efectos propios con shaders/animaciones para Cosmic Forge y Hermetisc.
+- 🔧 Fase 1 (bajo riesgo): modelo de temas y tokens, Nosferatu Glass como tema built-in, y después Obsidian Glass/Aureate Glass reutilizando la base.
+- ⬜ Fase 2 (más trabajo): efectos propios con shaders/animaciones para Forge Glass y Hermetic Glass.
 - ⬜ Persistencia por tema, respeto al modo rendimiento (sin blur/shaders) y a la accesibilidad (contraste, tamaños).
 - ⬜ Los temas no deben tocar la lógica de seguridad: la forma y la semántica de Fail-Safe/bloqueos se mantienen; superficie, borde, glow y acento siguen el tema, y el rojo/ámbar de peligro se conserva con contraste garantizado.
 
-**Viabilidad:** alta para el selector y los temas de paleta, porque la app ya construye `ThemeData` desde un `ColorScheme` y ya separa las capas de cristal (Bat-Glass / Glass-Everywhere). Media para los efectos únicos: el coste real es rendimiento (blur y shaders en gama baja) y coherencia visual, no la arquitectura. Recomendación: la base de tokens entra ya; los shaders, después de medir FPS en gama baja.
+**Viabilidad:** alta para el selector y los temas de paleta, porque la app ya construye `ThemeData` desde un `ColorScheme` y ya separa las capas de cristal (Nosferatu Glass / Glass-Everywhere). Media para los efectos únicos: el coste real es rendimiento (blur y shaders en gama baja) y coherencia visual, no la arquitectura. Recomendación: la base de tokens entra ya; los shaders, después de medir FPS en gama baja.
 
 ### Otras ideas
 - ⬜ Estrategias nuevas de ocultación, automatización de metadatos y vaults, opciones avanzadas de almacenamiento.

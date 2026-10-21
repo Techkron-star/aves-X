@@ -2,7 +2,7 @@ import 'package:aves/widgets/security/failsafe_welcome.dart';
 import 'package:aves/widgets/security/failsafe_lockdown.dart';
 import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/widgets/common/fx/failsafe_badge.dart';
-import 'package:aves/model/security/bat_curity.dart';
+import 'package:aves/model/security/master_guard.dart';
 import 'package:aves/widgets/common/fx/liquid.dart';
 import 'package:aves/model/security/auto_delete.dart';
 import 'package:aves/model/item_locks.dart';
@@ -493,7 +493,7 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
 
     // pending total wipe is executed before showing any UI
     await Nuke.runPendingTotal();
-    await batCurity.init();
+    await masterGuard.init();
     await appLock.init();
     await privacyOptions.init();
     await itemLocks.init();

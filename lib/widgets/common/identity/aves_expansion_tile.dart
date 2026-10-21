@@ -1,6 +1,8 @@
+import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/durations.dart';
 import 'package:aves/theme/themes.dart';
 import 'package:aves/widgets/common/basic/divider.dart';
+import 'package:aves/widgets/common/fx/blurred.dart';
 import 'package:aves/widgets/common/identity/highlight_title.dart';
 import 'package:aves/widgets/settings/language/locales.dart';
 import 'package:expansion_tile_card/expansion_tile_card.dart';
@@ -44,7 +46,11 @@ class const AvesExpansionTile({
     final animationDuration = context.select<DurationsData, Duration>((v) => v.expansionTileAnimation);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    return ExpansionTileCard(
+    // cristal en las tarjetas de los ajustes (y las que comparten este widget) cuando Bat-Glass o
+    // Glass-Everywhere están activos; cuando ambos están apagados se devuelve la tarjeta tal cual,
+    // sin backdrop ni recorte de sombra (no hay cambio visual por defecto)
+    final glass = context.select<Settings, bool>((s) => s.batGlass || s.glassEverywhere);
+    final card = ExpansionTileCard(
       // key is expected by test driver
       key: Key('tilecard-$value'),
       value: value,
@@ -65,6 +71,12 @@ class const AvesExpansionTile({
           if (enabled) ...children,
         ],
       ),
+    );
+    if (!glass) return card;
+    return BlurredRRect(
+      enabled: true,
+      borderRadius: BorderRadius.circular(14),
+      child: card,
     );
   }
 }

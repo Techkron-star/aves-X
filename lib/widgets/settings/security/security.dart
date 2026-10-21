@@ -1,6 +1,6 @@
 import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/widgets/common/basic/feature_sticker.dart';
-import 'package:aves/model/security/bat_curity.dart';
+import 'package:aves/model/security/master_guard.dart';
 import 'package:aves/theme/colors.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/widgets/common/basic/scaffold.dart';
@@ -95,7 +95,7 @@ class SettingsTileSecurityHashing extends SettingsTile {
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
-    listenable: batCurity,
+    listenable: masterGuard,
     builder: (context, _) {
       final l10n = context.l10n;
       final error = Theme.of(context).colorScheme.error;
@@ -115,11 +115,11 @@ class SettingsTileSecurityHashing extends SettingsTile {
             Text(l10n.batCurityOnlyIfYouKnow, style: TextStyle(color: error, fontWeight: FontWeight.w600)),
           ],
         ),
-        value: batCurity.hashingEnabled,
+        value: masterGuard.hashingEnabled,
         onChanged: (value) async {
           if (value && !await showRiskWarning(context, l10n.batCurityHashingWarning)) return;
           if (!context.mounted) return;
-          await batCurity.setHashing(context, value);
+          await masterGuard.setHashing(context, value);
         },
       );
     },
@@ -135,7 +135,7 @@ class SettingsTileSecurityVaultEncryption extends SettingsTile {
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
-    listenable: batCurity,
+    listenable: masterGuard,
     builder: (context, _) {
       final l10n = context.l10n;
       final error = Theme.of(context).colorScheme.error;
@@ -155,11 +155,11 @@ class SettingsTileSecurityVaultEncryption extends SettingsTile {
             Text(l10n.batCurityOnlyIfYouKnow, style: TextStyle(color: error, fontWeight: FontWeight.w600)),
           ],
         ),
-        value: batCurity.vaultEncryption,
+        value: masterGuard.vaultEncryption,
         onChanged: (value) async {
           if (value && !await showRiskWarning(context, l10n.batCurityVaultEncWarning)) return;
           if (!context.mounted) return;
-          final ok = await batCurity.setVaultEncryption(context, value);
+          final ok = await masterGuard.setVaultEncryption(context, value);
           if (!ok && !value && context.mounted) {
             ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(l10n.batCurityVaultEncDisableFailed)));
           }
@@ -180,6 +180,6 @@ class SettingsTileSecurityForceDecrypt extends SettingsTile {
   Widget build(BuildContext context) => ListTile(
     title: Text(title(context)),
     subtitle: Text(context.l10n.batCurityForceDecryptSubtitle),
-    onTap: () => batCurity.forceDecryptAll(context),
+    onTap: () => masterGuard.forceDecryptAll(context),
   );
 }

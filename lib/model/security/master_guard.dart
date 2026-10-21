@@ -13,12 +13,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pointycastle/export.dart';
 
-// "Bat-curity": optional extra protection layer.
+// Master Guard: optional extra protection layer.
 // For now: Argon2id (+ random salt) hashing of every credential (Master Code, PINs, patterns, passwords).
 // It is opt-in, and only the Master Code can turn it off.
-final BatCurity batCurity = BatCurity._();
+final MasterGuard masterGuard = MasterGuard._();
 
-class BatCurity extends ChangeNotifier {
+class MasterGuard extends ChangeNotifier {
   static const _enabledKey = 'batcurity_hash';
   static const _vaultEncKey = 'batcurity_vault_enc';
   static const _prefix = 'a2id';
@@ -28,7 +28,7 @@ class BatCurity extends ChangeNotifier {
   static const _iterations = 3;
   static const _lanes = 1;
 
-  BatCurity._();
+  MasterGuard._();
 
   bool _enabled = false;
 

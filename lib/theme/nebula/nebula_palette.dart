@@ -6,17 +6,23 @@ import 'package:material_ui/material_ui.dart';
 enum NebulaSurfaceTreatment {
   // plain Material surfaces
   flat,
-  // Bat-Glass: smoked ruby crystal, light blur and faceted edges
-  rubyCrystal,
+  // Nosferatu Glass: smoked ruby crystal, light blur and faceted edges
+  nosferatuGlass,
   // frosted neutral glass, like Glass-Everywhere
   frosted,
-  // Godly: gold crystal
-  goldCrystal,
+  // Aureate Glass: gold crystal
+  aureateGlass,
+  // Obsidian Glass: blood-ruby crystal over near-black surfaces
+  obsidianGlass,
+  // Forge Glass: cosmic violet crystal with molten-orange glints (phase 2 effects)
+  forgeGlass,
+  // Hermetic Glass: emerald crystal with violet edges (phase 2 effects)
+  hermeticGlass,
 }
 
 // A Nebula palette: colors and surface treatment only.
 //
-// It intentionally carries no effect or animation, so that phase 1 themes stay as cheap as Bat-Glass.
+// It intentionally carries no effect or animation, so that phase 1 themes stay as cheap as Nosferatu Glass.
 // `brightness == null` means the theme follows the user brightness setting, like the default Aves theme,
 // which delegates to the legacy light/dark/black themes.
 @immutable

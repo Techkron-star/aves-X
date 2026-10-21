@@ -192,7 +192,12 @@ class _ThumbnailImageState extends State<ThumbnailImage> {
       listenable: Listenable.merge([itemLocks, privacyOptions]),
       builder: (context, _) {
         final child = _buildThumbnail(context);
-        if (!itemLocks.isEntryLocked(entry)) return child;
+        if (!itemLocks.isEntryLocked(entry)) {
+          if (itemLocks.isRecentlyUnlocked(entry)) {
+            return _UnlockingThumbnail(child: child, entry: entry);
+          }
+          return child;
+        }
 
         // performance mode: solid color instead of blurring the image
         if (settings.performanceMode) {
@@ -380,4 +385,44 @@ class _ProviderStream(
   void startListening() => _stream.addListener(listener);
 
   void stopListening() => _stream.removeListener(listener);
+}
+
+// Shows the unlock animation when an item was just unlocked
+class _UnlockingThumbnail extends StatefulWidget {
+  final Widget child;
+  final AvesEntry entry;
+
+  const _UnlockingThumbnail({required this.child, required this.entry});
+
+  @override
+  State<_UnlockingThumbnail> createState() => _UnlockingThumbnailState();
+}
+
+class _UnlockingThumbnailState extends State<_UnlockingThumbnail> {
+  late final GlobalKey _badgeKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    // Find the LockedBadge and play unlock animation
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final state = _badgeKey.currentState as _LockedBadgeState?;
+      state?.playUnlockAnimation();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.passthrough,
+      children: [
+        widget.child,
+        // Show the LockedBadge with unlock animation on top
+        Center(
+          key: _badgeKey,
+          child: LockedBadge(fresh: false),
+        ),
+      ],
+    );
+  }
 }

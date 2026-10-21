@@ -1,6 +1,6 @@
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/dialogs/aves_dialog.dart';
-import 'package:aves/model/security/bat_curity.dart';
+import 'package:aves/model/security/master_guard.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -162,7 +162,7 @@ class Vaults {
     // encryption at rest (Bat-curity), if enabled
     for (final path in unlocked) {
       final name = detailsForPath(path)?.name;
-      if (name != null) unawaited(batCurity.encryptVault(name));
+      if (name != null) unawaited(masterGuard.encryptVault(name));
     }
   }
 
@@ -173,7 +173,7 @@ class Vaults {
     // the files that cannot be decrypted are reported, and the others stay accessible
     final vaultName = detailsForPath(dirPath)?.name;
     if (vaultName != null) {
-      final report = await batCurity.decryptVault(vaultName);
+      final report = await masterGuard.decryptVault(vaultName);
       if (report != null && !report.success && context.mounted) {
         unawaited(
           showWarningDialog(

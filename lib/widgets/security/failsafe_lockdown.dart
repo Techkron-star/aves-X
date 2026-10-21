@@ -4,12 +4,13 @@ import 'package:aves/model/security/failsafe_quips.dart';
 import 'package:aves/model/security/failsafe_voice.dart';
 
 import 'package:aves/model/settings/settings.dart';
+import 'package:aves/theme/nebula/nebula_tokens.dart';
 import 'package:aves/widgets/common/fx/diamond.dart';
 import 'package:aves/model/security/attempt_guard.dart';
-import 'package:aves/model/security/bat_curity.dart';
+import 'package:aves/model/security/master_guard.dart';
 import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
-import 'package:aves/widgets/common/fx/lock_animation.dart';
+import 'package:aves/widgets/common/fx/app_mark.dart';
 import 'package:aves/widgets/common/fx/failsafe_badge.dart';
 import 'package:aves/widgets/dialogs/filter_editors/code_dialog.dart';
 import 'package:material_ui/material_ui.dart';
@@ -125,7 +126,7 @@ class _LockdownScreenState extends State<_LockdownBody> {
       _controller.clear();
       return;
     }
-    final ok = await batCurity.matches('master_code', code);
+    final ok = await masterGuard.matches('master_code', code);
     _controller.clear();
     if (ok) {
       await AttemptGuard.master.reset();
@@ -150,8 +151,9 @@ class _LockdownScreenState extends State<_LockdownBody> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
+    final nebula = Theme.of(context).nebula;
     return Material(
-      color: Colors.black,
+      color: nebula.securityScrim,
       // deep ruby crystal with a slow glint: Fail-Safe has taken control
       child: AnimatedCrystal(
         animate: !settings.performanceMode,
@@ -245,7 +247,8 @@ class _FailsafeBuddyState extends State<FailsafeBuddy> {
     final fails = widget.fails;
     final text = _currentLine(context);
     final alert = fails >= 3;
-    final color = alert ? const Color(0xFFFF5A6E) : const Color(0xFF3DDC84);
+    final nebula = Theme.of(context).nebula;
+    final color = alert ? nebula.securityAlert : nebula.securityOk;
     final voiceError = _voiceError;
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -258,7 +261,7 @@ class _FailsafeBuddyState extends State<FailsafeBuddy> {
               width: 44,
               height: 44,
               decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: color, width: 1.5), color: Colors.black54),
-              child: const Center(child: BatMark(size: 22)),
+              child: const Center(child: AppMark(size: 22)),
             ),
             const SizedBox(width: 10),
             Flexible(
@@ -268,8 +271,8 @@ class _FailsafeBuddyState extends State<FailsafeBuddy> {
                   key: ValueKey('$fails$text'),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: .08),
-                    border: Border.all(color: color.withValues(alpha: .6)),
+                    color: nebula.securityBubbleSurface.withValues(alpha: .08),
+                    border: Border.all(color: nebula.securityBubbleBorder.withValues(alpha: .6)),
                     borderRadius: const BorderRadiusDirectional.only(
                       topStart: Radius.circular(16),
                       topEnd: Radius.circular(16),
@@ -289,9 +292,9 @@ class _FailsafeBuddyState extends State<FailsafeBuddy> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.volume_off, size: 14, color: Color(0xFFFFB3BF)),
+                const Icon(Icons.volume_off, size: 14, color: Colors.white70),
                 const SizedBox(width: 6),
-                Flexible(child: Text(voiceError, style: const TextStyle(color: Color(0xFFFFB3BF), fontSize: 11, fontStyle: FontStyle.italic))),
+                Flexible(child: Text(voiceError, style: const TextStyle(color: Colors.white70, fontSize: 11, fontStyle: FontStyle.italic))),
               ],
             ),
           ),

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:aves/model/security/failsafe_voice.dart';
 import 'package:aves/theme/nebula/nebula_tokens.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
-import 'package:aves/widgets/common/fx/lock_animation.dart';
+import 'package:aves/widgets/common/fx/app_mark.dart';
 import 'package:material_ui/material_ui.dart';
 
 // Warning and confirmation messages as a comic speech bubble said by the Fail-Safe character,
@@ -20,6 +20,8 @@ class FailsafeComicDialog extends StatefulWidget {
 }
 
 class _FailsafeComicDialogState extends State<FailsafeComicDialog> {
+  bool _narrating = false;
+
   @override
   void initState() {
     super.initState();
@@ -29,9 +31,24 @@ class _FailsafeComicDialogState extends State<FailsafeComicDialog> {
   String? _voiceError;
 
   Future<void> _narrate() async {
-    final status = await FailsafeVoice.say(widget.message);
-    if (!mounted) return;
-    setState(() => _voiceError = FailsafeVoice.isFailure(status) ? FailsafeVoice.describe(context.l10n, status) : null);
+    if (_narrating) return; // prevent spam
+    _narrating = true;
+    try {
+      final status = await FailsafeVoice.say(widget.message);
+      if (!mounted) return;
+      setState(() => _voiceError = FailsafeVoice.isFailure(status) ? FailsafeVoice.describe(context.l10n, status) : null);
+    } finally {
+      if (mounted) {
+        setState(() => _narrating = false);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    // Stop any ongoing narration when dialog is dismissed
+    FailsafeVoice.stop();
+    super.dispose();
   }
 
   @override
@@ -58,7 +75,7 @@ class _FailsafeComicDialogState extends State<FailsafeComicDialog> {
                   color: t.securityScrim,
                   border: Border.all(color: t.securityAccent, width: 2),
                 ),
-                child: const Center(child: BatMark(size: 24)),
+                child: const Center(child: AppMark(size: 24)),
               ),
               const SizedBox(width: 10),
               // name plate: `securityOnSurface` is the readable ink on `securitySurface`, which is not the

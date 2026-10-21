@@ -52,6 +52,9 @@ abstract class SecurityService {
 
   // plays a mono 16 bit PCM clip. Returns `ok`, or the reason why it was not played (`muted`, `init`, `write`, `error:...`)
   Future<String> playPcm(Uint8List pcm, int rate);
+
+  // stops the currently playing PCM clip (Fail-Safe voice), if any
+  Future<void> stopPcm();
 }
 
 class VaultCryptoReport {
@@ -205,6 +208,15 @@ class PlatformSecurityService implements SecurityService {
       return await _platform.invokeMethod<String>('playPcm', <String, Object?>{'pcm': pcm, 'rate': rate}) ?? 'error:no-answer';
     } on PlatformException catch (e) {
       return 'error:${e.code}';
+    }
+  }
+
+  @override
+  Future<void> stopPcm() async {
+    try {
+      await _platform.invokeMethod<void>('stopPcm');
+    } on PlatformException catch (e, stack) {
+      await reportService.recordError(e, stack);
     }
   }
 }

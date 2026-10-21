@@ -9,6 +9,7 @@ import 'package:material_ui/material_ui.dart';
 // When the item was just locked (`fresh`), it plays a short animation over the thumbnail:
 // two chains crossing in an X, then the padlock falling on the crossing.
 // With "Bat-Glass": ruby chains and a translucent bat with a keyhole, with a shimmering light inside.
+// Call `playUnlockAnimation()` to play the unlock animation when the item is unlocked.
 class LockedBadge extends StatefulWidget {
   final bool fresh;
 
@@ -20,7 +21,9 @@ class LockedBadge extends StatefulWidget {
 
 class _LockedBadgeState extends State<LockedBadge> with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1100));
+  late final AnimationController _unlockController = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
   bool get _playing => widget.fresh && settings.animate && !settings.performanceMode;
+  bool _unlocking = false;
 
   @override
   void initState() {
@@ -37,7 +40,53 @@ class _LockedBadgeState extends State<LockedBadge> with SingleTickerProviderStat
   @override
   void dispose() {
     _controller.dispose();
+    _unlockController.dispose();
     super.dispose();
+  }
+
+  void playUnlockAnimation() {
+    if (_unlocking) return;
+    _unlocking = true;
+    _unlockController.forward(from: 0).then((_) {
+      if (mounted) {
+        setState(() => _unlocking = false);
+      }
+    });
+  }
+
+class _LockedBadgeState extends State<LockedBadge> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1100));
+  late final AnimationController _unlockController = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
+  bool get _playing => widget.fresh && settings.animate && !settings.performanceMode;
+  bool _unlocking = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_playing) {
+      _controller.forward();
+      // the "impact" of the padlock on the chains
+      Future.delayed(const Duration(milliseconds: 600), () => HapticFeedback.heavyImpact());
+    } else {
+      _controller.value = 1;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _unlockController.dispose();
+    super.dispose();
+  }
+
+  void playUnlockAnimation() {
+    if (_unlocking) return;
+    _unlocking = true;
+    _unlockController.forward(from: 0).then((_) {
+      if (mounted) {
+        setState(() => _unlocking = false);
+      }
+    });
   }
 
   @override
@@ -49,17 +98,19 @@ class _LockedBadgeState extends State<LockedBadge> with SingleTickerProviderStat
         final lockSize = (box * .4).clamp(22.0, 64.0);
         final scale = box / 220;
         return AnimatedBuilder(
-          animation: _controller,
+          animation: Listenable.merge([_controller, _unlockController]),
           builder: (context, _) {
             final t = _controller.value;
             final chains = Curves.easeOut.transform((t / 0.35).clamp(0, 1));
             final fall = Curves.bounceOut.transform(((t - 0.3) / 0.45).clamp(0, 1));
             final shake = t > 0.6 && t < 0.78 ? sin((t - 0.6) * 90) * 2 : 0.0;
+            final unlockProgress = Curves.easeOut.transform(_unlockController.value);
+            final isUnlocking = _unlockController.value > 0 && _unlockController.value < 1;
             return Stack(
               alignment: Alignment.center,
               children: [
                 // the chains stay in place once locked (not in performance mode: padlock only)
-                if (!settings.performanceMode)
+                if (!settings.performanceMode && !isUnlocking)
                   Positioned.fill(
                   child: CustomPaint(painter: _ChainsPainter(progress: chains, ruby: bat, scale: scale)),
                 ),
@@ -70,7 +121,13 @@ class _LockedBadgeState extends State<LockedBadge> with SingleTickerProviderStat
                     height: lockSize,
                     child: _Shimmer(
                       enabled: bat && settings.animate,
-                      child: CustomPaint(painter: _PadlockPainter(bat: bat, open: false)),
+                      child: CustomPaint(
+                        painter: _PadlockPainter(
+                          bat: bat,
+                          open: isUnlocking,
+                          openProgress: _unlockController.value,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -171,8 +228,9 @@ class _ChainsPainter extends CustomPainter {
 
 class _PadlockPainter extends CustomPainter {
   final bool bat, open, keyhole;
+  final double openProgress;
 
-  const _PadlockPainter({required this.bat, required this.open, this.keyhole = true});
+  const _PadlockPainter({required this.bat, required this.open, this.keyhole = true, this.openProgress = 0.0});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -255,24 +313,4 @@ class _PadlockPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _PadlockPainter old) => old.bat != bat || old.open != open || old.keyhole != keyhole;
-}
-
-// small translucent ruby bat (no keyhole), optionally mirrored
-class BatMark extends StatelessWidget {
-  final double size;
-  final bool mirrored;
-
-  const BatMark({super.key, this.size = 28, this.mirrored = false});
-
-  @override
-  Widget build(BuildContext context) {
-    return Transform.flip(
-      flipX: mirrored,
-      child: SizedBox(
-        width: size,
-        height: size,
-        child: CustomPaint(painter: const _PadlockPainter(bat: true, open: false, keyhole: false)),
-      ),
-    );
-  }
 }
