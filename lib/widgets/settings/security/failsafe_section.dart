@@ -1,10 +1,12 @@
 import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/model/security/failsafe_config.dart';
 import 'package:aves/model/security/failsafe_voice.dart';
+import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/colors.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/widgets/common/basic/scaffold.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
+import 'package:aves/widgets/common/fx/black_hole.dart';
 import 'package:aves/widgets/common/fx/failsafe_badge.dart';
 import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/settings/common/tile_leading.dart';
@@ -183,21 +185,47 @@ class _FailsafeOptionsState extends State<_FailsafeOptions> {
           },
         ),
         SwitchListTile(
-          title: Text(l10n.blackHoleRootOption),
-          subtitle: Text(_rootAvailable ? l10n.blackHoleRootOptionSubtitle : l10n.blackHoleRootUnavailable),
-          value: _root,
-          onChanged: (v) async {
-            if (v) {
-              final available = await securityService.isRootAvailable();
-              if (!available) {
-                if (mounted) setState(() => _rootAvailable = false);
-                return;
-              }
-            }
-            await FailsafeConfig.setRootMode(v);
-            if (mounted) setState(() => _rootAvailable = true);
-            await _load();
-          },
+          title: Text(l10n.failsafeComicDialogs),
+          subtitle: Text(l10n.failsafeComicDialogsSubtitle),
+          value: context.select<Settings, bool>((v) => v.failsafeComicDialogs),
+          onChanged: (v) => settings.failsafeComicDialogs = v,
+        ),
+        // Black Hole: its own dark card, with an event horizon and its accretion disk
+        Container(
+          margin: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0x55B04BFF)),
+            gradient: const RadialGradient(
+              center: Alignment(-.85, 0),
+              radius: 1.5,
+              colors: [Color(0xFF2A103F), Color(0xFF05030A)],
+            ),
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: SwitchListTile(
+              secondary: BlackHoleDisc(size: 56, animate: !settings.performanceMode),
+              title: Text(l10n.blackHoleRootOption, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+              subtitle: Text(
+                _rootAvailable ? l10n.blackHoleRootOptionSubtitle : l10n.blackHoleRootUnavailable,
+                style: const TextStyle(color: Color(0xB3FFFFFF)),
+              ),
+              value: _root,
+              onChanged: (v) async {
+                if (v) {
+                  final available = await securityService.isRootAvailable();
+                  if (!available) {
+                    if (mounted) setState(() => _rootAvailable = false);
+                    return;
+                  }
+                }
+                await FailsafeConfig.setRootMode(v);
+                if (mounted) setState(() => _rootAvailable = true);
+                await _load();
+              },
+            ),
+          ),
         ),
       ],
     );

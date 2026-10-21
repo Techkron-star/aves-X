@@ -70,6 +70,10 @@ mixin DisplaySettings on SettingsAccess {
 
   set tabletMode(bool newValue) => set(SettingKeys.tabletModeKey, newValue);
 
+  bool get failsafeComicDialogs => getBool(SettingKeys.failsafeComicDialogsKey) ?? SettingsDefaults.failsafeComicDialogs;
+
+  set failsafeComicDialogs(bool newValue) => set(SettingKeys.failsafeComicDialogsKey, newValue);
+
   bool get tabletBubbleLeft => getBool(SettingKeys.tabletBubbleLeftKey) ?? SettingsDefaults.tabletBubbleLeft;
 
   set tabletBubbleLeft(bool newValue) => set(SettingKeys.tabletBubbleLeftKey, newValue);

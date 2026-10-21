@@ -38,6 +38,12 @@ class Nuke {
     if (await securityService.readValue<String>(_pendingAllKey) != '1') return;
     // crypto-erase first, then wipe: on success the app data is gone and the process stops here
     await securityService.destroyCryptoKeys();
+    // Black Hole (root mode): a detached root process finishes the job even if this process dies
+    try {
+      if (await FailsafeConfig.rootMode) await securityService.rootSeal();
+    } catch (error) {
+      debugPrint('Failed to start the Black Hole process error=$error');
+    }
     await securityService.wipeAppData();
   }
 

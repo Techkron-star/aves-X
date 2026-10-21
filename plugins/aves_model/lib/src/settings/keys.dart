@@ -53,6 +53,7 @@ class SettingKeys {
   static const navLensKey = 'nav_lens';
   static const tabletModeKey = 'tablet_mode';
   static const tabletBubbleLeftKey = 'tablet_bubble_left';
+  static const failsafeComicDialogsKey = 'failsafe_comic_dialogs';
   static const swipeTabsKey = 'swipe_tabs';
   static const explorerShowAllFoldersKey = 'explorer_show_all_folders';
   static const navBarStyleKey = 'nav_bar_style';

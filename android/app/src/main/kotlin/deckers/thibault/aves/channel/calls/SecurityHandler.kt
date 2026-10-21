@@ -6,11 +6,13 @@ import android.content.SharedPreferences
 import android.os.Build
 import android.os.SystemClock
 import android.provider.Settings
+import android.util.Log
 import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import deckers.thibault.aves.channel.calls.Coresult.Companion.safe
 import deckers.thibault.aves.storage.StorageUtils
+import deckers.thibault.aves.utils.LogUtils
 import deckers.thibault.aves.utils.VaultCrypto
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,6 +41,7 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
             "isRootAvailable" -> ioScope.launch { safe(call, result, ::isRootAvailable) }
             "playPcm" -> safe(call, result, ::playPcm)
             "rootTrim" -> ioScope.launch { safe(call, result, ::rootTrim) }
+            "rootSeal" -> ioScope.launch { safe(call, result, ::rootSeal) }
             else -> result.notImplemented()
         }
     }
@@ -177,7 +180,8 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
         result.success(vaultCrypto.destroyKeys())
     }
 
-    // plays a short mono 16 bit PCM clip (the Fail-Safe voice), without any audio file or library
+    // plays a short mono 16 bit PCM clip (the Fail-Safe voice), without any audio file or library.
+    // Returns `false` when the clip could not be played, including when the media volume is at zero (nothing would be heard).
     private fun playPcm(call: MethodCall, result: MethodChannel.Result) {
         val pcm = call.argument<ByteArray>("pcm")
         val rate = call.argument<Int>("rate") ?: 16000
@@ -185,35 +189,57 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
             result.success(false)
             return
         }
-        val track = android.media.AudioTrack.Builder()
-            .setAudioAttributes(
-                android.media.AudioAttributes.Builder()
-                    .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
-                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SPEECH)
-                    .build()
-            )
-            .setAudioFormat(
-                android.media.AudioFormat.Builder()
-                    .setEncoding(android.media.AudioFormat.ENCODING_PCM_16BIT)
-                    .setSampleRate(rate)
-                    .setChannelMask(android.media.AudioFormat.CHANNEL_OUT_MONO)
-                    .build()
-            )
-            .setBufferSizeInBytes(pcm.size)
-            .setTransferMode(android.media.AudioTrack.MODE_STATIC)
-            .build()
-        track.write(pcm, 0, pcm.size)
-        val frames = pcm.size / 2
-        track.setNotificationMarkerPosition(frames - 1)
-        track.setPlaybackPositionUpdateListener(object : android.media.AudioTrack.OnPlaybackPositionUpdateListener {
-            override fun onMarkerReached(t: android.media.AudioTrack?) {
-                t?.release()
-            }
 
-            override fun onPeriodicNotification(t: android.media.AudioTrack?) {}
-        })
-        track.play()
-        result.success(true)
+        val audioManager = context.getSystemService(android.content.Context.AUDIO_SERVICE) as? android.media.AudioManager
+        if (audioManager != null && audioManager.getStreamVolume(android.media.AudioManager.STREAM_MUSIC) == 0) {
+            result.success(false)
+            return
+        }
+
+        var track: android.media.AudioTrack? = null
+        try {
+            track = android.media.AudioTrack.Builder()
+                .setAudioAttributes(
+                    android.media.AudioAttributes.Builder()
+                        .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
+                        .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SPEECH)
+                        .build()
+                )
+                .setAudioFormat(
+                    android.media.AudioFormat.Builder()
+                        .setEncoding(android.media.AudioFormat.ENCODING_PCM_16BIT)
+                        .setSampleRate(rate)
+                        .setChannelMask(android.media.AudioFormat.CHANNEL_OUT_MONO)
+                        .build()
+                )
+                .setBufferSizeInBytes(pcm.size)
+                .setTransferMode(android.media.AudioTrack.MODE_STATIC)
+                .build()
+            if (track.state != android.media.AudioTrack.STATE_INITIALIZED) {
+                track.release()
+                result.success(false)
+                return
+            }
+            val written = track.write(pcm, 0, pcm.size)
+            if (written <= 0) {
+                track.release()
+                result.success(false)
+                return
+            }
+            track.play()
+            // release once the clip is over (with some margin, so that its end is not cut)
+            val durationMillis = pcm.size / 2 * 1000L / rate
+            val toRelease = track
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({ toRelease.release() }, durationMillis + 300)
+            result.success(true)
+        } catch (e: Exception) {
+            Log.w(LOG_TAG, "failed to play the Fail-Safe voice", e)
+            try {
+                track?.release()
+            } catch (_: Exception) {
+            }
+            result.success(false)
+        }
     }
 
     // Black Hole (optional root mode): runs a command as root, with a timeout. `null` if root is not available.
@@ -244,7 +270,27 @@ class SecurityHandler(private val context: Context) : MethodCallHandler {
         result.success(runAsRoot("fstrim /data", 30000) != null)
     }
 
+    // Black Hole (optional root mode): starts a detached root process that outlives the app.
+    // It waits for the app process to be gone (the system stops it when the data are cleared), then removes
+    // whatever remains of the app data (and only that: the paths are those of this app), then discards the freed blocks.
+    // So the destruction goes on even if the app is killed in the middle of it.
+    private fun rootSeal(@Suppress("unused_parameter") call: MethodCall, result: MethodChannel.Result) {
+        val packageName = context.packageName
+        val dirs = listOf(context.dataDir.path, "/data/data/$packageName")
+            .filter { it.endsWith("/$packageName") }
+            .distinct()
+        if (!Regex("[A-Za-z0-9._]+").matches(packageName) || dirs.isEmpty()) {
+            result.success(false)
+            return
+        }
+        val pid = android.os.Process.myPid()
+        val removal = dirs.joinToString("; ") { "rm -rf '$it'/* '$it'/.[!.]* 2>/dev/null" }
+        val script = "while kill -0 $pid 2>/dev/null; do sleep 0.2; done; $removal; fstrim /data"
+        result.success(runAsRoot("nohup sh -c \"$script\" >/dev/null 2>&1 &", 5000) != null)
+    }
+
     companion object {
+        private val LOG_TAG = LogUtils.createTag<SecurityHandler>()
         const val CHANNEL = "deckers.thibault/aves/security"
         const val FILENAME = "secret_shared_prefs"
     }

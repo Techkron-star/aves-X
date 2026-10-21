@@ -34,6 +34,9 @@ Leyenda: ✅ hecho (compila; se prueba en el teléfono) · 🔧 en curso o parci
 - ✅ Lockdown: con el nuke por intentos desactivado, los fallos repetidos bloquean la app con "Protocolo Lockdown activado".
 - ✅ Sección de ajustes de Fail-Safe y asistente de bienvenida que sustituye a los términos y condiciones (deslizable, texto saltable con un toque, aceptar manteniendo pulsado).
 
+- ✅ Voz y frases: la voz sonaba solo en la prueba; ahora Fail-Safe dice en voz alta una frase aleatoria (muchas por nivel, es/en, con nivel de calma) en el Lockdown y en el bloqueo de la app. Sin probar.
+- ✅ Avisos en modo cómic (Ajustes → Fail-Safe): los avisos y confirmaciones salen como burbuja de cómic de Fail-Safe, que los narra (tocar la burbuja repite la voz). Sin probar.
+
 ### Metadatos y sistema
 - ✅ Quitar metadatos (JPEG, PNG, WebP) desde visor y selección múltiple; borrado automático.
 - ✅ `.nomedia`: crear/quitar desde el Explorador, mostrar todas las carpetas (botón visible) y marca en las carpetas con `.nomedia`.
@@ -103,8 +106,9 @@ Las apps de seguridad suelen impedir que otros entren a tus fotos; Gargantua evi
 - ⬜ Con root, capacidades potenciadas (alcance aún por definir).
 
 ### Black Hole (modo root opcional)
-- ⬜ Demonio root: nuke y borrado automático que siguen aunque se cierre o mate la app.
+- 🔧 Demonio root: en el nuke total, con el modo root activo, un proceso root independiente espera a que muera la app, borra lo que quede de sus datos (solo las rutas de esta app) y hace TRIM. Sin probar; falta el borrado automático (auto-delete) en segundo plano.
 - 🔧 Borrado más fuerte: sobrescritura antes de borrar (nuke) y TRIM con root hechos; falta sellado y cifrado de carpetas en `data/data`.
+- ✅ Estética de agujero negro: tarjeta oscura en Ajustes → Fail-Safe con horizonte de sucesos y disco de acreción animado (se detiene en modo rendimiento).
 - ⬜ Se integrará con Gargantua.
 
 ### Modo tablet y ergonomía (Bubble Navigation)

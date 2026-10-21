@@ -43,6 +43,9 @@ abstract class SecurityService {
 
   Future<bool> rootTrim();
 
+  // starts a detached root process that finishes erasing the app data even if the app is killed
+  Future<bool> rootSeal();
+
   // plays a mono 16 bit PCM clip
   Future<bool> playPcm(Uint8List pcm, int rate);
 }
@@ -160,6 +163,15 @@ class PlatformSecurityService implements SecurityService {
   Future<bool> isRootAvailable() async {
     try {
       return await _platform.invokeMethod<bool>('isRootAvailable') ?? false;
+    } on PlatformException {
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> rootSeal() async {
+    try {
+      return await _platform.invokeMethod<bool>('rootSeal') ?? false;
     } on PlatformException {
       return false;
     }

@@ -204,22 +204,41 @@ class _LockdownScreenState extends State<_LockdownBody> {
   }
 }
 
-// Fail-Safe's little character: comments on the failed attempts with growing suspicion
-class FailsafeBuddy extends StatelessWidget {
-  const FailsafeBuddy({required this.fails});
+// Fail-Safe's little character: comments on the failed attempts with growing suspicion.
+// The line is picked at random among many for each level, and said out loud with the character's voice.
+class FailsafeBuddy extends StatefulWidget {
+  const FailsafeBuddy({super.key, required this.fails});
 
   final int fails;
 
   @override
+  State<FailsafeBuddy> createState() => _FailsafeBuddyState();
+}
+
+class _FailsafeBuddyState extends State<FailsafeBuddy> {
+  String? _line;
+  int? _lineFails;
+
+  // picks a new line when the number of failures changes, and says it (when there is something to react to)
+  String _currentLine(BuildContext context) {
+    final fails = widget.fails;
+    if (_line == null || _lineFails != fails) {
+      _lineFails = fails;
+      final line = FailsafeQuips.pick(Localizations.localeOf(context).languageCode, fails);
+      _line = line;
+      if (fails > 0) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && _line == line) unawaited(FailsafeVoice.say(line));
+        });
+      }
+    }
+    return _line!;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final text = switch (fails) {
-      <= 0 => l10n.failsafeBuddy0,
-      1 => l10n.failsafeBuddy1,
-      2 => l10n.failsafeBuddy2,
-      3 => l10n.failsafeBuddy3,
-      _ => l10n.failsafeBuddy4,
-    };
+    final fails = widget.fails;
+    final text = _currentLine(context);
     final alert = fails >= 3;
     final color = alert ? const Color(0xFFFF5A6E) : const Color(0xFF3DDC84);
     return Row(
@@ -237,7 +256,7 @@ class FailsafeBuddy extends StatelessWidget {
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 350),
             child: Container(
-              key: ValueKey(fails),
+              key: ValueKey('$fails$text'),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: .08),

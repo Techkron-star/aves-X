@@ -1,18 +1,29 @@
 import 'dart:math';
 
 // Fail-Safe's sarcastic lines, said by the character when a code is wrong.
-// Tiers: 1 = first failure (mild), 2 = second, 3 = third, 4 = four or more (full roast).
+// Tiers: 0 = idle (calm), 1 = first failure (mild), 2 = second, 3 = third, 4 = four or more (full roast).
 // Everything is just banter aimed at whoever keeps failing: add as many lines as you like.
 class FailsafeQuips {
   static final _random = Random();
 
+  // `fails` 0 gives an "idle" line (everything is calm); 1 to 4 (or more) give the failure tiers
   static String pick(String languageCode, int fails) {
     final tiers = languageCode == 'es' ? _es : _en;
-    final list = tiers[fails.clamp(1, 4) - 1];
+    final list = tiers[fails.clamp(0, 4)];
     return list[_random.nextInt(list.length)];
   }
 
   static const _es = <List<String>>[
+    [
+      'Estoy vigilando. Tranquilo.',
+      'Todo en orden por aquí. Por ahora.',
+      'Yo cuido tus fotos. Tú solo no te pongas nervioso.',
+      'Aquí sigo, con un ojo abierto. Los dos, en realidad.',
+      'Sin novedades. Me encanta cuando no hay novedades.',
+      'Ronda de seguridad completada. Todo tranquilo.',
+      'Si alguien husmea, yo me entero.',
+      'Puedes confiar en mí. En los demás, menos.',
+    ],
     [
       'Wao, seguro fue un missclick eso.',
       'Uy. Los dedos gordos, ¿verdad?',
@@ -22,6 +33,12 @@ class FailsafeQuips {
       'Primer error. Lo anoto en tu expediente.',
       'Se nota que lo escribiste con seguridad. Lástima que estaba mal.',
       'Mmm... ese no es. ¿Probamos con el número correcto?',
+      'Eso fue un tropiezo, ¿no? Dime que fue un tropiezo.',
+      'Intento uno. Aún te doy el beneficio de la duda.',
+      'Ups. Tu dedo y tu cerebro no se pusieron de acuerdo.',
+      'Respira hondo y vuelve a intentarlo.',
+      'Cuando quieras, pero con el código correcto.',
+      'Eso sonó muy seguro y muy equivocado.',
     ],
     [
       '¿Estás seguro de que eres el dueño del teléfono?',
@@ -32,6 +49,12 @@ class FailsafeQuips {
       'Ese PIN es tan secreto que ni tú lo conoces.',
       'Segundo intento fallido. Mi paciencia es infinita, pero mi sarcasmo no.',
       '¿Así le fallas a tu familia también?',
+      'Dos fallos. La tercera es la vencida... o la vergonzosa.',
+      'Empiezo a pensar que no te sabes tu propio código.',
+      '¿Seguro que no es otro teléfono?',
+      'Mi paciencia se está empezando a poner en modo ahorro.',
+      'Voy preparando mi cara de sospecha.',
+      'Los números siguen siendo los mismos, por si querías saberlo.',
     ],
     [
       'Ya van tres... empiezo a dudar de tu identidad.',
@@ -42,6 +65,12 @@ class FailsafeQuips {
       'A este ritmo el PIN lo adivinas en el año 2090.',
       'Estás tocando cosas que no son tuyas, ¿verdad?',
       'Esa cara de "yo sí sé el PIN" se te debe estar cayendo ahora mismo.',
+      'Tres. Aquí huele a intruso.',
+      'Ya no es mala suerte, es mala estrategia.',
+      'Estoy anotando la hora, el lugar y tu cara de preocupación.',
+      'Tres fallos y seguimos sonriendo. Yo sonrío, tú no sé.',
+      'Esto empieza a parecer un intento de entrada, no un descuido.',
+      'Si sigues, el siguiente paso de seguridad te va a caer fatal.',
     ],
     [
       'Deberías llamar al dueño del teléfono, pareces muy interesado en sus fotos.',
@@ -56,16 +85,40 @@ class FailsafeQuips {
       'Dime que al menos el dueño sabe que estás aquí.',
       'Tanto empeño y tan poco cerebro. Un combo raro.',
       'Mi nivel de sarcasmo sube con cada fallo. Y el tuyo de vergüenza, espero.',
+      'Ya perdí la cuenta, pero mi bitácora no.',
+      'A estas alturas, hasta yo siento pena por ti. Un poquito.',
+      'Dime una cosa: ¿de verdad crees que va a funcionar?',
+      'Mi diagnóstico: terquedad aguda con síntomas de curiosidad.',
+      'Sigue intentando; yo sigo disfrutando.',
+      'Esto ya merece una medalla a la insistencia. Sin premio, claro.',
+      'No te voy a abrir. Te lo digo con todo el cariño del mundo.',
+      'Cuando quieras rendirte, la puerta está al otro lado.',
     ],
   ];
 
   static const _en = <List<String>>[
+    [
+      'I am watching. Relax.',
+      'All in order over here. For now.',
+      'I look after your photos. You just stay calm.',
+      'Still here, with one eye open. Both, actually.',
+      'No news. I love it when there is no news.',
+      'Security round complete. All quiet.',
+      'If anyone snoops around, I will know.',
+      'You can trust me. Everyone else, not so much.',
+    ],
     [
       'Wow, that was surely a misclick.',
       'Oops. Fat fingers, right?',
       'Not quite. Happens to everyone. Owners, at least.',
       'Close. Well, no. But close.',
       'First mistake. Noted in your file.',
+      'That was a stumble, right? Tell me it was a stumble.',
+      'Attempt one. I still give you the benefit of the doubt.',
+      'Oops. Your finger and your brain did not agree.',
+      'Take a deep breath and try again.',
+      'Whenever you are ready, with the right code.',
+      'That sounded very confident and very wrong.',
     ],
     [
       'Are you sure you are the owner of this phone?',
@@ -73,6 +126,12 @@ class FailsafeQuips {
       'Interesting. That one was wrong too.',
       'That PIN is so secret even you do not know it.',
       'Try with your eyes open this time?',
+      'Two failures. Third time is the charm... or the embarrassment.',
+      'I am starting to think you do not know your own code.',
+      'Are you sure this is not another phone?',
+      'My patience is going into battery saver mode.',
+      'Getting my suspicious face ready.',
+      'The digits are still the same, in case you wondered.',
     ],
     [
       'That is three... I am starting to doubt who you are.',
@@ -80,6 +139,12 @@ class FailsafeQuips {
       'I do not judge. Well, I do. And it makes me laugh.',
       'At this pace you will guess it around the year 2090.',
       'Touching things that are not yours, are we?',
+      'Three. I smell an intruder.',
+      'This is no longer bad luck, it is bad strategy.',
+      'I am noting the time, the place and your worried face.',
+      'Three failures and I am still smiling. You, I am not so sure.',
+      'This is starting to look like a break-in, not a slip.',
+      'If you keep going, the next security step will hit you hard.',
     ],
     [
       'You should call the phone owner, you seem very interested in their photos.',
@@ -89,6 +154,14 @@ class FailsafeQuips {
       'If this were an exam you would be repeating the year.',
       'So much effort and so little brain. A rare combo.',
       'My sarcasm goes up with every failure. I hope your embarrassment does too.',
+      'I lost count, but my logbook did not.',
+      'At this point even I feel a little sorry for you. A tiny bit.',
+      'Tell me one thing: do you really think this will work?',
+      'My diagnosis: acute stubbornness with symptoms of curiosity.',
+      'Keep trying; I keep enjoying.',
+      'This deserves a medal for persistence. No prize, of course.',
+      'I am not opening up. I say it with all the love in the world.',
+      'Whenever you want to give up, the door is over there.',
     ],
   ];
 }

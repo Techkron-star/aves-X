@@ -399,6 +399,7 @@ class Settings
           case SettingKeys.navLensKey:
           case SettingKeys.tabletModeKey:
           case SettingKeys.tabletBubbleLeftKey:
+          case SettingKeys.failsafeComicDialogsKey:
           case SettingKeys.swipeTabsKey:
           case SettingKeys.explorerShowAllFoldersKey:
           case SettingKeys.glassEverywhereKey:

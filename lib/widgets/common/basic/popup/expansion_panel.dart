@@ -52,46 +52,64 @@ class _PopupMenuExpansionPanelState<T> extends State<PopupMenuExpansionPanel<T>>
     )!;
     final animationDuration = context.select<DurationsData, Duration>((v) => v.expansionTileAnimation);
 
+    // a simple header + collapsible body, instead of `ExpansionPanelList`, which does not size well inside a popup menu
+    // (it left a big empty area, tinted by the translucent glass menu surface)
     Widget child = ValueListenableBuilder<String?>(
       valueListenable: expandedNotifier,
-      builder: (context, expandedValue, child) {
-        return ExpansionPanelList(
-          expansionCallback: (index, isExpanded) {
-            expandedNotifier.value = isExpanded ? widget.value : null;
-          },
-          animationDuration: animationDuration,
-          expandedHeaderPadding: EdgeInsets.zero,
-          elevation: 0,
+      builder: (context, expandedValue, _) {
+        final expanded = expandedValue == widget.value;
+        return Column(
+          mainAxisSize: .min,
+          crossAxisAlignment: .stretch,
           children: [
-            ExpansionPanel(
-              headerBuilder: (context, isExpanded) {
-                return DefaultTextStyle(
+            InkWell(
+              onTap: () => expandedNotifier.value = expanded ? null : widget.value,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: widget.height),
+                child: DefaultTextStyle(
                   style: style,
                   child: IconTheme.merge(
                     data: IconThemeData(
                       color: widget.enabled ? null : Theme.of(context).disabledColor,
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: MenuRow(
-                        text: widget.title,
-                        icon: Icon(widget.icon),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        mainAxisSize: .min,
+                        mainAxisAlignment: .spaceBetween,
+                        children: [
+                          MenuRow(
+                            text: widget.title,
+                            icon: Icon(widget.icon),
+                          ),
+                          const SizedBox(width: 12),
+                          AnimatedRotation(
+                            turns: expanded ? .5 : 0,
+                            duration: animationDuration,
+                            child: const Icon(Icons.expand_more),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                );
-              },
-              body: Column(
-                crossAxisAlignment: .start,
-                children: [
-                  const PopupMenuDivider(height: 0),
-                  ...widget.items,
-                  const PopupMenuDivider(height: 0),
-                ],
+                ),
               ),
-              isExpanded: expandedValue == widget.value,
-              canTapOnHeader: true,
-              backgroundColor: Colors.transparent,
+            ),
+            AnimatedSize(
+              duration: animationDuration,
+              curve: Curves.easeInOutCubic,
+              alignment: AlignmentDirectional.topStart,
+              child: expanded
+                  ? Column(
+                      mainAxisSize: .min,
+                      crossAxisAlignment: .start,
+                      children: [
+                        const PopupMenuDivider(height: 0),
+                        ...widget.items,
+                        const PopupMenuDivider(height: 0),
+                      ],
+                    )
+                  : const SizedBox.shrink(),
             ),
           ],
         );

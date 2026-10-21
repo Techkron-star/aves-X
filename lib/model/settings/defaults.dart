@@ -33,6 +33,7 @@ class SettingsDefaults {
   static const explorerShowAllFolders = false; // list every folder in the Explorer, including those hidden by `.nomedia`
   static const swipeTabs = true; // swipe horizontally to change between the main tabs
   static const tabletMode = false; // bubble navigation for big screens
+  static const failsafeComicDialogs = false; // warnings as a comic bubble said (and read out loud) by Fail-Safe
   static const tabletBubbleLeft = false; // big bubble of the tablet mode on the left (left-handed), instead of the right
   static const navLens = false; // opt-in lens over the selected item of the navigation bar
   static const performanceMode = false; // opt-in: no animations, no blur

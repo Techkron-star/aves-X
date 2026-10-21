@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/themes.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
+import 'package:aves/widgets/dialogs/failsafe_comic_dialog.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 
@@ -64,6 +65,12 @@ class _AvesDialogState extends State<AvesDialog> {
 
   @override
   Widget build(BuildContext context) {
+    // option: message-only dialogs become a comic bubble said by Fail-Safe
+    final messageContent = widget.content;
+    if (settings.failsafeComicDialogs && widget.title == null && messageContent is Text && messageContent.data != null) {
+      return FailsafeComicDialog(message: messageContent.data!, actions: widget.actions);
+    }
+
     final title = widget.title;
     return AlertDialog(
       title: title != null
