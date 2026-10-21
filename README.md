@@ -75,12 +75,6 @@ The main features are implemented, but development is ongoing. Some features, es
 
 **Do not use Aves-X as the only place where you store irreplaceable files.** Some security features, such as the Nuke, are intentionally irreversible.
 
-## Builds
-
-The manual **Build Aves-X libre APK** workflow publishes the `aves-x-libre-apks` artifact with per-ABI APKs named `Aves-X-libre-<abi>.apk`. The app installs next to the original Aves (`dev.techkron.avesx`).
-
-Current version: **0.3.0+300**.
-
 ## Roadmap
 
 Planned features include:

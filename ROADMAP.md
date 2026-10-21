@@ -6,8 +6,6 @@ Leyenda: ✅ hecho (compila; se prueba en el teléfono) · 🔧 en curso o parci
 
 **Principios:** todo lo nuevo de privacidad y lo experimental es *opt-in* (nunca activado por defecto). Nada se envía a ningún sitio: sin telemetría. Aves-X es un homenaje y fork personal de [Aves](https://github.com/deckerst/aves) (licencia BSD-3-Clause, créditos mantenidos).
 
-**Versión actual:** `0.3.0+300` · Artefacto libre: `aves-x-libre-apks` (`Aves-X-libre-<abi>.apk`).
-
 ---
 
 ## ✅ Hecho (Beta)
@@ -48,8 +46,8 @@ Leyenda: ✅ hecho (compila; se prueba en el teléfono) · 🔧 en curso o parci
 - ✅ Etiquetas/subtítulos libres en fotos y vídeos, buscables.
 
 ### Interfaz y efectos
-- ✅ Nombre y logo Aves-X (murciélago), Monet por defecto, modo rendimiento, pegatinas de funciones ("NEW"/"Experimental") theme-aware y con variante de cristal cuando Glass-Everywhere o Bat-Glass están activos.
-- ✅ Artefactos de build con identidad propia: `aves-x-libre-apks` y APKs `Aves-X-libre-<abi>.apk`; versión `0.3.0+300`.
+- ✅ Nombre y logo Aves-X (murciélago), Monet por defecto y modo rendimiento.
+- 🔧 Pegatinas de funciones ("NEW"/"Experimental") theme-aware y con variante de cristal cuando Glass-Everywhere o Bat-Glass están activos (implementadas; falta verlas en el teléfono).
 - ✅ Barra de navegación: estilos (clásica, redondeada, flotante, rectangular), **Bat-Lens** deslizante con efecto gota, deslizar entre pestañas con el dedo y transición tipo Instagram.
 - ✅ **Bat-Glass 2.0** (primera fase): cristal de diamante rojo facetado y translúcido con destello animado en el menú lateral, cristal en botones y barras difuminadas, íconos líquidos, animación de candado con cadenas.
 - ✅ **Glass-Everywhere**: vidrio esmerilado neutro (desenfoque fuerte) en diálogos, menús y superficies; separado de Bat-Glass.
@@ -144,12 +142,4 @@ Idea: que **Nebula Engine** sea el paraguas de personalización visual (Ajustes 
 
 ### Otras ideas
 - ⬜ Estrategias nuevas de ocultación, automatización de metadatos y vaults, opciones avanzadas de almacenamiento.
-
----
-
-## Notas de trabajo
-- No se compila en el entorno de desarrollo: se sube a `develop`, se lanza el workflow *Build Aves-X libre APK* y los errores se leen de las anotaciones.
-- El artefacto se llama `aves-x-libre-apks` y contiene APKs `Aves-X-libre-<abi>.apk`; la versión sale de `pubspec.yaml` (`0.3.0+300`).
-- Los archivos de `flavors/` del proyecto original están desactualizados; el workflow genera la variante libre a partir de `pubspec.yaml`.
-- El chequeo `Quality check` marca avisos de estilo en análisis estático (no afectan al APK).
-- Pendiente del lado del usuario: avisar a Aves (upstream) del fallo de la barra de navegación en el diseño TV.
+- ⬜ Revisar con Aves (upstream) el fallo de la barra de navegación en el diseño TV.

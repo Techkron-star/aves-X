@@ -8,11 +8,6 @@ All notable changes to this project will be documented in this file.
 
 - Theme-aware NEW/Experimental feature stickers, with a glass treatment when Glass-Everywhere or Bat-Glass is active.
 
-### Changed
-
-- Libre build artifacts renamed to `aves-x-libre-apks` / `Aves-X-libre-<abi>.apk`.
-- Version bumped to `0.3.0+300`.
-
 ### Work in progress
 
 - Nebula Engine base: theme model, palettes and tokens; Bat-Glass becomes a built-in theme.
