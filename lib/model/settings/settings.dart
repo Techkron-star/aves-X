@@ -403,6 +403,7 @@ class Settings
           case SettingKeys.swipeTabsKey:
           case SettingKeys.explorerShowAllFoldersKey:
           case SettingKeys.glassEverywhereKey:
+          case SettingKeys.nebulaThemeKey:
           case SettingKeys.mustBackTwiceToExitKey:
           case SettingKeys.confirmCreateVaultKey:
           case SettingKeys.confirmDeleteForeverKey:

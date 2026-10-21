@@ -5,10 +5,7 @@ import 'package:aves/theme/nebula/nebula_theme.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:flutter/widgets.dart';
 
-// Nebula theme selection.
-// Kept here for this slice: moving it to `SettingKeys` (`plugins/aves_model`) also needs the settings
-// import/export switch (`lib/model/settings/settings.dart`) to accept the new key.
-const nebulaThemeKey = 'nebula_theme';
+// Nebula theme selection (now a registered setting key)
 
 mixin DisplaySettings on SettingsAccess {
   DisplayRefreshRateMode get displayRefreshRateMode => getEnumOrDefault(SettingKeys.displayRefreshRateModeKey, SettingsDefaults.displayRefreshRateMode, DisplayRefreshRateMode.values);
@@ -56,14 +53,14 @@ mixin DisplaySettings on SettingsAccess {
   // selected Nebula theme.
   // installs that predate the selector are migrated from the legacy `bat_glass` toggle
   NebulaTheme get nebulaTheme {
-    final stored = nebulaThemeFromId(getString(nebulaThemeKey));
+    final stored = nebulaThemeFromId(getString(SettingKeys.nebulaThemeKey));
     if (stored != null) return stored;
     final legacyBatGlass = getBool(SettingKeys.batGlassKey) ?? SettingsDefaults.batGlass;
     return legacyBatGlass ? NebulaTheme.batGlass : NebulaTheme.aves;
   }
 
   set nebulaTheme(NebulaTheme newValue) {
-    set(nebulaThemeKey, newValue.id);
+    set(SettingKeys.nebulaThemeKey, newValue.id);
     // mirror the legacy toggle too, so that a settings export/import keeps the Bat-Glass choice
     // working until `nebula_theme` is a registered setting key
     set(SettingKeys.batGlassKey, newValue == NebulaTheme.batGlass);

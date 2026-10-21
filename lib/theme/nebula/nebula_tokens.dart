@@ -49,6 +49,11 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
   final Color securityCrystalHighlight;
   final List<Color> securityCrystalBody;
 
+  // lock screen input fields
+  final Color securityInputFieldBg;
+  final Color securityInputFieldBorder;
+  final Color securityScrimOverlay;
+
   const NebulaTokens({
     required this.securityScrim,
     required this.securitySurface,
@@ -67,6 +72,9 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
     required this.securityCrystalEdge,
     required this.securityCrystalHighlight,
     required this.securityCrystalBody,
+    required this.securityInputFieldBg,
+    required this.securityInputFieldBorder,
+    required this.securityScrimOverlay,
   });
 
   // Values of the Fail-Safe screens as they were before the Nebula Engine (ruby/black).
@@ -94,6 +102,9 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
       Color(0xFF8E0E2B),
       Color(0xFF4A0414),
     ],
+    securityInputFieldBg: Color(0xFF1A0000),
+    securityInputFieldBorder: Color(0xFFE0183E),
+    securityScrimOverlay: Color(0xCC000000),
   );
 
   // Tokens of a palette applied on top of the effective color scheme.
@@ -121,6 +132,9 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
     securityCrystalEdge: palette.crystalEdge,
     securityCrystalHighlight: palette.crystalHighlight,
     securityCrystalBody: palette.crystalBody,
+    securityInputFieldBg: _legacySecuritySurface,
+    securityInputFieldBorder: palette.accent,
+    securityScrimOverlay: _legacyScrim.withValues(alpha: .8),
   );
 
   // other themes: surface, border, glow and accent come from the effective scheme,
@@ -145,6 +159,9 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
       securityCrystalEdge: palette.crystalEdge,
       securityCrystalHighlight: palette.crystalHighlight,
       securityCrystalBody: palette.crystalBody,
+      securityInputFieldBg: colors.surfaceContainerHighest,
+      securityInputFieldBorder: colors.outline,
+      securityScrimOverlay: colors.shadow.withValues(alpha: .8),
     );
   }
 
@@ -167,6 +184,9 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
     Color? securityCrystalEdge,
     Color? securityCrystalHighlight,
     List<Color>? securityCrystalBody,
+    Color? securityInputFieldBg,
+    Color? securityInputFieldBorder,
+    Color? securityScrimOverlay,
   }) {
     return NebulaTokens(
       securityScrim: securityScrim ?? this.securityScrim,
@@ -186,6 +206,9 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
       securityCrystalEdge: securityCrystalEdge ?? this.securityCrystalEdge,
       securityCrystalHighlight: securityCrystalHighlight ?? this.securityCrystalHighlight,
       securityCrystalBody: securityCrystalBody ?? this.securityCrystalBody,
+      securityInputFieldBg: securityInputFieldBg ?? this.securityInputFieldBg,
+      securityInputFieldBorder: securityInputFieldBorder ?? this.securityInputFieldBorder,
+      securityScrimOverlay: securityScrimOverlay ?? this.securityScrimOverlay,
     );
   }
 
@@ -211,6 +234,9 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
       securityCrystalEdge: Color.lerp(securityCrystalEdge, other.securityCrystalEdge, t)!,
       securityCrystalHighlight: Color.lerp(securityCrystalHighlight, other.securityCrystalHighlight, t)!,
       securityCrystalBody: _lerpColors(securityCrystalBody, other.securityCrystalBody, t),
+      securityInputFieldBg: Color.lerp(securityInputFieldBg, other.securityInputFieldBg, t)!,
+      securityInputFieldBorder: Color.lerp(securityInputFieldBorder, other.securityInputFieldBorder, t)!,
+      securityScrimOverlay: Color.lerp(securityScrimOverlay, other.securityScrimOverlay, t)!,
     );
   }
 
@@ -233,7 +259,10 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
       other.securityBubbleInk == securityBubbleInk &&
       other.securityCrystalEdge == securityCrystalEdge &&
       other.securityCrystalHighlight == securityCrystalHighlight &&
-      listEquals(other.securityCrystalBody, securityCrystalBody);
+      listEquals(other.securityCrystalBody, securityCrystalBody) &&
+      other.securityInputFieldBg == securityInputFieldBg &&
+      other.securityInputFieldBorder == securityInputFieldBorder &&
+      other.securityScrimOverlay == securityScrimOverlay;
 
   @override
   int get hashCode => Object.hashAll([
@@ -254,6 +283,9 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
     securityCrystalEdge,
     securityCrystalHighlight,
     Object.hashAll(securityCrystalBody),
+    securityInputFieldBg,
+    securityInputFieldBorder,
+    securityScrimOverlay,
   ]);
 }
 
