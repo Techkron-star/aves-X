@@ -221,23 +221,18 @@ class SettingsTileDisplayBatGlass extends SettingsTile {
   String title(BuildContext context) => context.l10n.settingsBatGlass;
 
   @override
-  Widget build(BuildContext context) => SettingsSwitchListTile(
-    selector: (context, s) => s.batGlass,
-    onChanged: (v) => settings.batGlass = v,
-    title: title,
-    subtitle: (context) => context.l10n.settingsBatGlassSubtitle,
-    sticker: const FeatureSticker(kind: StickerKind.experimental),
-    trailing: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: const Color(0xFFE0183E),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        context.l10n.experimentalLabel,
-        style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
-      ),
-    ),
+  Widget build(BuildContext context) => Selector<Settings, (bool, bool)>(
+    selector: (context, s) => (s.batGlass, s.performanceMode),
+    builder: (context, state, _) {
+      final performanceMode = state.$2;
+      return SettingsSwitchListTile(
+        selector: (context, s) => s.batGlass,
+        onChanged: performanceMode ? null : (v) => settings.batGlass = v,
+        title: title,
+        subtitle: (context) => performanceMode ? null : context.l10n.settingsBatGlassSubtitle,
+        sticker: const FeatureSticker(kind: StickerKind.experimental),
+      );
+    },
   );
 }
 

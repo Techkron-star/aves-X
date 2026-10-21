@@ -1,0 +1,259 @@
+import 'package:aves/theme/nebula/nebula_palette.dart';
+import 'package:flutter/foundation.dart';
+import 'package:material_ui/material_ui.dart';
+
+// Theme tokens of the Nebula Engine.
+//
+// They are read by `Theme.of(context).nebula` instead of hard-coded colors, so that Fail-Safe and the
+// other themed surfaces follow the selected theme while keeping the same shape and meaning.
+// The Fail-Safe tokens are theme-aware: the surface, border, glow and accent come from the theme,
+// while the semantic ones (ok, warning, alert) stay readable across themes.
+@immutable
+class NebulaTokens extends ThemeExtension<NebulaTokens> {
+  // Legacy Fail-Safe look (ruby crystal over black, comic paper bubble).
+  // Used as the fallback for a `ThemeData` that does not carry the extension, and as the Bat-Glass recipe,
+  // so that Bat-Glass keeps looking exactly as before the Nebula Engine.
+  static const _legacyScrim = Color(0xFF000000);
+  static const _legacySecuritySurface = Color(0xFF24060E);
+  static const _legacyComicPaper = Color(0xFFFFFBF0);
+  static const _legacyComicInk = Color(0xFF14121A);
+  static const _ok = Color(0xFF3DDC84);
+  static const _alert = Color(0xFFFF3B3B);
+  static const _warning = Color(0xFFFFC107); // same as `AColors.warning`
+  static const _info = Color(0xFF64B5F6);
+
+  // Fail-Safe
+
+  // full screen layer behind the lockdown and the blocking screens
+  final Color securityScrim;
+  // main surface of the Fail-Safe cards and panels
+  final Color securitySurface;
+  final Color securityOnSurface;
+  final Color securityAccent;
+  final Color securityAlert;
+  final Color securityOk;
+  final Color securityWarning;
+  final Color securityInfo;
+
+  // comic speech bubble of the Fail-Safe character
+  final Color securityBubbleSurface;
+  final Color securityBubbleBorder;
+  final Color securityBubbleTail;
+  final Color securityBubbleGlow;
+  final Color securityBubbleShadow;
+
+  // crystal material (lockdown, badges)
+  final Color securityCrystalEdge;
+  final Color securityCrystalHighlight;
+  final List<Color> securityCrystalBody;
+
+  const NebulaTokens({
+    required this.securityScrim,
+    required this.securitySurface,
+    required this.securityOnSurface,
+    required this.securityAccent,
+    required this.securityAlert,
+    required this.securityOk,
+    required this.securityWarning,
+    required this.securityInfo,
+    required this.securityBubbleSurface,
+    required this.securityBubbleBorder,
+    required this.securityBubbleTail,
+    required this.securityBubbleGlow,
+    required this.securityBubbleShadow,
+    required this.securityCrystalEdge,
+    required this.securityCrystalHighlight,
+    required this.securityCrystalBody,
+  });
+
+  // Values of the Fail-Safe screens as they were before the Nebula Engine (ruby/black).
+  // A theme without tokens must never crash nor look unfinished.
+  static const fallback = NebulaTokens(
+    securityScrim: _legacyScrim,
+    securitySurface: _legacySecuritySurface,
+    securityOnSurface: Color(0xFFFFFFFF),
+    securityAccent: Color(0xFFE0183E),
+    securityAlert: _alert,
+    securityOk: _ok,
+    securityWarning: _warning,
+    securityInfo: _info,
+    securityBubbleSurface: _legacyComicPaper,
+    securityBubbleBorder: _legacyComicInk,
+    securityBubbleTail: _legacyComicPaper,
+    securityBubbleGlow: Color(0x66E0183E),
+    securityBubbleShadow: _legacyComicInk,
+    securityCrystalEdge: Color(0x80FF3B5C),
+    securityCrystalHighlight: Color(0x55E0183E),
+    securityCrystalBody: [
+      Color(0xFFFF4A66),
+      Color(0xFFD81B3F),
+      Color(0xFF8E0E2B),
+      Color(0xFF4A0414),
+    ],
+  );
+
+  // Tokens of a palette applied on top of the effective color scheme.
+  factory NebulaTokens.fromPalette(NebulaPalette palette, ColorScheme colors) => switch (palette.treatment) {
+    NebulaSurfaceTreatment.rubyCrystal => _ruby(palette),
+    NebulaSurfaceTreatment.flat || NebulaSurfaceTreatment.frosted || NebulaSurfaceTreatment.goldCrystal => _fromScheme(palette, colors),
+  };
+
+  // Bat-Glass: the current Fail-Safe look, with the palette accent/edges/body
+  static NebulaTokens _ruby(NebulaPalette palette) => NebulaTokens(
+    securityScrim: _legacyScrim,
+    securitySurface: _legacySecuritySurface,
+    securityOnSurface: const Color(0xFFFFFFFF),
+    securityAccent: palette.accent,
+    securityAlert: _alert,
+    securityOk: _ok,
+    securityWarning: _warning,
+    securityInfo: _info,
+    securityBubbleSurface: _legacyComicPaper,
+    securityBubbleBorder: _legacyComicInk,
+    securityBubbleTail: _legacyComicPaper,
+    securityBubbleGlow: palette.glow.withValues(alpha: .4),
+    securityBubbleShadow: _legacyComicInk,
+    securityCrystalEdge: palette.crystalEdge,
+    securityCrystalHighlight: palette.crystalHighlight,
+    securityCrystalBody: palette.crystalBody,
+  );
+
+  // other themes: surface, border, glow and accent come from the effective scheme,
+  // until their own surface recipe is designed
+  static NebulaTokens _fromScheme(NebulaPalette palette, ColorScheme colors) {
+    final surface = colors.surfaceContainerHigh;
+    return NebulaTokens(
+      securityScrim: _legacyScrim,
+      securitySurface: surface,
+      securityOnSurface: colors.onSurface,
+      securityAccent: colors.primary,
+      securityAlert: colors.error,
+      securityOk: _ok,
+      securityWarning: _warning,
+      securityInfo: _info,
+      securityBubbleSurface: surface,
+      securityBubbleBorder: colors.outlineVariant,
+      securityBubbleTail: surface,
+      securityBubbleGlow: colors.primary.withValues(alpha: .35),
+      securityBubbleShadow: colors.shadow,
+      securityCrystalEdge: palette.crystalEdge,
+      securityCrystalHighlight: palette.crystalHighlight,
+      securityCrystalBody: palette.crystalBody,
+    );
+  }
+
+  @override
+  NebulaTokens copyWith({
+    Color? securityScrim,
+    Color? securitySurface,
+    Color? securityOnSurface,
+    Color? securityAccent,
+    Color? securityAlert,
+    Color? securityOk,
+    Color? securityWarning,
+    Color? securityInfo,
+    Color? securityBubbleSurface,
+    Color? securityBubbleBorder,
+    Color? securityBubbleTail,
+    Color? securityBubbleGlow,
+    Color? securityBubbleShadow,
+    Color? securityCrystalEdge,
+    Color? securityCrystalHighlight,
+    List<Color>? securityCrystalBody,
+  }) {
+    return NebulaTokens(
+      securityScrim: securityScrim ?? this.securityScrim,
+      securitySurface: securitySurface ?? this.securitySurface,
+      securityOnSurface: securityOnSurface ?? this.securityOnSurface,
+      securityAccent: securityAccent ?? this.securityAccent,
+      securityAlert: securityAlert ?? this.securityAlert,
+      securityOk: securityOk ?? this.securityOk,
+      securityWarning: securityWarning ?? this.securityWarning,
+      securityInfo: securityInfo ?? this.securityInfo,
+      securityBubbleSurface: securityBubbleSurface ?? this.securityBubbleSurface,
+      securityBubbleBorder: securityBubbleBorder ?? this.securityBubbleBorder,
+      securityBubbleTail: securityBubbleTail ?? this.securityBubbleTail,
+      securityBubbleGlow: securityBubbleGlow ?? this.securityBubbleGlow,
+      securityBubbleShadow: securityBubbleShadow ?? this.securityBubbleShadow,
+      securityCrystalEdge: securityCrystalEdge ?? this.securityCrystalEdge,
+      securityCrystalHighlight: securityCrystalHighlight ?? this.securityCrystalHighlight,
+      securityCrystalBody: securityCrystalBody ?? this.securityCrystalBody,
+    );
+  }
+
+  // `MaterialApp` interpolates the theme extensions when switching themes
+  @override
+  NebulaTokens lerp(covariant ThemeExtension<NebulaTokens>? other, double t) {
+    if (other is! NebulaTokens) return this;
+    return NebulaTokens(
+      securityScrim: Color.lerp(securityScrim, other.securityScrim, t)!,
+      securitySurface: Color.lerp(securitySurface, other.securitySurface, t)!,
+      securityOnSurface: Color.lerp(securityOnSurface, other.securityOnSurface, t)!,
+      securityAccent: Color.lerp(securityAccent, other.securityAccent, t)!,
+      securityAlert: Color.lerp(securityAlert, other.securityAlert, t)!,
+      securityOk: Color.lerp(securityOk, other.securityOk, t)!,
+      securityWarning: Color.lerp(securityWarning, other.securityWarning, t)!,
+      securityInfo: Color.lerp(securityInfo, other.securityInfo, t)!,
+      securityBubbleSurface: Color.lerp(securityBubbleSurface, other.securityBubbleSurface, t)!,
+      securityBubbleBorder: Color.lerp(securityBubbleBorder, other.securityBubbleBorder, t)!,
+      securityBubbleTail: Color.lerp(securityBubbleTail, other.securityBubbleTail, t)!,
+      securityBubbleGlow: Color.lerp(securityBubbleGlow, other.securityBubbleGlow, t)!,
+      securityBubbleShadow: Color.lerp(securityBubbleShadow, other.securityBubbleShadow, t)!,
+      securityCrystalEdge: Color.lerp(securityCrystalEdge, other.securityCrystalEdge, t)!,
+      securityCrystalHighlight: Color.lerp(securityCrystalHighlight, other.securityCrystalHighlight, t)!,
+      securityCrystalBody: _lerpColors(securityCrystalBody, other.securityCrystalBody, t),
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      other is NebulaTokens &&
+      other.securityScrim == securityScrim &&
+      other.securitySurface == securitySurface &&
+      other.securityOnSurface == securityOnSurface &&
+      other.securityAccent == securityAccent &&
+      other.securityAlert == securityAlert &&
+      other.securityOk == securityOk &&
+      other.securityWarning == securityWarning &&
+      other.securityInfo == securityInfo &&
+      other.securityBubbleSurface == securityBubbleSurface &&
+      other.securityBubbleBorder == securityBubbleBorder &&
+      other.securityBubbleTail == securityBubbleTail &&
+      other.securityBubbleGlow == securityBubbleGlow &&
+      other.securityBubbleShadow == securityBubbleShadow &&
+      other.securityCrystalEdge == securityCrystalEdge &&
+      other.securityCrystalHighlight == securityCrystalHighlight &&
+      listEquals(other.securityCrystalBody, securityCrystalBody);
+
+  @override
+  int get hashCode => Object.hashAll([
+    securityScrim,
+    securitySurface,
+    securityOnSurface,
+    securityAccent,
+    securityAlert,
+    securityOk,
+    securityWarning,
+    securityInfo,
+    securityBubbleSurface,
+    securityBubbleBorder,
+    securityBubbleTail,
+    securityBubbleGlow,
+    securityBubbleShadow,
+    securityCrystalEdge,
+    securityCrystalHighlight,
+    Object.hashAll(securityCrystalBody),
+  ]);
+}
+
+List<Color> _lerpColors(List<Color> from, List<Color> to, double t) {
+  if (from.length != to.length) return t < .5 ? from : to;
+  return [
+    for (var i = 0; i < from.length; i++) Color.lerp(from[i], to[i], t)!,
+  ];
+}
+
+extension NebulaThemeData on ThemeData {
+  // tokens of the current theme, or the legacy Fail-Safe values when the theme does not provide any
+  NebulaTokens get nebula => extension<NebulaTokens>() ?? NebulaTokens.fallback;
+}

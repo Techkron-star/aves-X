@@ -37,6 +37,8 @@ import 'package:aves/services/accessibility_service.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/theme/colors.dart';
 import 'package:aves/theme/icons.dart';
+import 'package:aves/theme/nebula/nebula_palettes.dart';
+import 'package:aves/theme/nebula/nebula_theme.dart';
 import 'package:aves/theme/text.dart';
 import 'package:aves/theme/themes.dart';
 import 'package:aves/widgets/about/app_ref.dart';
@@ -269,15 +271,15 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
                   : AvesScaffold(
                       body: snapshot.hasError ? _buildError(snapshot.error!) : const SizedBox(),
                     );
-              return Selector<Settings, (Locale?, AvesThemeBrightness, bool, bool)>(
+              return Selector<Settings, (Locale?, AvesThemeBrightness, bool, NebulaTheme)>(
                 selector: (context, s) => (
                   s.basicLocale,
                   s.initialized ? s.themeBrightness : SettingsDefaults.themeBrightness,
                   s.initialized ? s.enableDynamicColor : SettingsDefaults.enableDynamicColor,
-                  s.initialized ? s.batGlass : SettingsDefaults.batGlass,
+                  s.initialized ? s.effectiveNebulaTheme : NebulaTheme.aves,
                 ),
                 builder: (context, s, child) {
-                  final (settingsLocale, themeBrightness, enableDynamicColor, batGlass) = s;
+                  final (settingsLocale, themeBrightness, enableDynamicColor, nebulaTheme) = s;
                   return DynamicColorBuilder(
                     builder: (lightScheme, darkScheme) {
                       const defaultAccent = AvesColorsData.defaultAccent;
@@ -287,8 +289,20 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
                         darkAccent = darkScheme?.primary ?? darkAccent;
                       }
                       final knownLocale = KnownLocale.fromBcp47(settingsLocale?.toLanguageTag()) ?? KnownLocale.english;
-                      final lightTheme = batGlass ? Themes.batGlassTheme(initialized, knownLocale) : Themes.lightTheme(lightAccent, initialized, knownLocale);
-                      final darkTheme = batGlass ? Themes.batGlassTheme(initialized, knownLocale) : (themeBrightness == AvesThemeBrightness.black ? Themes.blackTheme(darkAccent, initialized, knownLocale) : Themes.darkTheme(darkAccent, initialized, knownLocale));
+                      final palette = nebulaPaletteFor(nebulaTheme);
+                      // the default Aves palette delegates to the legacy light/dark/black themes;
+                      // palette themes are built from the palette and may be dark only
+                      ThemeData buildTheme(Brightness brightness) => Themes.nebulaTheme(
+                        palette,
+                        initialized,
+                        knownLocale,
+                        dynamicAccent: brightness == Brightness.light ? lightAccent : darkAccent,
+                        themeBrightness: brightness == Brightness.light
+                            ? AvesThemeBrightness.light
+                            : (themeBrightness == AvesThemeBrightness.black ? AvesThemeBrightness.black : AvesThemeBrightness.dark),
+                      );
+                      final lightTheme = buildTheme(Brightness.light);
+                      final darkTheme = buildTheme(Brightness.dark);
                       return Shortcuts(
                         shortcuts: {
                           // handle Android TV remote `select` button (KEYCODE_DPAD_CENTER)
@@ -342,7 +356,7 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
                                 onGenerateTitle: (context) => context.l10n.appName,
                                 theme: lightTheme,
                                 darkTheme: darkTheme,
-                                themeMode: batGlass ? ThemeMode.dark : themeBrightness.appThemeMode,
+                                themeMode: palette.darkOnly ? ThemeMode.dark : themeBrightness.appThemeMode,
                                 locale: settingsLocale,
                                 localizationsDelegates: const [
                                   // order matters for resolution of sublocales (e.g. `en_Shaw` before `en`)

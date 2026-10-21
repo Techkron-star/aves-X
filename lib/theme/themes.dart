@@ -1,6 +1,11 @@
+import 'package:aves/theme/nebula/nebula_palette.dart';
+import 'package:aves/theme/nebula/nebula_palettes.dart';
+import 'package:aves/theme/nebula/nebula_theme.dart';
+import 'package:aves/theme/nebula/nebula_tokens.dart';
 import 'package:aves/theme/styles.dart';
 import 'package:aves/widgets/aves_app.dart';
 import 'package:aves/widgets/settings/language/locales.dart';
+import 'package:aves_model/aves_model.dart';
 import 'package:aves_utils/aves_utils.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
@@ -188,6 +193,11 @@ class Themes {
       onSecondary: onAccent,
       onSurface: _lightOnSurface,
     );
+    return _baseLightTheme(colors, deviceInitialized, locale);
+  }
+
+  // light component themes on top of the plain base, shared with the Nebula light palettes
+  static ThemeData _baseLightTheme(ColorScheme colors, bool deviceInitialized, KnownLocale locale) {
     final textTheme = _lightThemeTypo;
     return _baseTheme(colors, deviceInitialized).copyWith(
       // TYPOGRAPHY & ICONOGRAPHY
@@ -286,27 +296,90 @@ class Themes {
   // experimental "Bat glass": black backgrounds with ruby red translucent glass
   static const batGlassRuby = Color(0xFFE0183E);
 
-  static ThemeData batGlassTheme(bool deviceInitialized, KnownLocale locale) {
-    final colors = _darkColorScheme(batGlassRuby).copyWith(
-      surface: Colors.black,
-      surfaceContainerLowest: Colors.black,
-      surfaceContainerLow: const Color(0xFF0E0407),
-      surfaceContainer: const Color(0xFF16060B),
-      surfaceContainerHigh: const Color(0xFF1F0910),
-      surfaceContainerHighest: const Color(0xFF2A0D16),
-      outlineVariant: const Color(0xFF5A1626),
-    );
-    return _baseDarkTheme(colors, deviceInitialized, locale).copyWith(
-      // translucent ruby "crystal" instead of solid fills
-      filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-          backgroundColor: const Color(0xB3C4122F),
-          foregroundColor: Colors.white,
-          side: const BorderSide(color: Color(0x99FFB3BF)),
-        ),
-      ),
+  // Nebula Engine
+
+  // Builds the theme of a Nebula palette.
+  //
+  // The default Aves theme delegates to the legacy light/dark/black themes, so it keeps its current look.
+  // Palette themes reuse the legacy Bat-Glass base, and only change colors and surface treatment.
+  static ThemeData nebulaTheme(
+    NebulaPalette palette,
+    bool deviceInitialized,
+    KnownLocale locale, {
+    Color? dynamicAccent,
+    AvesThemeBrightness themeBrightness = AvesThemeBrightness.system,
+  }) {
+    final accent = palette.allowDynamicColor ? (dynamicAccent ?? palette.accent) : palette.accent;
+    final ThemeData base;
+    if (palette.theme == NebulaTheme.aves) {
+      // the legacy themes stay the single source of truth for the default look
+      base = switch (themeBrightness) {
+        AvesThemeBrightness.light => lightTheme(accent, deviceInitialized, locale),
+        AvesThemeBrightness.black => blackTheme(accent, deviceInitialized, locale),
+        AvesThemeBrightness.dark || AvesThemeBrightness.system => darkTheme(accent, deviceInitialized, locale),
+      };
+    } else {
+      final colors = _paletteColorScheme(palette, accent);
+      // phase 1 palettes are dark: a light palette would also need its own light component themes
+      base = colors.brightness == Brightness.dark
+          ? _baseDarkTheme(colors, deviceInitialized, locale)
+          : _baseLightTheme(colors, deviceInitialized, locale);
+    }
+    return _applyPalette(base, palette);
+  }
+
+  static ColorScheme _paletteColorScheme(NebulaPalette palette, Color accent) {
+    final brightness = palette.brightness ?? Brightness.dark;
+    final onAccent = ColorUtils.textColorOn(accent);
+    final onSurface = brightness == Brightness.dark ? _darkOnSurface : _lightOnSurface;
+    return ColorScheme.fromSeed(
+      seedColor: palette.seed,
+      brightness: brightness,
+      primary: accent,
+      onPrimary: onAccent,
+      secondary: accent,
+      onSecondary: onAccent,
+      onSurface: onSurface,
+    ).copyWith(
+      surface: palette.surface,
+      surfaceContainerLowest: palette.surfaceContainerLowest,
+      surfaceContainerLow: palette.surfaceContainerLow,
+      surfaceContainer: palette.surfaceContainer,
+      surfaceContainerHigh: palette.surfaceContainerHigh,
+      surfaceContainerHighest: palette.surfaceContainerHighest,
+      outlineVariant: palette.outlineVariant,
     );
   }
+
+  static ThemeData _applyPalette(ThemeData theme, NebulaPalette palette) {
+    var result = theme;
+    final buttonBackground = palette.filledButtonBackground;
+    if (buttonBackground != null) {
+      final buttonBorder = palette.filledButtonBorder;
+      // translucent "crystal" instead of solid fills
+      result = result.copyWith(
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(
+            backgroundColor: buttonBackground,
+            foregroundColor: Colors.white,
+            side: buttonBorder != null ? BorderSide(color: buttonBorder) : null,
+          ),
+        ),
+      );
+    }
+    return result.copyWith(
+      extensions: [
+        ...result.extensions.values.where((e) => e is! NebulaTokens),
+        NebulaTokens.fromPalette(palette, result.colorScheme),
+      ],
+    );
+  }
+
+  static ThemeData batGlassTheme(bool deviceInitialized, KnownLocale locale) => nebulaTheme(
+    nebulaPalettes[NebulaTheme.batGlass]!,
+    deviceInitialized,
+    locale,
+  );
 
   static ThemeData blackTheme(Color accentColor, bool deviceInitialized, KnownLocale locale) {
     final colors = _darkColorScheme(accentColor).copyWith(

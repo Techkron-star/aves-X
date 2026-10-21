@@ -1,8 +1,14 @@
 import 'package:aves/model/settings/enums/nav_bar_style.dart';
 import 'package:aves/model/device.dart';
 import 'package:aves/model/settings/defaults.dart';
+import 'package:aves/theme/nebula/nebula_theme.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:flutter/widgets.dart';
+
+// Nebula theme selection.
+// Kept here for this slice: moving it to `SettingKeys` (`plugins/aves_model`) also needs the settings
+// import/export switch (`lib/model/settings/settings.dart`) to accept the new key.
+const nebulaThemeKey = 'nebula_theme';
 
 mixin DisplaySettings on SettingsAccess {
   DisplayRefreshRateMode get displayRefreshRateMode => getEnumOrDefault(SettingKeys.displayRefreshRateModeKey, SettingsDefaults.displayRefreshRateMode, DisplayRefreshRateMode.values);
@@ -42,9 +48,31 @@ mixin DisplaySettings on SettingsAccess {
   set navBarStyle(NavBarStyle newValue) => set(SettingKeys.navBarStyleKey, newValue.name);
 
   // performance mode always wins over the visual effects
-  bool get batGlass => !performanceMode && (getBool(SettingKeys.batGlassKey) ?? SettingsDefaults.batGlass);
+  bool get batGlass => !performanceMode && nebulaTheme == NebulaTheme.batGlass;
 
-  set batGlass(bool newValue) => set(SettingKeys.batGlassKey, newValue);
+  // kept for compatibility with the existing call sites of the Bat-Glass toggle
+  set batGlass(bool newValue) => nebulaTheme = newValue ? NebulaTheme.batGlass : NebulaTheme.aves;
+
+  // selected Nebula theme.
+  // installs that predate the selector are migrated from the legacy `bat_glass` toggle
+  NebulaTheme get nebulaTheme {
+    final stored = nebulaThemeFromId(getString(nebulaThemeKey));
+    if (stored != null) return stored;
+    final legacyBatGlass = getBool(SettingKeys.batGlassKey) ?? SettingsDefaults.batGlass;
+    return legacyBatGlass ? NebulaTheme.batGlass : NebulaTheme.aves;
+  }
+
+  set nebulaTheme(NebulaTheme newValue) {
+    set(nebulaThemeKey, newValue.id);
+    // mirror the legacy toggle too, so that a settings export/import keeps the Bat-Glass choice
+    // working until `nebula_theme` is a registered setting key
+    set(SettingKeys.batGlassKey, newValue == NebulaTheme.batGlass);
+  }
+
+  // selected theme actually applied.
+  // performance mode disables effects, not the palette: keeping the palette preserves dark
+  // surfaces and the user's theme choice while blur/animations are off
+  NebulaTheme get effectiveNebulaTheme => nebulaTheme;
 
   bool get performanceMode => getBool(SettingKeys.performanceModeKey) ?? SettingsDefaults.performanceMode;
 
