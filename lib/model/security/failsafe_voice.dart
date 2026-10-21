@@ -9,7 +9,8 @@ import 'package:aves/services/common/services.dart';
 // Every letter becomes a short blip whose pitch depends on the letter, so the same text always sounds the same.
 // Everything is synthesized here (no audio files, no samples, nothing to license).
 class FailsafeVoice {
-  static const _rate = 16000;
+  // 44.1 kHz is supported by every Android device; 16 kHz made the audio track fail to initialize on some.
+  static const _rate = 44100;
   static const _maxLetters = 60;
 
   static const statusOk = 'ok';
