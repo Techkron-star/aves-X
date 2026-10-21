@@ -1,0 +1,18 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "coordinator",
+  "permissions": [
+    { "action": "shell", "resource": "gh *", "effect": "deny" },
+    { "action": "shell", "resource": "git push *", "effect": "deny" },
+    { "action": "shell", "resource": "git commit *", "effect": "deny" },
+    { "action": "shell", "resource": "*api.github.com*", "effect": "deny" },
+    { "action": "shell", "resource": "flutter build *", "effect": "deny" },
+    { "action": "shell", "resource": "flutter run *", "effect": "deny" },
+    { "action": "github_*", "resource": "*", "effect": "deny" },
+    { "action": "github_get_*", "resource": "*", "effect": "allow" },
+    { "action": "github_list_*", "resource": "*", "effect": "allow" },
+    { "action": "github_search_*", "resource": "*", "effect": "allow" },
+    { "action": "github_pull_request_read", "resource": "*", "effect": "allow" },
+    { "action": "github_issue_read", "resource": "*", "effect": "allow" }
+  ]
+}
