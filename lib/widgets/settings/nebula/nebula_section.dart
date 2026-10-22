@@ -31,7 +31,7 @@ class NebulaSection extends SettingsSection {
 
   @override
   Future<List<SettingsTile>> tiles(BuildContext context) => Future.value([
-    const SettingsTileNebulaEngine(),
+    SettingsTileNebulaEngine(),
   ]);
 }
 
