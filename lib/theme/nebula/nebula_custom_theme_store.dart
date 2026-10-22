@@ -20,7 +20,7 @@ class NebulaCustomThemeStore {
   static const _extension = '.json';
 
   Directory? _dir;
-  Directory get _themesDir {
+  Future<Directory> get _themesDir async {
     _dir ??= Directory(p.join(await _localPath(), _folderName));
     return _dir!;
   }
@@ -32,14 +32,14 @@ class NebulaCustomThemeStore {
 
   /// Carga todos los temas personalizados disponibles.
   Future<List<CustomNebulaTheme>> loadAll() async {
-    final dir = _themesDir;
+    final dir = await _themesDir;
     if (!await dir.exists()) {
       await dir.create(recursive: true);
       return const <CustomNebulaTheme>[];
     }
 
     final themes = <CustomNebulaTheme>[];
-    for (final entity in await dir.list()) {
+    await for (final entity in dir.list()) {
       if (entity is File && entity.path.endsWith(_extension)) {
         try {
           final json = jsonDecode(await entity.readAsString()) as Map<String, dynamic>;
@@ -57,7 +57,7 @@ class NebulaCustomThemeStore {
 
   /// Guarda un tema personalizado, sobrescribiendo si ya existe con ese id.
   Future<void> save(CustomNebulaTheme theme) async {
-    final dir = _themesDir;
+    final dir = await _themesDir;
     if (!await dir.exists()) {
       await dir.create(recursive: true);
     }
@@ -67,7 +67,8 @@ class NebulaCustomThemeStore {
 
   /// Elimina un tema personalizado por su id.
   Future<void> delete(String id) async {
-    final file = File(p.join(_themesDir.path, '$id$_extension'));
+    final dir = await _themesDir;
+    final file = File(p.join(dir.path, '$id$_extension'));
     if (await file.exists()) {
       await file.delete();
     }

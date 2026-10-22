@@ -12,7 +12,7 @@ import 'package:material_ui/material_ui.dart';
 // Entrada de Ajustes → Nebula Engine → Temas personalizados.
 // Permite importar, exportar, editar y eliminar temas Nebula creados por el usuario.
 class SettingsTileCustomNebulaTheme extends SettingsTile {
-  const SettingsTileCustomNebulaTheme();
+  SettingsTileCustomNebulaTheme();
 
   @override
   List<String> get settingKeys => [SettingKeys.nebulaCustomThemeKey];

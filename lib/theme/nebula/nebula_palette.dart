@@ -30,6 +30,18 @@ enum NebulaSurfaceTreatment {
   neonGlass,
   // Emerald Glass: deep forest emerald crystal with gold veins (phase 2 effects)
   emeraldGlass,
+  // Aurora Glass: polar green and ice blue dancing like northern lights (phase 2 effects)
+  auroraGlass,
+  // Sapphire Glass: deep royal sapphire with brilliant cyan highlights (phase 2 effects)
+  sapphireGlass,
+  // Amber Glass: warm fossil amber with honey orange and gold (phase 2 effects)
+  amberGlass,
+  // Onyx Glass: pure black with graphite grey — minimalist monochrome (phase 2 effects)
+  onyxGlass,
+  // Pearl Glass: soft pearl white with shell pink and subtle gold (phase 2 effects)
+  pearlGlass,
+  // Ivory Glass: warm ivory cream with champagne gold accents (phase 2 effects)
+  ivoryGlass,
 }
 
 // A Nebula palette: colors and surface treatment only.

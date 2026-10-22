@@ -14,9 +14,10 @@ import 'package:aves/widgets/settings/thumbnails/thumbnails.dart';
 import 'package:aves/widgets/settings/video/video.dart';
 import 'package:aves/widgets/settings/viewer/viewer.dart';
 import 'package:aves/widgets/settings/experimental/experimental.dart';
-import 'package:flutter/material.dart' hide TabController;
+import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart' hide TabController, Tab, TabBar, TabBarView, Icon, IconButton, MaterialLocalizations, AlertDialog, InkWell, Divider, ListTile, OutlineInputBorder, TextField, TextButton, ElevatedButton, OutlinedButton, CircularProgressIndicator, TextFormField, InputDecoration, DropdownButtonFormField, DropdownMenuItem, Wrap, CircleAvatar, TextStyle, FontWeight;
+import 'package:aves_model/aves_model.dart';
 import 'package:provider/provider.dart';
 
 // Página de ajustes con pestañas "General" y "Especiales".

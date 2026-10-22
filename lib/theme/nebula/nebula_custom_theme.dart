@@ -107,7 +107,15 @@ class CustomNebulaTheme {
       errors.add('treatment: must be one of ${NebulaSurfaceTreatment.values.map((t) => t.name).join(', ')}');
     }
 
-    // color helper
+    // color helper - Flutter's Color doesn't have .parse(), so we parse hex manually
+    Color _parseHexColor(String hex) {
+      hex = hex.replaceAll('#', '');
+      if (hex.length == 6) {
+        hex = 'FF$hex';
+      }
+      return Color(int.parse(hex, radix: 16));
+    }
+
     Color? parseColor(String key, {required List<String> errors}) {
       final hex = json[key] as String?;
       if (hex == null) {
@@ -115,12 +123,15 @@ class CustomNebulaTheme {
         return null;
       }
       try {
-        return Color.parse(hex);
+        return _parseHexColor(hex);
       } catch (_) {
         errors.add('$key: invalid color "$hex"');
         return null;
       }
     }
+
+    // description
+    final description = json['description'] as String?;
 
     final seed = parseColor('seed', errors: errors);
     final accent = parseColor('accent', errors: errors);
@@ -146,12 +157,12 @@ class CustomNebulaTheme {
       crystalBody = crystalBodyRaw.mapIndexed((i, c) {
         final hex = c as String?;
         try {
-          return Color.parse(hex ?? '');
+          return _parseHexColor(hex ?? '');
         } catch (_) {
           errors.add('crystalBody[$i]: invalid color "$hex"');
           return Color(0xFF000000);
         }
-      }).toList();
+      }).toList().cast<Color>();
     }
 
     final liquidIcons = json['liquidIcons'] as bool? ?? true;

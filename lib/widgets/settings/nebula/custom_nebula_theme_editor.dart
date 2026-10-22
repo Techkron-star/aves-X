@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 import 'package:aves/theme/nebula/nebula_custom_theme.dart';
 import 'package:aves/theme/nebula/nebula_palette.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
-import 'package:flutter/material.dart' hide ElevatedButton, AlertDialog, TextFormField, InputDecoration, Icons, TabController;
+import 'package:flutter/material.dart' hide ElevatedButton, AlertDialog, TextFormField, InputDecoration, Icons, TabController, Color, TextButton, CircularProgressIndicator, DropdownButtonFormField, DropdownMenuItem, Form, SingleChildScrollView, Column, SizedBox, Text, SizedBox, SizedBox, SizedBox, SizedBox;
 import 'package:material_ui/material_ui.dart' hide Color;
 
 // Editor de temas Nebula personalizados.
@@ -43,7 +43,6 @@ class _CustomNebulaThemeEditorState extends State<CustomNebulaThemeEditor> {
   }
 
   Future<void> _loadTemplate() async {
-    // Try to parse the template as a starting point
     try {
       final json = jsonDecode(widget.template) as Map<String, dynamic>;
       final theme = CustomNebulaTheme.fromJson(json);
@@ -75,22 +74,30 @@ class _CustomNebulaThemeEditorState extends State<CustomNebulaThemeEditor> {
     super.dispose();
   }
 
-  ui.Color _parseColor(String? text, Color fallback) {
+  ui.Color _parseColor(String? text, ui.Color fallback) {
     if (text == null || text.isEmpty) return fallback;
     try {
-      return ui.Color.parse(text);
+      return _parseHexColor(text);
     } catch (_) {
       return fallback;
     }
   }
 
+  static ui.Color _parseHexColor(String hex) {
+    hex = hex.replaceAll('#', '');
+    if (hex.length == 6) {
+      hex = 'FF$hex';
+    }
+    return ui.Color(int.parse(hex, radix: 16));
+  }
+
   void _save() {
     if (!_formKey.currentState!.validate()) return;
 
-    final seed = _parseColor(_seedController.text, const Color(0xFF000000));
-    final accent = _parseColor(_accentController.text, const Color(0xFF000000));
-    final surface = _parseColor(_surfaceController.text, const Color(0xFF000000));
-    final glow = _parseColor(_glowController.text, const Color(0xFF000000));
+    final seed = _parseColor(_seedController.text, const ui.Color(0xFF000000));
+    final accent = _parseColor(_accentController.text, const ui.Color(0xFF000000));
+    final surface = _parseColor(_surfaceController.text, const ui.Color(0xFF000000));
+    final glow = _parseColor(_glowController.text, const ui.Color(0xFF000000));
 
     final theme = CustomNebulaTheme(
       schema: 1,
@@ -246,7 +253,7 @@ class _ColorField extends StatelessWidget {
       validator: (v) {
         if (v == null || v.isEmpty) return 'Color requerido';
         try {
-          ui.Color.parse(v);
+          _parseHexColor(v);
         } catch (_) {
           return 'Color inválido (#RRGGBB)';
         }
