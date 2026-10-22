@@ -2,6 +2,7 @@ import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/identity/aves_logo_art.dart';
+import 'package:aves/widgets/settings/common/tile_leading.dart';
 import 'package:aves/widgets/settings/nebula/nebula_tab.dart';
 import 'package:aves/widgets/settings/settings_definition.dart';
 import 'package:aves_model/aves_model.dart';
@@ -36,7 +37,7 @@ class NebulaSection extends SettingsSection {
 
 /// Tarjeta especial del Nebula Engine. Abre la pestaña Nebula al tocar.
 class SettingsTileNebulaEngine extends SettingsTile {
-  const SettingsTileNebulaEngine();
+  SettingsTileNebulaEngine();
 
   @override
   List<String> get settingKeys => [SettingKeys.nebulaThemeKey];
