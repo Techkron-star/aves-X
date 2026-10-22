@@ -6,7 +6,6 @@ import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/settings/common/tile_leading.dart';
 import 'package:aves/widgets/settings/common/tiles/switch_list.dart';
-import 'package:aves/widgets/settings/display/display.dart';
 import 'package:aves/widgets/settings/settings_definition.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:flutter/widgets.dart';
@@ -29,7 +28,6 @@ class ExperimentalSection extends SettingsSection {
 
   @override
   Future<List<SettingsTile>> tiles(BuildContext context) => Future.value([
-    SettingsTileDisplayBatGlass(),
     SettingsTileExperimentalGlassEverywhere(),
   ]);
 

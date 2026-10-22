@@ -12,7 +12,6 @@ import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/settings/common/tile_leading.dart';
 import 'package:aves/widgets/settings/common/tiles/single_selection.dart';
 import 'package:aves/widgets/settings/common/tiles/switch_list.dart';
-import 'package:aves/widgets/settings/display/nebula_theme_tile.dart';
 import 'package:aves/widgets/settings/privacy/privacy.dart';
 import 'package:aves/widgets/settings/settings_definition.dart';
 import 'package:aves_model/aves_model.dart';
@@ -37,7 +36,6 @@ class DisplaySection extends SettingsSection {
     if (!settings.useTvLayout) SettingsTileDisplayThemeBrightness(),
     SettingsTileDisplayThemeColorMode(),
     if (device.isDynamicColorAvailable) SettingsTileDisplayEnableDynamicColor(),
-    SettingsTileDisplayNebulaTheme(),
     SettingsTileDisplayPerformanceMode(),
     SettingsTileDisplayEnableBlurEffect(),
     if (!settings.useTvLayout) SettingsTileDisplayNavBarStyle(),

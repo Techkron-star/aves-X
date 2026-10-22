@@ -655,13 +655,6 @@ class _EffectsList extends StatelessWidget {
         const Divider(height: 24, color: Color(0x33FFFFFF)),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
-          value: settings.performanceMode,
-          title: Text(l10n.settingsPerformanceMode),
-          subtitle: Text(l10n.settingsPerformanceModeSubtitle),
-          onChanged: (v) => settings.performanceMode = v,
-        ),
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
           value: settings.enableBlurEffect,
           title: Text(l10n.settingsViewerEnableOverlayBlurEffect),
           onChanged: (v) => settings.enableBlurEffect = v,

@@ -7,6 +7,7 @@ import 'package:aves/widgets/common/extensions/media_query.dart';
 import 'package:aves/widgets/settings/accessibility/accessibility.dart';
 import 'package:aves/widgets/settings/display/display.dart';
 import 'package:aves/widgets/settings/language/language.dart';
+import 'package:aves/widgets/settings/nebula/nebula_section.dart';
 import 'package:aves/widgets/settings/navigation/navigation.dart';
 import 'package:aves/widgets/settings/privacy/privacy.dart';
 import 'package:aves/widgets/settings/settings_definition.dart';
@@ -31,6 +32,7 @@ class SettingsPage extends StatelessWidget {
     PrivacySection(),
     SecuritySection(),
     FailsafeSection(),
+    NebulaSection(),
     AccessibilitySection(),
     DisplaySection(),
     LanguageSection(),

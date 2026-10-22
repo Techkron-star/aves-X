@@ -29,6 +29,14 @@ Resumen de cambios realizados hoy, organizados por tipo. Todos los commits está
 - **Limpieza**: se eliminaron archivos accidentales (`COMMIT_MSG.txt`, `ORCHESTRATOR_README.md`, `aves-x-libre-apks.zip`, `orchestrator.py`, `workflow.yaml`).
 - **Versión**: `pubspec.yaml` bumped a `0.5.0+500`; `release_body.md` actualizado para v0.5.0.
 
+## 🧹 Reorganización de ajustes (esta tanda)
+
+- **Nebula Engine como ajuste principal**: nueva sección `NebulaSection` en Ajustes (entre Fail-Safe y Accesibilidad) con una **tarjeta visual especial** al estilo Black Hole (borde brillante, gradiente oscurecido, logo Aves-X) que abre la pestaña Nebula. Ya no es un tile secundario dentro de Display.
+- **Quitar duplicados**:
+  - `Bat-Glass` / Nosferatu eliminado de `Experimental` (ya vive solo en el selector de temas Nebula).
+  - `Rendimiento` / Performance Mode eliminado de la pestaña Nebula (ya vive solo en Display como ajuste global).
+- **l10n**: nuevos strings `nebulaEngineSectionTitle`, `nebulaEngineTitle`, `nebulaEngineSubtitle` (EN + ES).
+
 ## 🚧 Estado
 
 - Build verde: run `39703725520` (commit `359a567`, incluye el fix del cuadro gris).
