@@ -53,3 +53,22 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Secrets and signing material: never commit these
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+*.p8
+*.asc
+*.gpg
+google-services.json
+GoogleService-Info.plist
+android/key.properties
+local.properties
+scripts/*.local.ps1
+

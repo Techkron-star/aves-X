@@ -59,65 +59,68 @@ class NebulaThemePill extends StatelessWidget {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final kind = theme.isPhase1 ? StickerKind.newFeature : StickerKind.experimental;
-    return Opacity(
-      opacity: enabled ? 1 : .5,
-      child: Tooltip(
-        message: enabled ? null : l10n.nebulaComingSoonPhase2,
-        child: InkWell(
-          onTap: onSelected,
+
+    final content = InkWell(
+      onTap: onSelected,
+      borderRadius: BorderRadius.circular(14),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: selected ? scheme.surfaceContainerHighest.withValues(alpha: .9) : scheme.surfaceContainerLow.withValues(alpha: .55),
           borderRadius: BorderRadius.circular(14),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            curve: Curves.easeOutCubic,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              color: selected ? scheme.surfaceContainerHighest.withValues(alpha: .9) : scheme.surfaceContainerLow.withValues(alpha: .55),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: selected ? scheme.primary : scheme.outlineVariant.withValues(alpha: .6),
-                width: selected ? 2 : 1,
-              ),
-              boxShadow: selected
-                  ? [
-                      BoxShadow(
-                        color: scheme.primary.withValues(alpha: .35),
-                        blurRadius: 18,
-                        spreadRadius: 1,
-                      ),
-                    ]
-                  : null,
-            ),
-            child: Row(
+          border: Border.all(
+            color: selected ? scheme.primary : scheme.outlineVariant.withValues(alpha: .6),
+            width: selected ? 2 : 1,
+          ),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: scheme.primary.withValues(alpha: .35),
+                    blurRadius: 18,
+                    spreadRadius: 1,
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FeatureSticker(kind: kind),
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                FeatureSticker(kind: kind),
-                const SizedBox(width: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      nebulaThemeName(context, theme),
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: enabled ? scheme.onSurface : scheme.onSurface.withValues(alpha: .5),
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      nebulaThemeDescription(context, theme),
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: enabled ? scheme.onSurfaceVariant : scheme.onSurface.withValues(alpha: .5),
-                      ),
-                    ),
-                  ],
+                Text(
+                  nebulaThemeName(context, theme),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: enabled ? scheme.onSurface : scheme.onSurface.withValues(alpha: .5),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  nebulaThemeDescription(context, theme),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: enabled ? scheme.onSurfaceVariant : scheme.onSurface.withValues(alpha: .5),
+                  ),
                 ),
               ],
             ),
-          ),
+          ],
         ),
       ),
+    );
+
+    // Never build a `Tooltip` without a message: `TooltipState` evaluates `richMessage!`
+    // when `message` is null, which throws in release and renders a gray `ErrorWidget`.
+    // Only Phase 2 pills need a tooltip, so enabled pills skip it entirely.
+    return Opacity(
+      opacity: enabled ? 1 : .5,
+      child: enabled ? content : Tooltip(message: l10n.nebulaComingSoonPhase2, child: content),
     );
   }
 }
