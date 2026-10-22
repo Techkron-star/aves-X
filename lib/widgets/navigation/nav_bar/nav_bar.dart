@@ -1,4 +1,3 @@
-import 'package:aves/theme/themes.dart';
 import 'dart:ui';
 import 'package:aves/widgets/common/fx/liquid.dart';
 import 'package:aves/model/settings/enums/nav_bar_style.dart';
@@ -188,7 +187,7 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
   }
 
   Widget _glow(BuildContext context, Widget icon) {
-    final color = settings.batGlass ? Themes.batGlassRuby : Theme.of(context).colorScheme.primary;
+    final color = settings.materialStyle?.accent ?? Theme.of(context).colorScheme.primary;
     return DecoratedBox(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
@@ -202,7 +201,7 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
   Widget _withLens(BuildContext context, NavBarStyle style, int count, int index, bool isRtl, Widget bar) {
     if (style == NavBarStyle.classic || !settings.navLens) return bar;
     final blur = settings.enableBlurEffect;
-    final bat = settings.batGlass;
+    final material = settings.materialStyle;
     final radius = BorderRadius.circular(style == NavBarStyle.rectangular ? 8 : 22);
     Widget lens = DecoratedBox(
       decoration: BoxDecoration(
@@ -210,9 +209,9 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: bat ? const [Color(0x55FF3B5C), Color(0x14E0183E)] : const [Color(0x40FFFFFF), Color(0x0DFFFFFF)],
+          colors: material?.lens ?? const [Color(0x40FFFFFF), Color(0x0DFFFFFF)],
         ),
-        border: Border.all(color: bat ? const Color(0x99FF6A80) : const Color(0x73FFFFFF), width: 1.2),
+        border: Border.all(color: material?.lensBorder ?? const Color(0x73FFFFFF), width: 1.2),
         boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 8)],
       ),
     );

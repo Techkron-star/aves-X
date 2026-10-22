@@ -101,8 +101,8 @@ class _AvesDialogState extends State<AvesDialog> {
       shape: AvesDialog.shape(context),
       backgroundColor: !settings.enableBlurEffect
           ? null
-          : settings.batGlass
-              ? const Color(0xCC24060E) // ruby smoked crystal
+          : settings.materialStyle != null
+              ? settings.materialStyle!.dialogSurface // smoked ruby, black violet or dark gold
               : settings.glassEverywhere
                   ? Theme.of(context).colorScheme.surfaceContainerHigh.withValues(alpha: .62) // frosted
                   : null,
@@ -223,7 +223,7 @@ Future<T?> showAvesDialog<T>({
   return showDialog<T>(
     context: context,
     // frosted background behind dialogs
-    builder: (settings.enableBlurEffect && (settings.glassEverywhere || settings.batGlass)) ? (context) => BackdropFilter(filter: ImageFilter.blur(sigmaX: settings.batGlass ? 4 : 12, sigmaY: settings.batGlass ? 4 : 12), child: builder(context)) : builder,
+    builder: (settings.enableBlurEffect && (settings.glassEverywhere || settings.materialStyle != null)) ? (context) => BackdropFilter(filter: ImageFilter.blur(sigmaX: settings.materialStyle != null ? 4 : 12, sigmaY: settings.materialStyle != null ? 4 : 12), child: builder(context)) : builder,
     barrierDismissible: barrierDismissible,
     barrierColor: barrierColor,
     barrierLabel: barrierLabel,

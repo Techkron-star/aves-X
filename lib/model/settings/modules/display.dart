@@ -1,6 +1,7 @@
 import 'package:aves/model/settings/enums/nav_bar_style.dart';
 import 'package:aves/model/device.dart';
 import 'package:aves/model/settings/defaults.dart';
+import 'package:aves/theme/nebula/nebula_material.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:flutter/widgets.dart';
@@ -46,6 +47,10 @@ mixin DisplaySettings on SettingsAccess {
 
   // performance mode always wins over the visual effects
   bool get nosferatuGlass => !performanceMode && nebulaTheme == NebulaTheme.nosferatuGlass;
+
+  // look of the themes that paint their own glass (Nosferatu Glass, Night Demon, Godly), null for the others;
+  // performance mode always wins over the visual effects
+  NebulaMaterialStyle? get materialStyle => performanceMode ? null : nebulaMaterials[nebulaTheme];
 
   // kept for compatibility with the existing call sites of the former Bat-Glass toggle
   bool get batGlass => nosferatuGlass;

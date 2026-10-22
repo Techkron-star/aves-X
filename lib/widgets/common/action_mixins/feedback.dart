@@ -5,7 +5,6 @@ import 'package:aves/model/settings/enums/accessibility_timeout.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/colors.dart';
 import 'package:aves/theme/durations.dart';
-import 'package:aves/theme/themes.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/widgets/common/action_mixins/overlay_snack_bar.dart';
 import 'package:aves/widgets/common/basic/circle.dart';
@@ -290,9 +289,9 @@ class _ReportOverlayState extends State<ReportOverlay> with SingleTickerProvider
 
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final bat = settings.batGlass;
-    final glass = bat || settings.glassEverywhere;
-    final progressColor = bat ? Themes.batGlassRuby : colorScheme.primary;
+    final material = settings.materialStyle;
+    final glass = material != null || settings.glassEverywhere;
+    final progressColor = material?.accent ?? colorScheme.primary;
     final animate = context.select<Settings, bool>((v) => v.animate);
     return PopScope(
       canPop: false,
@@ -323,15 +322,15 @@ class _ReportOverlayState extends State<ReportOverlay> with SingleTickerProvider
                   height: diameter + 2,
                   decoration: BoxDecoration(
                     // glass look in Bat-Glass and Glass everywhere
-                    color: bat ? const Color(0xCC14030A) : (theme.isDark ? const Color(0xBB000000) : const Color(0xEEFFFFFF)),
+                    color: material?.feedbackSurface ?? (theme.isDark ? const Color(0xBB000000) : const Color(0xEEFFFFFF)),
                     gradient: glass
                         ? LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
-                            colors: bat ? const [Color(0x66E0183E), Color(0xCC14030A)] : const [Color(0x33FFFFFF), Color(0x99000000)],
+                            colors: material?.feedbackGradient ?? const [Color(0x33FFFFFF), Color(0x99000000)],
                           )
                         : null,
-                    border: glass ? Border.all(color: bat ? const Color(0x99FF6A80) : const Color(0x55FFFFFF), width: 1.2) : null,
+                    border: glass ? Border.all(color: material?.feedbackBorder ?? const Color(0x55FFFFFF), width: 1.2) : null,
                     shape: BoxShape.circle,
                   ),
                 ),

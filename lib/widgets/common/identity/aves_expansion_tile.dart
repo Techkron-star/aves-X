@@ -49,7 +49,7 @@ class const AvesExpansionTile({
     // cristal en las tarjetas de los ajustes (y las que comparten este widget) cuando Bat-Glass o
     // Glass-Everywhere están activos; cuando ambos están apagados se devuelve la tarjeta tal cual,
     // sin backdrop ni recorte de sombra (no hay cambio visual por defecto)
-    final glass = context.select<Settings, bool>((s) => s.batGlass || s.glassEverywhere);
+    final glass = context.select<Settings, bool>((s) => s.materialStyle != null || s.glassEverywhere);
     final card = ExpansionTileCard(
       // key is expected by test driver
       key: Key('tilecard-$value'),

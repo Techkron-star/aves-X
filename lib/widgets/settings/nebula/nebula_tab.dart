@@ -102,13 +102,10 @@ class _NebulaTabState extends State<NebulaTab> with SingleTickerProviderStateMix
               children: [
                 _GalaxyBackdrop(drift: _drift, animate: animate),
 
-                // Fase 2: efecto visual propio del tema activo (Forge, Hermetic,
+                // Efecto visual propio del tema activo (Night Demon, Godly, Forge, Hermetic,
                 // Eclipse, Solar Flare, Void, Crimson, Neon, Emerald). Se pinta
                 // sobre el fondo galáctico y se detiene en modo rendimiento.
-                if (settings.nebulaTheme != NebulaTheme.aves &&
-                    settings.nebulaTheme != NebulaTheme.nosferatuGlass &&
-                    settings.nebulaTheme != NebulaTheme.obsidianGlass &&
-                    settings.nebulaTheme != NebulaTheme.aureateGlass)
+                if (settings.nebulaTheme != NebulaTheme.aves && settings.nebulaTheme != NebulaTheme.nosferatuGlass)
                   nebulaEffectFor(settings.nebulaTheme, animate: animate) ??
                       const SizedBox(),
 

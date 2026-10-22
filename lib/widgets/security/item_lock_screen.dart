@@ -1,11 +1,13 @@
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/item_locks.dart';
 import 'package:aves/model/settings/settings.dart';
+import 'package:aves/theme/nebula/nebula_material.dart';
 import 'package:aves/theme/nebula/nebula_tokens.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
 import 'package:aves/widgets/common/basic/scaffold.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/fx/blurred.dart';
+import 'package:aves/widgets/common/fx/diamond.dart';
 import 'package:aves/widgets/common/fx/failsafe_badge.dart';
 import 'package:aves/widgets/common/fx/lock_animation.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +33,8 @@ class ItemLockScreen extends StatelessWidget with FeedbackMixin {
     final l10n = context.l10n;
     final nebula = Theme.of(context).nebula;
     final animate = settings.animate && !settings.performanceMode;
-    final glass = settings.batGlass || settings.glassEverywhere;
+    final material = settings.materialStyle;
+    final glass = material != null || settings.glassEverywhere;
 
     return AvesScaffold(
       backgroundColor: nebula.securityScrimOverlay,
@@ -39,7 +42,8 @@ class ItemLockScreen extends StatelessWidget with FeedbackMixin {
         child: AnimatedCrystal(
           animate: animate,
           opacity: .3,
-          // deep ruby crystal with a slow glint: Fail-Safe holds the item
+          material: material?.material ?? NebulaMaterial.ruby,
+          // the glass of the theme with a slow glint (cracks flaring up for Night Demon): Fail-Safe holds the item
           child: Center(
             child: BlurredRRect.all(
               borderRadius: 26,

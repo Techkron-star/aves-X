@@ -18,7 +18,7 @@ class FeatureSticker extends StatelessWidget {
         final l10n = context.l10n;
         final isNew = kind == StickerKind.newFeature;
         final scheme = Theme.of(context).colorScheme;
-        final glass = settings.glassEverywhere || settings.batGlass;
+        final glass = settings.glassEverywhere || settings.materialStyle != null;
 
         // gold for new features, theme error/accent for experimental ones
         final base = isNew ? scheme.tertiary : scheme.error;

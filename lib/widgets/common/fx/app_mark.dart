@@ -58,10 +58,17 @@ class AppMark extends StatelessWidget {
   const AppMark.scheme({super.key, this.size = 28, this.mirrored = false, this.semanticLabel, this.animate = true})
     : tone = AppMarkTone.scheme;
 
-  /// `auto` keeps the brand look only for Nosferatu Glass; the other Nebula
-  /// themes (and the default theme) get Material You colors.
+  /// `auto` keeps the brand look only for Nosferatu Glass; Night Demon and Godly
+  /// get their own ink, the other themes (and the default theme) Material You colors.
   AppMarkTone get _effectiveTone =>
       tone != AppMarkTone.auto ? tone : (settings.effectiveNebulaTheme == NebulaTheme.nosferatuGlass ? AppMarkTone.brand : AppMarkTone.scheme);
+
+  /// Night Demon and Godly ink the mark with their own metal (violet fire, gold) instead of Material You colors.
+  List<Color>? get _themeInk => switch (settings.effectiveNebulaTheme) {
+    NebulaTheme.obsidianGlass => const [Color(0xFFD9B8FF), Color(0xFF9B5DE5), Color(0xFF6A1B9A)],
+    NebulaTheme.aureateGlass => const [Color(0xFFFFE9A3), Color(0xFFF2C14E), Color(0xFFB8860B)],
+    _ => null,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -80,11 +87,12 @@ class AppMark extends StatelessWidget {
       case AppMarkTone.scheme:
         // Material You: the seed drives primary/secondary/tertiary
         tint = null;
-        gradient = [
-          colors.primary.withValues(alpha: .85),
-          colors.secondary.withValues(alpha: .75),
-          colors.tertiary,
-        ];
+        gradient = (tone == AppMarkTone.auto ? _themeInk : null) ??
+            [
+              colors.primary.withValues(alpha: .85),
+              colors.secondary.withValues(alpha: .75),
+              colors.tertiary,
+            ];
       case AppMarkTone.monochrome:
         tint = iconColor ?? colors.onSurface;
         gradient = null;

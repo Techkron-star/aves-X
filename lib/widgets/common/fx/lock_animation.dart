@@ -1,6 +1,8 @@
 import 'dart:math';
+import 'dart:ui' as ui;
 
 import 'package:aves/model/settings/settings.dart';
+import 'package:aves/theme/nebula/nebula_material.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
 import 'package:aves/theme/nebula/nebula_tokens.dart';
 import 'package:aves/widgets/common/fx/liquid.dart';
@@ -58,42 +60,11 @@ class LockedBadgeState extends State<LockedBadge> with SingleTickerProviderState
 
   @override
   Widget build(BuildContext context) {
-    // the lock art follows the active Nebula theme: only the default Aves theme
-    // keeps the neutral metal look, every Nebula theme tints it with its crystal
-    final nebulaTheme = settings.nebulaTheme;
-    final bat = nebulaTheme == NebulaTheme.nosferatuGlass;
-    final themed = nebulaTheme != NebulaTheme.aves;
-    final tokens = themed ? Theme.of(context).nebula : null;
-    final chainColor = bat
-        ? const Color(0xFFFF6A80)
-        : (tokens?.securityCrystalBody.first ?? const Color(0xFFE0E0E0));
-    final chainFillEnd = bat
-        ? const Color(0xFF8E0F26)
-        : (tokens?.securityCrystalBody[1] ?? const Color(0xFF6E6E6E));
-    final chainStroke = bat
-        ? const Color(0xCCFFB3BF)
-        : (tokens?.securityCrystalEdge ?? const Color(0xFF3A3A3A));
-    final padlockBody = bat
-        ? const [Color(0xFFFF6A80), Color(0xFF8E0F26)]
-        : (tokens != null
-            ? [tokens.securityCrystalBody.first, tokens.securityCrystalBody[1]]
-            : const [Color(0xFFF2C94C), Color(0xFFB8860B)]);
-    final padlockShackle = bat
-        ? const Color(0xFFFFB3BF)
-        : (tokens?.securityCrystalHighlight ?? const Color(0xFFB8B8B8));
-    final padlockStroke = bat
-        ? const Color(0xCCFFB3BF)
-        : (tokens?.securityCrystalEdge ?? const Color(0xFF5C4300));
-    final padlockKeyhole = bat
-        ? const Color(0xFF1A0308)
-        : (tokens?.securityBubbleSurface ?? const Color(0xFF3B2A00));
-    final padlockKey = bat
-        ? const Color(0xFFFFB3BF)
-        : (tokens?.securityBubbleInk ?? const Color(0xFFB8B8B8));
-    final shimmerColor = bat
-        ? const Color(0xFFFFB3BF)
-        : (tokens?.securityAccent ?? const Color(0xFFFFFFFF));
-
+    final style = settings.materialStyle;
+    // themes without their own glass material tint the chains with their Nebula tokens
+    final tokens = settings.nebulaTheme == NebulaTheme.aves ? null : Theme.of(context).nebula;
+    final chainColors = style?.chain ?? (tokens == null ? null : [tokens.securityCrystalHighlight, tokens.securityCrystalBody.last]);
+    final chainStroke = style?.chainStroke ?? tokens?.securityCrystalEdge;
     return LayoutBuilder(
       builder: (context, constraints) {
         final box = min(constraints.maxWidth.isFinite ? constraints.maxWidth : 120.0, constraints.maxHeight.isFinite ? constraints.maxHeight : 120.0);
@@ -114,35 +85,21 @@ class LockedBadgeState extends State<LockedBadge> with SingleTickerProviderState
                 // the chains stay in place once locked (not in performance mode: padlock only)
                 if (!settings.performanceMode && !isUnlocking)
                   Positioned.fill(
-                    child: CustomPaint(
-                      painter: _ChainsPainter(
-                        progress: chains,
-                        scale: scale,
-                        fillStart: chainColor,
-                        fillEnd: chainFillEnd,
-                        strokeColor: chainStroke,
-                      ),
-                    ),
-                  ),
+                  child: CustomPaint(painter: _ChainsPainter(progress: chains, colors: chainColors, stroke: chainStroke, scale: scale)),
+                ),
                 Transform.translate(
                   offset: Offset(shake, -(1 - fall) * box * .9),
                   child: SizedBox(
                     width: lockSize,
                     height: lockSize,
                     child: _Shimmer(
-                      enabled: bat && settings.animate,
-                      shimmerColor: shimmerColor,
+                      enabled: style != null && settings.animate,
+                      color: style?.shimmer ?? const Color(0xFFFFB3BF),
                       child: CustomPaint(
                         painter: _PadlockPainter(
-                          bat: bat,
+                          material: style?.material,
                           open: isUnlocking,
                           openProgress: _unlockController.value,
-                          bodyGradient: padlockBody,
-                          shackleColor: padlockShackle,
-                          strokeColor: padlockStroke,
-                          keyholeColor: padlockKeyhole,
-                          keyColor: padlockKey,
-                          shimmerColor: shimmerColor,
                         ),
                       ),
                     ),
@@ -160,10 +117,10 @@ class LockedBadgeState extends State<LockedBadge> with SingleTickerProviderState
 // a soft light sweeping across the child from time to time, keeping its shape and details
 class _Shimmer extends StatelessWidget {
   final bool enabled;
-  final Color shimmerColor;
+  final Color color;
   final Widget child;
 
-  const _Shimmer({required this.enabled, required this.shimmerColor, required this.child});
+  const _Shimmer({required this.enabled, required this.color, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -179,7 +136,7 @@ class _Shimmer extends StatelessWidget {
           shaderCallback: (bounds) => LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [const Color(0x00FFFFFF), shimmerColor.withValues(alpha: .7 * e), const Color(0x00FFFFFF)],
+            colors: [const Color(0x00FFFFFF), color.withValues(alpha: .7 * e), const Color(0x00FFFFFF)],
             stops: const [.25, .5, .75],
             transform: _Slide(t),
           ).createShader(bounds),
@@ -201,15 +158,10 @@ class _Slide extends GradientTransform {
 
 class _ChainsPainter extends CustomPainter {
   final double progress, scale;
-  final Color fillStart, fillEnd, strokeColor;
+  final List<Color>? colors;
+  final Color? stroke;
 
-  const _ChainsPainter({
-    required this.progress,
-    required this.scale,
-    required this.fillStart,
-    required this.fillEnd,
-    required this.strokeColor,
-  });
+  const _ChainsPainter({required this.progress, required this.colors, required this.stroke, required this.scale});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -229,14 +181,17 @@ class _ChainsPainter extends CustomPainter {
           Radius.circular(5 * scale),
         );
         final fill = Paint()
-          ..shader = LinearGradient(colors: [fillStart, fillEnd]).createShader(rect.outerRect);
+          ..shader = (colors != null
+                  ? LinearGradient(colors: colors!)
+                  : const LinearGradient(colors: [Color(0xFFE0E0E0), Color(0xFF6E6E6E)]))
+              .createShader(rect.outerRect);
         canvas.drawRRect(rect, fill);
         canvas.drawRRect(
           rect,
           Paint()
             ..style = PaintingStyle.stroke
             ..strokeWidth = 1.4 * scale
-            ..color = strokeColor,
+            ..color = stroke ?? const Color(0xFF3A3A3A),
         );
         canvas.restore();
       }
@@ -244,43 +199,275 @@ class _ChainsPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _ChainsPainter old) =>
-      old.progress != progress || old.scale != scale || old.fillStart != fillStart || old.fillEnd != fillEnd || old.strokeColor != strokeColor;
+  bool shouldRepaint(covariant _ChainsPainter old) => old.progress != progress || old.colors != colors || old.stroke != stroke || old.scale != scale;
 }
 
 class _PadlockPainter extends CustomPainter {
-  final bool bat;
+  // emblem of the active glass theme: a bat (Nosferatu), a demon eye (Night Demon), a haloed padlock (Godly);
+  // a plain padlock without a glass theme
+  final NebulaMaterial? material;
   final bool open;
   final bool keyhole;
   final double openProgress;
-  final List<Color> bodyGradient;
-  final Color shackleColor;
-  final Color strokeColor;
-  final Color keyholeColor;
-  final Color keyColor;
-  final Color shimmerColor;
 
-  const _PadlockPainter({
-    required this.bat,
-    required this.open,
-    this.keyhole = true,
-    this.openProgress = 0.0,
-    required this.bodyGradient,
-    required this.shackleColor,
-    required this.strokeColor,
-    required this.keyholeColor,
-    required this.keyColor,
-    required this.shimmerColor,
-  });
+  const _PadlockPainter({required this.material, required this.open, this.keyhole = true, this.openProgress = 0.0});
 
   @override
   void paint(Canvas canvas, Size size) {
     final s = size.width / 100;
     canvas.scale(s);
-    if (bat) {
+    if (material == NebulaMaterial.ruby) {
       _paintBat(canvas);
+    } else if (material == NebulaMaterial.nightDemon) {
+      _paintDemon(canvas);
+    } else if (material == NebulaMaterial.godly) {
+      _paintHalo(canvas);
     } else {
       _paintPadlock(canvas);
+    }
+  }
+
+  // Night Demon: a horned shard of obsidian with a glowing slit eye.
+  // When unlocked the horns lift and the pupil widens.
+  void _paintDemon(Canvas canvas) {
+    const violet = Color(0xFF9B5DE5);
+    const hot = Color(0xFFE9D5FF);
+
+    // horns, drawn once and mirrored
+    final horn = Path()
+      ..moveTo(33, 46)
+      ..quadraticBezierTo(14, 34, 22, 6)
+      ..quadraticBezierTo(32, 24, 44, 36)
+      ..close();
+    void drawHorn() {
+      canvas.drawPath(
+        horn,
+        Paint()
+          ..shader = const LinearGradient(
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+            colors: [Color(0xFF2A0A52), Color(0xFF0B0314)],
+          ).createShader(horn.getBounds()),
+      );
+      canvas.drawPath(
+        horn,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.6
+          ..strokeJoin = StrokeJoin.round
+          ..color = violet,
+      );
+    }
+
+    canvas.save();
+    canvas.translate(0, open ? -7.0 : 0.0);
+    drawHorn();
+    canvas.translate(100, 0);
+    canvas.scale(-1, 1);
+    drawHorn();
+    canvas.restore();
+
+    // body: a cut shard
+    final body = Path()
+      ..moveTo(50, 38)
+      ..lineTo(80, 50)
+      ..lineTo(75, 78)
+      ..lineTo(50, 95)
+      ..lineTo(25, 78)
+      ..lineTo(20, 50)
+      ..close();
+    canvas.drawPath(
+      body,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 4
+        ..color = violet.withValues(alpha: .5)
+        ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 3),
+    );
+    canvas.drawPath(
+      body,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF3B1470), Color(0xFF150629), Color(0xFF050109)],
+        ).createShader(body.getBounds()),
+    );
+    canvas.drawPath(
+      Path()
+        ..moveTo(50, 38)
+        ..lineTo(40, 62)
+        ..moveTo(50, 38)
+        ..lineTo(60, 62)
+        ..moveTo(40, 62)
+        ..lineTo(50, 95)
+        ..moveTo(60, 62)
+        ..lineTo(50, 95),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = .8
+        ..color = violet.withValues(alpha: .3),
+    );
+    canvas.drawPath(
+      body,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2
+        ..strokeJoin = StrokeJoin.round
+        ..color = violet,
+    );
+
+    // the eye
+    final eye = Path()
+      ..moveTo(29, 64)
+      ..quadraticBezierTo(50, 46, 71, 64)
+      ..quadraticBezierTo(50, 82, 29, 64)
+      ..close();
+    canvas.drawPath(
+      eye,
+      Paint()
+        ..color = violet.withValues(alpha: .55)
+        ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 4),
+    );
+    canvas.drawPath(
+      eye,
+      Paint()
+        ..shader = const RadialGradient(colors: [hot, Color(0xFFB26BFF), Color(0xFF6A1B9A)]).createShader(eye.getBounds()),
+    );
+    canvas.drawPath(
+      eye,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.4
+        ..strokeJoin = StrokeJoin.round
+        ..color = const Color(0xFF1A0530),
+    );
+    if (keyhole) {
+      canvas.drawOval(
+        Rect.fromCenter(center: const Offset(50, 64), width: open ? 5.5 : 2.6, height: 17),
+        Paint()..color = const Color(0xFF07010F),
+      );
+    }
+  }
+
+  // Godly: a gold padlock with a halo above it and a pair of wings.
+  // When unlocked the shackle opens and the halo rises.
+  void _paintHalo(Canvas canvas) {
+    const light = Color(0xFFFFF6D5);
+    const aura = Offset(50, 56);
+
+    // aura
+    canvas.drawCircle(
+      aura,
+      46,
+      Paint()
+        ..shader = const RadialGradient(colors: [Color(0x55FFF2C0), Color(0x00FFF2C0)]).createShader(Rect.fromCircle(center: aura, radius: 46)),
+    );
+
+    // wings, drawn once and mirrored
+    final wing = Path()
+      ..moveTo(34, 58)
+      ..quadraticBezierTo(16, 40, 1, 43)
+      ..quadraticBezierTo(7, 52, 3, 57)
+      ..quadraticBezierTo(13, 60, 10, 67)
+      ..quadraticBezierTo(21, 68, 19, 75)
+      ..quadraticBezierTo(29, 73, 34, 70)
+      ..close();
+    void drawWing() {
+      canvas.drawPath(
+        wing,
+        Paint()
+          ..shader = const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xF2FFF6D5), Color(0xCCE6B94A)],
+          ).createShader(wing.getBounds()),
+      );
+      canvas.drawPath(
+        wing,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.2
+          ..strokeJoin = StrokeJoin.round
+          ..color = const Color(0xCCB8860B),
+      );
+    }
+
+    canvas.save();
+    drawWing();
+    canvas.translate(100, 0);
+    canvas.scale(-1, 1);
+    drawWing();
+    canvas.restore();
+
+    // shackle
+    canvas.drawPath(
+      Path()
+        ..moveTo(41, 52)
+        ..lineTo(41, 41)
+        ..arcToPoint(const Offset(59, 41), radius: const Radius.circular(9), clockwise: true)
+        ..lineTo(59, open ? 38 : 52),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 6
+        ..strokeCap = StrokeCap.round
+        ..color = const Color(0xFFE8C547),
+    );
+
+    // body
+    final body = RRect.fromRectAndRadius(const Rect.fromLTWH(33, 52, 34, 32), const Radius.circular(8));
+    canvas.drawRRect(
+      body,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFFFFE9A3), Color(0xFFB8860B)],
+        ).createShader(body.outerRect),
+    );
+    canvas.drawRRect(
+      body,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.6
+        ..color = const Color(0xFF5C4300),
+    );
+    if (keyhole) {
+      final hole = Paint()..color = const Color(0xFF3B2A00);
+      canvas.drawCircle(const Offset(50, 65), 4, hole);
+      canvas.drawRect(const Rect.fromLTWH(48.3, 65, 3.4, 10), hole);
+    }
+
+    // halo
+    final halo = Rect.fromCenter(center: Offset(50, open ? 12 : 20), width: 40, height: 11);
+    canvas.drawOval(
+      halo,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 5
+        ..color = light.withValues(alpha: .45)
+        ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 3),
+    );
+    canvas.drawOval(
+      halo,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3
+        ..color = const Color(0xFFFFE9A3),
+    );
+
+    // two sparkles
+    for (final c in const [Offset(86, 26), Offset(14, 32)]) {
+      canvas.drawPath(
+        Path()
+          ..moveTo(c.dx, c.dy - 4.5)
+          ..quadraticBezierTo(c.dx, c.dy, c.dx + 4.5, c.dy)
+          ..quadraticBezierTo(c.dx, c.dy, c.dx, c.dy + 4.5)
+          ..quadraticBezierTo(c.dx, c.dy, c.dx - 4.5, c.dy)
+          ..quadraticBezierTo(c.dx, c.dy, c.dx, c.dy - 4.5)
+          ..close(),
+        Paint()..color = light,
+      );
     }
   }
 
@@ -289,7 +476,7 @@ class _PadlockPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 9
       ..strokeCap = StrokeCap.round
-      ..color = shackleColor;
+      ..color = const Color(0xFFB8B8B8);
     final shacklePath = Path()
       ..moveTo(32, 46)
       ..lineTo(32, 32)
@@ -297,10 +484,10 @@ class _PadlockPainter extends CustomPainter {
       ..lineTo(68, open ? 30 : 46);
     canvas.drawPath(shacklePath, shackle);
     final body = RRect.fromRectAndRadius(const Rect.fromLTWH(22, 44, 56, 44), const Radius.circular(9));
-    canvas.drawRRect(body, Paint()..shader = LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: bodyGradient).createShader(body.outerRect));
-    canvas.drawRRect(body, Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = strokeColor);
-    canvas.drawCircle(const Offset(50, 62), 6, Paint()..color = keyholeColor);
-    canvas.drawRect(const Rect.fromLTWH(47.5, 62, 5, 14), Paint()..color = keyholeColor);
+    canvas.drawRRect(body, Paint()..shader = const LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFF2C94C), Color(0xFFB8860B)]).createShader(body.outerRect));
+    canvas.drawRRect(body, Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = const Color(0xFF5C4300));
+    canvas.drawCircle(const Offset(50, 62), 6, Paint()..color = const Color(0xFF3B2A00));
+    canvas.drawRect(const Rect.fromLTWH(47.5, 62, 5, 14), Paint()..color = const Color(0xFF3B2A00));
   }
 
   // translucent ruby bat with a keyhole
@@ -344,15 +531,14 @@ class _PadlockPainter extends CustomPainter {
     );
     if (!keyhole) return;
     // keyhole, with a small key shape when unlocked
-    final hole = Paint()..color = keyholeColor;
+    final hole = Paint()..color = const Color(0xFF1A0308);
     canvas.drawCircle(const Offset(50, 50), 6, hole);
     canvas.drawPath(Path()..moveTo(46.5, 54)..lineTo(53.5, 54)..lineTo(55.5, 70)..lineTo(44.5, 70)..close(), hole);
     if (open) {
-      canvas.drawLine(const Offset(50, 40), const Offset(50, 30), Paint()..color = keyColor..strokeWidth = 3..strokeCap = StrokeCap.round);
+      canvas.drawLine(const Offset(50, 40), const Offset(50, 30), Paint()..color = const Color(0xFFFFB3BF)..strokeWidth = 3..strokeCap = StrokeCap.round);
     }
   }
 
   @override
-  bool shouldRepaint(covariant _PadlockPainter old) =>
-      old.bat != bat || old.open != open || old.keyhole != keyhole || old.openProgress != openProgress;
+  bool shouldRepaint(covariant _PadlockPainter old) => old.material != material || old.open != open || old.keyhole != keyhole;
 }

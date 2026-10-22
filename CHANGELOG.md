@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Night Demon (Obsidian Glass) and Godly (Aureate Glass) get their own aesthetics instead of a recolored crystal: black volcanic glass with pulsing violet cracks, cut corners, a demon-eye emblem and rising embers; burnished gold leaf with divine rays, soft corners, a haloed winged padlock and drifting gold motes.
 - Theme-aware NEW/Experimental feature stickers, with a glass treatment when Glass-Everywhere or Nosferatu Glass is active.
 
 ### Renombrado a nombres propios

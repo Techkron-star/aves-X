@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 import 'dart:ui' show BlurStyle, MaskFilter, Path, StrokeCap;
 import 'package:flutter/material.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
@@ -1247,182 +1248,194 @@ class _IvoryGlassPainter extends NebulaEffectPainter {
 }
 
 // ============================================================================
-// Obsidian Glass — blood-ruby crystal over near-black surfaces
+// Night Demon — purple hellfire (Obsidian Glass)
 // ============================================================================
 
-/// Obsidian Glass: cristales de rubí sangriento sobre negro profundo,
-/// con pulsos lentos y vetas que respiran como venas.
-class ObsidianGlassEffect extends NebulaEffect {
-  const ObsidianGlassEffect({super.key, required super.animate});
+/// Night Demon: brasas violeta que suben desde un resplandor de fuego que respira
+/// en la base, sobre un círculo de invocación casi invisible que gira muy despacio.
+class NightDemonEffect extends NebulaEffect {
+  const NightDemonEffect({super.key, required super.animate});
 
   @override
-  Duration get duration => const Duration(seconds: 15);
+  Duration get duration => const Duration(seconds: 16);
+
+  // seamless loop: it must not play backwards
+  @override
+  bool get reverse => false;
 
   @override
-  CustomPainter painter(double t) => _ObsidianGlassPainter(t);
+  CustomPainter painter(double t) => _NightDemonPainter(t);
 }
 
-class _ObsidianGlassPainter extends NebulaEffectPainter {
-  const _ObsidianGlassPainter(super.t);
+class _NightDemonPainter extends NebulaEffectPainter {
+  const _NightDemonPainter(super.t);
+
+  static const _violet = Color(0xFF9B5DE5);
+  static const _hot = Color(0xFFE9D5FF);
+  static const _embers = 34;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final center = size.center(Offset.zero);
-    final r = size.shortestSide;
+    final w = size.width, h = size.height;
+    final breath = .5 + .5 * math.sin(t * 2 * math.pi * 2);
 
-    // deep crimson core pulse
-    final pulse = .5 + .5 * math.sin(t * 2 * math.pi);
-    final coreRadius = r * (.35 + .08 * pulse);
-    canvas.drawCircle(
-      center,
-      coreRadius,
+    // hellfire breathing at the base
+    final base = Rect.fromLTWH(0, h * .55, w, h * .45);
+    canvas.drawRect(
+      base,
       Paint()
-        ..shader = RadialGradient(
-          colors: [
-            Color(0x88E0183E),
-            Color(0x448B0016),
-            Colors.transparent,
-          ],
-          stops: const [0, .55, 1],
-        ).createShader(Rect.fromCircle(center: center, radius: coreRadius)),
+        ..shader = LinearGradient(
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+          colors: [_violet.withValues(alpha: .16 + .12 * breath), _violet.withValues(alpha: 0)],
+        ).createShader(base),
     );
 
-    // breathing ruby veins
-    for (var i = 0; i < 5; i++) {
-      final angle = i * 2.513274;
-      final phase = t * 2 * math.pi + i * 1.2;
-      final length = r * (.25 + .06 * math.sin(phase));
-      final width = r * (.008 + .003 * math.sin(phase * 2));
-      final veinPaint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeCap = StrokeCap.round
-        ..strokeWidth = width
-        ..shader = LinearGradient(
-          begin: Alignment.center,
-          end: Alignment(angle, 0),
-          colors: [
-            Color(0x00E0183E),
-            Color(0xCCE0183E),
-            Color(0x00E0183E),
-          ],
-        ).createShader(Rect.fromCircle(center: center, radius: length));
-      canvas.drawPath(
-        Path()
-          ..moveTo(center.dx, center.dy)
-          ..quadraticBezierTo(
-            center.dx + math.cos(angle) * length * .5,
-            center.dy + math.sin(angle) * length * .5,
-            center.dx + math.cos(angle) * length,
-            center.dy + math.sin(angle) * length,
-          ),
-        veinPaint,
+    // faint summoning circle: turning 90 degrees per loop, which the 12 ticks hide (the loop has no seam)
+    final c = Offset(w / 2, h * .78);
+    final r = math.min(w, h) * .38;
+    final ring = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1
+      ..color = _violet.withValues(alpha: .08 + .05 * breath);
+    canvas.drawCircle(c, r, ring);
+    canvas.drawCircle(c, r * .82, ring);
+    final tick = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2
+      ..strokeCap = StrokeCap.round
+      ..color = _violet.withValues(alpha: .14);
+    for (var i = 0; i < 12; i++) {
+      final a = t * math.pi / 2 + i * 2 * math.pi / 12;
+      final inner = r * (i.isEven ? .7 : .78);
+      canvas.drawLine(
+        c + Offset(math.cos(a), math.sin(a)) * inner,
+        c + Offset(math.cos(a), math.sin(a)) * (r * .96),
+        tick,
       );
     }
 
-    // subtle ruby dust motes
-    for (var i = 0; i < 8; i++) {
-      final a = i * 2.399963 + t * .3;
-      final dist = r * (.3 + .15 * math.sin(t * 3 * math.pi + i));
-      final twinkle = .4 + .6 * (.5 + .5 * math.sin(t * 5 * math.pi + i * 1.3));
-      canvas.drawCircle(
-        center + Offset(math.cos(a) * dist, math.sin(a) * dist),
-        r * .002 * twinkle,
-        Paint()..color = Color(0xFFFF6B8A).withValues(alpha: .6 * twinkle),
-      );
+    // embers rising; each one makes a whole number of trips per loop, so the loop has no seam
+    final rnd = math.Random(666);
+    final paint = Paint();
+    for (var i = 0; i < _embers; i++) {
+      final x0 = rnd.nextDouble();
+      final phase = rnd.nextDouble();
+      final sway = rnd.nextDouble() * 2 * math.pi;
+      final trips = 1 + rnd.nextInt(3);
+      final radius = .8 + rnd.nextDouble() * 2.2;
+      final hot = rnd.nextBool();
+      final progress = (t * trips + phase) % 1.0;
+      final fade = math.sin(math.pi * progress);
+      final x = x0 * w + math.sin(progress * 2 * math.pi * 2 + sway) * 14;
+      final y = h * (1.02 - progress * 1.04);
+      final color = hot ? _hot : _violet;
+      paint.color = color.withValues(alpha: .10 * fade);
+      canvas.drawCircle(Offset(x, y), radius * 3.2, paint);
+      paint.color = color.withValues(alpha: .65 * fade);
+      canvas.drawCircle(Offset(x, y), radius, paint);
     }
   }
 }
 
 // ============================================================================
-// Aureate Glass — gold crystal
+// Godly — divine light on gold (Aureate Glass)
 // ============================================================================
 
-/// Aureate Glass: oro puro y cristal, con un núcleo que late y filamentos
-/// dorados que se estiran y contraen como hilos de luz.
-class AureateGlassEffect extends NebulaEffect {
-  const AureateGlassEffect({super.key, required super.animate});
+/// Godly: rayos de luz que bajan de un halo y se mecen despacio, con motas de oro
+/// que flotan y centellean.
+class GodlyEffect extends NebulaEffect {
+  const GodlyEffect({super.key, required super.animate});
 
   @override
   Duration get duration => const Duration(seconds: 18);
 
+  // seamless loop: it must not play backwards
   @override
-  CustomPainter painter(double t) => _AureateGlassPainter(t);
+  bool get reverse => false;
+
+  @override
+  CustomPainter painter(double t) => _GodlyPainter(t);
 }
 
-class _AureateGlassPainter extends NebulaEffectPainter {
-  const _AureateGlassPainter(super.t);
+class _GodlyPainter extends NebulaEffectPainter {
+  const _GodlyPainter(super.t);
 
-  static const _goldStops = [
-    Color(0xFFFFF8E1),
-    Color(0xFFFFECB3),
-    Color(0xFFFFD54F),
-    Color(0xFFFFC107),
-    Color(0xFFF9A825),
-  ];
+  static const _gold = Color(0xFFFFE9A3);
+  static const _light = Color(0xFFFFF6D5);
+  static const _motes = 26;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final center = size.center(Offset.zero);
-    final r = size.shortestSide;
+    final w = size.width, h = size.height;
+    final cycle = math.sin(t * 2 * math.pi);
 
-    // radiant gold core
-    final pulse = .5 + .5 * math.sin(t * 2 * math.pi);
-    final coreRadius = r * (.4 + .06 * pulse);
-    canvas.drawCircle(
-      center,
-      coreRadius,
+    // halo above the screen
+    final halo = Rect.fromCenter(center: Offset(w / 2, h * .07), width: w * .56, height: h * .05);
+    canvas.drawOval(
+      halo,
       Paint()
-        ..shader = RadialGradient(
-          colors: [
-            Color(0xCCFFF8E1),
-            Color(0x66FFD54F),
-            Color(0x22FFC107),
-            Colors.transparent,
-          ],
-          stops: const [0, .3, .65, 1],
-        ).createShader(Rect.fromCircle(center: center, radius: coreRadius)),
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2
+        ..color = _light.withValues(alpha: .12 + .06 * (.5 + .5 * cycle)),
     );
 
-    // gold filaments stretching and retracting
-    final filamentPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * .02);
-
-    for (var i = 0; i < 12; i++) {
-      final baseAngle = i * 2.617994;
-      final phase = t * math.pi + i * .8;
-      final length = r * (.25 + .4 * (.5 + .5 * math.sin(phase)));
-      final width = r * (.004 + .008 * (.5 + .5 * math.sin(phase * 1.5)));
-      filamentPaint.strokeWidth = width;
-      filamentPaint.shader = LinearGradient(
-        begin: Alignment.center,
-        end: Alignment(baseAngle, 0),
-        colors: _goldStops,
-      ).createShader(Rect.fromCircle(center: center, radius: length));
+    // rays fanning out of the halo, swaying slowly; each one fades with the distance
+    canvas.save();
+    canvas.clipRect(Offset.zero & size);
+    final origin = Offset(w / 2, -h * .08);
+    final reach = math.max(w, h) * 1.5;
+    const rays = 11;
+    const span = math.pi * .72;
+    final ray = Paint()..style = PaintingStyle.fill;
+    for (var i = 0; i < rays; i++) {
+      final a0 = math.pi * .14 + span * i / rays + cycle * .05;
+      final a1 = a0 + span / rays * .45;
+      final mid = (a0 + a1) / 2;
+      final pulse = .5 + .5 * math.sin(t * 2 * math.pi + i * 1.3);
+      ray.shader = ui.Gradient.linear(
+        origin,
+        origin + Offset(math.cos(mid), math.sin(mid)) * (reach * .9),
+        [_gold.withValues(alpha: .05 + .07 * pulse), _gold.withValues(alpha: 0)],
+      );
       canvas.drawPath(
         Path()
-          ..moveTo(center.dx, center.dy)
-          ..quadraticBezierTo(
-            center.dx + math.cos(baseAngle + .2 * math.sin(phase)) * length * .5,
-            center.dy + math.sin(baseAngle + .2 * math.sin(phase)) * length * .5,
-            center.dx + math.cos(baseAngle) * length,
-            center.dy + math.sin(baseAngle) * length,
-          ),
-        filamentPaint,
+          ..moveTo(origin.dx, origin.dy)
+          ..lineTo(origin.dx + math.cos(a0) * reach, origin.dy + math.sin(a0) * reach)
+          ..lineTo(origin.dx + math.cos(a1) * reach, origin.dy + math.sin(a1) * reach)
+          ..close(),
+        ray,
       );
     }
+    canvas.restore();
 
-    // golden sparkles
-    for (var i = 0; i < 10; i++) {
-      final a = i * 2.399963 + t * .4;
-      final dist = r * (.2 + .35 * (.5 + .5 * math.sin(t * 2.5 * math.pi + i)));
-      final twinkle = .3 + .7 * (.5 + .5 * math.sin(t * 6 * math.pi + i * 1.1));
-      canvas.drawCircle(
-        center + Offset(math.cos(a) * dist, math.sin(a) * dist),
-        r * .003 * twinkle,
-        Paint()..color = Color(0xFFFFF8E1).withValues(alpha: .9 * twinkle),
-      );
+    // gold motes bobbing in the light and twinkling; whole numbers of cycles per loop, so the loop has no seam
+    final rnd = math.Random(777);
+    final paint = Paint();
+    for (var i = 0; i < _motes; i++) {
+      final x0 = rnd.nextDouble();
+      final y0 = rnd.nextDouble();
+      final px = rnd.nextDouble(), py = rnd.nextDouble(), pt = rnd.nextDouble();
+      final kx = 1 + rnd.nextInt(2), ky = 1 + rnd.nextInt(3), kt = 1 + rnd.nextInt(3);
+      final radius = .8 + rnd.nextDouble() * 2.0;
+      final x = x0 * w + math.sin((t * kx + px) * 2 * math.pi) * 10;
+      final y = y0 * h + math.sin((t * ky + py) * 2 * math.pi) * 14;
+      final twinkle = math.pow(math.sin(math.pi * ((t * kt + pt) % 1.0)), 3).toDouble();
+      paint.color = _gold.withValues(alpha: .08 * (.3 + twinkle));
+      canvas.drawCircle(Offset(x, y), radius * 3, paint);
+      paint.color = _light.withValues(alpha: .15 + .6 * twinkle);
+      canvas.drawCircle(Offset(x, y), radius, paint);
+      if (radius > 1.9) {
+        // the bigger motes flash a small cross
+        final arm = radius * 3.2 * twinkle;
+        paint
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = .8
+          ..color = _light.withValues(alpha: .5 * twinkle);
+        canvas.drawLine(Offset(x - arm, y), Offset(x + arm, y), paint);
+        canvas.drawLine(Offset(x, y - arm), Offset(x, y + arm), paint);
+        paint.style = PaintingStyle.fill;
+      }
     }
   }
 }
@@ -1542,8 +1555,8 @@ class _ImperialGlassPainter extends NebulaEffectPainter {
 /// Crea el efecto visual para un tema dado, o null si el tema no tiene efecto
 /// propio (Fase 1 o temas sin efecto implementado).
 NebulaEffect? nebulaEffectFor(NebulaTheme theme, {required bool animate}) => switch (theme) {
-  NebulaTheme.obsidianGlass => ObsidianGlassEffect(animate: animate),
-  NebulaTheme.aureateGlass => AureateGlassEffect(animate: animate),
+  NebulaTheme.obsidianGlass => NightDemonEffect(animate: animate),
+  NebulaTheme.aureateGlass => GodlyEffect(animate: animate),
   NebulaTheme.forgeGlass => ForgeGlassEffect(animate: animate),
   NebulaTheme.hermeticGlass => HermeticGlassEffect(animate: animate),
   NebulaTheme.eclipseGlass => EclipseGlassEffect(animate: animate),

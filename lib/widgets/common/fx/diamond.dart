@@ -2,8 +2,20 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui' as ui;
 
+import 'package:aves/theme/nebula/nebula_material.dart';
+import 'package:aves/widgets/common/fx/demon_glass.dart';
+import 'package:aves/widgets/common/fx/gold_leaf.dart';
 import 'package:flutter/rendering.dart';
 import 'package:material_ui/material_ui.dart';
+
+// The decoration of a Nebula material, so that the places that paint glass do not need to know which theme is active.
+// `phase` (0..1) animates it: a glint sweeping across the ruby and the gold, the pulse of the cracks of the demon glass.
+// -1 is the resting state.
+Decoration nebulaMaterialDecoration(NebulaMaterial material, {double phase = -1, double opacity = .86}) => switch (material) {
+  NebulaMaterial.ruby => DiamondDecoration(glint: phase, opacity: opacity),
+  NebulaMaterial.nightDemon => DemonGlassDecoration(pulse: phase, opacity: opacity),
+  NebulaMaterial.godly => GoldLeafDecoration(glint: phase, opacity: opacity),
+};
 
 // Bat-Glass 2.0 material: a cut red diamond (ruby crystal).
 // Irregular triangular facets (jittered grid, seeded so the cut is stable), each lit according to a
@@ -204,13 +216,15 @@ class _Facet {
   _Facet(this.p, this.nx, this.ny);
 }
 
-// the crystal with a light glint sweeping across it every few seconds
+// the glass material of the theme, with a light glint sweeping across it every few seconds
+// (the cracks of the demon glass flare up instead)
 class AnimatedCrystal extends StatefulWidget {
   final bool animate;
   final double opacity;
+  final NebulaMaterial material;
   final Widget child;
 
-  const AnimatedCrystal({super.key, required this.animate, this.opacity = .86, required this.child});
+  const AnimatedCrystal({super.key, required this.animate, this.opacity = .86, this.material = NebulaMaterial.ruby, required this.child});
 
   @override
   State<AnimatedCrystal> createState() => _AnimatedCrystalState();
@@ -274,7 +288,7 @@ class _AnimatedCrystalState extends State<AnimatedCrystal> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.animate) return DecoratedBox(decoration: DiamondDecoration(opacity: widget.opacity), child: widget.child);
+    if (!widget.animate) return DecoratedBox(decoration: nebulaMaterialDecoration(widget.material, opacity: widget.opacity), child: widget.child);
     // only the crystal layer repaints while the glint moves; the content on top stays untouched
     return Stack(
       children: [
@@ -284,7 +298,11 @@ class _AnimatedCrystalState extends State<AnimatedCrystal> with SingleTickerProv
               animation: _controller,
               // the glint crosses during the first part of the cycle, then the stone rests
               builder: (context, _) => DecoratedBox(
-                decoration: DiamondDecoration(glint: _controller.value < _glintEnd ? _controller.value / _glintEnd : -1, opacity: widget.opacity),
+                decoration: nebulaMaterialDecoration(
+                  widget.material,
+                  phase: _controller.value < _glintEnd ? _controller.value / _glintEnd : -1,
+                  opacity: widget.opacity,
+                ),
               ),
             ),
           ),
