@@ -78,7 +78,7 @@ $payload = @{
   body             = $body
   draft            = $false
   prerelease       = $false
-  make_latest      = "true"
+  make_latest      = $true
 }
 if ($Commit) { $payload["target_commitish"] = $Commit }
 
