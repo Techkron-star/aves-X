@@ -25,7 +25,7 @@ $patterns = @(
 
 $failed = $false
 foreach ($pattern in $patterns) {
-  $out = & $git -C $repo grep -n -I -E $pattern -- . ":(exclude)*.lock"
+  $out = & $git -C $repo grep -n -I -E -e $pattern -- .
   if ($LASTEXITCODE -eq 0 -and $out) {
     $failed = $true
     "SECRET PATTERN FOUND: $pattern"
