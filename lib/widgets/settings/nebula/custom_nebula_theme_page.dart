@@ -144,19 +144,19 @@ class _CustomNebulaThemePageState extends State<CustomNebulaThemePage> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  void _showImportDialog(BuildContext context, /*l10n*/ dynamic _, void Function(String) onImport) {
+  void _showImportDialog(BuildContext context, l10n, void Function(String) onImport) {
     final controller = TextEditingController();
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(_.settingsCustomNebulaThemeImport),
+        title: Text(l10n.settingsCustomNebulaThemeImport),
         content: SizedBox(
           width: double.maxFinite,
           child: TextField(
             controller: controller,
             maxLines: 8,
             decoration: InputDecoration(
-              hintText: _.settingsCustomNebulaThemeImportHint,
+              hintText: l10n.settingsCustomNebulaThemeImportHint,
               border: const OutlineInputBorder(),
             ),
           ),
@@ -164,14 +164,14 @@ class _CustomNebulaThemePageState extends State<CustomNebulaThemePage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: Text(_.cancelButtonLabel),
+            child: Text(l10n.cancelButtonLabel),
           ),
           TextButton(
             onPressed: () {
               onImport(controller.text);
               Navigator.pop(dialogContext);
             },
-            child: Text(_.settingsCustomNebulaThemeImportButton),
+            child: Text(l10n.settingsCustomNebulaThemeImportButton),
           ),
         ],
       ),
