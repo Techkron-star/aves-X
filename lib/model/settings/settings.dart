@@ -12,6 +12,7 @@ import 'package:aves/model/settings/enums/accessibility_animations.dart';
 import 'package:aves/model/settings/modules/app.dart';
 import 'package:aves/model/settings/modules/collection.dart';
 import 'package:aves/model/settings/modules/common_layout.dart';
+import 'package:aves/model/settings/modules/custom_nebula_theme.dart';
 import 'package:aves/model/settings/modules/debug.dart';
 import 'package:aves/model/settings/modules/display.dart';
 import 'package:aves/model/settings/modules/filter_grids.dart';
@@ -51,6 +52,7 @@ class Settings
         AppSettings,
         CommonLayoutSettings,
         CollectionSettings,
+        CustomNebulaThemeSettings,
         DebugSettings,
         DisplaySettings,
         FilterGridsSettings,

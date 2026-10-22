@@ -68,9 +68,19 @@ Total: **12 temas** (4 Fase 1 + 8 Fase 2).
 - **`nebula_effectFor()`**: factory que devuelve el efecto para cada tema Fase 2, o null para Fase 1.
 - **`NebulaTab`**: muestra el efecto del tema activo sobre el fondo galáctico cuando el tema es Fase 2.
 
+## 🆕 Temas Nebula personalizados (import/export/template/store/tile)
+
+- **`nebula_custom_theme.dart`**: modelo `CustomNebulaTheme` con esquema JSON versionado (v1), validador con errores legibles, conversión a/desde `NebulaPalette` y plantilla base (`kCustomNebulaThemeTemplate`) para edición manual o asistida por IA.
+- **`nebula_custom_theme_store.dart`**: almacenamiento de temas como archivos JSON en `<filesDir>/nebula_themes/` (uno por tema, `<id>.json`). Carga, guarda, elimina, exporta e importa temas.
+- **`custom_nebula_theme.dart`** (settings module): mixin `CustomNebulaThemeSettings` con clave `nebula_custom_theme_key`, carga/guarda/elimina temas, exporta/importa JSON y refresca la caché.
+- **`custom_nebula_theme_tile.dart`**: tile de ajustes "Temas personalizados" en la sección Nebula Engine.
+- **`custom_nebula_theme_page.dart`**: página de gestión (listar, activar, eliminar, importar, exportar, crear nuevo).
+- **`custom_nebula_theme_editor.dart`**: formulario para crear/editar temas personalizados con validación de colores e ID.
+- **l10n**: strings EN + ES para toda la UI de temas personalizados.
+- **`SettingKeys.nebulaCustomThemeKey`**: nueva clave en `aves_model` para recordar el tema personalizado activo.
+
 ## 🚧 Estado
 
-- Build verde previo: run `39703725520` (commit `359a567`, incluye el fix del cuadro gris).
+- Build verde previo: run `39793788920` (commit `03846a0`, Fase 2 Nebula compila limpio).
 - Release v0.5.0 **no publicada** (pendiente en local; el tag `v0.5.0` aún apunta al commit antiguo `81714d3`).
-- Custom Nebula themes (import/export/template/store/tile) pendientes de próxima tanda.
-- Build de la fase 2 no ejecutado aún (pendiente de verificación remota mañana).
+- Build de temas personalizados no ejecutado aún (pendiente de verificación remota).

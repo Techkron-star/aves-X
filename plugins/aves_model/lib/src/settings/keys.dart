@@ -59,6 +59,7 @@ class SettingKeys {
   static const navBarStyleKey = 'nav_bar_style';
   static const glassEverywhereKey = 'glass_everywhere';
   static const nebulaThemeKey = 'nebula_theme';
+  static const nebulaCustomThemeKey = 'nebula_custom_theme';
   static const maxBrightnessKey = 'max_brightness';
   static const forceTvLayoutKey = 'force_tv_layout';
 
