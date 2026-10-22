@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:aves/model/security/failsafe_quips.dart';
 import 'package:aves/model/security/failsafe_voice.dart';
 
-import 'package:aves_report/aves_report.dart';
+import 'package:aves/services/common/services.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/nebula/nebula_tokens.dart';
 import 'package:aves/widgets/common/fx/diamond.dart';
