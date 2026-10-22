@@ -1,10 +1,10 @@
 @echo off
 cd /d "C:\Users\User\Documents\Proyecto predeterminado\aves-X"
 git add -A
-git commit -m "fix(build): fix remaining compilation errors
+git commit -m "fix(build): use only flutter/material.dart to avoid material_ui conflicts
 
-- settings_tabbed_page: simplify Scaffold usage without TabBar bottom
-- settings_mobile_page: remove GestureAreaProtectorStack, use SafeArea
-- custom_nebula_theme_page: fix _l10n param, hide material_ui conflicts
-- nebula_section: remove const from SettingsTileCustomNebulaTheme"
+- settings_tabbed_page: remove material_ui import, use flutter/material only
+- settings_mobile_page: remove material_ui import, use flutter/material only  
+- custom_nebula_theme_page: remove material_ui import, use flutter/material + services
+- custom_nebula_theme_editor: remove material_ui import, use flutter/material only"
 git push origin develop

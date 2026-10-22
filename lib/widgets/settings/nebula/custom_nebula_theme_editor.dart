@@ -4,8 +4,7 @@ import 'dart:ui' as ui;
 import 'package:aves/theme/nebula/nebula_custom_theme.dart';
 import 'package:aves/theme/nebula/nebula_palette.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
-import 'package:flutter/material.dart' hide ElevatedButton, AlertDialog, TextFormField, InputDecoration, Icons, TabController, Color, TextButton, CircularProgressIndicator, DropdownButtonFormField, DropdownMenuItem, Form, SingleChildScrollView, Column, SizedBox, Text;
-import 'package:material_ui/material_ui.dart' hide Color;
+import 'package:flutter/material.dart';
 
 ui.Color parseHexColor(String hex) {
   hex = hex.replaceAll('#', '');
@@ -15,8 +14,6 @@ ui.Color parseHexColor(String hex) {
   return ui.Color(int.parse(hex, radix: 16));
 }
 
-// Editor de temas Nebula personalizados.
-// Permite crear un tema nuevo a partir de la plantilla base o editar uno existente.
 class CustomNebulaThemeEditor extends StatefulWidget {
   final String template;
   final void Function(CustomNebulaTheme) onSave;
@@ -234,7 +231,6 @@ class _CustomNebulaThemeEditorState extends State<CustomNebulaThemeEditor> {
   }
 }
 
-/// Campo de entrada de color hexadecimal.
 class _ColorField extends StatelessWidget {
   final String label;
   final TextEditingController controller;
