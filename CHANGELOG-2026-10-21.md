@@ -48,20 +48,29 @@ Resumen de cambios realizados hoy, organizados por tipo. Todos los commits está
 
 ## 🆕 Nuevos temas Nebula (Fase 2, deshabilitados en el selector)
 
-Seis temas nuevos con paleta y tokens propios, marcados como Fase 2 (sin shaders/animaciones aún). Aparecen en el selector con "Próximamente: Fase 2":
+Ocho temas nuevos con paleta, tokens y **efecto visual propio** (Fase 2), marcados como Fase 2. Aparecen en el selector con "Próximamente: Fase 2":
 
-- **Eclipse Glass**: azul medianoche con cristal cian eléctrico.
-- **Solar Flare Glass**: naranja fundido sobre negro con cristal dorado.
-- **Void Glass**: negro grafito con cristal verde neón.
-- **Crimson Glass**: negro burdeos con cristal rojo oscuro.
-- **Neon Glass**: rosa neón y azul eléctrico sobre negro.
-- **Emerald Glass**: esmeralda profunda con vetas doradas.
+- **Forge Glass**: flujo de lava naranja sobre índigo, destellos dorados.
+- **Hermetic Glass**: anillos esmeralda/violeta que giran como glifos alquímicos.
+- **Eclipse Glass**: nebulosa cian eléctrica sobre azul medianoche.
+- **Solar Flare Glass**: llamaradas solares naranjas con anillos de corona dorada.
+- **Void Glass**: pulsos verde neón sobre negro grafito.
+- **Crimson Glass**: orbe burdeos oscuro que late lentamente.
+- **Neon Glass**: anillos alternados rosa neón y azul eléctrico.
+- **Emerald Glass**: vetas de esmeralda con destello dorado en el centro.
 
 Total: **12 temas** (4 Fase 1 + 8 Fase 2).
 
+## 🔧 Nebula Engine — Fase 2 implementada
+
+- **`nebula_effect.dart`**: arquitectura de efectos por tema (`NebulaEffect` abstract class + `NebulaEffectPainter` base).
+- Cada efecto usa un único `AnimationController` (sin rebuilds por frame) y se para en modo rendimiento / movimiento reducido (`settings.animate`).
+- **`nebula_effectFor()`**: factory que devuelve el efecto para cada tema Fase 2, o null para Fase 1.
+- **`NebulaTab`**: muestra el efecto del tema activo sobre el fondo galáctico cuando el tema es Fase 2.
+
 ## 🚧 Estado
 
-- Build remoto lanzado para verificar el pulido de colores (pendiente de resultado).
 - Build verde previo: run `39703725520` (commit `359a567`, incluye el fix del cuadro gris).
 - Release v0.5.0 **no publicada** (pendiente en local; el tag `v0.5.0` aún apunta al commit antiguo `81714d3`).
-- Custom Nebula themes (import/export/template/store/tile) y Forge/Hermetic phase 2 pendientes de próxima tanda.
+- Custom Nebula themes (import/export/template/store/tile) pendientes de próxima tanda.
+- Build de la fase 2 no ejecutado aún (pendiente de verificación remota mañana).

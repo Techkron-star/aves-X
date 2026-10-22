@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
 
 import 'package:aves/model/settings/settings.dart';
+import 'package:aves/theme/nebula/nebula_effect.dart';
+import 'package:aves/theme/nebula/nebula_theme.dart';
 import 'package:aves/widgets/common/basic/scaffold.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/identity/aves_logo_art.dart';
@@ -99,6 +101,17 @@ class _NebulaTabState extends State<NebulaTab> with SingleTickerProviderStateMix
               fit: StackFit.expand,
               children: [
                 _GalaxyBackdrop(drift: _drift, animate: animate),
+
+                // Fase 2: efecto visual propio del tema activo (Forge, Hermetic,
+                // Eclipse, Solar Flare, Void, Crimson, Neon, Emerald). Se pinta
+                // sobre el fondo galáctico y se detiene en modo rendimiento.
+                if (settings.nebulaTheme != NebulaTheme.aves &&
+                    settings.nebulaTheme != NebulaTheme.nosferatuGlass &&
+                    settings.nebulaTheme != NebulaTheme.obsidianGlass &&
+                    settings.nebulaTheme != NebulaTheme.aureateGlass)
+                  nebulaEffectFor(settings.nebulaTheme, animate: animate) ??
+                      const SizedBox(),
+
                 SafeArea(
                   top: false,
                   child: ListView(

@@ -105,7 +105,7 @@ Leyenda: ✅ hecho (integrado en la app) · 🧪 implementado, pendiente de prob
 
 ## 🔧 En curso
 
-- 🔧 **Nebula Engine — fase 2**: shaders y animaciones propias para Forge Glass y Hermetic Glass, después de medir el rendimiento en gama baja.
+- 🔧 **Nebula Engine — fase 2**: efectos visuales propios implementados (Forge, Hermetic, Eclipse, Solar Flare, Void, Crimson, Neon, Emerald); pendiente medición de rendimiento en gama baja antes de activar por defecto.
 - 🔧 **Temas Nebula personalizados**: import/export, plantilla base para edición manual o asistida por IA, validación y almacenamiento local; el usuario podrá elegir sus propios temas.
 - 🔧 **Nosferatu Glass — rendimiento**: dejar de renderizar lo que no se ve (blur bajo superficies opacas, animaciones fuera de pantalla, capas tapadas) sin cambiar el aspecto.
 - 🔧 **Gargantua — fases 2 y 3**: portapapeles, guardar/exportar, abrir con/editar y cast/superficies; interceptar "Compartir" antes del menú de Android; vaults y bloqueados bajo Gargantua por defecto.
@@ -171,7 +171,7 @@ Las apps de seguridad suelen impedir que otros entren a tus fotos; Gargantua evi
 
 Idea: que **Nebula Engine** sea el paraguas de personalización visual y que **Nosferatu Glass** sea un tema más, junto a **Obsidian Glass**, **Aureate Glass**, **Forge Glass** y **Hermetic Glass**. La fase 1 (paletas, tokens, selector y pestaña) ya está integrada; los shaders llegan después de estabilizar el rendimiento.
 
-- 🔧 Fase 2: efectos propios con shaders/animaciones para Forge Glass y Hermetic Glass.
+- ✅ Fase 2: efectos visuales propios implementados para los 8 temas de fase 2 (Forge, Hermetic, Eclipse, Solar Flare, Void, Crimson, Neon, Emerald); pendiente medición de rendimiento en gama baja.
 - ⬜ Temas personalizados: esquema JSON versionado, validador con errores legibles, almacén local en `nebula_themes/`, plantilla base y import/export.
 - ⬜ Persistencia por tema y respeto al modo rendimiento (sin blur/shaders) y a la accesibilidad (contraste, tamaños).
 - ⬜ Los temas no tocan la lógica de seguridad: superficie, borde, glow y acento siguen el tema, y el rojo/ámbar de peligro se conserva con contraste garantizado.
