@@ -108,6 +108,14 @@ Next up:
 
 See [ROADMAP.md](ROADMAP.md) for the full development roadmap.
 
+## Herramientas de desarrollo (mantenedor)
+
+- `scripts/ci-build.ps1` — despacha y espera el build remoto de GitHub Actions (workflow `385000599`, rama `develop`).
+- `scripts/check-secrets.ps1` — escanea tracked files en busca de API keys, tokens y claves privadas (guard antes de publicar).
+- `scripts/publish-release.ps1` — descarga el artefacto `aves-x-libre-apks`, mueve el tag, crea la release y sube los 3 APKs (`arm64-v8a`, `armeabi-v7a`, `x86_64`).
+
+No hay claves de API ni secretos en el repositorio; las claves de firma viven fuera del repo y los builds leen variables de entorno o secretos de CI.
+
 ## Based on Aves
 
 Aves-X is an **experimental fork and tribute to [Aves](https://github.com/deckerst/aves)**, the open-source Android gallery created by **Thibault Deckers** and developed with its contributors.
@@ -154,6 +162,7 @@ Mantiene las funciones principales de Aves — visor, álbumes, metadatos, etiqu
 - **Sin telemetría, analíticas ni cuenta en la nube.** No incluye Firebase, Crashlytics ni servicios de Google.
 - **No necesita claves de API.** La app funciona sin conexión y el repositorio no incluye credenciales ni claves de firma.
 - **Diagnóstico local.** Los informes de Fail-Safe se quedan en el dispositivo salvo que decidas copiarlos y compartirlos.
+- **Cuadro gris corregido:** el `Tooltip` sin mensaje en el selector de temas Nebula ya no renderiza un `ErrorWidget` gris en release.
 
 **Estado:** Alpha — experimental y en desarrollo activo.
 

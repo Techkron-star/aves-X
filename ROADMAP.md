@@ -86,6 +86,8 @@ Leyenda: ✅ hecho (integrado en la app) · 🧪 implementado, pendiente de prob
 - ✅ Sin claves de API, tokens ni contraseñas en el código, los assets o el historial.
 - ✅ Las claves de firma viven fuera del repo (`android/key_template.properties` solo contiene marcadores); los builds leen variables de entorno o secretos de CI.
 - ✅ `.gitignore` cubre keystores, `.env`, `key.properties` y artefactos locales.
+- ✅ `scripts/check-secrets.ps1` como guard de escaneo de secretos antes de publicar.
+- ✅ `scripts/publish-release.ps1` para crear la release y subir los APKs (tag + artefacto + body de notas).
 
 ---
 
