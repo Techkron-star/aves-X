@@ -2,6 +2,7 @@ import 'package:aves/theme/nebula/nebula_palette.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:collection/collection.dart';
+import 'dart:ui';
 
 // A custom Nebula theme created by the user, persisted as a JSON file.
 //

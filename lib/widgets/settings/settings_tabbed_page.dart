@@ -14,7 +14,8 @@ import 'package:aves/widgets/settings/thumbnails/thumbnails.dart';
 import 'package:aves/widgets/settings/video/video.dart';
 import 'package:aves/widgets/settings/viewer/viewer.dart';
 import 'package:aves/widgets/settings/experimental/experimental.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide TabController;
+import 'package:flutter/scheduler.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 
@@ -34,7 +35,7 @@ class _SettingsTabbedPageState extends State<SettingsTabbedPage> with SingleTick
   final ValueNotifier<String?> _expandedNotifier = ValueNotifier(null);
 
   // Secciones "General" (ajustes base, siempre visibles)
-  static const List<SettingsSection> _generalSections = [
+  static final List<SettingsSection> _generalSections = [
     NavigationSection(),
     ThumbnailsSection(),
     ViewerSection(),
@@ -43,7 +44,7 @@ class _SettingsTabbedPageState extends State<SettingsTabbedPage> with SingleTick
   ];
 
   // Secciones "Especiales" (ajustes avanzados/privacidad/seguridad)
-  static const List<SettingsSection> _specialSections = [
+  static final List<SettingsSection> _specialSections = [
     NebulaSection(),
     PrivacySection(),
     SecuritySection(),

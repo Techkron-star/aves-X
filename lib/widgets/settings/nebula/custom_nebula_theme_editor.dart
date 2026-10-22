@@ -1,10 +1,11 @@
 import 'dart:convert';
+import 'dart:ui' as ui;
 
 import 'package:aves/theme/nebula/nebula_custom_theme.dart';
 import 'package:aves/theme/nebula/nebula_palette.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
-import 'package:flutter/material.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart' hide ElevatedButton, AlertDialog, TextFormField, InputDecoration, Icons, TabController;
+import 'package:material_ui/material_ui.dart' hide Color;
 
 // Editor de temas Nebula personalizados.
 // Permite crear un tema nuevo a partir de la plantilla base o editar uno existente.
@@ -74,10 +75,10 @@ class _CustomNebulaThemeEditorState extends State<CustomNebulaThemeEditor> {
     super.dispose();
   }
 
-  Color _parseColor(String? text, Color fallback) {
+  ui.Color _parseColor(String? text, Color fallback) {
     if (text == null || text.isEmpty) return fallback;
     try {
-      return Color.parse(text);
+      return ui.Color.parse(text);
     } catch (_) {
       return fallback;
     }
@@ -245,7 +246,7 @@ class _ColorField extends StatelessWidget {
       validator: (v) {
         if (v == null || v.isEmpty) return 'Color requerido';
         try {
-          Color.parse(v);
+          ui.Color.parse(v);
         } catch (_) {
           return 'Color inválido (#RRGGBB)';
         }

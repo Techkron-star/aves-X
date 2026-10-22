@@ -21,11 +21,11 @@ class NebulaCustomThemeStore {
 
   Directory? _dir;
   Directory get _themesDir {
-    _dir ??= Directory(p.join(await _localPath, _folderName));
+    _dir ??= Directory(p.join(await _localPath(), _folderName));
     return _dir!;
   }
 
-  Future<String> _localPath async {
+  Future<String> _localPath() async {
     final dir = await getApplicationDocumentsDirectory();
     return dir.path;
   }
