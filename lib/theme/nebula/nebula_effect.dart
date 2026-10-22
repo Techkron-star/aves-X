@@ -1,5 +1,5 @@
 import 'dart:math' as math;
-import 'dart:ui' show ImageFilter;
+import 'dart:ui' show BlurStyle, MaskFilter;
 import 'package:flutter/material.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
 
@@ -14,14 +14,12 @@ import 'package:aves/theme/nebula/nebula_theme.dart';
 
 /// Efecto visual de un tema Nebula (Fase 2).
 ///
-/// [theme] identifica al tema al que pertenece este efecto.
 /// [animate] indica si la animación debe avanzar (false en modo rendimiento /
 /// movimiento reducido).
 abstract class NebulaEffect extends StatelessWidget {
-  final NebulaTheme theme;
   final bool animate;
 
-  const NebulaEffect({super.key, required this.theme, required this.animate});
+  const NebulaEffect({super.key, required this.animate});
 
   /// Construye el pintor para este efecto.
   CustomPainter painter(double t);
@@ -97,6 +95,8 @@ class _ForgeGlassPainterState extends State<_ForgeGlassPainterWidget>
 }
 
 class _ForgeGlassPainter extends NebulaEffectPainter {
+  const _ForgeGlassPainter(super.t);
+
   static const _colors = [
     Color(0x33FF7A18), // molten orange glow
     Color(0x1AFFB300), // gold
@@ -191,6 +191,8 @@ class _HermeticGlassPainterState extends State<_HermeticGlassPainterWidget>
 }
 
 class _HermeticGlassPainter extends NebulaEffectPainter {
+  const _HermeticGlassPainter(super.t);
+
   static const _ringColors = [
     Color(0x2200C853), // emerald
     Color(0x119B7BFF), // violet
@@ -215,8 +217,8 @@ class _HermeticGlassPainter extends NebulaEffectPainter {
           ..shader = SweepGradient(
             colors: [_ringColors[i], _ringColors[(i + 1) % _ringColors.length]],
             transform: GradientRotation(phase),
-          ).createShader(Rect.fromCircle(center: center, radius: radius)),
-          ..maskFilter = ImageFilter.blur(sigmaX: radius * .04, sigmaY: radius * .04),
+          ).createShader(Rect.fromCircle(center: center, radius: radius))
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, radius * .04),
       );
     }
 
@@ -227,7 +229,7 @@ class _HermeticGlassPainter extends NebulaEffectPainter {
       r * .18 * glow,
       Paint()
         ..color = Color(0xFF35E0A1).withValues(alpha: .5)
-        ..maskFilter = ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, 8),
     );
   }
 }
@@ -290,6 +292,8 @@ class _EclipseGlassPainterState extends State<_EclipseGlassPainterWidget>
 }
 
 class _EclipseGlassPainter extends NebulaEffectPainter {
+  const _EclipseGlassPainter(super.t);
+
   @override
   void paint(Canvas canvas, Size size) {
     final center = size.center(Offset.zero);
@@ -372,6 +376,8 @@ class _SolarFlareGlassPainterState extends State<_SolarFlareGlassPainterWidget>
 }
 
 class _SolarFlareGlassPainter extends NebulaEffectPainter {
+  const _SolarFlareGlassPainter(super.t);
+
   @override
   void paint(Canvas canvas, Size size) {
     final center = size.center(Offset.zero);
@@ -466,6 +472,8 @@ class _VoidGlassPainterState extends State<_VoidGlassPainterWidget>
 }
 
 class _VoidGlassPainter extends NebulaEffectPainter {
+  const _VoidGlassPainter(super.t);
+
   @override
   void paint(Canvas canvas, Size size) {
     final center = size.center(Offset.zero);
@@ -480,7 +488,7 @@ class _VoidGlassPainter extends NebulaEffectPainter {
         radius,
         Paint()
           ..color = Color(0xFF00E676).withValues(alpha: .15 + .1 * math.sin(phase * 2))
-          ..maskFilter = ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, 6),
       );
     }
   }
@@ -544,6 +552,8 @@ class _CrimsonGlassPainterState extends State<_CrimsonGlassPainterWidget>
 }
 
 class _CrimsonGlassPainter extends NebulaEffectPainter {
+  const _CrimsonGlassPainter(super.t);
+
   @override
   void paint(Canvas canvas, Size size) {
     final center = size.center(Offset.zero);
@@ -624,6 +634,8 @@ class _NeonGlassPainterState extends State<_NeonGlassPainterWidget>
 }
 
 class _NeonGlassPainter extends NebulaEffectPainter {
+  const _NeonGlassPainter(super.t);
+
   @override
   void paint(Canvas canvas, Size size) {
     final center = size.center(Offset.zero);
@@ -702,6 +714,8 @@ class _EmeraldGlassPainterState extends State<_EmeraldGlassPainterWidget>
 }
 
 class _EmeraldGlassPainter extends NebulaEffectPainter {
+  const _EmeraldGlassPainter(super.t);
+
   @override
   void paint(Canvas canvas, Size size) {
     final center = size.center(Offset.zero);
