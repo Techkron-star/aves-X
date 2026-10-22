@@ -17,6 +17,7 @@ import 'package:aves/widgets/settings/viewer/viewer.dart';
 import 'package:aves/widgets/settings/experimental/experimental.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:provider/provider.dart';
 
@@ -69,18 +70,24 @@ class _SettingsTabbedPageState extends State<SettingsTabbedPage>
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settingsPageTitle)),
-      bottom: TabBar(
-        controller: _tabController,
-        tabs: [
-          Tab(icon: const Icon(Icons.tune), text: l10n.settingsTabGeneral),
-          Tab(icon: const Icon(Icons.settings_applications), text: l10n.settingsTabSpecial),
-        ],
-      ),
-      body: TabBarView(
-        controller: _tabController,
+      body: Column(
         children: [
-          _SettingsTabContent(sections: _generalSections, expandedNotifier: _expandedNotifier),
-          _SettingsTabContent(sections: _specialSections, expandedNotifier: _expandedNotifier),
+          TabBar(
+            controller: _tabController,
+            tabs: [
+              Tab(icon: const Icon(Icons.tune), text: l10n.settingsTabGeneral),
+              Tab(icon: const Icon(Icons.settings_applications), text: l10n.settingsTabSpecial),
+            ],
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _SettingsTabContent(sections: _generalSections, expandedNotifier: _expandedNotifier),
+                _SettingsTabContent(sections: _specialSections, expandedNotifier: _expandedNotifier),
+              ],
+            ),
+          ),
         ],
       ),
     );

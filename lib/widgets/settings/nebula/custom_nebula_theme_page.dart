@@ -4,11 +4,9 @@ import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/nebula/nebula_custom_theme.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/settings/nebula/custom_nebula_theme_editor.dart';
-import 'package:flutter/material.dart' hide ScaffoldMessenger, SnackBar, Icon, Icons, TextField, InputDecoration, OutlineInputBorder, ElevatedButton, OutlinedButton, CircularProgressIndicator, TextButton, Clipboard, ClipboardData, Divider, ListTile, AlertDialog, InkWell, Wrap, CircleAvatar, Colors, Theme, IconButton, SizedBox;
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart' hide Scaffold, AppBar, ShowDialog, Icon, Icons, TextField, InputDecoration, OutlineInputBorder, ElevatedButton, OutlinedButton, CircularProgressIndicator, TextButton, Clipboard, ClipboardData, Divider, ListTile, AlertDialog, InkWell, Wrap, CircleAvatar, Colors, Theme, IconButton, SizedBox;
 
-// Página de gestión de temas Nebula personalizados.
-// Permite listar, activar, eliminar, importar y exportar temas creados por el usuario.
 class CustomNebulaThemePage extends StatefulWidget {
   static const routeName = '/settings/nebula/custom_themes';
 
@@ -30,11 +28,14 @@ class _CustomNebulaThemePageState extends State<CustomNebulaThemePage> {
 
   Future<void> _reload() async {
     setState(() => _loading = true);
-    final themes = await settings.refreshCustomThemes();
-    if (mounted) setState(() {
-      _themes = themes;
-      _loading = false;
-    });
+    await settings.refreshCustomThemes();
+    final themes = await settings.loadCustomThemes();
+    if (mounted) {
+      setState(() {
+        _themes = themes;
+        _loading = false;
+      });
+    }
   }
 
   Future<void> _delete(String id) async {
@@ -93,7 +94,7 @@ class _CustomNebulaThemePageState extends State<CustomNebulaThemePage> {
                                 ),
                                 TextButton(
                                   onPressed: () => Navigator.pop(dialogContext, true),
-                                  child: Text(l10n.deleteButtonLabel, style: const TextStyle(color: const Color(0xFFFF0000))),
+                                  child: Text(l10n.deleteButtonLabel, style: const TextStyle(color: Color(0xFFFF0000))),
                                 ),
                               ],
                             ),
@@ -179,7 +180,6 @@ class _CustomNebulaThemePageState extends State<CustomNebulaThemePage> {
   }
 }
 
-/// Página vacía cuando no hay temas personalizados.
 class _EmptyState extends StatelessWidget {
   final VoidCallback onImport;
   final VoidCallback onNew;
@@ -221,7 +221,6 @@ class _EmptyState extends StatelessWidget {
   }
 }
 
-/// Tarjeta individual de un tema personalizado en la lista.
 class _ThemeCard extends StatelessWidget {
   final CustomNebulaTheme theme;
   final bool isActive;

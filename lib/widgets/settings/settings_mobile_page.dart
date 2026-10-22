@@ -57,11 +57,9 @@ class _SettingsMobilePageState extends State<SettingsMobilePage> with FeedbackMi
           ),
         ].map((v) => FontSizeIconTheme(child: v)).toList(),
       ),
-      body: GestureAreaProtectorStack(
-        child: SafeArea(
-          bottom: false,
-          child: const SettingsTabbedPage(),
-        ),
+      body: SafeArea(
+        bottom: false,
+        child: const SettingsTabbedPage(),
       ),
     );
   }
