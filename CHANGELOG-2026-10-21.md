@@ -37,8 +37,18 @@ Resumen de cambios realizados hoy, organizados por tipo. Todos los commits está
   - `Rendimiento` / Performance Mode eliminado de la pestaña Nebula (ya vive solo en Display como ajuste global).
 - **l10n**: nuevos strings `nebulaEngineSectionTitle`, `nebulaEngineTitle`, `nebulaEngineSubtitle` (EN + ES).
 
+## 🎨 Pulido de colores Nebula — cada tema con huella única (esta tanda)
+
+- **Obsidian Glass**: negro con tono violeta oscuro (`0xFF0A050F` surface, acento `0xFF9B5DE5`, cristal `0xFF9B5DE5`/`0x806A1B9A`). Diferenciado de Forge y de Nosferatu.
+- **Forge Glass**: naranja fundido/molten (`0xFFFF7A18` glow y accent, cristal `0xFFFFD87A`→`0xFF8A2A00`). Ya no comparte cristal violeta con Obsidian.
+- **Aureate Glass**: oro cálido (`0xFFD4AF37` seed, `0xFFF5C542` glow, cristal `0xFFE08A`). Único.
+- **Hermetic Glass**: esmeralda-violeta (`0xFF1FBF8F` seed, `0xFF35E0A1` glow, cristal `0xFF9B7BFF`). Único.
+- **Nosferatu Glass**: ruby/negro sin cambios (paridad exacta con el Bat-Glass original, por requisitos del proyecto).
+- Tokens de Fail-Safe de Obsidian y Forge actualizados a sus respectivos colores únicos (`_obsidian` y `_forge` en `nebula_tokens.dart`).
+
 ## 🚧 Estado
 
-- Build verde: run `39703725520` (commit `359a567`, incluye el fix del cuadro gris).
+- Build remoto lanzado para verificar el pulido de colores (pendiente de resultado).
+- Build verde previo: run `39703725520` (commit `359a567`, incluye el fix del cuadro gris).
 - Release v0.5.0 **no publicada** (pendiente en local; el tag `v0.5.0` aún apunta al commit antiguo `81714d3`).
 - Custom Nebula themes (import/export/template/store/tile) y Forge/Hermetic phase 2 pendientes de próxima tanda.

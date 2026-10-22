@@ -142,27 +142,28 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
     securityScrimOverlay: _legacyScrim.withValues(alpha: .8),
   );
 
-  // Obsidian Glass (former Night Demon): near-black blood crystal, dark bubble with white ink.
+  // Obsidian Glass (former Night Demon): near-black violet crystal, dark bubble with white ink.
+  // Distinct from Nosferatu Glass: purple instead of ruby.
   static NebulaTokens _obsidian(NebulaPalette palette) => NebulaTokens(
     securityScrim: const Color(0xFF000000),
-    securitySurface: const Color(0xFF1A0000),
+    securitySurface: const Color(0xFF12001A),
     securityOnSurface: const Color(0xFFFFFFFF),
-    securityAccent: const Color(0xFFFF3B30),
-    securityAlert: const Color(0xFFFF3B30),
+    securityAccent: const Color(0xFF9B5DE5),
+    securityAlert: const Color(0xFFFF6E8A),
     securityOk: _ok,
     securityWarning: _warning,
     securityInfo: _info,
-    securityBubbleSurface: const Color(0xFF2A0000),
-    securityBubbleBorder: const Color(0xFFFF3B30),
-    securityBubbleTail: const Color(0xFF2A0000),
-    securityBubbleGlow: const Color(0x66FF3B30),
+    securityBubbleSurface: const Color(0xFF1A002A),
+    securityBubbleBorder: const Color(0xFF9B5DE5),
+    securityBubbleTail: const Color(0xFF1A002A),
+    securityBubbleGlow: const Color(0x669B5DE5),
     securityBubbleShadow: const Color(0xFF000000),
     securityBubbleInk: const Color(0xFFFFFFFF),
-    securityCrystalEdge: const Color(0x80FF3B5C),
-    securityCrystalHighlight: const Color(0x55FF3B30),
+    securityCrystalEdge: const Color(0x806A1B9A),
+    securityCrystalHighlight: const Color(0x559B5DE5),
     securityCrystalBody: palette.crystalBody,
-    securityInputFieldBg: const Color(0xFF1A0000),
-    securityInputFieldBorder: const Color(0xFFFF3B30),
+    securityInputFieldBg: const Color(0xFF12001A),
+    securityInputFieldBorder: const Color(0xFF9B5DE5),
     securityScrimOverlay: const Color(0xCC000000),
   );
 
@@ -201,16 +202,16 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
     securityWarning: _warning,
     securityInfo: _info,
     securityBubbleSurface: const Color(0xFF241B44),
-    securityBubbleBorder: const Color(0xFFB07CFF),
+    securityBubbleBorder: const Color(0xFFFF7A18),
     securityBubbleTail: const Color(0xFF241B44),
     securityBubbleGlow: const Color(0x66FF7A18),
     securityBubbleShadow: const Color(0xFF000000),
     securityBubbleInk: const Color(0xFFF3EEFF),
-    securityCrystalEdge: const Color(0x80B07CFF),
+    securityCrystalEdge: const Color(0x80FF7A18),
     securityCrystalHighlight: const Color(0x55FFB067),
     securityCrystalBody: palette.crystalBody,
     securityInputFieldBg: const Color(0xFF1B1533),
-    securityInputFieldBorder: const Color(0xFFB07CFF),
+    securityInputFieldBorder: const Color(0xFFFF7A18),
     securityScrimOverlay: const Color(0xCC000000),
   );
 
