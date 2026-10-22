@@ -18,6 +18,18 @@ enum NebulaSurfaceTreatment {
   forgeGlass,
   // Hermetic Glass: emerald crystal with violet edges (phase 2 effects)
   hermeticGlass,
+  // Eclipse Glass: deep midnight blue crystal with electric cyan accents (phase 2 effects)
+  eclipseGlass,
+  // Solar Flare Glass: molten orange crystal with gold accents (phase 2 effects)
+  solarFlareGlass,
+  // Void Glass: neon green crystal on graphite black (phase 2 effects)
+  voidGlass,
+  // Crimson Glass: burgundy crystal with dark red accents (phase 2 effects)
+  crimsonGlass,
+  // Neon Glass: hot pink and electric blue crystal on black (phase 2 effects)
+  neonGlass,
+  // Emerald Glass: deep forest emerald crystal with gold veins (phase 2 effects)
+  emeraldGlass,
 }
 
 // A Nebula palette: colors and surface treatment only.

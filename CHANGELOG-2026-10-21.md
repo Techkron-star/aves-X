@@ -46,6 +46,19 @@ Resumen de cambios realizados hoy, organizados por tipo. Todos los commits está
 - **Nosferatu Glass**: ruby/negro sin cambios (paridad exacta con el Bat-Glass original, por requisitos del proyecto).
 - Tokens de Fail-Safe de Obsidian y Forge actualizados a sus respectivos colores únicos (`_obsidian` y `_forge` en `nebula_tokens.dart`).
 
+## 🆕 Nuevos temas Nebula (Fase 2, deshabilitados en el selector)
+
+Seis temas nuevos con paleta y tokens propios, marcados como Fase 2 (sin shaders/animaciones aún). Aparecen en el selector con "Próximamente: Fase 2":
+
+- **Eclipse Glass**: azul medianoche con cristal cian eléctrico.
+- **Solar Flare Glass**: naranja fundido sobre negro con cristal dorado.
+- **Void Glass**: negro grafito con cristal verde neón.
+- **Crimson Glass**: negro burdeos con cristal rojo oscuro.
+- **Neon Glass**: rosa neón y azul eléctrico sobre negro.
+- **Emerald Glass**: esmeralda profunda con vetas doradas.
+
+Total: **12 temas** (4 Fase 1 + 8 Fase 2).
+
 ## 🚧 Estado
 
 - Build remoto lanzado para verificar el pulido de colores (pendiente de resultado).

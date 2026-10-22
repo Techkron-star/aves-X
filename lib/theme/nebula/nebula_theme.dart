@@ -15,6 +15,18 @@ enum NebulaTheme {
   forgeGlass,
   // Hermetic Glass: the former Hermetisc theme (phase 2 effects)
   hermeticGlass,
+  // Eclipse Glass: deep midnight blue surfaces with electric cyan crystal (phase 2 effects)
+  eclipseGlass,
+  // Solar Flare Glass: molten orange on black with gold crystal (phase 2 effects)
+  solarFlareGlass,
+  // Void Glass: graphite black surfaces with neon green crystal (phase 2 effects)
+  voidGlass,
+  // Crimson Glass: burgundy black surfaces with dark red crystal (phase 2 effects)
+  crimsonGlass,
+  // Neon Glass: hot pink and electric blue crystal on black (phase 2 effects)
+  neonGlass,
+  // Emerald Glass: deep forest emerald crystal with gold veins (phase 2 effects)
+  emeraldGlass,
 }
 
 extension NebulaThemeInfo on NebulaTheme {
@@ -26,12 +38,18 @@ extension NebulaThemeInfo on NebulaTheme {
     .aureateGlass => 'aureate_glass',
     .forgeGlass => 'forge_glass',
     .hermeticGlass => 'hermetic_glass',
+    .eclipseGlass => 'eclipse_glass',
+    .solarFlareGlass => 'solar_flare_glass',
+    .voidGlass => 'void_glass',
+    .crimsonGlass => 'crimson_glass',
+    .neonGlass => 'neon_glass',
+    .emeraldGlass => 'emerald_glass',
   };
 
   // 1: palettes and surfaces, no own effects. 2: own shaders/animations.
   int get phase => switch (this) {
     .aves || .nosferatuGlass || .obsidianGlass || .aureateGlass => 1,
-    .forgeGlass || .hermeticGlass => 2,
+    .forgeGlass || .hermeticGlass || .eclipseGlass || .solarFlareGlass || .voidGlass || .crimsonGlass || .neonGlass || .emeraldGlass => 2,
   };
 
   // only phase 1 themes can be offered by the selector for now
