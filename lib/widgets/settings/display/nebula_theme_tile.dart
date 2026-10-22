@@ -1,6 +1,7 @@
+import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
+import 'package:aves/widgets/common/basic/feature_sticker.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
-import 'package:aves_model/aves_model.dart';
 import 'package:aves/widgets/settings/nebula/nebula_tab.dart';
 import 'package:aves/widgets/settings/nebula/nebula_theme_selector.dart';
 import 'package:aves/widgets/settings/settings_definition.dart';
