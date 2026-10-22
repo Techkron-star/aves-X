@@ -5,6 +5,7 @@ import 'package:aves/widgets/settings/accessibility/accessibility.dart';
 import 'package:aves/widgets/settings/display/display.dart';
 import 'package:aves/widgets/settings/language/language.dart';
 import 'package:aves/widgets/settings/navigation/navigation.dart';
+import 'package:aves/widgets/settings/nebula/custom_nebula_theme_tile.dart';
 import 'package:aves/widgets/settings/nebula/nebula_section.dart';
 import 'package:aves/widgets/settings/privacy/privacy.dart';
 import 'package:aves/widgets/settings/security/failsafe_section.dart';
@@ -14,9 +15,9 @@ import 'package:aves/widgets/settings/thumbnails/thumbnails.dart';
 import 'package:aves/widgets/settings/video/video.dart';
 import 'package:aves/widgets/settings/viewer/viewer.dart';
 import 'package:aves/widgets/settings/experimental/experimental.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide AppBar, Tab, TabBar, TabBarView, Icon, IconButton, PopupMenuButton, PopupMenuItem, MaterialLocalizations, Theme, Divider, ListTile, InkWell, Wrap, CircleAvatar, TextStyle, FontWeight, OutlineInputBorder, TextField, CircularProgressIndicator, TextFormField, InputDecoration, DropdownButtonFormField, DropdownMenuItem, Colors;
 import 'package:flutter/scheduler.dart';
-import 'package:material_ui/material_ui.dart' hide TabController, Tab, TabBar, TabBarView, Icon, IconButton, MaterialLocalizations, AlertDialog, InkWell, Divider, ListTile, OutlineInputBorder, TextField, TextButton, ElevatedButton, OutlinedButton, CircularProgressIndicator, TextFormField, InputDecoration, DropdownButtonFormField, DropdownMenuItem, Wrap, CircleAvatar, TextStyle, FontWeight;
+import 'package:material_ui/material_ui.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:provider/provider.dart';
 
@@ -44,15 +45,9 @@ class _SettingsTabbedPageState extends State<SettingsTabbedPage> with SingleTick
     LanguageSection(),
   ];
 
-  // Secciones "Especiales" (ajustes avanzados/privacidad/seguridad)
+  // Secciones "Especiales" (ajustes únicos de Aves-X: Nebula Engine y temas personalizados)
   static final List<SettingsSection> _specialSections = [
     NebulaSection(),
-    PrivacySection(),
-    SecuritySection(),
-    FailsafeSection(),
-    AccessibilitySection(),
-    DisplaySection(),
-    ExperimentalSection(),
   ];
 
   @override
@@ -75,47 +70,18 @@ class _SettingsTabbedPageState extends State<SettingsTabbedPage> with SingleTick
 
     return AvesScaffold(
       appBar: AppBar(
-        title: InteractiveAppBarTitle(
-          onTap: () => _goToSearch(context),
-          child: Text(context.l10n.settingsPageTitle),
-        ),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(
-              icon: const Icon(Icons.tune),
-              text: l10n.settingsTabGeneral,
-            ),
-            Tab(
-              icon: const Icon(Icons.settings_applications),
-              text: l10n.settingsTabSpecial,
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(AIcons.search),
-            onPressed: () => _goToSearch(context),
-            tooltip: MaterialLocalizations.of(context).searchFieldLabel,
+        title: Text(context.l10n.settingsPageTitle),
+      ),
+      bottom: TabBar(
+        controller: _tabController,
+        tabs: [
+          Tab(
+            icon: const Icon(Icons.tune),
+            text: l10n.settingsTabGeneral,
           ),
-          PopupMenuButton<SettingsAction>(
-            itemBuilder: (context) {
-              return [
-                PopupMenuItem(
-                  value: SettingsAction.export,
-                  child: MenuRow(text: context.l10n.settingsActionExport, icon: const Icon(AIcons.fileExport)),
-                ),
-                PopupMenuItem(
-                  value: SettingsAction.import,
-                  child: MenuRow(text: context.l10n.settingsActionImport, icon: const Icon(AIcons.fileImport)),
-                ),
-              ];
-            },
-            onSelected: (action) async {
-              await Future.pause(animations.popUpAnimationDelay * timeDilation);
-              if (mounted) SettingsActionDelegate().onActionSelected(context, action);
-            },
-            popUpAnimationStyle: animations.popUpAnimationStyle,
+          Tab(
+            icon: const Icon(Icons.settings_applications),
+            text: l10n.settingsTabSpecial,
           ),
         ],
       ),
@@ -139,12 +105,6 @@ class _SettingsTabbedPageState extends State<SettingsTabbedPage> with SingleTick
           ),
         ),
       ),
-    );
-  }
-
-  void _goToSearch(BuildContext context) {
-    Navigator.maybeOf(context)?.push(
-      SettingsSearchPageRoute(context: context),
     );
   }
 }

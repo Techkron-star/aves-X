@@ -1,11 +1,10 @@
 import 'dart:convert';
-import 'dart:ui' as ui;
 
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/nebula/nebula_custom_theme.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/settings/nebula/custom_nebula_theme_editor.dart';
-import 'package:flutter/material.dart' hide ScaffoldMessenger, SnackBar, Icon, Icons, TextField, InputDecoration, OutlineInputBorder, ElevatedButton, OutlinedButton, CircularProgressIndicator, TextButton, Clipboard, ClipboardData, Divider, ListTile, AlertDialog, InkWell, Wrap, CircleAvatar, Colors, SizedBox, SizedBox, SizedBox, SizedBox, SizedBox, SizedBox;
+import 'package:flutter/material.dart' hide ScaffoldMessenger, SnackBar, Icon, Icons, TextField, InputDecoration, OutlineInputBorder, ElevatedButton, OutlinedButton, CircularProgressIndicator, TextButton, Clipboard, ClipboardData, Divider, ListTile, AlertDialog, InkWell, Wrap, CircleAvatar, Colors, Theme, IconButton, SizedBox;
 import 'package:material_ui/material_ui.dart';
 
 // Página de gestión de temas Nebula personalizados.
@@ -94,7 +93,7 @@ class _CustomNebulaThemePageState extends State<CustomNebulaThemePage> {
                                 ),
                                 TextButton(
                                   onPressed: () => Navigator.pop(dialogContext, true),
-                                  child: Text(l10n.deleteButtonLabel, style: const TextStyle(color: ui.Color(0xFFFF0000))),
+                                  child: Text(l10n.deleteButtonLabel, style: const TextStyle(color: const Color(0xFFFF0000))),
                                 ),
                               ],
                             ),
@@ -260,7 +259,7 @@ class _ThemeCard extends StatelessWidget {
             theme.name,
             style: TextStyle(fontWeight: isActive ? FontWeight.w700 : FontWeight.w500, color: isActive ? scheme.onPrimaryContainer : null),
           ),
-          subtitle: theme.description != null && theme.description!.isNotEmpty
+          subtitle: theme.description?.isNotEmpty == true
               ? Text(theme.description!, style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant))
               : null,
           trailing: Wrap(

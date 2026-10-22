@@ -138,6 +138,12 @@ String nebulaThemeName(BuildContext context, NebulaTheme theme) => switch (theme
   NebulaTheme.crimsonGlass => context.l10n.nebulaThemeCrimsonGlass,
   NebulaTheme.neonGlass => context.l10n.nebulaThemeNeonGlass,
   NebulaTheme.emeraldGlass => context.l10n.nebulaThemeEmeraldGlass,
+  NebulaTheme.auroraGlass => context.l10n.nebulaThemeAuroraGlass,
+  NebulaTheme.sapphireGlass => context.l10n.nebulaThemeSapphireGlass,
+  NebulaTheme.amberGlass => context.l10n.nebulaThemeAmberGlass,
+  NebulaTheme.onyxGlass => context.l10n.nebulaThemeOnyxGlass,
+  NebulaTheme.pearlGlass => context.l10n.nebulaThemePearlGlass,
+  NebulaTheme.ivoryGlass => context.l10n.nebulaThemeIvoryGlass,
 };
 
 String nebulaThemeDescription(BuildContext context, NebulaTheme theme) => switch (theme) {
@@ -153,4 +159,10 @@ String nebulaThemeDescription(BuildContext context, NebulaTheme theme) => switch
   NebulaTheme.crimsonGlass => context.l10n.nebulaThemeCrimsonGlassDesc,
   NebulaTheme.neonGlass => context.l10n.nebulaThemeNeonGlassDesc,
   NebulaTheme.emeraldGlass => context.l10n.nebulaThemeEmeraldGlassDesc,
+  NebulaTheme.auroraGlass => context.l10n.nebulaThemeAuroraGlassDesc,
+  NebulaTheme.sapphireGlass => context.l10n.nebulaThemeSapphireGlassDesc,
+  NebulaTheme.amberGlass => context.l10n.nebulaThemeAmberGlassDesc,
+  NebulaTheme.onyxGlass => context.l10n.nebulaThemeOnyxGlassDesc,
+  NebulaTheme.pearlGlass => context.l10n.nebulaThemePearlGlassDesc,
+  NebulaTheme.ivoryGlass => context.l10n.nebulaThemeIvoryGlassDesc,
 };

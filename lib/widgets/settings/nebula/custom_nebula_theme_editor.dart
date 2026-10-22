@@ -4,8 +4,16 @@ import 'dart:ui' as ui;
 import 'package:aves/theme/nebula/nebula_custom_theme.dart';
 import 'package:aves/theme/nebula/nebula_palette.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
-import 'package:flutter/material.dart' hide ElevatedButton, AlertDialog, TextFormField, InputDecoration, Icons, TabController, Color, TextButton, CircularProgressIndicator, DropdownButtonFormField, DropdownMenuItem, Form, SingleChildScrollView, Column, SizedBox, Text, SizedBox, SizedBox, SizedBox, SizedBox;
+import 'package:flutter/material.dart' hide ElevatedButton, AlertDialog, TextFormField, InputDecoration, Icons, TabController, Color, TextButton, CircularProgressIndicator, DropdownButtonFormField, DropdownMenuItem, Form, SingleChildScrollView, Column, SizedBox, Text;
 import 'package:material_ui/material_ui.dart' hide Color;
+
+ui.Color parseHexColor(String hex) {
+  hex = hex.replaceAll('#', '');
+  if (hex.length == 6) {
+    hex = 'FF$hex';
+  }
+  return ui.Color(int.parse(hex, radix: 16));
+}
 
 // Editor de temas Nebula personalizados.
 // Permite crear un tema nuevo a partir de la plantilla base o editar uno existente.
@@ -77,18 +85,10 @@ class _CustomNebulaThemeEditorState extends State<CustomNebulaThemeEditor> {
   ui.Color _parseColor(String? text, ui.Color fallback) {
     if (text == null || text.isEmpty) return fallback;
     try {
-      return _parseHexColor(text);
+      return parseHexColor(text);
     } catch (_) {
       return fallback;
     }
-  }
-
-  static ui.Color _parseHexColor(String hex) {
-    hex = hex.replaceAll('#', '');
-    if (hex.length == 6) {
-      hex = 'FF$hex';
-    }
-    return ui.Color(int.parse(hex, radix: 16));
   }
 
   void _save() {
@@ -253,7 +253,7 @@ class _ColorField extends StatelessWidget {
       validator: (v) {
         if (v == null || v.isEmpty) return 'Color requerido';
         try {
-          _parseHexColor(v);
+          parseHexColor(v);
         } catch (_) {
           return 'Color inválido (#RRGGBB)';
         }

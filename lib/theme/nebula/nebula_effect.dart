@@ -766,5 +766,11 @@ NebulaEffect? nebulaEffectFor(NebulaTheme theme, {required bool animate}) => swi
   NebulaTheme.crimsonGlass => CrimsonGlassEffect(animate: animate),
   NebulaTheme.neonGlass => NeonGlassEffect(animate: animate),
   NebulaTheme.emeraldGlass => EmeraldGlassEffect(animate: animate),
+  NebulaTheme.auroraGlass => AuroraGlassEffect(animate: animate),
+  NebulaTheme.sapphireGlass => SapphireGlassEffect(animate: animate),
+  NebulaTheme.amberGlass => AmberGlassEffect(animate: animate),
+  NebulaTheme.onyxGlass => OnyxGlassEffect(animate: animate),
+  NebulaTheme.pearlGlass => PearlGlassEffect(animate: animate),
+  NebulaTheme.ivoryGlass => IvoryGlassEffect(animate: animate),
   _ => null,
 };
