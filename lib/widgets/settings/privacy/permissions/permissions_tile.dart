@@ -12,6 +12,7 @@ import 'package:aves/widgets/settings/privacy/permissions/permissions_page.dart'
 import 'package:aves/widgets/settings/settings_definition.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 
 class SettingsTilePermissions extends SettingsTile {
   @override
