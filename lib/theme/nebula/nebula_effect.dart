@@ -41,8 +41,28 @@ class _NebulaEffectHostState extends State<_NebulaEffectHost> with SingleTickerP
   @override
   void didUpdateWidget(covariant _NebulaEffectHost oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.animate && !_controller.isAnimating) _controller.repeat(reverse: widget.reverse);
-    if (!widget.animate && _controller.isAnimating) _controller.stop();
+
+    // A host is reused when the selected theme changes. Updating only the
+    // painter callback leaves the old cycle length/reverse mode running, so
+    // Eclipse can inherit Obsidian's 28s ping-pong or Hermetic can inherit
+    // Eclipse's 22s cycle. Reconfigure the controller as part of the theme swap.
+    final cycleChanged = oldWidget.duration != widget.duration ||
+        oldWidget.reverse != widget.reverse;
+    if (cycleChanged) {
+      _controller.stop();
+      _controller.duration = widget.duration;
+      _controller.value = 0;
+      if (widget.animate) {
+        _controller.repeat(reverse: widget.reverse);
+      }
+      return;
+    }
+
+    if (widget.animate && !_controller.isAnimating) {
+      _controller.repeat(reverse: widget.reverse);
+    } else if (!widget.animate && _controller.isAnimating) {
+      _controller.stop();
+    }
   }
   @override
   void dispose() { _controller.dispose(); super.dispose(); }
