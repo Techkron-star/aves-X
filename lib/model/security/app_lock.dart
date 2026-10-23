@@ -11,7 +11,7 @@ enum AppLockResult { unlocked, panic, wrong, nuke, cooldown }
 // The secrets are in the secure store. Attempts are counted by `AttemptGuard.app`.
 class AppLock extends ChangeNotifier {
   static const _pinKey = 'app_lock_pin';
-  static const _altKey = 'app_lock_alt_secret';
+  static const _altKey = 'app_lock_alt_secret'; // legacy key from the initial alternative-lock implementation
   static const _typeKey = 'app_lock_type';
   static const _biometricKey = 'app_lock_bio';
   static const _panicKey = 'app_lock_panic';
@@ -47,7 +47,7 @@ class AppLock extends ChangeNotifier {
 
   static String get secretKey => _pinKey;
 
-  static String get alternativeSecretKey => _altKey;
+  static String alternativeSecretKeyFor(String type) => 'app_lock_secret_$type';
 
   bool get locked => _locked;
 
@@ -57,9 +57,18 @@ class AppLock extends ChangeNotifier {
     final storedType = await securityService.readValue<String>(_typeKey);
     _lockTypeName = storedType ?? 'code';
     final hasSecret = await securityService.readValue<String>(_pinKey) != null;
-    final hasAlternativeSecret = await securityService.readValue<String>(_altKey) != null;
+    final typedAlternativeSecret = storedType == null || storedType == 'code' || storedType == 'system'
+        ? null
+        : await securityService.readValueStrict<String>(alternativeSecretKeyFor(storedType));
+    final legacyAlternativeSecret = await securityService.readValueStrict<String>(_altKey);
+    if (storedType != null && storedType != 'code' && storedType != 'system' && typedAlternativeSecret == null && legacyAlternativeSecret != null) {
+      // Migrate the pre-release generic alternative key without exposing or disabling the lock.
+      if (await securityService.writeValue<String>(alternativeSecretKeyFor(storedType), legacyAlternativeSecret)) {
+        await securityService.writeValue<String>(_altKey, null);
+      }
+    }
     _enabled = storedType != null || hasSecret;
-    if (storedType != null && storedType != 'code' && storedType != 'system' && !hasAlternativeSecret) {
+    if (storedType != null && storedType != 'code' && storedType != 'system' && typedAlternativeSecret == null && legacyAlternativeSecret == null) {
       // Keep a malformed configured lock closed instead of silently disabling protection.
       _enabled = true;
     }
@@ -78,6 +87,7 @@ class AppLock extends ChangeNotifier {
     final ok = stored && typed;
     if (ok) {
       await securityService.writeValue<String>(_altKey, null);
+      await Future.wait(['system', 'pattern', 'pin', 'password'].map((type) => securityService.writeValue<String>(alternativeSecretKeyFor(type), null)));
       _lockTypeName = 'code';
       _enabled = true;
       notifyListeners();
@@ -89,12 +99,16 @@ class AppLock extends ChangeNotifier {
   /// The Master Code remains separate and is never affected by this selection.
   Future<bool> setLockType(String type) async {
     if (type == 'code') return false;
-    if (type != 'system' && await securityService.readValue<String>(_altKey) == null) return false;
+    if (type != 'system' && await securityService.readValueStrict<String>(alternativeSecretKeyFor(type)) == null) return false;
     // Commit the new mode only after the new secret (if any) is safely stored under its own key.
     if (!await securityService.writeValue<String>(_typeKey, type)) return false;
     // Stale credentials are not used by the new mode; remove them after the mode switch is durable.
     await securityService.writeValue<String>(_pinKey, null);
-    if (type == 'system') await securityService.writeValue<String>(_altKey, null);
+    await securityService.writeValue<String>(_altKey, null);
+    await Future.wait([
+      for (final otherType in ['system', 'pattern', 'pin', 'password'])
+        if (otherType != type) securityService.writeValue<String>(alternativeSecretKeyFor(otherType), null),
+    ]);
     await securityService.writeValue<String>(_panicKey, null);
     _lockTypeName = type;
     _enabled = true;
