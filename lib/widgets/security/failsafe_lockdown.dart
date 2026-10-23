@@ -153,7 +153,12 @@ class _LockdownScreenState extends State<_LockdownBody> {
         return;
       }
       // Only a completed, successful comparison returning false counts as a wrong Master Code.
-      await AttemptGuard.master.registerFailure();
+      final outcome = await AttemptGuard.master.registerFailure();
+      // Destructive handling is reachable only after a verified mismatch and only when the user enabled it.
+      if (outcome == AttemptOutcome.nuke) {
+        await Nuke.nukeEverything();
+        return;
+      }
       final fails = await AttemptGuard.master.failures();
       if (mounted) setState(() => _fails = fails);
       final remaining = await AttemptGuard.master.remainingCooldown();
