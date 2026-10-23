@@ -92,7 +92,7 @@ class _NebulaEffectHostState extends State<_NebulaEffectHost> with SingleTickerP
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _controller,
-      builder: (_, __) => CustomPaint(painter: widget.painterBuilder(_controller.value)),
+      builder: (_, __) => CustomPaint(painter: widget.painterBuilder(_controller.value), isComplex: true, willChange: widget.animate),
     );
   }
 }
@@ -117,53 +117,13 @@ class ForgeGlassEffect extends NebulaEffect {
   const ForgeGlassEffect({super.key, required super.animate});
 
   @override
-  Widget build(BuildContext context) {
-    return _ForgeGlassPainterWidget(animate: animate);
-  }
+  Duration get duration => const Duration(seconds: 12);
+
+  @override
+  bool get reverse => true;
 
   @override
   CustomPainter painter(double t) => _ForgeGlassPainter(t);
-}
-
-class _ForgeGlassPainterWidget extends StatefulWidget {
-  final bool animate;
-  const _ForgeGlassPainterWidget({required this.animate});
-
-  @override
-  State<_ForgeGlassPainterWidget> createState() => _ForgeGlassPainterState();
-}
-
-class _ForgeGlassPainterState extends State<_ForgeGlassPainterWidget>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller =
-      AnimationController(vsync: this, duration: const Duration(seconds: 12));
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.animate) _controller.repeat(reverse: true);
-  }
-
-  @override
-  void didUpdateWidget(covariant _ForgeGlassPainterWidget old) {
-    super.didUpdateWidget(old);
-    if (widget.animate && !_controller.isAnimating) _controller.repeat(reverse: true);
-    if (!widget.animate && _controller.isAnimating) _controller.stop();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (_, __) => CustomPaint(painter: _ForgeGlassPainter(_controller.value)),
-    );
-  }
 }
 
 class _ForgeGlassPainter extends NebulaEffectPainter {
@@ -213,53 +173,13 @@ class HermeticGlassEffect extends NebulaEffect {
   const HermeticGlassEffect({super.key, required super.animate});
 
   @override
-  Widget build(BuildContext context) {
-    return _HermeticGlassPainterWidget(animate: animate);
-  }
+  Duration get duration => const Duration(seconds: 16);
+
+  @override
+  bool get reverse => false;
 
   @override
   CustomPainter painter(double t) => _HermeticGlassPainter(t);
-}
-
-class _HermeticGlassPainterWidget extends StatefulWidget {
-  final bool animate;
-  const _HermeticGlassPainterWidget({required this.animate});
-
-  @override
-  State<_HermeticGlassPainterWidget> createState() => _HermeticGlassPainterState();
-}
-
-class _HermeticGlassPainterState extends State<_HermeticGlassPainterWidget>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller =
-      AnimationController(vsync: this, duration: const Duration(seconds: 16));
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.animate) _controller.repeat();
-  }
-
-  @override
-  void didUpdateWidget(covariant _HermeticGlassPainterWidget old) {
-    super.didUpdateWidget(old);
-    if (widget.animate && !_controller.isAnimating) _controller.repeat();
-    if (!widget.animate && _controller.isAnimating) _controller.stop();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (_, __) => CustomPaint(painter: _HermeticGlassPainter(_controller.value)),
-    );
-  }
 }
 
 class _HermeticGlassPainter extends NebulaEffectPainter {
@@ -314,53 +234,13 @@ class EclipseGlassEffect extends NebulaEffect {
   const EclipseGlassEffect({super.key, required super.animate});
 
   @override
-  Widget build(BuildContext context) {
-    return _EclipseGlassPainterWidget(animate: animate);
-  }
+  Duration get duration => const Duration(seconds: 20);
+
+  @override
+  bool get reverse => false;
 
   @override
   CustomPainter painter(double t) => _EclipseGlassPainter(t);
-}
-
-class _EclipseGlassPainterWidget extends StatefulWidget {
-  final bool animate;
-  const _EclipseGlassPainterWidget({required this.animate});
-
-  @override
-  State<_EclipseGlassPainterWidget> createState() => _EclipseGlassPainterState();
-}
-
-class _EclipseGlassPainterState extends State<_EclipseGlassPainterWidget>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller =
-      AnimationController(vsync: this, duration: const Duration(seconds: 20));
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.animate) _controller.repeat();
-  }
-
-  @override
-  void didUpdateWidget(covariant _EclipseGlassPainterWidget old) {
-    super.didUpdateWidget(old);
-    if (widget.animate && !_controller.isAnimating) _controller.repeat();
-    if (!widget.animate && _controller.isAnimating) _controller.stop();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (_, __) => CustomPaint(painter: _EclipseGlassPainter(_controller.value)),
-    );
-  }
 }
 
 class _EclipseGlassPainter extends NebulaEffectPainter {
@@ -414,53 +294,13 @@ class SolarFlareGlassEffect extends NebulaEffect {
   const SolarFlareGlassEffect({super.key, required super.animate});
 
   @override
-  Widget build(BuildContext context) {
-    return _SolarFlareGlassPainterWidget(animate: animate);
-  }
+  Duration get duration => const Duration(seconds: 11);
+
+  @override
+  bool get reverse => false;
 
   @override
   CustomPainter painter(double t) => _SolarFlareGlassPainter(t);
-}
-
-class _SolarFlareGlassPainterWidget extends StatefulWidget {
-  final bool animate;
-  const _SolarFlareGlassPainterWidget({required this.animate});
-
-  @override
-  State<_SolarFlareGlassPainterWidget> createState() => _SolarFlareGlassPainterState();
-}
-
-class _SolarFlareGlassPainterState extends State<_SolarFlareGlassPainterWidget>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller =
-      AnimationController(vsync: this, duration: const Duration(seconds: 11));
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.animate) _controller.repeat();
-  }
-
-  @override
-  void didUpdateWidget(covariant _SolarFlareGlassPainterWidget old) {
-    super.didUpdateWidget(old);
-    if (widget.animate && !_controller.isAnimating) _controller.repeat();
-    if (!widget.animate && _controller.isAnimating) _controller.stop();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (_, __) => CustomPaint(painter: _SolarFlareGlassPainter(_controller.value)),
-    );
-  }
 }
 
 class _SolarFlareGlassPainter extends NebulaEffectPainter {
@@ -605,53 +445,13 @@ class VoidGlassEffect extends NebulaEffect {
   const VoidGlassEffect({super.key, required super.animate});
 
   @override
-  Widget build(BuildContext context) {
-    return _VoidGlassPainterWidget(animate: animate);
-  }
+  Duration get duration => const Duration(seconds: 16);
+
+  @override
+  bool get reverse => false;
 
   @override
   CustomPainter painter(double t) => _VoidGlassPainter(t);
-}
-
-class _VoidGlassPainterWidget extends StatefulWidget {
-  final bool animate;
-  const _VoidGlassPainterWidget({required this.animate});
-
-  @override
-  State<_VoidGlassPainterWidget> createState() => _VoidGlassPainterState();
-}
-
-class _VoidGlassPainterState extends State<_VoidGlassPainterWidget>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller =
-      AnimationController(vsync: this, duration: const Duration(seconds: 16));
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.animate) _controller.repeat();
-  }
-
-  @override
-  void didUpdateWidget(covariant _VoidGlassPainterWidget old) {
-    super.didUpdateWidget(old);
-    if (widget.animate && !_controller.isAnimating) _controller.repeat();
-    if (!widget.animate && _controller.isAnimating) _controller.stop();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (_, __) => CustomPaint(painter: _VoidGlassPainter(_controller.value)),
-    );
-  }
 }
 
 class _VoidGlassPainter extends NebulaEffectPainter {
@@ -697,53 +497,13 @@ class CrimsonGlassEffect extends NebulaEffect {
   const CrimsonGlassEffect({super.key, required super.animate});
 
   @override
-  Widget build(BuildContext context) {
-    return _CrimsonGlassPainterWidget(animate: animate);
-  }
+  Duration get duration => const Duration(seconds: 8);
+
+  @override
+  bool get reverse => false;
 
   @override
   CustomPainter painter(double t) => _CrimsonGlassPainter(t);
-}
-
-class _CrimsonGlassPainterWidget extends StatefulWidget {
-  final bool animate;
-  const _CrimsonGlassPainterWidget({required this.animate});
-
-  @override
-  State<_CrimsonGlassPainterWidget> createState() => _CrimsonGlassPainterState();
-}
-
-class _CrimsonGlassPainterState extends State<_CrimsonGlassPainterWidget>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller =
-      AnimationController(vsync: this, duration: const Duration(seconds: 8));
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.animate) _controller.repeat();
-  }
-
-  @override
-  void didUpdateWidget(covariant _CrimsonGlassPainterWidget old) {
-    super.didUpdateWidget(old);
-    if (widget.animate && !_controller.isAnimating) _controller.repeat();
-    if (!widget.animate && _controller.isAnimating) _controller.stop();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (_, __) => CustomPaint(painter: _CrimsonGlassPainter(_controller.value)),
-    );
-  }
 }
 
 class _CrimsonGlassPainter extends NebulaEffectPainter {
@@ -779,53 +539,13 @@ class NeonGlassEffect extends NebulaEffect {
   const NeonGlassEffect({super.key, required super.animate});
 
   @override
-  Widget build(BuildContext context) {
-    return _NeonGlassPainterWidget(animate: animate);
-  }
+  Duration get duration => const Duration(seconds: 11);
+
+  @override
+  bool get reverse => false;
 
   @override
   CustomPainter painter(double t) => _NeonGlassPainter(t);
-}
-
-class _NeonGlassPainterWidget extends StatefulWidget {
-  final bool animate;
-  const _NeonGlassPainterWidget({required this.animate});
-
-  @override
-  State<_NeonGlassPainterWidget> createState() => _NeonGlassPainterState();
-}
-
-class _NeonGlassPainterState extends State<_NeonGlassPainterWidget>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller =
-      AnimationController(vsync: this, duration: const Duration(seconds: 11));
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.animate) _controller.repeat();
-  }
-
-  @override
-  void didUpdateWidget(covariant _NeonGlassPainterWidget old) {
-    super.didUpdateWidget(old);
-    if (widget.animate && !_controller.isAnimating) _controller.repeat();
-    if (!widget.animate && _controller.isAnimating) _controller.stop();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (_, __) => CustomPaint(painter: _NeonGlassPainter(_controller.value)),
-    );
-  }
 }
 
 class _NeonGlassPainter extends NebulaEffectPainter {
@@ -859,53 +579,13 @@ class EmeraldGlassEffect extends NebulaEffect {
   const EmeraldGlassEffect({super.key, required super.animate});
 
   @override
-  Widget build(BuildContext context) {
-    return _EmeraldGlassPainterWidget(animate: animate);
-  }
+  Duration get duration => const Duration(seconds: 19);
+
+  @override
+  bool get reverse => false;
 
   @override
   CustomPainter painter(double t) => _EmeraldGlassPainter(t);
-}
-
-class _EmeraldGlassPainterWidget extends StatefulWidget {
-  final bool animate;
-  const _EmeraldGlassPainterWidget({required this.animate});
-
-  @override
-  State<_EmeraldGlassPainterWidget> createState() => _EmeraldGlassPainterState();
-}
-
-class _EmeraldGlassPainterState extends State<_EmeraldGlassPainterWidget>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller =
-      AnimationController(vsync: this, duration: const Duration(seconds: 19));
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.animate) _controller.repeat();
-  }
-
-  @override
-  void didUpdateWidget(covariant _EmeraldGlassPainterWidget old) {
-    super.didUpdateWidget(old);
-    if (widget.animate && !_controller.isAnimating) _controller.repeat();
-    if (!widget.animate && _controller.isAnimating) _controller.stop();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (_, __) => CustomPaint(painter: _EmeraldGlassPainter(_controller.value)),
-    );
-  }
 }
 
 class _EmeraldGlassPainter extends NebulaEffectPainter {
@@ -1367,6 +1047,19 @@ class _IvoryGlassPainter extends NebulaEffectPainter {
 }
 
 // ============================================================================
+class _NightDemonEmber {
+  final double x, phase, sway, radius;
+  final int trips;
+  final bool hot;
+  const _NightDemonEmber({required this.x, required this.phase, required this.sway, required this.radius, required this.trips, required this.hot});
+}
+
+class _GodlyMote {
+  final double x, y, phaseX, phaseY, phaseTwinkle, radius;
+  final int cyclesX, cyclesY, cyclesTwinkle;
+  const _GodlyMote({required this.x, required this.y, required this.phaseX, required this.phaseY, required this.phaseTwinkle, required this.radius, required this.cyclesX, required this.cyclesY, required this.cyclesTwinkle});
+}
+
 // Night Demon — purple hellfire (Obsidian Glass)
 // ============================================================================
 
@@ -1392,6 +1085,15 @@ class _NightDemonPainter extends NebulaEffectPainter {
   static const _violet = Color(0xFF9B5DE5);
   static const _hot = Color(0xFFE9D5FF);
   static const _embers = 34;
+  static final List<_NightDemonEmber> _emberData = _makeEmberData();
+
+  static List<_NightDemonEmber> _makeEmberData() {
+    final rnd = math.Random(666);
+    return List.unmodifiable(List.generate(_embers, (_) => _NightDemonEmber(
+      x: rnd.nextDouble(), phase: rnd.nextDouble(), sway: rnd.nextDouble() * 2 * math.pi,
+      trips: 1 + rnd.nextInt(3), radius: .8 + rnd.nextDouble() * 2.2, hot: rnd.nextBool(),
+    )));
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -1434,25 +1136,18 @@ class _NightDemonPainter extends NebulaEffectPainter {
       );
     }
 
-    // embers rising; each one makes a whole number of trips per loop, so the loop has no seam
-    final rnd = math.Random(666);
+    // Geometry is seeded once; each frame only updates positions and opacity.
     final paint = Paint();
-    for (var i = 0; i < _embers; i++) {
-      final x0 = rnd.nextDouble();
-      final phase = rnd.nextDouble();
-      final sway = rnd.nextDouble() * 2 * math.pi;
-      final trips = 1 + rnd.nextInt(3);
-      final radius = .8 + rnd.nextDouble() * 2.2;
-      final hot = rnd.nextBool();
-      final progress = (t * trips + phase) % 1.0;
+    for (final ember in _emberData) {
+      final progress = (t * ember.trips + ember.phase) % 1.0;
       final fade = math.sin(math.pi * progress);
-      final x = x0 * w + math.sin(progress * 2 * math.pi * 2 + sway) * 14;
+      final x = ember.x * w + math.sin(progress * 2 * math.pi * 2 + ember.sway) * 14;
       final y = h * (1.02 - progress * 1.04);
-      final color = hot ? _hot : _violet;
+      final color = ember.hot ? _hot : _violet;
       paint.color = color.withValues(alpha: .10 * fade);
-      canvas.drawCircle(Offset(x, y), radius * 3.2, paint);
+      canvas.drawCircle(Offset(x, y), ember.radius * 3.2, paint);
       paint.color = color.withValues(alpha: .65 * fade);
-      canvas.drawCircle(Offset(x, y), radius, paint);
+      canvas.drawCircle(Offset(x, y), ember.radius, paint);
     }
   }
 }
@@ -1483,6 +1178,16 @@ class _GodlyPainter extends NebulaEffectPainter {
   static const _gold = Color(0xFFFFE9A3);
   static const _light = Color(0xFFFFF6D5);
   static const _motes = 26;
+  static final List<_GodlyMote> _moteData = _makeMoteData();
+
+  static List<_GodlyMote> _makeMoteData() {
+    final rnd = math.Random(777);
+    return List.unmodifiable(List.generate(_motes, (_) => _GodlyMote(
+      x: rnd.nextDouble(), y: rnd.nextDouble(), phaseX: rnd.nextDouble(), phaseY: rnd.nextDouble(),
+      phaseTwinkle: rnd.nextDouble(), cyclesX: 1 + rnd.nextInt(2), cyclesY: 1 + rnd.nextInt(3),
+      cyclesTwinkle: 1 + rnd.nextInt(3), radius: .8 + rnd.nextDouble() * 2.0,
+    )));
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -1528,29 +1233,19 @@ class _GodlyPainter extends NebulaEffectPainter {
     }
     canvas.restore();
 
-    // gold motes bobbing in the light and twinkling; whole numbers of cycles per loop, so the loop has no seam
-    final rnd = math.Random(777);
+    // Seeded positions and cycle counts stay immutable across frames.
     final paint = Paint();
-    for (var i = 0; i < _motes; i++) {
-      final x0 = rnd.nextDouble();
-      final y0 = rnd.nextDouble();
-      final px = rnd.nextDouble(), py = rnd.nextDouble(), pt = rnd.nextDouble();
-      final kx = 1 + rnd.nextInt(2), ky = 1 + rnd.nextInt(3), kt = 1 + rnd.nextInt(3);
-      final radius = .8 + rnd.nextDouble() * 2.0;
-      final x = x0 * w + math.sin((t * kx + px) * 2 * math.pi) * 10;
-      final y = y0 * h + math.sin((t * ky + py) * 2 * math.pi) * 14;
-      final twinkle = math.pow(math.sin(math.pi * ((t * kt + pt) % 1.0)), 3).toDouble();
+    for (final mote in _moteData) {
+      final x = mote.x * w + math.sin((t * mote.cyclesX + mote.phaseX) * 2 * math.pi) * 10;
+      final y = mote.y * h + math.sin((t * mote.cyclesY + mote.phaseY) * 2 * math.pi) * 14;
+      final twinkle = math.pow(math.sin(math.pi * ((t * mote.cyclesTwinkle + mote.phaseTwinkle) % 1.0)), 3).toDouble();
       paint.color = _gold.withValues(alpha: .08 * (.3 + twinkle));
-      canvas.drawCircle(Offset(x, y), radius * 3, paint);
+      canvas.drawCircle(Offset(x, y), mote.radius * 3, paint);
       paint.color = _light.withValues(alpha: .15 + .6 * twinkle);
-      canvas.drawCircle(Offset(x, y), radius, paint);
-      if (radius > 1.9) {
-        // the bigger motes flash a small cross
-        final arm = radius * 3.2 * twinkle;
-        paint
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = .8
-          ..color = _light.withValues(alpha: .5 * twinkle);
+      canvas.drawCircle(Offset(x, y), mote.radius, paint);
+      if (mote.radius > 1.9) {
+        final arm = mote.radius * 3.2 * twinkle;
+        paint..style = PaintingStyle.stroke..strokeWidth = .8..color = _light.withValues(alpha: .5 * twinkle);
         canvas.drawLine(Offset(x - arm, y), Offset(x + arm, y), paint);
         canvas.drawLine(Offset(x, y - arm), Offset(x, y + arm), paint);
         paint.style = PaintingStyle.fill;
