@@ -5,7 +5,7 @@
 **Rama auditada:** develop.  
 **Documento complementario:** Aves-X_Nebula_Theme_Design_Spec_ES.md, que describe la identidad cromática y los VFX individuales de los temas.  
 **Alcance de este documento:** cómo debe extenderse cada tema a toda la interfaz, desde iconos y navegación hasta App Lock, Master Code, objetos protegidos, Fail-Safe, Lockdown, diálogos, visor, reproductor y componentes secundarios.  
-**Estado:** especificación; no sustituye la revisión del código ni demuestra que los requisitos estén implementados.
+**Estado:** guía viva de implementación. La integración inicial ya aplica recetas de material, geometría y emblemas propios a los temas integrados; la validación completa de cada pantalla y dispositivo continúa siendo necesaria.
 
 ---
 
@@ -19,11 +19,11 @@ La app debe seguir siendo reconocible como Aves-X: silueta del murciélago, sign
 
 ### Estado actual revisado
 
-- La rama develop incluye 19 opciones de tema en NebulaTheme: Aves, Nosferatu Glass y 17 temas de fase 2.
-- nebula_palettes.dart declara las 19 paletas; nebula_tokens.dart contiene tokens compartidos de seguridad; nebula_effect.dart proporciona efectos específicos; nebula_material.dart mantiene familias de materiales históricos.
+- La rama develop incluye 19 opciones integradas en NebulaTheme: Aves, Nosferatu Glass y 17 temas de fase 2.
+- nebula_palettes.dart declara las 19 paletas; nebula_tokens.dart ofrece tokens compartidos de seguridad; nebula_effect.dart incluye los efectos por tema; nebula_material.dart registra una receta de material para cada uno de los 18 temas de vidrio y conserva las tres recetas históricas.
 - En la versión consultada, nebula_theme_selector.dart permite elegir las 19 opciones. El ROADMAP mantiene pendiente la validación de rendimiento en dispositivos de gama baja y describe una fase visual posterior para completar la coherencia de algunas pantallas de seguridad.
-- Ya hay puntos de integración en AppMark, LockedBadge, ItemLockScreen, App Lock, Lockdown, burbujas de Fail-Safe y Nav Lens. El trabajo debe extender y unificar esos puntos, no reemplazarlos a ciegas.
-- Existen algunos colores visuales fijos en componentes especiales, un número limitado de recetas de material y diferencias entre los comentarios de fase, el selector, el README y el roadmap. Se deben auditar en la rama vigente.
+- AppMark, LockedBadge y las pantallas de seguridad consumen tokens de Nebula; Themes._applyPalette también distribuye superficies, geometrías, campos, navegación e indicadores compartidos a través de ThemeData. El trabajo pendiente debe extender y verificar estos puntos, no reemplazarlos a ciegas.
+- El registro de material, los emblemas de bloqueo y la tinta del App Mark se derivan ahora de una identidad por tema; las pantallas restantes todavía deben auditarse para retirar colores literales residuales que contradigan la paleta o la semántica de estados.
 
 La documentación existente sobre los 17 temas define sus paletas y efectos. Este documento se concentra en la superficie completa de producto.
 

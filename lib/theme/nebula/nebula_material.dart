@@ -1,3 +1,5 @@
+import 'package:aves/theme/nebula/nebula_palette.dart';
+import 'package:aves/theme/nebula/nebula_palettes.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -9,7 +11,10 @@ import 'package:material_ui/material_ui.dart';
 //   beveled corners and a demon eye emblem.
 // - godly: Aureate Glass (code name Godly), burnished gold leaf with divine rays, soft corners
 //   and a haloed, winged padlock.
-enum NebulaMaterial { ruby, nightDemon, godly }
+enum NebulaMaterial {
+  ruby, nightDemon, godly, forge, hermetic, eclipse, solarFlare, voidGlass,
+  crimson, neon, emerald, aurora, sapphire, amber, onyx, pearl, ivory, imperial,
+}
 
 @immutable
 class NebulaMaterialStyle {
@@ -66,27 +71,86 @@ class NebulaMaterialStyle {
     required this.feedbackBorder,
   });
 
-  // Corner language of the floating glass surfaces: every material has its own silhouette.
+  // Corner language is part of the identity: each theme owns a deliberate silhouette.
   ShapeBorder shape(double radius, BorderSide side) => switch (material) {
     NebulaMaterial.ruby => RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius), side: side),
-    // cut corners, like a shard of volcanic glass
-    NebulaMaterial.nightDemon => BeveledRectangleBorder(borderRadius: BorderRadius.circular(radius * .75), side: side),
-    // soft superellipse, like a halo
-    NebulaMaterial.godly => ContinuousRectangleBorder(borderRadius: BorderRadius.circular(radius * 1.6), side: side),
+    NebulaMaterial.nightDemon => BeveledRectangleBorder(borderRadius: BorderRadius.circular(radius * .62), side: side),
+    NebulaMaterial.godly => ContinuousRectangleBorder(borderRadius: BorderRadius.circular(radius * 1.55), side: side),
+    NebulaMaterial.forge => BeveledRectangleBorder(borderRadius: BorderRadius.circular(radius * 1.15), side: side),
+    NebulaMaterial.hermetic => BeveledRectangleBorder(borderRadius: BorderRadius.circular(radius * .22), side: side),
+    NebulaMaterial.eclipse => RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius * .45), side: side),
+    NebulaMaterial.solarFlare => RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius * 1.3), side: side),
+    NebulaMaterial.voidGlass => BeveledRectangleBorder(borderRadius: BorderRadius.circular(radius * .16), side: side),
+    NebulaMaterial.crimson => RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius * .58), side: side),
+    NebulaMaterial.neon => BeveledRectangleBorder(borderRadius: BorderRadius.circular(radius * .95), side: side),
+    NebulaMaterial.emerald => ContinuousRectangleBorder(borderRadius: BorderRadius.circular(radius * .78), side: side),
+    NebulaMaterial.aurora => RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius * 1.7), side: side),
+    NebulaMaterial.sapphire => BeveledRectangleBorder(borderRadius: BorderRadius.circular(radius * .48), side: side),
+    NebulaMaterial.amber => ContinuousRectangleBorder(borderRadius: BorderRadius.circular(radius * 1.08), side: side),
+    NebulaMaterial.onyx => RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius * .24), side: side),
+    NebulaMaterial.pearl => ContinuousRectangleBorder(borderRadius: BorderRadius.circular(radius * 1.85), side: side),
+    NebulaMaterial.ivory => RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius * 1.12), side: side),
+    NebulaMaterial.imperial => BeveledRectangleBorder(borderRadius: BorderRadius.circular(radius * .12), side: side),
   };
 
-  // same as [shape], rounded on the top corners only (bottom sheets)
+  // Bottom sheets retain the same corner language while leaving their lower edge square.
   ShapeBorder topShape(double radius, BorderSide side) => switch (material) {
     NebulaMaterial.ruby => RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius)), side: side),
-    NebulaMaterial.nightDemon => BeveledRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * .75)), side: side),
-    NebulaMaterial.godly => ContinuousRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * 1.6)), side: side),
+    NebulaMaterial.nightDemon => BeveledRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * .62)), side: side),
+    NebulaMaterial.godly => ContinuousRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * 1.55)), side: side),
+    NebulaMaterial.forge => BeveledRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * 1.15)), side: side),
+    NebulaMaterial.hermetic => BeveledRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * .22)), side: side),
+    NebulaMaterial.eclipse => RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * .45)), side: side),
+    NebulaMaterial.solarFlare => RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * 1.3)), side: side),
+    NebulaMaterial.voidGlass => BeveledRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * .16)), side: side),
+    NebulaMaterial.crimson => RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * .58)), side: side),
+    NebulaMaterial.neon => BeveledRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * .95)), side: side),
+    NebulaMaterial.emerald => ContinuousRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * .78)), side: side),
+    NebulaMaterial.aurora => RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * 1.7)), side: side),
+    NebulaMaterial.sapphire => BeveledRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * .48)), side: side),
+    NebulaMaterial.amber => ContinuousRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * 1.08)), side: side),
+    NebulaMaterial.onyx => RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * .24)), side: side),
+    NebulaMaterial.pearl => ContinuousRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * 1.85)), side: side),
+    NebulaMaterial.ivory => RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * 1.12)), side: side),
+    NebulaMaterial.imperial => BeveledRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * .12)), side: side),
   };
+
+  /// Derives auxiliary materials from the selected theme's canonical palette.
+  factory NebulaMaterialStyle.fromPalette(NebulaPalette palette, NebulaMaterial material) {
+    final crystal = palette.crystalBody;
+    final bright = crystal.isNotEmpty ? crystal.first : palette.accent;
+    final deep = crystal.isNotEmpty ? crystal.last : palette.surface;
+    return NebulaMaterialStyle(
+      material: material,
+      accent: palette.accent,
+      edge: palette.crystalEdge,
+      surface: palette.surfaceContainerHigh,
+      dialogSurface: palette.surfaceContainerHigh.withValues(alpha: .94),
+      feedbackSurface: palette.surfaceContainerLowest.withValues(alpha: .94),
+      highlight: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [palette.crystalHighlight.withValues(alpha: .7), palette.surface.withValues(alpha: .12)],
+      ),
+      lens: [palette.glow.withValues(alpha: .32), palette.accent.withValues(alpha: .08)],
+      lensBorder: palette.crystalEdge,
+      liquidHighlight: bright,
+      liquidDeep: palette.accent,
+      buttonFill: palette.filledButtonBackground ?? palette.accent.withValues(alpha: .2),
+      buttonBorder: palette.filledButtonBorder ?? palette.crystalEdge,
+      shimmer: palette.crystalHighlight,
+      chain: [palette.accent, deep],
+      chainStroke: palette.crystalEdge,
+      feedbackGradient: [palette.glow.withValues(alpha: .38), palette.surfaceContainerLowest.withValues(alpha: .96)],
+      feedbackBorder: palette.crystalEdge,
+    );
+  }
 }
 
 // Themes without an entry here have no glass material (the default Aves theme, the phase 2 themes).
 // The ruby values are an exact copy of the constants that used to be hard-coded for Bat-Glass,
 // so that Nosferatu Glass does not change in any way.
-const Map<NebulaTheme, NebulaMaterialStyle> nebulaMaterials = {
+const Map<NebulaTheme, NebulaMaterialStyle> _legacyNebulaMaterials = {
   NebulaTheme.nosferatuGlass: NebulaMaterialStyle(
     material: NebulaMaterial.ruby,
     accent: Color(0xFFE0183E),
@@ -162,3 +226,35 @@ const Map<NebulaTheme, NebulaMaterialStyle> nebulaMaterials = {
     feedbackBorder: Color(0x99FFE08A),
   ),
 };
+
+
+// Built-in themes all participate in one material pipeline. The three established
+// recipes above remain untouched; the remaining recipes follow their canonical palettes.
+NebulaMaterial _materialForTheme(NebulaTheme theme) => switch (theme) {
+  NebulaTheme.nosferatuGlass => NebulaMaterial.ruby,
+  NebulaTheme.obsidianGlass => NebulaMaterial.nightDemon,
+  NebulaTheme.aureateGlass => NebulaMaterial.godly,
+  NebulaTheme.forgeGlass => NebulaMaterial.forge,
+  NebulaTheme.hermeticGlass => NebulaMaterial.hermetic,
+  NebulaTheme.eclipseGlass => NebulaMaterial.eclipse,
+  NebulaTheme.solarFlareGlass => NebulaMaterial.solarFlare,
+  NebulaTheme.voidGlass => NebulaMaterial.voidGlass,
+  NebulaTheme.crimsonGlass => NebulaMaterial.crimson,
+  NebulaTheme.neonGlass => NebulaMaterial.neon,
+  NebulaTheme.emeraldGlass => NebulaMaterial.emerald,
+  NebulaTheme.auroraGlass => NebulaMaterial.aurora,
+  NebulaTheme.sapphireGlass => NebulaMaterial.sapphire,
+  NebulaTheme.amberGlass => NebulaMaterial.amber,
+  NebulaTheme.onyxGlass => NebulaMaterial.onyx,
+  NebulaTheme.pearlGlass => NebulaMaterial.pearl,
+  NebulaTheme.ivoryGlass => NebulaMaterial.ivory,
+  NebulaTheme.imperialGlass => NebulaMaterial.imperial,
+  NebulaTheme.aves => NebulaMaterial.onyx,
+};
+
+final Map<NebulaTheme, NebulaMaterialStyle> nebulaMaterials = Map.unmodifiable({
+  ..._legacyNebulaMaterials,
+  for (final entry in nebulaPalettes.entries)
+    if (entry.key != NebulaTheme.aves && !_legacyNebulaMaterials.containsKey(entry.key))
+      entry.key: NebulaMaterialStyle.fromPalette(entry.value, _materialForTheme(entry.key)),
+});

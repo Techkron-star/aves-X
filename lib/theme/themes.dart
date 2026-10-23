@@ -1,5 +1,6 @@
 import 'package:aves/theme/nebula/nebula_palette.dart';
 import 'package:aves/theme/nebula/nebula_palettes.dart';
+import 'package:aves/theme/nebula/nebula_material.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
 import 'package:aves/theme/nebula/nebula_tokens.dart';
 import 'package:aves/theme/styles.dart';
@@ -369,6 +370,105 @@ class Themes {
         ),
       );
     }
+
+    // The legacy Aves palette keeps its original light/dark/black component themes.
+    // All glass palettes flow through a shared recipe so every screen inherits its identity.
+    final isLegacyAves = palette.theme == NebulaTheme.aves && palette.allowDynamicColor;
+    if (!isLegacyAves) {
+      final colors = result.colorScheme;
+      final outline = BorderSide(color: palette.outlineVariant.withValues(alpha: .86), width: .8);
+      final material = nebulaMaterials[palette.theme];
+      final ShapeBorder sharedShape = material?.shape(14, outline) ??
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: outline);
+      final fieldBorder = OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: outline);
+      final focusedFieldBorder = OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: palette.accent, width: 1.8),
+      );
+
+      result = result.copyWith(
+        iconTheme: result.iconTheme.copyWith(color: colors.onSurfaceVariant),
+        appBarTheme: result.appBarTheme.copyWith(
+          backgroundColor: palette.surfaceContainer,
+          foregroundColor: colors.onSurface,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          scrolledUnderElevation: 1,
+        ),
+        cardTheme: result.cardTheme.copyWith(
+          color: palette.surfaceContainerLow,
+          surfaceTintColor: Colors.transparent,
+          shape: sharedShape,
+        ),
+        dialogTheme: result.dialogTheme.copyWith(
+          backgroundColor: palette.surfaceContainerHigh,
+          surfaceTintColor: Colors.transparent,
+          shape: sharedShape,
+        ),
+        bottomSheetTheme: result.bottomSheetTheme.copyWith(
+          backgroundColor: palette.surfaceContainer,
+          modalBackgroundColor: palette.surfaceContainerHigh,
+          surfaceTintColor: Colors.transparent,
+          shape: sharedShape,
+        ),
+        popupMenuTheme: result.popupMenuTheme.copyWith(
+          color: palette.surfaceContainerHigh,
+          surfaceTintColor: Colors.transparent,
+          shape: sharedShape,
+        ),
+        bottomNavigationBarTheme: result.bottomNavigationBarTheme.copyWith(
+          backgroundColor: palette.surfaceContainerLowest,
+          selectedItemColor: colors.primary,
+          unselectedItemColor: colors.onSurfaceVariant,
+          elevation: 0,
+        ),
+        navigationRailTheme: result.navigationRailTheme.copyWith(
+          backgroundColor: palette.surfaceContainerLowest,
+          selectedIconTheme: IconThemeData(color: colors.primary),
+          unselectedIconTheme: IconThemeData(color: colors.onSurfaceVariant),
+          selectedLabelTextStyle: result.textTheme.labelMedium?.copyWith(color: colors.primary),
+          unselectedLabelTextStyle: result.textTheme.labelMedium?.copyWith(color: colors.onSurfaceVariant),
+        ),
+        navigationBarTheme: result.navigationBarTheme.copyWith(
+          backgroundColor: palette.surfaceContainerLow,
+          indicatorColor: palette.accent.withValues(alpha: .16),
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+        ),
+        tabBarTheme: result.tabBarTheme.copyWith(
+          indicatorColor: palette.accent,
+          labelColor: colors.primary,
+          unselectedLabelColor: colors.onSurfaceVariant,
+        ),
+        dividerTheme: result.dividerTheme.copyWith(
+          color: palette.outlineVariant,
+          thickness: .7,
+          space: 1,
+        ),
+        progressIndicatorTheme: result.progressIndicatorTheme.copyWith(
+          color: palette.accent,
+          linearTrackColor: palette.outlineVariant.withValues(alpha: .34),
+          circularTrackColor: palette.outlineVariant.withValues(alpha: .34),
+        ),
+        chipTheme: result.chipTheme.copyWith(
+          backgroundColor: palette.surfaceContainerLow,
+          selectedColor: palette.accent.withValues(alpha: .18),
+          side: BorderSide(color: palette.outlineVariant.withValues(alpha: .8)),
+        ),
+        inputDecorationTheme: result.inputDecorationTheme.copyWith(
+          filled: true,
+          fillColor: palette.surfaceContainerLow,
+          border: fieldBorder,
+          enabledBorder: fieldBorder,
+          focusedBorder: focusedFieldBorder,
+        ),
+        snackBarTheme: result.snackBarTheme.copyWith(
+          backgroundColor: palette.surfaceContainerHigh,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+
     return result.copyWith(
       extensions: [
         ...result.extensions.values.where((e) => e is! NebulaTokens),

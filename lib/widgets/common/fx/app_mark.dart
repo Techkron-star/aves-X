@@ -1,5 +1,6 @@
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
+import 'package:aves/theme/nebula/nebula_palettes.dart';
 import 'package:aves/theme/nebula/nebula_tokens.dart';
 import 'package:aves/widgets/common/identity/aves_logo_art.dart';
 import 'package:material_ui/material_ui.dart';
@@ -13,8 +14,8 @@ import 'package:material_ui/material_ui.dart';
 
 /// Color source of the mark.
 enum AppMarkTone {
-  /// Follows the active Nebula theme: the fixed ruby identity of Nosferatu Glass,
-  /// dynamic Material You colors for every other theme.
+  /// Follows the active identity: Nosferatu keeps its original ink while every
+  /// other glass theme receives palette-specific ink.
   auto,
 
   /// Original artwork fills, exactly as the source SVG (ruby, black, highlights).
@@ -58,17 +59,27 @@ class AppMark extends StatelessWidget {
   const AppMark.scheme({super.key, this.size = 28, this.mirrored = false, this.semanticLabel, this.animate = true})
     : tone = AppMarkTone.scheme;
 
-  /// `auto` keeps the brand look only for Nosferatu Glass; Night Demon and Godly
-  /// get their own ink, the other themes (and the default theme) Material You colors.
+  /// `auto` keeps the original artwork for Nosferatu; the other glass themes
+  /// render the same bat silhouette with identity ink derived from their palette.
   AppMarkTone get _effectiveTone =>
       tone != AppMarkTone.auto ? tone : (settings.effectiveNebulaTheme == NebulaTheme.nosferatuGlass ? AppMarkTone.brand : AppMarkTone.scheme);
 
-  /// Night Demon and Godly ink the mark with their own metal (violet fire, gold) instead of Material You colors.
-  List<Color>? get _themeInk => switch (settings.effectiveNebulaTheme) {
-    NebulaTheme.obsidianGlass => const [Color(0xFFD9B8FF), Color(0xFF9B5DE5), Color(0xFF6A1B9A)],
-    NebulaTheme.aureateGlass => const [Color(0xFFFFE9A3), Color(0xFFF2C14E), Color(0xFFB8860B)],
-    _ => null,
-  };
+  List<Color>? get _themeInk {
+    final theme = settings.effectiveNebulaTheme;
+    switch (theme) {
+      case NebulaTheme.obsidianGlass:
+        return const [Color(0xFFD9B8FF), Color(0xFF9B5DE5), Color(0xFF6A1B9A)];
+      case NebulaTheme.aureateGlass:
+        return const [Color(0xFFFFE9A3), Color(0xFFF2C14E), Color(0xFFB8860B)];
+      case NebulaTheme.aves:
+      case NebulaTheme.nosferatuGlass:
+        return null;
+      default:
+        final palette = nebulaPalettes[theme];
+        if (palette == null) return null;
+        return [palette.crystalBody.first, palette.accent, palette.crystalBody.last];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

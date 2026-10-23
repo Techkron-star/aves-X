@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:aves/theme/nebula/nebula_palette.dart';
 import 'package:aves/theme/nebula/nebula_palettes.dart';
+import 'package:aves/theme/nebula/nebula_material.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
 import 'package:aves/theme/nebula/nebula_tokens.dart';
 import 'package:aves/theme/themes.dart';
@@ -254,6 +255,33 @@ void main() {
     test('all non-default themes keep system dynamic colors disabled', () {
       for (final theme in NebulaTheme.values.where((t) => t != NebulaTheme.aves)) {
         expect(nebulaPalettes[theme]!.allowDynamicColor, isFalse, reason: theme.id);
+      }
+    });
+  });
+
+  group('Nebula material identities', () {
+    test('every built-in glass theme has a distinct material recipe', () {
+      final glassThemes = NebulaTheme.values.where((theme) => theme != NebulaTheme.aves).toList();
+      expect(nebulaMaterials.keys, containsAll(glassThemes));
+      final materials = glassThemes.map((theme) => nebulaMaterials[theme]!.material).toSet();
+      expect(materials, hasLength(glassThemes.length));
+
+      for (final theme in glassThemes) {
+        final material = nebulaMaterials[theme]!;
+        final palette = nebulaPalettes[theme]!;
+        expect(material.accent, palette.accent, reason: '${theme.id} must use its canonical palette accent');
+        expect(material.chain, hasLength(2), reason: '${theme.id} must define a chain treatment');
+        expect(material.highlight, isA<LinearGradient>(), reason: '${theme.id} must define surface reflections');
+      }
+    });
+
+    test('shared component surfaces inherit each active Nebula palette', () {
+      for (final theme in NebulaTheme.values.where((theme) => theme != NebulaTheme.aves)) {
+        final palette = nebulaPalettes[theme]!;
+        final data = _theme(theme, locale);
+        expect(data.cardTheme.color, palette.surfaceContainerLow, reason: theme.id);
+        expect(data.appBarTheme.backgroundColor, palette.surfaceContainer, reason: theme.id);
+        expect(data.progressIndicatorTheme.color, palette.accent, reason: theme.id);
       }
     });
   });
