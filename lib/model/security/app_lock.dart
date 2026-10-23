@@ -11,6 +11,7 @@ enum AppLockResult { unlocked, panic, wrong, nuke, cooldown }
 // The secrets are in the secure store. Attempts are counted by `AttemptGuard.app`.
 class AppLock extends ChangeNotifier {
   static const _pinKey = 'app_lock_pin';
+  static const _typeKey = 'app_lock_type';
   static const _biometricKey = 'app_lock_bio';
   static const _panicKey = 'app_lock_panic';
 
@@ -28,6 +29,7 @@ class AppLock extends ChangeNotifier {
   bool _biometric = false;
   bool _hasPanic = false;
   bool _locked = true;
+  String _lockTypeName = 'code';
   Stopwatch? _background;
 
   // `false` until the state is read from the secure store
@@ -39,12 +41,20 @@ class AppLock extends ChangeNotifier {
 
   bool get hasPanicPin => _hasPanic;
 
+  /// `code` preserves the legacy six-digit app PIN; other types use the shared lock challenge.
+  String get lockTypeName => _lockTypeName;
+
+  static String get secretKey => _pinKey;
+
   bool get locked => _locked;
 
   Duration get relockDelay => _relockDelay;
 
   Future<void> init() async {
-    _enabled = await securityService.readValue<String>(_pinKey) != null;
+    final storedType = await securityService.readValue<String>(_typeKey);
+    _lockTypeName = storedType ?? 'code';
+    final hasSecret = await securityService.readValue<String>(_pinKey) != null;
+    _enabled = storedType == 'system' || hasSecret;
     _biometric = await securityService.readValue<String>(_biometricKey) == '1';
     _hasPanic = await securityService.readValue<String>(_panicKey) != null;
     final delaySeconds = int.tryParse(await securityService.readValue<String>(_delayKey) ?? '');
@@ -55,23 +65,52 @@ class AppLock extends ChangeNotifier {
   }
 
   Future<bool> setPin(String pin) async {
-    final ok = await masterGuard.store(_pinKey, pin);
+    final stored = await masterGuard.store(_pinKey, pin);
+    final typed = stored && await securityService.writeValue<String>(_typeKey, 'code');
+    final ok = stored && typed;
     if (ok) {
+      _lockTypeName = 'code';
       _enabled = true;
       notifyListeners();
     }
     return ok;
   }
 
+  /// Activates an alternative lock type after its secret has been stored successfully.
+  /// The Master Code remains separate and is never affected by this selection.
+  Future<bool> setLockType(String type) async {
+    if (type == 'code') return false;
+    if (type == 'system') {
+      if (!await securityService.writeValue<String>(_pinKey, null)) return false;
+    } else if (await securityService.readValue<String>(_pinKey) == null) {
+      return false;
+    }
+    // Panic PIN is meaningful only for the legacy six-digit code screen.
+    if (!await securityService.writeValue<String>(_panicKey, null)) return false;
+    if (!await securityService.writeValue<String>(_typeKey, type)) return false;
+    _lockTypeName = type;
+    _enabled = true;
+    _hasPanic = false;
+    notifyListeners();
+    return true;
+  }
+
+  Future<void> alternativeSucceeded() async {
+    _locked = false;
+    notifyListeners();
+  }
+
   Future<void> disable() async {
     await securityService.writeValue<String>(_pinKey, null);
     await securityService.writeValue<String>(_biometricKey, null);
     await securityService.writeValue<String>(_panicKey, null);
+    await securityService.writeValue<String>(_typeKey, null);
     await securityService.writeValue<String>(_delayKey, null);
     await AttemptGuard.app.reset();
     _enabled = false;
     _biometric = false;
     _hasPanic = false;
+    _lockTypeName = 'code';
     _relockDelay = defaultRelockDelay;
     _locked = false;
     notifyListeners();
@@ -102,6 +141,7 @@ class AppLock extends ChangeNotifier {
   Future<bool> isSameAsPin(String code) => masterGuard.matches(_pinKey, code);
 
   Future<AppLockResult> attemptPin(String code) async {
+    if (_lockTypeName != 'code') throw StateError('PIN verification requested for an alternative lock type');
     final guard = AttemptGuard.app;
     if (await guard.remainingCooldown() != null) return AppLockResult.cooldown;
 
