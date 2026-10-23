@@ -438,7 +438,7 @@ class _ParticleFieldState extends State<_ParticleField> {
         left: _random.nextDouble(),
         top: _random.nextDouble(),
         size: 2.0 + _random.nextDouble() * 3.5,
-        duration: const Duration(seconds: 6),
+        duration: const Duration(milliseconds: 5500),
       );
     }, growable: false);
   }
