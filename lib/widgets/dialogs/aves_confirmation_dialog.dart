@@ -1,5 +1,6 @@
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
+import 'package:aves/widgets/common/fx/delete_impact.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -10,11 +11,13 @@ Future<bool> showConfirmationDialog({
   required String message,
   String? ok,
   String? cancel,
+  DestructiveEffect? effect,
 }) async {
   final confirmed = await showAvesDialog<bool>(
     context: context,
     builder: (context) => AvesMessageDialog(
       message: message,
+      effect: effect,
       actions: [
         CancelButton<bool>(text: cancel, result: false),
         OkButton<bool>(text: ok, result: true),
@@ -125,6 +128,16 @@ class _SkippableConfirmationDialogState extends State<_SkippableConfirmationDial
   Widget build(BuildContext context) {
     return AvesDialog(
       scrollableContent: [
+        if (widget.type == ConfirmationDialog.deleteForever || widget.type == ConfirmationDialog.moveToBin)
+          Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: Center(
+              child: DestructiveActionAnimation(
+                effect: widget.type == ConfirmationDialog.moveToBin ? DestructiveEffect.trash : DestructiveEffect.erase,
+                animate: settings.animate,
+              ),
+            ),
+          ),
         ...widget.delegate.build(context),
         ValueListenableBuilder<bool>(
           valueListenable: _skipNotifier,
