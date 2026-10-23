@@ -223,7 +223,7 @@ Future<T?> showAvesDialog<T>({
   return showDialog<T>(
     context: context,
     // frosted background behind dialogs
-    builder: (settings.enableBlurEffect && (settings.glassEverywhere || settings.materialStyle != null)) ? (context) => BackdropFilter(filter: ImageFilter.blur(sigmaX: settings.materialStyle != null ? 4 : 12, sigmaY: settings.materialStyle != null ? 4 : 12), child: builder(context)) : builder,
+    builder: (settings.enableBlurEffect && settings.glassEverywhere) ? (context) => BackdropFilter(filter: ImageFilter.blur(sigmaX: settings.materialStyle != null ? 4 : 12, sigmaY: settings.materialStyle != null ? 4 : 12), child: builder(context)) : builder,
     barrierDismissible: barrierDismissible,
     barrierColor: barrierColor,
     barrierLabel: barrierLabel,
