@@ -9,6 +9,7 @@ import 'package:aves/widgets/collection/collection_page.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
 import 'package:aves/widgets/common/action_mixins/vault_aware.dart';
 import 'package:aves/model/settings/settings.dart';
+import 'package:aves/theme/nebula/nebula_material.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/navigation/drawer/tile.dart';
 import 'package:aves/widgets/common/fx/nebula_component_surfaces.dart';
@@ -25,15 +26,17 @@ class const CollectionNavTile({
 }) extends StatelessWidget with FeedbackMixin, VaultAwareMixin {
   @override
   Widget build(BuildContext context) {
+    final materialStyle = context.select<Settings, NebulaMaterialStyle?>((s) => s.materialStyle);
+    final animate = context.select<Settings, bool>((s) => s.animate);
     final selected = context.currentRouteName == CollectionPage.routeName && isSelected();
     return SafeArea(
       top: false,
       bottom: false,
       child: NebulaComponentSurfaceAccent(
-        style: settings.materialStyle,
+        style: materialStyle,
         role: NebulaComponentSurfaceRole.drawerItem,
         state: selected ? NebulaComponentSurfaceState.selected : NebulaComponentSurfaceState.idle,
-        animate: settings.animate,
+        animate: animate && selected,
         borderRadius: BorderRadius.circular(10),
         child: ListTile(
           leading: leading,
