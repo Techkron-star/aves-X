@@ -119,10 +119,21 @@ class AttemptGuard {
     return AttemptOutcome.failed;
   }
 
-  Future<void> reset() async {
-    await securityService.writeValue<String>(_failsKey, null);
-    await securityService.writeValue<String>(_cooldownKey, null);
-    await securityService.writeValue<String>('att_${id}_bio', null);
+  Future<void> reset() {
+    final completer = Completer<void>();
+    // Reset shares the same queue as failures, so a successful authentication cannot race
+    // with a stale read-modify-write and leave the counter incremented.
+    _failureQueue = _failureQueue.then((_) async {
+      try {
+        await securityService.writeValue<String>(_failsKey, null);
+        await securityService.writeValue<String>(_cooldownKey, null);
+        await securityService.writeValue<String>('att_${id}_bio', null);
+        completer.complete();
+      } catch (error, stack) {
+        completer.completeError(error, stack);
+      }
+    });
+    return completer.future;
   }
 
   // biometric failures add to the same counter, but after 3 of them the PIN is mandatory
