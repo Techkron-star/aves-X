@@ -1,4 +1,5 @@
 import 'package:aves/model/settings/settings.dart';
+import 'package:aves/theme/nebula/nebula_material.dart';
 import 'package:aves/theme/nebula/nebula_tokens.dart';
 import 'package:aves/widgets/common/fx/blurred.dart';
 import 'package:aves/widgets/common/fx/diamond.dart';
@@ -25,9 +26,9 @@ class SecurityScreenBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Selector<Settings, (bool, bool, bool)>(
-      selector: (context, s) => (s.materialStyle != null, s.glassEverywhere, s.animate),
+      selector: (context, s) => (s.materialStyle != null, s.glassEverywhere, s.animate, s.materialStyle?.material),
       builder: (context, state, _) {
-        final (nebulaGlass, glassEverywhere, animate) = state;
+        final (nebulaGlass, glassEverywhere, animate, selectedMaterial) = state;
         final glass = nebulaGlass || glassEverywhere; // los getters ya respetan performanceMode
         final nebula = Theme.of(context).extension<NebulaTokens>() ?? NebulaTokens.fallback;
         final radius = borderRadius ?? BorderRadius.zero;
@@ -70,6 +71,7 @@ class SecurityScreenBackground extends StatelessWidget {
                       if (glass && animate)
                         AnimatedCrystal(
                           animate: true,
+                          material: selectedMaterial ?? NebulaMaterial.ruby,
                           opacity: .3,
                           child: child,
                         )

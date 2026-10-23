@@ -130,9 +130,20 @@ class NebulaMaterialStyle {
       highlight: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [palette.crystalHighlight.withValues(alpha: .7), palette.surface.withValues(alpha: .12)],
+        colors: [
+          palette.crystalHighlight.withValues(alpha: palette.crystalHighlight.a * .82),
+          palette.crystalEdge.withValues(alpha: palette.crystalEdge.a * .52),
+          palette.surface.withValues(alpha: .08),
+          palette.accent.withValues(alpha: .12),
+          palette.surface.withValues(alpha: .18),
+        ],
+        stops: const [0, .2, .48, .76, 1],
       ),
-      lens: [palette.glow.withValues(alpha: .32), palette.accent.withValues(alpha: .08)],
+      lens: [
+        palette.crystalHighlight.withValues(alpha: palette.crystalHighlight.a * .8),
+        palette.glow.withValues(alpha: palette.glow.a * .48),
+        palette.accent.withValues(alpha: .08),
+      ],
       lensBorder: palette.crystalEdge,
       liquidHighlight: bright,
       liquidDeep: palette.accent,

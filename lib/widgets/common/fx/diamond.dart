@@ -51,23 +51,78 @@ class _NebulaMaterialPainter extends BoxPainter {
 
   _NebulaMaterialPainter(this.style, this.phase, this.opacity);
 
+  // The art is drawn in a normalized 100 × 100 canvas and replayed as a Picture.
+  // Animated glints therefore do not rebuild the facets or signature pattern on every frame.
+  static final Map<(NebulaMaterial, Color, Color, Color, Color, double), ui.Picture> _art = {};
+
+  static double _radiusFor(NebulaMaterial material) => switch (material) {
+    NebulaMaterial.hermetic || NebulaMaterial.voidGlass || NebulaMaterial.imperial => 4.0,
+    NebulaMaterial.pearl || NebulaMaterial.aurora => 20.0,
+    NebulaMaterial.solarFlare => 13.0,
+    NebulaMaterial.forge || NebulaMaterial.neon || NebulaMaterial.sapphire => 8.0,
+    _ => 12.0,
+  };
+
   @override
   void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
     final size = configuration.size;
     if (size == null || size.isEmpty) return;
+
+    if (_art.length > 32) {
+      for (final picture in _art.values) {
+        picture.dispose();
+      }
+      _art.clear();
+    }
+
+    final key = (style.material, style.surface, style.liquidDeep, style.accent, style.liquidHighlight, opacity);
+    final picture = _art[key] ??= _recordArt(style, opacity);
+
     canvas.save();
+    canvas.clipRect(offset & size);
     canvas.translate(offset.dx, offset.dy);
     canvas.scale(size.width / 100, size.height / 100);
+    canvas.drawPicture(picture);
 
+    // A moving, coloured specular reflection — never a permanent white stripe.
+    if (phase >= 0) {
+      final left = -46 + phase * 172;
+      const bandWidth = 42.0;
+      final band = Rect.fromLTWH(left, -14, bandWidth, 128);
+      canvas.save();
+      canvas.clipRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(0, 0, 100, 100), Radius.circular(_radiusFor(style.material))));
+      canvas.drawRect(
+        band,
+        Paint()
+          ..blendMode = BlendMode.screen
+          ..shader = LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              style.liquidHighlight.withValues(alpha: 0),
+              style.liquidHighlight.withValues(alpha: opacity * .46),
+              style.accent.withValues(alpha: opacity * .20),
+              style.liquidHighlight.withValues(alpha: 0),
+            ],
+            stops: const [0, .38, .57, 1],
+          ).createShader(band),
+      );
+      canvas.restore();
+    }
+    canvas.restore();
+  }
+
+  static ui.Picture _recordArt(NebulaMaterialStyle style, double opacity) {
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
     const rect = Rect.fromLTWH(0, 0, 100, 100);
-    final radius = switch (style.material) {
-      NebulaMaterial.hermetic || NebulaMaterial.voidGlass || NebulaMaterial.imperial => 4.0,
-      NebulaMaterial.pearl || NebulaMaterial.aurora => 20.0,
-      NebulaMaterial.solarFlare => 13.0,
-      NebulaMaterial.forge || NebulaMaterial.neon || NebulaMaterial.sapphire => 8.0,
-      _ => 12.0,
-    };
-    final shape = RRect.fromRectAndRadius(rect, Radius.circular(radius));
+    final shape = RRect.fromRectAndRadius(rect, Radius.circular(_radiusFor(style.material)));
+    final bright = style.liquidHighlight;
+    final accent = style.accent;
+    final deep = style.liquidDeep;
+    final edge = style.edge;
+
+    // Smoked crystal body: a deep base, a tinted core and a real light source in the upper-left.
     canvas.drawRRect(
       shape,
       Paint()
@@ -76,56 +131,138 @@ class _NebulaMaterialPainter extends BoxPainter {
           end: Alignment.bottomRight,
           colors: [
             style.surface.withValues(alpha: opacity),
-            style.liquidDeep.withValues(alpha: opacity * .62),
-            style.surface.withValues(alpha: opacity),
+            deep.withValues(alpha: opacity * .78),
+            style.surface.withValues(alpha: opacity * .96),
           ],
-          stops: const [0, .58, 1],
+          stops: const [0, .52, 1],
         ).createShader(rect),
     );
-
     canvas.save();
     canvas.clipRRect(shape);
+
+    // Five restrained glass facets add volume without obscuring content beneath the translucent layer.
+    final facetPaint = Paint()..style = PaintingStyle.fill;
+    final facets = <(Path, Color)>[
+      (Path()..moveTo(0, 0)..lineTo(70, 0)..lineTo(43, 43)..close(), bright.withValues(alpha: opacity * .105)),
+      (Path()..moveTo(0, 0)..lineTo(43, 43)..lineTo(0, 72)..close(), bright.withValues(alpha: opacity * .055)),
+      (Path()..moveTo(100, 0)..lineTo(70, 0)..lineTo(43, 43)..lineTo(100, 28)..close(), accent.withValues(alpha: opacity * .105)),
+      (Path()..moveTo(0, 100)..lineTo(43, 43)..lineTo(55, 100)..close(), deep.withValues(alpha: opacity * .16)),
+      (Path()..moveTo(100, 100)..lineTo(43, 43)..lineTo(55, 100)..close(), Colors.black.withValues(alpha: opacity * .12)),
+    ];
+    for (final facet in facets) {
+      facetPaint.color = facet.$2;
+      canvas.drawPath(facet.$1, facetPaint);
+    }
+
+    // Broad soft reflection plus a darker pavilion near the lower edge.
+    canvas.drawRect(
+      rect,
+      Paint()
+        ..blendMode = BlendMode.screen
+        ..shader = LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            bright.withValues(alpha: opacity * .19),
+            bright.withValues(alpha: opacity * .025),
+            Colors.transparent,
+            deep.withValues(alpha: opacity * .14),
+          ],
+          stops: const [0, .22, .58, 1],
+        ).createShader(rect),
+    );
+    canvas.drawRect(
+      const Rect.fromLTWH(0, 61, 100, 39),
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0x00000000), Color(0x33000000)],
+        ).createShader(const Rect.fromLTWH(0, 61, 100, 39)),
+    );
+
     final ink = Paint()
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
-      ..strokeWidth = 1.6
-      ..color = style.accent.withValues(alpha: opacity * .34);
+      ..strokeWidth = 1.25
+      ..color = accent.withValues(alpha: opacity * .38);
     final lightInk = Paint()
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
-      ..strokeWidth = 2.0
-      ..color = style.liquidHighlight.withValues(alpha: opacity * .52);
+      ..strokeWidth = 1.7
+      ..color = bright.withValues(alpha: opacity * .62);
 
+    // Every material has its own engraved signature, not merely a different tint.
     switch (style.material) {
       case NebulaMaterial.forge:
-        canvas.drawPath(Path()..moveTo(-5, 73)..cubicTo(18, 46, 29, 79, 48, 42)..cubicTo(63, 14, 78, 43, 105, 13), lightInk);
-        canvas.drawPath(Path()..moveTo(-5, 88)..cubicTo(24, 65, 40, 94, 63, 57)..cubicTo(77, 35, 91, 62, 105, 44), ink);
+        final vein = Path()
+          ..moveTo(-6, 77)
+          ..cubicTo(13, 53, 29, 83, 46, 48)
+          ..cubicTo(61, 18, 77, 47, 106, 12);
+        canvas.drawPath(vein, Paint()..style = PaintingStyle.stroke..strokeCap = StrokeCap.round
+          ..strokeWidth = 5..color = accent.withValues(alpha: opacity * .18)
+          ..maskFilter = ui.MaskFilter.blur(ui.BlurStyle.normal, 3));
+        canvas.drawPath(vein, lightInk);
+        canvas.drawPath(Path()..moveTo(-4, 91)..cubicTo(25, 69, 39, 95, 64, 60)..cubicTo(79, 40, 91, 62, 104, 43), ink);
+        for (final point in const [Offset(17, 65), Offset(47, 47), Offset(78, 36)]) {
+          canvas.drawCircle(point, 2.4, Paint()..color = bright.withValues(alpha: opacity * .8));
+          canvas.drawCircle(point, 5.5, Paint()..color = accent.withValues(alpha: opacity * .22)..maskFilter = ui.MaskFilter.blur(ui.BlurStyle.normal, 3));
+        }
         break;
       case NebulaMaterial.hermetic:
-        canvas.drawCircle(const Offset(50, 50), 35, ink);
-        canvas.drawPath(Path()..moveTo(50, 14)..lineTo(84, 77)..lineTo(16, 77)..close(), lightInk);
-        canvas.drawCircle(const Offset(50, 50), 6, ink);
+        canvas.drawCircle(const Offset(50, 50), 37, ink);
+        canvas.drawCircle(const Offset(50, 50), 30, Paint()..style = PaintingStyle.stroke..strokeWidth = .7..color = bright.withValues(alpha: opacity * .45));
+        canvas.drawPath(Path()..moveTo(50, 13)..lineTo(84, 76)..lineTo(16, 76)..close(), lightInk);
+        canvas.drawPath(Path()..moveTo(16, 24)..lineTo(84, 24)..lineTo(50, 87)..close(), ink);
+        canvas.drawCircle(const Offset(50, 50), 7, Paint()..color = deep.withValues(alpha: opacity * .85));
+        canvas.drawCircle(const Offset(50, 50), 4.2, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.2..color = bright.withValues(alpha: opacity * .8));
+        for (var i = 0; i < 8; i++) {
+          final a = i * pi / 4;
+          final p = Offset(50 + cos(a) * 43, 50 + sin(a) * 43);
+          canvas.drawCircle(p, 1.4, Paint()..color = bright.withValues(alpha: opacity * .72));
+        }
         break;
       case NebulaMaterial.eclipse:
-        canvas.drawCircle(const Offset(53, 47), 34, lightInk);
-        canvas.drawCircle(const Offset(67, 34), 28, Paint()..color = style.surface.withValues(alpha: opacity));
-        canvas.drawArc(Rect.fromCircle(center: const Offset(50, 50), radius: 42), -.85, 2.3, false, ink);
+        // A cold blue eclipse with a luminous, deliberately broken corona.
+        canvas.drawCircle(const Offset(53, 47), 36, Paint()..style = PaintingStyle.stroke..strokeWidth = 5
+          ..color = bright.withValues(alpha: opacity * .18)
+          ..maskFilter = ui.MaskFilter.blur(ui.BlurStyle.normal, 3));
+        canvas.drawArc(const Rect.fromLTWH(13, 7, 76, 76), -.9, 2.4, false, lightInk);
+        canvas.drawArc(const Rect.fromLTWH(13, 7, 76, 76), 2.05, 2.6, false, ink);
+        canvas.drawCircle(const Offset(53, 47), 29, Paint()..shader = RadialGradient(
+          colors: [style.surface.withValues(alpha: opacity), deep.withValues(alpha: opacity), Colors.black.withValues(alpha: opacity)],
+        ).createShader(const Rect.fromLTWH(24, 18, 58, 58)));
+        canvas.drawArc(const Rect.fromLTWH(17, 11, 72, 72), -.55, 1.1, false, Paint()
+          ..style = PaintingStyle.stroke..strokeWidth = 1.1..color = bright.withValues(alpha: opacity * .85));
         break;
       case NebulaMaterial.solarFlare:
-        for (var i = 0; i < 16; i++) {
-          final angle = i * pi / 8;
-          canvas.drawLine(
-            Offset(50 + cos(angle) * 30, 50 + sin(angle) * 30),
-            Offset(50 + cos(angle) * 47, 50 + sin(angle) * 47),
-            i.isEven ? lightInk : ink,
-          );
+        // Total solar eclipse: black disc, gold-white corona and short plasma prominences.
+        for (var i = 0; i < 28; i++) {
+          final angle = i * 2 * pi / 28;
+          final inner = i.isEven ? 30.0 : 33.0;
+          final outer = i.isEven ? 45.0 : 40.0;
+          final p1 = Offset(50 + cos(angle) * inner, 50 + sin(angle) * inner);
+          final p2 = Offset(50 + cos(angle) * outer, 50 + sin(angle) * outer);
+          canvas.drawLine(p1, p2, Paint()..style = PaintingStyle.stroke..strokeCap = StrokeCap.round
+            ..strokeWidth = i.isEven ? 1.8 : .8
+            ..color = (i % 4 == 0 ? bright : accent).withValues(alpha: opacity * (i.isEven ? .74 : .42)));
         }
-        canvas.drawCircle(const Offset(50, 50), 23, ink);
+        canvas.drawCircle(const Offset(50, 50), 29, Paint()..style = PaintingStyle.stroke..strokeWidth = 7
+          ..color = accent.withValues(alpha: opacity * .28)..maskFilter = ui.MaskFilter.blur(ui.BlurStyle.normal, 4));
+        canvas.drawCircle(const Offset(50, 50), 27, Paint()..shader = SweepGradient(
+          colors: [bright, accent, deep, bright],
+          stops: const [0, .3, .68, 1],
+        ).createShader(const Rect.fromLTWH(22, 22, 56, 56)));
+        canvas.drawCircle(const Offset(50, 50), 22.5, Paint()..shader = RadialGradient(
+          colors: [Colors.black, style.surface, deep.withValues(alpha: opacity * .65)],
+          stops: const [0, .7, 1],
+        ).createShader(const Rect.fromLTWH(27.5, 27.5, 45, 45)));
+        canvas.drawArc(const Rect.fromLTWH(23, 23, 54, 54), -.8, 1.35, false, lightInk);
         break;
       case NebulaMaterial.voidGlass:
-        for (final radius in const [24.0, 34.0, 44.0]) {
+        for (final radius in const [23.0, 34.0, 45.0]) {
           final hexagon = Path()
             ..moveTo(50, 50 - radius)
             ..lineTo(50 + radius * .86, 50 - radius * .5)
@@ -136,65 +273,110 @@ class _NebulaMaterialPainter extends BoxPainter {
             ..close();
           canvas.drawPath(hexagon, radius == 34 ? lightInk : ink);
         }
+        canvas.drawCircle(const Offset(50, 50), 12, Paint()..color = Colors.black.withValues(alpha: opacity * .85));
+        canvas.drawCircle(const Offset(50, 50), 14, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.6..color = bright.withValues(alpha: opacity * .72));
+        for (var i = 0; i < 6; i++) {
+          final a = i * pi / 3;
+          canvas.drawCircle(Offset(50 + cos(a) * 42, 50 + sin(a) * 42), 1.8, Paint()..color = accent.withValues(alpha: opacity * .7));
+        }
         break;
       case NebulaMaterial.crimson:
-        for (var i = 0; i < 4; i++) {
-          final x = i * 28.0 - 16;
-          canvas.drawPath(Path()..moveTo(x, 22)..lineTo(x + 30, 50)..lineTo(x + 10, 78), i.isEven ? lightInk : ink);
+        for (var i = 0; i < 5; i++) {
+          final x = i * 26.0 - 23;
+          final shard = Path()..moveTo(x, 20)..lineTo(x + 30, 48)..lineTo(x + 12, 80);
+          canvas.drawPath(shard, i.isEven ? lightInk : ink);
         }
+        canvas.drawCircle(const Offset(73, 30), 15, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.6..color = bright.withValues(alpha: opacity * .42));
+        canvas.drawCircle(const Offset(73, 30), 8, Paint()..color = accent.withValues(alpha: opacity * .16));
+        final drop = Path()..moveTo(77, 55)..cubicTo(70, 65, 68, 68, 68, 73)..cubicTo(68, 83, 84, 83, 84, 73)..cubicTo(84, 68, 81, 62, 77, 55)..close();
+        canvas.drawPath(drop, Paint()..shader = LinearGradient(colors: [bright.withValues(alpha: opacity * .7), deep.withValues(alpha: opacity * .85)]).createShader(const Rect.fromLTWH(68, 55, 16, 28)));
+        canvas.drawPath(drop, Paint()..style = PaintingStyle.stroke..strokeWidth = .8..color = bright.withValues(alpha: opacity * .65));
         break;
       case NebulaMaterial.neon:
         for (var i = -2; i < 8; i++) {
           canvas.drawLine(Offset(i * 22.0, 0), Offset(i * 22.0 + 48, 100), i.isEven ? lightInk : ink);
           canvas.drawLine(Offset(0, i * 22.0 + 12), Offset(100, i * 22.0 - 12), ink);
         }
+        for (final point in const [Offset(22, 24), Offset(67, 41), Offset(43, 75), Offset(82, 84)]) {
+          canvas.drawCircle(point, 4.5, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.2..color = bright.withValues(alpha: opacity * .68));
+          canvas.drawCircle(point, 1.4, Paint()..color = accent.withValues(alpha: opacity * .92));
+        }
         break;
       case NebulaMaterial.emerald:
-        canvas.drawPath(Path()..moveTo(50, 9)..cubicTo(86, 31, 78, 70, 50, 91)..cubicTo(22, 70, 14, 31, 50, 9)..close(), lightInk);
-        canvas.drawPath(Path()..moveTo(50, 17)..cubicTo(48, 42, 52, 63, 50, 84)..moveTo(50, 39)..lineTo(31, 28)..moveTo(50, 54)..lineTo(70, 40)..moveTo(50, 68)..lineTo(34, 58), ink);
+        canvas.drawPath(Path()..moveTo(50, 7)..cubicTo(86, 31, 78, 70, 50, 93)..cubicTo(22, 70, 14, 31, 50, 7)..close(), lightInk);
+        canvas.drawPath(Path()..moveTo(50, 14)..cubicTo(48, 42, 52, 64, 50, 87)..moveTo(50, 38)..lineTo(29, 26)..moveTo(50, 52)..lineTo(72, 38)..moveTo(50, 67)..lineTo(31, 56)..moveTo(50, 78)..lineTo(68, 64), ink);
+        canvas.drawPath(Path()..moveTo(50, 18)..lineTo(68, 31)..lineTo(57, 52)..close(), Paint()..color = bright.withValues(alpha: opacity * .14));
         break;
       case NebulaMaterial.aurora:
-        canvas.drawPath(Path()..moveTo(-6, 29)..cubicTo(16, 5, 29, 55, 50, 29)..cubicTo(70, 3, 82, 55, 106, 24), lightInk);
-        canvas.drawPath(Path()..moveTo(-6, 49)..cubicTo(18, 25, 33, 73, 52, 49)..cubicTo(73, 23, 85, 73, 106, 44), ink);
-        canvas.drawPath(Path()..moveTo(-6, 69)..cubicTo(15, 47, 31, 91, 53, 69)..cubicTo(75, 45, 88, 91, 106, 64), lightInk);
+        for (var i = 0; i < 4; i++) {
+          final y = 20.0 + i * 19;
+          final path = Path()..moveTo(-8, y + 8)..cubicTo(16, y - 25, 28, y + 25, 51, y)..cubicTo(73, y - 23, 86, y + 25, 108, y - 5);
+          canvas.drawPath(path, Paint()..style = PaintingStyle.stroke..strokeCap = StrokeCap.round
+            ..strokeWidth = i == 0 ? 3.5 : 1.25
+            ..color = (i.isEven ? bright : accent).withValues(alpha: opacity * (i == 0 ? .46 : .33))
+            ..maskFilter = i == 0 ? ui.MaskFilter.blur(ui.BlurStyle.normal, 2.5) : null);
+          canvas.drawPath(path, i.isEven ? lightInk : ink);
+        }
         break;
       case NebulaMaterial.sapphire:
-        canvas.drawPath(Path()..moveTo(50, 8)..lineTo(91, 39)..lineTo(72, 83)..lineTo(50, 94)..lineTo(28, 83)..lineTo(9, 39)..close(), lightInk);
-        canvas.drawPath(Path()..moveTo(9, 39)..lineTo(50, 51)..lineTo(91, 39)..moveTo(28, 83)..lineTo(50, 51)..lineTo(72, 83), ink);
+        final gem = Path()..moveTo(50, 7)..lineTo(89, 35)..lineTo(75, 79)..lineTo(50, 94)..lineTo(25, 79)..lineTo(11, 35)..close();
+        canvas.drawPath(gem, Paint()..color = accent.withValues(alpha: opacity * .10));
+        canvas.drawPath(gem, lightInk);
+        canvas.drawPath(Path()..moveTo(11, 35)..lineTo(50, 48)..lineTo(89, 35)..moveTo(25, 79)..lineTo(50, 48)..lineTo(75, 79)..moveTo(50, 7)..lineTo(50, 48), ink);
+        canvas.drawPath(Path()..moveTo(50, 9)..lineTo(80, 34)..lineTo(50, 44)..close(), Paint()..color = bright.withValues(alpha: opacity * .20));
+        canvas.drawPath(Path()..moveTo(50, 48)..lineTo(25, 79)..lineTo(50, 88)..close(), Paint()..color = deep.withValues(alpha: opacity * .22));
         break;
       case NebulaMaterial.amber:
         for (var row = -1; row < 4; row++) {
           for (var col = -1; col < 4; col++) {
             final x = col * 30.0 + (row.isEven ? 0 : 15);
             final y = row * 26.0;
-            canvas.drawPath(Path()..moveTo(x + 15, y)..lineTo(x + 30, y + 8)..lineTo(x + 30, y + 24)..lineTo(x + 15, y + 32)..lineTo(x, y + 24)..lineTo(x, y + 8)..close(), ink);
+            final cell = Path()..moveTo(x + 15, y)..lineTo(x + 30, y + 8)..lineTo(x + 30, y + 24)..lineTo(x + 15, y + 32)..lineTo(x, y + 24)..lineTo(x, y + 8)..close();
+            canvas.drawPath(cell, ink);
           }
         }
+        canvas.drawCircle(const Offset(34, 37), 10, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.4..color = bright.withValues(alpha: opacity * .55));
+        canvas.drawCircle(const Offset(34, 37), 4, Paint()..color = bright.withValues(alpha: opacity * .20));
+        canvas.drawCircle(const Offset(70, 68), 3, Paint()..color = bright.withValues(alpha: opacity * .8));
         break;
       case NebulaMaterial.onyx:
-        for (final radius in const [20.0, 31.0, 43.0]) {
-          final ring = Paint()
+        for (final radius in const [18.0, 28.0, 39.0, 47.0]) {
+          canvas.drawCircle(const Offset(50, 50), radius, Paint()
             ..style = PaintingStyle.stroke
-            ..strokeWidth = radius == 31 ? 2.3 : 1.2
-            ..color = radius == 31 ? style.liquidHighlight.withValues(alpha: opacity * .52) : ink.color;
-          canvas.drawCircle(const Offset(50, 50), radius, ring);
+            ..strokeWidth = radius == 28 ? 1.9 : .8
+            ..color = (radius == 28 ? bright : edge).withValues(alpha: opacity * (radius == 28 ? .56 : .35)));
         }
+        canvas.drawLine(const Offset(8, 25), const Offset(92, 25), ink);
+        canvas.drawLine(const Offset(8, 76), const Offset(92, 76), ink);
+        canvas.drawCircle(const Offset(50, 50), 5, Paint()..color = Colors.black.withValues(alpha: opacity * .8));
         break;
       case NebulaMaterial.pearl:
-        for (var i = 0; i < 6; i++) {
-          canvas.drawArc(Rect.fromCircle(center: const Offset(50, 52), radius: 12 + i * 7.0), pi * 1.05, pi * .88, false, i.isEven ? lightInk : ink);
+        for (var i = 0; i < 7; i++) {
+          canvas.drawArc(Rect.fromCircle(center: const Offset(50, 55), radius: 13 + i * 6.1), pi * 1.03, pi * .93, false, i.isEven ? lightInk : ink);
         }
-        canvas.drawCircle(const Offset(50, 15), 2.5, Paint()..color = style.liquidHighlight.withValues(alpha: opacity * .78));
+        canvas.drawCircle(const Offset(69, 27), 17, Paint()..shader = RadialGradient(
+          center: const Alignment(-.35, -.45),
+          colors: [Colors.white.withValues(alpha: opacity * .65), style.crystalBody[1].withValues(alpha: opacity * .55), style.crystalBody.last.withValues(alpha: opacity * .2)],
+        ).createShader(const Rect.fromLTWH(52, 10, 34, 34)));
+        canvas.drawCircle(const Offset(69, 27), 17, Paint()..style = PaintingStyle.stroke..strokeWidth = .7..color = bright.withValues(alpha: opacity * .7));
         break;
       case NebulaMaterial.ivory:
-        canvas.drawPath(Path()..moveTo(12, 72)..lineTo(12, 40)..quadraticBezierTo(50, -3, 88, 40)..lineTo(88, 72), lightInk);
-        canvas.drawPath(Path()..moveTo(27, 72)..quadraticBezierTo(34, 41, 50, 59)..quadraticBezierTo(66, 41, 73, 72), ink);
+        canvas.drawPath(Path()..moveTo(12, 78)..lineTo(12, 41)..quadraticBezierTo(50, -4, 88, 41)..lineTo(88, 78), lightInk);
+        canvas.drawPath(Path()..moveTo(22, 78)..lineTo(22, 44)..quadraticBezierTo(50, 12, 78, 44)..lineTo(78, 78), ink);
+        canvas.drawPath(Path()..moveTo(32, 78)..quadraticBezierTo(34, 43, 50, 60)..quadraticBezierTo(66, 43, 68, 78), ink);
+        canvas.drawLine(const Offset(8, 84), const Offset(92, 84), lightInk);
+        for (final x in const [20.0, 80.0]) {
+          canvas.drawCircle(Offset(x, 31), 2.1, Paint()..color = bright.withValues(alpha: opacity * .82));
+        }
         break;
       case NebulaMaterial.imperial:
-        canvas.drawPath(Path()..moveTo(50, 7)..lineTo(89, 22)..lineTo(83, 59)..lineTo(50, 91)..lineTo(17, 59)..lineTo(11, 22)..close(), lightInk);
-        canvas.drawLine(const Offset(50, 20), const Offset(50, 79), ink);
-        for (final point in const [Offset(20, 28), Offset(80, 28), Offset(50, 80)]) {
-          canvas.drawCircle(point, 2.5, Paint()..color = style.liquidHighlight.withValues(alpha: opacity * .78));
+        final shield = Path()..moveTo(50, 6)..lineTo(89, 21)..lineTo(83, 59)..lineTo(50, 93)..lineTo(17, 59)..lineTo(11, 21)..close();
+        canvas.drawPath(shield, Paint()..color = deep.withValues(alpha: opacity * .18));
+        canvas.drawPath(shield, lightInk);
+        canvas.drawPath(Path()..moveTo(50, 18)..lineTo(50, 79)..moveTo(27, 33)..lineTo(50, 44)..lineTo(73, 33)..moveTo(34, 59)..lineTo(50, 70)..lineTo(66, 59), ink);
+        for (final point in const [Offset(20, 25), Offset(80, 25), Offset(50, 81)]) {
+          canvas.drawCircle(point, 3.2, Paint()..color = bright.withValues(alpha: opacity * .8));
+          canvas.drawCircle(point, 5.5, Paint()..style = PaintingStyle.stroke..strokeWidth = .7..color = accent.withValues(alpha: opacity * .5));
         }
         break;
       case NebulaMaterial.ruby:
@@ -203,26 +385,36 @@ class _NebulaMaterialPainter extends BoxPainter {
         break;
     }
 
-    if (phase >= 0) {
-      final band = Rect.fromLTWH(-30 + phase * 150, -8, 34, 116);
-      canvas.drawRect(
-        band,
-        Paint()..shader = const LinearGradient(
+    // Specular hotspot, two fine bevels, and a dark lower edge make the surface read as glass/metal.
+    canvas.drawRect(rect, Paint()
+      ..blendMode = BlendMode.screen
+      ..shader = RadialGradient(
+        center: Alignment(-.92, -1),
+        radius: 1.05,
+        colors: [bright.withValues(alpha: opacity * .17), Colors.transparent],
+      ).createShader(rect));
+    canvas.drawLine(const Offset(1, 1), const Offset(99, 1), Paint()..strokeWidth = .8..color = bright.withValues(alpha: opacity * .58));
+    canvas.drawLine(const Offset(1, 1), const Offset(1, 99), Paint()..strokeWidth = .8..color = bright.withValues(alpha: opacity * .31));
+    canvas.drawLine(const Offset(1, 99), const Offset(99, 99), Paint()..strokeWidth = .8..color = Colors.black.withValues(alpha: opacity * .38));
+    canvas.restore();
+
+    canvas.drawRRect(
+      shape,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.15
+        ..shader = LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0x00FFFFFF), Color(0x44FFFFFF), Color(0x00FFFFFF)],
-          stops: [0, .5, 1],
-        ).createShader(band),
-      );
-    }
-    canvas.restore();
-    canvas.drawRRect(shape, Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2
-      ..color = style.edge.withValues(alpha: opacity * .8));
-    canvas.restore();
+          colors: [
+            bright.withValues(alpha: edge.a * opacity),
+            edge.withValues(alpha: edge.a * opacity),
+            accent.withValues(alpha: opacity * .6),
+          ],
+        ).createShader(rect),
+    );
+    return recorder.endRecording();
   }
-
 }
 
 // Bat-Glass 2.0 material: a cut red diamond (ruby crystal).

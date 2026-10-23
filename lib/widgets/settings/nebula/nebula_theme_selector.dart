@@ -1,5 +1,6 @@
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/nebula/nebula_custom_theme.dart';
+import 'package:aves/theme/nebula/nebula_palettes.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
 import 'package:aves/widgets/common/basic/feature_sticker.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
@@ -64,35 +65,79 @@ class NebulaThemePill extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
+    final palette = nebulaPaletteFor(theme);
+    final preview = theme != NebulaTheme.aves &&
+        theme != NebulaTheme.nosferatuGlass &&
+        theme != NebulaTheme.obsidianGlass &&
+        theme != NebulaTheme.aureateGlass;
     final kind = theme.isPhase1 ? StickerKind.newFeature : StickerKind.experimental;
+    final rimColor = selected ? (preview ? palette.accent : scheme.primary) : (preview ? palette.outlineVariant : scheme.outlineVariant);
+    final surfaceDecoration = preview
+        ? BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                palette.surfaceContainerHighest.withValues(alpha: selected ? .98 : .82),
+                palette.surfaceContainerLow.withValues(alpha: .96),
+                palette.surfaceContainerLowest.withValues(alpha: .98),
+              ],
+              stops: const [0, .48, 1],
+            ),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: rimColor.withValues(alpha: selected ? 1 : .76), width: selected ? 2 : 1),
+            boxShadow: selected
+                ? [BoxShadow(color: palette.glow.withValues(alpha: .32), blurRadius: 22, spreadRadius: -3)]
+                : [BoxShadow(color: palette.glow.withValues(alpha: .08), blurRadius: 9, spreadRadius: -5)],
+          )
+        : BoxDecoration(
+            color: selected ? scheme.surfaceContainerHighest.withValues(alpha: .9) : scheme.surfaceContainerLow.withValues(alpha: .55),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: selected ? scheme.primary : scheme.outlineVariant.withValues(alpha: .6),
+              width: selected ? 2 : 1,
+            ),
+            boxShadow: selected
+                ? [BoxShadow(color: scheme.primary.withValues(alpha: .35), blurRadius: 18, spreadRadius: 1)]
+                : null,
+          );
 
     final content = InkWell(
       onTap: onSelected,
       borderRadius: BorderRadius.circular(14),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
+        duration: const Duration(milliseconds: 220),
         curve: Curves.easeOutCubic,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: selected ? scheme.surfaceContainerHighest.withValues(alpha: .9) : scheme.surfaceContainerLow.withValues(alpha: .55),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: selected ? scheme.primary : scheme.outlineVariant.withValues(alpha: .6),
-            width: selected ? 2 : 1,
-          ),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: scheme.primary.withValues(alpha: .35),
-                    blurRadius: 18,
-                    spreadRadius: 1,
-                  ),
-                ]
-              : null,
-        ),
+        decoration: surfaceDecoration,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (preview)
+              Container(
+                width: 29,
+                height: 29,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    center: const Alignment(-.38, -.48),
+                    colors: [
+                      palette.crystalBody.first,
+                      palette.accent,
+                      palette.surfaceContainerLowest,
+                    ],
+                    stops: const [0, .42, 1],
+                  ),
+                  border: Border.all(color: palette.crystalEdge, width: 1),
+                  boxShadow: [
+                    BoxShadow(color: palette.glow.withValues(alpha: selected ? .42 : .24), blurRadius: selected ? 12 : 7, spreadRadius: -2),
+                  ],
+                ),
+                child: Center(
+                  child: Icon(Icons.auto_awesome, size: 14, color: palette.crystalBody.first),
+                ),
+              ),
+            if (preview) const SizedBox(width: 10),
             FeatureSticker(kind: kind),
             const SizedBox(width: 10),
             Column(

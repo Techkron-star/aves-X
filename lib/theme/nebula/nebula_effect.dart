@@ -468,37 +468,132 @@ class _SolarFlareGlassPainter extends NebulaEffectPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final center = size.center(Offset.zero);
+    final rect = Offset.zero & size;
+    final center = Offset(size.width * .5, size.height * .43);
     final r = size.shortestSide;
+    final sunRadius = r * .205;
+    final pulse = .5 + .5 * math.sin(t * 2 * math.pi);
+    final coronaRadius = sunRadius * (1.20 + .035 * pulse);
 
-    // Solar flare pulses
-    final pulse = .5 + .5 * math.sin(t * 4 * math.pi);
-    canvas.drawCircle(
-      center,
-      r * (.3 + .2 * pulse),
+    // A deep, almost-black sky lets the eclipse corona act as the only light source.
+    canvas.drawRect(
+      rect,
       Paint()
         ..shader = RadialGradient(
-          colors: [
-            Color(0x55FFF176),
-            Color(0x22FFF176),
-            Colors.transparent,
+          center: Alignment.center,
+          radius: 1.02,
+          colors: const [
+            Color(0x332D0A02),
+            Color(0x16200703),
+            Color(0x00000000),
           ],
-        ).createShader(Rect.fromCircle(center: center, radius: r * (.3 + .2 * pulse))),
+          stops: const [0, .48, 1],
+        ).createShader(rect),
     );
 
-    // Coronal loops
+    // Broad reflected corona and the fine white-hot ring.
+    for (var i = 0; i < 3; i++) {
+      final radius = coronaRadius * (1.02 + i * .17);
+      final glowRect = Rect.fromCircle(center: center, radius: radius);
+      canvas.drawCircle(
+        center,
+        radius,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = sunRadius * (i == 0 ? .28 : .075)
+          ..shader = SweepGradient(
+            colors: const [
+              Color(0x00FF5A24),
+              Color(0x66FF6B20),
+              Color(0xAAFFE6A1),
+              Color(0xCCFF9D24),
+              Color(0x44FF4A18),
+              Color(0x00FF5A24),
+            ],
+            stops: const [0, .16, .29, .47, .76, 1],
+            transform: GradientRotation(t * 2 * math.pi + i * .42),
+          ).createShader(glowRect)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, sunRadius * (i == 0 ? .16 : .07)),
+      );
+    }
+
+    // Uneven plasma tongues make the corona look solar, not like a perfect neon ring.
+    for (var i = 0; i < 32; i++) {
+      final angle = i * 2 * math.pi / 32;
+      final wave = .5 + .5 * math.sin(i * 2.17 + t * 2 * math.pi);
+      final inner = sunRadius * (1.17 + .06 * wave);
+      final outer = sunRadius * (1.38 + .22 * wave + (i % 5 == 0 ? .16 : 0));
+      final start = center + Offset(math.cos(angle) * inner, math.sin(angle) * inner);
+      final end = center + Offset(math.cos(angle) * outer, math.sin(angle) * outer);
+      final hot = i % 4 == 0;
+      canvas.drawLine(
+        start,
+        end,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round
+          ..strokeWidth = hot ? r * .0042 : r * .0018
+          ..color = (hot ? const Color(0xFFFFE8A0) : const Color(0xFFFF6A24))
+              .withValues(alpha: (hot ? .55 : .29) + .12 * pulse),
+      );
+    }
+
+    // Sparse prominences curve away from the limb like magnetic loops.
+    for (var i = 0; i < 5; i++) {
+      final angle = -.9 + i * .47 + .035 * math.sin(t * 2 * math.pi);
+      final inner = center + Offset(math.cos(angle) * sunRadius * 1.08, math.sin(angle) * sunRadius * 1.08);
+      final peak = center + Offset(math.cos(angle + .15) * sunRadius * (1.54 + .08 * pulse), math.sin(angle + .15) * sunRadius * (1.54 + .08 * pulse));
+      final end = center + Offset(math.cos(angle + .34) * sunRadius * 1.12, math.sin(angle + .34) * sunRadius * 1.12);
+      final loop = Path()..moveTo(inner.dx, inner.dy)..quadraticBezierTo(peak.dx, peak.dy, end.dx, end.dy);
+      canvas.drawPath(loop, Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round
+        ..strokeWidth = r * .0024
+        ..color = const Color(0x99FFB33C).withValues(alpha: .42 + .2 * pulse));
+    }
+
+    // Black lunar disc with subtle reflected rim and a tiny gravitationally bent highlight.
     canvas.drawCircle(
       center,
-      r * .7,
+      sunRadius,
+      Paint()
+        ..shader = RadialGradient(
+          center: const Alignment(-.38, -.42),
+          colors: const [Color(0xFF120704), Color(0xFF050202), Color(0xFF000000)],
+          stops: const [0, .48, 1],
+        ).createShader(Rect.fromCircle(center: center, radius: sunRadius)),
+    );
+    canvas.drawCircle(
+      center,
+      sunRadius * 1.015,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 3
-        ..color = Color(0xFF000000).withValues(alpha: .25)
-        ..shader = SweepGradient(
-          colors: [Color(0x33FFFF76), Color(0x00FFFF76), Color(0x33FFFF76)],
-          transform: GradientRotation(t * 2 * math.pi),
-        ).createShader(Rect.fromCircle(center: center, radius: r * .7)),
+        ..strokeWidth = r * .0025
+        ..color = const Color(0xCCFFE6A1).withValues(alpha: .54 + .18 * pulse),
     );
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: sunRadius * 1.035),
+      -math.pi * .92,
+      math.pi * .64,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = r * .005
+        ..color = const Color(0xCCFFF4C2).withValues(alpha: .78),
+    );
+
+    // Minimal star-like glints and distant ember points, placed deterministically.
+    for (var i = 0; i < 11; i++) {
+      final angle = i * 2.399963;
+      final distance = r * (.34 + .045 * (i % 4));
+      final p = center + Offset(math.cos(angle + t * .14) * distance, math.sin(angle + t * .14) * distance);
+      final twinkle = .35 + .65 * (.5 + .5 * math.sin(t * 4 * math.pi + i * 1.7));
+      final radius = r * (.0015 + .0012 * twinkle);
+      canvas.drawCircle(p, radius * 3.5, Paint()
+        ..color = const Color(0xFFFFA33A).withValues(alpha: .18 * twinkle)
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * .004));
+      canvas.drawCircle(p, radius, Paint()..color = const Color(0xFFFFE6A1).withValues(alpha: .55 * twinkle));
+    }
   }
 }
 
