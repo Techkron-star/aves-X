@@ -183,14 +183,14 @@ class _TrashIconMotionState extends State<TrashIconMotion> with SingleTickerProv
   @override
   void initState() {
     super.initState();
-    if (widget.animate) _controller.repeat(reverse: true);
+    if (widget.animate) _controller.repeat();
   }
 
   @override
   void didUpdateWidget(covariant TrashIconMotion oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.animate && !_controller.isAnimating) {
-      _controller.repeat(reverse: true);
+      _controller.repeat();
     } else if (!widget.animate && _controller.isAnimating) {
       _controller.stop();
       _controller.value = 0;
