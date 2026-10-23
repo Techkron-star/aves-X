@@ -66,10 +66,13 @@ class NebulaThemePill extends StatelessWidget {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final palette = nebulaPaletteFor(theme);
-    final preview = theme != NebulaTheme.aves &&
-        theme != NebulaTheme.nosferatuGlass &&
+    // Aves also gets a true miniature; only the three established glass identities
+    // keep their original, hand-authored selector treatment.
+    final preview = theme != NebulaTheme.nosferatuGlass &&
         theme != NebulaTheme.obsidianGlass &&
         theme != NebulaTheme.aureateGlass;
+    final previewOnSurface = theme == NebulaTheme.aves ? const Color(0xFF211A22) : scheme.onSurface;
+    final previewOnSurfaceVariant = theme == NebulaTheme.aves ? const Color(0xFF625563) : scheme.onSurfaceVariant;
     final kind = theme.isPhase1 ? StickerKind.newFeature : StickerKind.experimental;
     final rimColor = selected ? (preview ? palette.accent : scheme.primary) : (preview ? palette.outlineVariant : scheme.outlineVariant);
     final surfaceDecoration = preview
@@ -148,7 +151,7 @@ class NebulaThemePill extends StatelessWidget {
                   nebulaThemeName(context, theme),
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
-                    color: enabled ? scheme.onSurface : scheme.onSurface.withValues(alpha: .5),
+                    color: enabled ? (preview ? previewOnSurface : scheme.onSurface) : scheme.onSurface.withValues(alpha: .5),
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -156,7 +159,7 @@ class NebulaThemePill extends StatelessWidget {
                   nebulaThemeDescription(context, theme),
                   style: TextStyle(
                     fontSize: 11,
-                    color: enabled ? scheme.onSurfaceVariant : scheme.onSurface.withValues(alpha: .5),
+                    color: enabled ? (preview ? previewOnSurfaceVariant : scheme.onSurfaceVariant) : scheme.onSurface.withValues(alpha: .5),
                   ),
                 ),
               ],
