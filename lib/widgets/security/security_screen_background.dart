@@ -3,6 +3,7 @@ import 'package:aves/theme/nebula/nebula_material.dart';
 import 'package:aves/theme/nebula/nebula_tokens.dart';
 import 'package:aves/widgets/common/fx/blurred.dart';
 import 'package:aves/widgets/common/fx/diamond.dart';
+import 'package:aves/widgets/common/fx/nebula_component_surfaces.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 
@@ -20,20 +21,51 @@ import 'package:provider/provider.dart';
 class SecurityScreenBackground extends StatelessWidget {
   final Widget child;
   final BorderRadius? borderRadius;
+  final NebulaComponentSurfaceRole role;
 
-  const SecurityScreenBackground({super.key, required this.child, this.borderRadius});
+  const SecurityScreenBackground({
+    super.key,
+    required this.child,
+    this.borderRadius,
+    this.role = NebulaComponentSurfaceRole.appLockBackdrop,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Selector<Settings, (bool, bool, bool, NebulaMaterial?)>(
-      selector: (context, s) => (s.materialStyle != null, s.glassEverywhere, s.animate, s.materialStyle?.material),
+    return Selector<Settings, (bool, bool, bool, NebulaMaterialStyle?)>(
+      selector: (context, s) => (s.materialStyle != null, s.glassEverywhere, s.animate, s.materialStyle),
       builder: (context, state, _) {
-        final (nebulaGlass, glassEverywhere, animate, selectedMaterial) = state;
+        final (nebulaGlass, glassEverywhere, animate, materialStyle) = state;
+        final selectedMaterial = materialStyle?.material;
+        final componentDriven = selectedMaterial == NebulaMaterial.eclipse || selectedMaterial == NebulaMaterial.hermetic;
         final glass = nebulaGlass || glassEverywhere; // los getters ya respetan performanceMode
         final nebula = Theme.of(context).extension<NebulaTokens>() ?? NebulaTokens.fallback;
         final radius = borderRadius ?? BorderRadius.zero;
+        // Eclipse and Hermetic use scene-level, screen-specific linework instead of
+        // stamping their material tile across the entire lock screen.
+        final screenContent = componentDriven
+            ? Stack(
+                fit: StackFit.expand,
+                children: [
+                  Positioned.fill(
+                    child: NebulaComponentSurfaceAccent(
+                      style: materialStyle,
+                      role: role,
+                      state: role == NebulaComponentSurfaceRole.lockdownBackdrop
+                          ? NebulaComponentSurfaceState.warning
+                          : NebulaComponentSurfaceState.idle,
+                      animate: animate,
+                      alertColor: nebula.securityAlert,
+                      child: const SizedBox.expand(),
+                    ),
+                  ),
+                  child,
+                ],
+              )
+            : child;
 
         return Stack(
+          fit: StackFit.expand,
           children: [
             // 1. scrim sobre toda la pantalla
             Positioned.fill(
@@ -68,15 +100,15 @@ class SecurityScreenBackground extends StatelessWidget {
                           ),
                         ),
                       // 4. cristal animado solo cuando hay vidrio y animaciones
-                      if (glass && animate)
+                      if (glass && animate && !componentDriven)
                         AnimatedCrystal(
                           animate: true,
                           material: selectedMaterial ?? NebulaMaterial.ruby,
                           opacity: .3,
-                          child: child,
+                          child: screenContent,
                         )
                       else
-                        child,
+                        screenContent,
                     ],
                   ),
                 ),
