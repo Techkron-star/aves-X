@@ -7,6 +7,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:aves/model/security/master_code.dart';
+import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:flutter/foundation.dart';
@@ -73,8 +74,15 @@ class MasterGuard extends ChangeNotifier {
     // may run before `init`
     if (await securityService.readValue<String>(_vaultEncKey) != '1') return;
     _vaultEncryption = true;
-    if (await securityService.cryptSelfTest() != null) return;
-    await _enqueue(() => securityService.cryptAllVaults(encrypt: true));
+    if (await securityService.cryptSelfTest() != null) {
+      await failsafe.engageLockdown();
+      return;
+    }
+    final report = await _enqueue(() => securityService.cryptAllVaults(encrypt: true));
+    if (report == null || !report.success) {
+      // A vault must not be treated as protected when encryption did not complete.
+      await failsafe.engageLockdown();
+    }
   }
 
   // emergency tool (needs the Master Code): decrypts every vault file it can, and reports what could not be
@@ -106,10 +114,16 @@ class MasterGuard extends ChangeNotifier {
         if (context.mounted) await showWarningDialog(context: context, message: context.l10n.batCurityVaultEncSelfTestFailed(error));
         return false;
       }
+      if (!await securityService.writeValue<String>(_vaultEncKey, '1')) return false;
       _vaultEncryption = true;
-      await securityService.writeValue<String>(_vaultEncKey, '1');
+      var allEncrypted = true;
       for (final details in vaults.all.where((v) => vaults.isLocked(v.path))) {
-        await encryptVault(details.name);
+        if (!await encryptVault(details.name)) allEncrypted = false;
+      }
+      if (!allEncrypted) {
+        await failsafe.engageLockdown();
+        notifyListeners();
+        return false;
       }
     } else {
       final report = await _enqueue(() => securityService.cryptAllVaults(encrypt: false));
@@ -117,8 +131,8 @@ class MasterGuard extends ChangeNotifier {
         notifyListeners();
         return false;
       }
+      if (!await securityService.writeValue<String>(_vaultEncKey, null)) return false;
       _vaultEncryption = false;
-      await securityService.writeValue<String>(_vaultEncKey, null);
     }
     notifyListeners();
     return true;
