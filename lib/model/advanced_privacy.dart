@@ -84,11 +84,15 @@ class AdvancedPrivacy extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Prepare a rename by copying privacy policy to the new name without deleting the old
+  // state. The caller removes the old state only after the vault database rename commits.
   Future<void> rename(String oldName, String newName) async {
     final secondLock = _secondLocks[oldName];
     if (secondLock != null) {
       final oldTypedKey = secondPassKeyFor(oldName, secondLock);
-      final pass = await securityService.readValueStrict<String>(oldTypedKey) ?? await securityService.readValueStrict<String>(secondPassKey(oldName));
+      final pass = secondLock == VaultLockType.system
+          ? null
+          : await securityService.readValueStrict<String>(oldTypedKey) ?? await securityService.readValueStrict<String>(secondPassKey(oldName));
       if (secondLock != VaultLockType.system && pass == null) {
         throw StateError('Missing second-factor credential while renaming vault');
       }
@@ -98,17 +102,14 @@ class AdvancedPrivacy extends ChangeNotifier {
       if (!await securityService.writeValue<String>(_secondLockKey(newName), secondLock.name)) {
         throw StateError('Could not migrate second lock type while renaming vault');
       }
-      _secondLocks.remove(oldName);
       _secondLocks[newName] = secondLock;
     }
     if (_sharingBlocked.contains(oldName)) {
       if (!await securityService.writeValue<String>(_sharingBlockKey(newName), '1')) {
         throw StateError('Could not migrate vault sharing policy');
       }
-      _sharingBlocked.remove(oldName);
       _sharingBlocked.add(newName);
     }
-    await _clear(oldName);
     notifyListeners();
   }
 
