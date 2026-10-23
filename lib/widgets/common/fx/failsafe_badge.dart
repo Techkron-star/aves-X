@@ -45,8 +45,8 @@ class _FailsafeBadgeState extends State<FailsafeBadge> with SingleTickerProvider
     if (_animating) {
       if (!_controller.isAnimating) _controller.repeat();
     } else {
+      // Park on the current radar frame instead of snapping the sweep to zero.
       _controller.stop();
-      _controller.value = 0;
     }
   }
 
