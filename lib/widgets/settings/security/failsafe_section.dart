@@ -6,13 +6,11 @@ import 'package:aves/theme/colors.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/widgets/common/basic/scaffold.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
-import 'package:aves/widgets/common/fx/black_hole.dart';
 import 'package:aves/widgets/common/fx/failsafe_badge.dart';
 import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/settings/common/tile_leading.dart';
 import 'package:aves/widgets/settings/security/security.dart';
 import 'package:aves/widgets/settings/settings_definition.dart';
-import 'package:aves/services/common/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
@@ -79,9 +77,7 @@ class _FailsafeOptions extends StatefulWidget {
 class _FailsafeOptionsState extends State<_FailsafeOptions> {
   bool _lockdown = true;
   bool _nuke = false;
-  bool _root = false;
   bool _voice = true;
-  bool _rootAvailable = true;
   int _maxMinutes = FailsafeConfig.recommendedMaxMinutes;
 
   @override
@@ -94,14 +90,12 @@ class _FailsafeOptionsState extends State<_FailsafeOptions> {
     final lockdown = await FailsafeConfig.lockdownEnabled;
     final nuke = await FailsafeConfig.nukeOnFailures;
     final max = await FailsafeConfig.maxMinutes;
-    final root = await FailsafeConfig.rootMode;
     final voice = await FailsafeConfig.voiceEnabled;
     if (!mounted) return;
     setState(() {
       _lockdown = lockdown;
       _nuke = nuke;
       _maxMinutes = max;
-      _root = root;
       _voice = voice;
     });
   }
@@ -194,43 +188,7 @@ class _FailsafeOptionsState extends State<_FailsafeOptions> {
           value: context.select<Settings, bool>((v) => v.failsafeComicDialogs),
           onChanged: (v) => settings.failsafeComicDialogs = v,
         ),
-        // Black Hole: its own dark card, with an event horizon and its accretion disk
-        Container(
-          margin: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0x55B04BFF)),
-            gradient: const RadialGradient(
-              center: Alignment(-.85, 0),
-              radius: 1.5,
-              colors: [Color(0xFF2A103F), Color(0xFF05030A)],
-            ),
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: SwitchListTile(
-              secondary: BlackHoleDisc(size: 56, animate: !settings.performanceMode),
-              title: Text(l10n.blackHoleRootOption, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
-              subtitle: Text(
-                _rootAvailable ? l10n.blackHoleRootOptionSubtitle : l10n.blackHoleRootUnavailable,
-                style: const TextStyle(color: Color(0xB3FFFFFF)),
-              ),
-              value: _root,
-              onChanged: (v) async {
-                if (v) {
-                  final available = await securityService.isRootAvailable();
-                  if (!available) {
-                    if (mounted) setState(() => _rootAvailable = false);
-                    return;
-                  }
-                }
-                await FailsafeConfig.setRootMode(v);
-                if (mounted) setState(() => _rootAvailable = true);
-                await _load();
-              },
-            ),
-          ),
-        ),
+
       ],
     );
   }

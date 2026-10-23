@@ -270,6 +270,11 @@ final Map<NebulaTheme, NebulaMaterialStyle> nebulaMaterials = Map.unmodifiable({
       entry.key: NebulaMaterialStyle.fromPalette(entry.value, _materialForTheme(entry.key)),
 });
 
+// O(1) reverse lookup for decorations painted throughout the scrolling grids.
+final Map<NebulaMaterial, NebulaMaterialStyle> nebulaMaterialStylesByMaterial = Map.unmodifiable({
+  for (final style in nebulaMaterials.values) style.material: style,
+});
+
 
 // Custom themes reuse NebulaTheme.aves as their storage identity, so resolve their
 // surface treatment separately. Recipes use the supplied palette colors and select

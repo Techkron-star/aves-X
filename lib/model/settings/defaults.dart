@@ -28,7 +28,7 @@ class SettingsDefaults {
   static const themeBrightness = AvesThemeBrightness.system;
   static const themeColorMode = AvesThemeColorMode.polychrome;
   static const enableDynamicColor = true;
-  static const glassEverywhere = false; // experimental glass on dialogs and drawer
+  static const glassEverywhere = false; // opt-in frosted surfaces, dialog backdrops, Nebula cards and Nav Lens
   static const navBarStyle = NavBarStyle.classic;
   static const explorerShowAllFolders = false; // list every folder in the Explorer, including those hidden by `.nomedia`
   static const swipeTabs = true; // swipe horizontally to change between the main tabs

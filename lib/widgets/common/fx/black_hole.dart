@@ -124,3 +124,99 @@ class _BlackHolePainter extends CustomPainter {
   @override
   bool shouldRepaint(_BlackHolePainter oldDelegate) => oldDelegate.t != t;
 }
+
+/// A compact Black Hole mark for the trash destination. The recognizable bin
+/// remains in the foreground, while the accretion disc animates behind it.
+class BlackHoleIcon extends StatelessWidget {
+  final Widget child;
+  final double size;
+  final bool animate;
+
+  const BlackHoleIcon({
+    super.key,
+    required this.child,
+    this.size = 30,
+    this.animate = true,
+  });
+
+  @override
+  Widget build(BuildContext context) => SizedBox.square(
+    dimension: size,
+    child: Stack(
+      alignment: Alignment.center,
+      clipBehavior: Clip.none,
+      children: [
+        BlackHoleDisc(size: size, animate: animate),
+        SizedBox.square(
+          dimension: size * .62,
+          child: FittedBox(
+            fit: BoxFit.contain,
+            child: IconTheme.merge(
+              data: const IconThemeData(color: Colors.white),
+              child: child,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+/// Subtle pendulum motion for the bin icon when Black Hole is not enabled.
+/// Reduced-motion and performance preferences disable it entirely.
+class TrashIconMotion extends StatefulWidget {
+  final Widget child;
+  final bool animate;
+
+  const TrashIconMotion({super.key, required this.child, this.animate = true});
+
+  @override
+  State<TrashIconMotion> createState() => _TrashIconMotionState();
+}
+
+class _TrashIconMotionState extends State<TrashIconMotion> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1250),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.animate) _controller.repeat(reverse: true);
+  }
+
+  @override
+  void didUpdateWidget(covariant TrashIconMotion oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.animate && !_controller.isAnimating) {
+      _controller.repeat(reverse: true);
+    } else if (!widget.animate && _controller.isAnimating) {
+      _controller.stop();
+      _controller.value = 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: _controller,
+    child: widget.child,
+    builder: (context, child) {
+      if (!widget.animate) return child!;
+      final swing = sin(_controller.value * 2 * pi);
+      return Transform.rotate(
+        angle: swing * .035,
+        child: Transform.scale(
+          scale: 1 + swing.abs() * .02,
+          child: child,
+        ),
+      );
+    },
+  );
+}

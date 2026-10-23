@@ -1,5 +1,7 @@
 import 'package:aves/widgets/common/fx/failsafe_badge.dart';
 import 'package:aves/widgets/common/fx/diamond.dart';
+import 'package:aves/model/security/failsafe_config.dart';
+import 'package:aves/widgets/common/fx/black_hole.dart';
 import 'dart:ui';
 import 'package:aves/model/filters/container/album_group.dart';
 import 'package:aves/model/filters/covered/stored_album.dart';
@@ -137,41 +139,42 @@ class _AppDrawerState extends State<AppDrawer> with WidgetsBindingObserver {
       const FailsafeBadge(),
     ];
 
-    // experimental glass effect (opt-in)
+    // Glass Everywhere is the only entry point to drawer blur. With it off,
+    // the drawer never mounts a BackdropFilter or an identity matrix filter.
     final glass = settings.enableBlurEffect && settings.glassEverywhere;
+    Widget content = ListTileTheme.merge(
+      selectedColor: Theme.of(context).colorScheme.primary,
+      horizontalTitleGap: 20,
+      visualDensity: VisualDensity.comfortable,
+      child: Selector<MediaQueryData, double>(
+        selector: (context, mq) => mq.safeBottomPadding,
+        builder: (context, safeBottomPadding, child) {
+          final textScaler = MediaQuery.textScalerOf(context);
+          final iconTheme = IconTheme.of(context);
+          return SingleChildScrollView(
+            controller: _scrollController,
+            // key is expected by test driver
+            key: const Key('drawer-scrollview'),
+            padding: EdgeInsets.only(bottom: safeBottomPadding),
+            child: IconTheme(
+              data: iconTheme.copyWith(size: textScaler.scale(iconTheme.size!)),
+              child: Column(children: drawerItems),
+            ),
+          );
+        },
+      ),
+    );
+    if (glass) {
+      content = ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+          child: content,
+        ),
+      );
+    }
     return Drawer(
       backgroundColor: glass ? Theme.of(context).colorScheme.surfaceContainerHigh.withValues(alpha: .6) : null,
-      child: ClipRect(
-        child: BackdropFilter(
-          filter: glass ? ImageFilter.blur(sigmaX: 14, sigmaY: 14) : ImageFilter.matrix(Matrix4.identity().storage),
-          child: ListTileTheme.merge(
-        selectedColor: Theme.of(context).colorScheme.primary,
-        horizontalTitleGap: 20,
-        visualDensity: VisualDensity.comfortable,
-        child: Selector<MediaQueryData, double>(
-          selector: (context, mq) => mq.safeBottomPadding,
-          builder: (context, safeBottomPadding, child) {
-            final textScaler = MediaQuery.textScalerOf(context);
-            final iconTheme = IconTheme.of(context);
-            return SingleChildScrollView(
-              controller: _scrollController,
-              // key is expected by test driver
-              key: const Key('drawer-scrollview'),
-              padding: EdgeInsets.only(bottom: safeBottomPadding),
-              child: IconTheme(
-                data: iconTheme.copyWith(
-                  size: textScaler.scale(iconTheme.size!),
-                ),
-                child: Column(
-                  children: drawerItems,
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-        ),
-      ),
+      child: content,
     );
   }
 
@@ -424,7 +427,16 @@ class _AppDrawerState extends State<AppDrawer> with WidgetsBindingObserver {
 
     const filter = TrashFilter.instance;
     return CollectionNavTile(
-      leading: const DrawerFilterIcon(filter: filter),
+      leading: ValueListenableBuilder<bool>(
+        valueListenable: FailsafeConfig.rootModeActive,
+        builder: (context, blackHole, _) {
+          final icon = const DrawerFilterIcon(filter: filter);
+          final animate = settings.animate;
+          return blackHole
+              ? BlackHoleIcon(size: 30, animate: animate, child: icon)
+              : TrashIconMotion(animate: animate, child: icon);
+        },
+      ),
       title: const DrawerFilterTitle(filter: filter),
       trailing: Text(formatFileSize(settings.avesLocale, trashSize, round: 0)),
       filters: {filter},

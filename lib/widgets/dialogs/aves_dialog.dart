@@ -4,6 +4,7 @@ import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/themes.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/dialogs/failsafe_comic_dialog.dart';
+import 'package:aves/widgets/common/fx/delete_impact.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 
@@ -223,7 +224,7 @@ Future<T?> showAvesDialog<T>({
   return showDialog<T>(
     context: context,
     // frosted background behind dialogs
-    builder: (settings.enableBlurEffect && (settings.glassEverywhere || settings.materialStyle != null)) ? (context) => BackdropFilter(filter: ImageFilter.blur(sigmaX: settings.materialStyle != null ? 4 : 12, sigmaY: settings.materialStyle != null ? 4 : 12), child: builder(context)) : builder,
+    builder: (settings.enableBlurEffect && settings.glassEverywhere) ? (context) => BackdropFilter(filter: ImageFilter.blur(sigmaX: settings.materialStyle != null ? 4 : 12, sigmaY: settings.materialStyle != null ? 4 : 12), child: builder(context)) : builder,
     barrierDismissible: barrierDismissible,
     barrierColor: barrierColor,
     barrierLabel: barrierLabel,
@@ -280,11 +281,13 @@ class OkButton<T> extends StatelessWidget {
 
 class AvesMessageDialog extends StatelessWidget {
   final String message;
+  final DestructiveEffect? effect;
   final List<Widget> actions;
 
   const new({
     super.key,
     required this.message,
+    this.effect,
     required this.actions,
   });
 
@@ -298,7 +301,16 @@ class AvesMessageDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AvesDialog(
-      content: Text(message),
+      content: effect == null
+          ? Text(message)
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DestructiveActionAnimation(effect: effect!, animate: settings.animate),
+                const SizedBox(height: 8),
+                Text(message),
+              ],
+            ),
       actions: actions,
     );
   }

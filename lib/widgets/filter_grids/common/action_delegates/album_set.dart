@@ -29,6 +29,7 @@ import 'package:aves/widgets/common/action_mixins/entry_editor.dart';
 import 'package:aves/widgets/common/action_mixins/entry_storage.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
+import 'package:aves/widgets/common/fx/delete_impact.dart';
 import 'package:aves/widgets/common/providers/filter_group_provider.dart';
 import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/dialogs/aves_dialog.dart';
@@ -345,7 +346,7 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
       context: context,
       message: deleteMessage,
       confirmLabel: l10n.deleteButtonLabel,
-      regular: () => showConfirmationDialog(context: context, message: deleteMessage, ok: l10n.deleteButtonLabel),
+      regular: () => showConfirmationDialog(context: context, message: deleteMessage, ok: l10n.deleteButtonLabel, effect: DestructiveEffect.erase),
     )) {
       return;
     }

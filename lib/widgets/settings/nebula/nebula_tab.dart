@@ -82,7 +82,7 @@ class _NebulaTabState extends State<NebulaTab> with SingleTickerProviderStateMix
   Widget build(BuildContext context) {
     final settings = context.watch<Settings>();
     final animate = settings.animate;
-    final blur = settings.enableBlurEffect && !settings.performanceMode;
+    final blur = settings.enableBlurEffect && settings.glassEverywhere;
 
     return Theme(
       data: _galaxyTheme(context),
@@ -145,10 +145,11 @@ class _NebulaTabState extends State<NebulaTab> with SingleTickerProviderStateMix
 // whatever the app theme is (this page is a showcase of the Nebula themes).
 ThemeData _galaxyTheme(BuildContext context) {
   final base = Theme.of(context);
-  const scheme = ColorScheme.dark(
-    primary: _galaxyAccent,
+  final accent = settings.materialStyle?.accent ?? _galaxyAccent;
+  final scheme = ColorScheme.dark(
+    primary: accent,
     onPrimary: Color(0xFF1B0038),
-    primaryContainer: Color(0xFF3B2470),
+    primaryContainer: Color.lerp(accent, const Color(0xFF120726), .55)!,
     onPrimaryContainer: Color(0xFFEDE7F6),
     secondary: Color(0xFF9FA8DA),
     onSecondary: Color(0xFF0A001A),
@@ -611,7 +612,7 @@ class _GlassCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: .7),
         borderRadius: radius,
-        border: Border.all(color: Colors.deepPurpleAccent.withValues(alpha: .5)),
+        border: Border.all(color: scheme.primary.withValues(alpha: .5)),
         boxShadow: [
           BoxShadow(color: scheme.primary.withValues(alpha: .18), blurRadius: 26, spreadRadius: -8),
         ],
