@@ -1,8 +1,6 @@
-import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/nebula/nebula_custom_theme.dart';
 import 'package:aves/theme/nebula/nebula_custom_theme_store.dart';
 import 'package:aves/theme/nebula/nebula_palette.dart';
-import 'package:aves/theme/nebula/nebula_theme.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
