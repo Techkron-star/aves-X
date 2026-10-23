@@ -19,6 +19,16 @@ class MasterCode {
 
   // creates the code if none exists yet; `true` if a code exists afterwards
   static Future<bool> ensure(BuildContext context, {bool proposeExtraSecurity = true}) async {
+    if (_promptOpen || !context.mounted) return false;
+    _promptOpen = true;
+    try {
+      return await _ensure(context, proposeExtraSecurity: proposeExtraSecurity);
+    } finally {
+      _promptOpen = false;
+    }
+  }
+
+  static Future<bool> _ensure(BuildContext context, {bool proposeExtraSecurity = true}) async {
     if (await isSet) return true;
     if (!context.mounted) return false;
 
