@@ -93,11 +93,8 @@ class AppLock extends ChangeNotifier {
     // Commit the new mode only after the new secret (if any) is safely stored under its own key.
     if (!await securityService.writeValue<String>(_typeKey, type)) return false;
     // Stale credentials are not used by the new mode; remove them after the mode switch is durable.
-    if (type == 'system') {
-      await securityService.writeValue<String>(_altKey, null);
-    } else {
-      await securityService.writeValue<String>(_pinKey, null);
-    }
+    await securityService.writeValue<String>(_pinKey, null);
+    if (type == 'system') await securityService.writeValue<String>(_altKey, null);
     await securityService.writeValue<String>(_panicKey, null);
     _lockTypeName = type;
     _enabled = true;
