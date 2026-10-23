@@ -77,6 +77,7 @@ class _LockScreenState extends State<_LockBody> {
   bool _fake = false;
   int _fails = 0;
   bool _showBiometric = false;
+  bool _checking = false;
   Timer? _timer;
 
   @override
@@ -130,13 +131,24 @@ class _LockScreenState extends State<_LockBody> {
   bool get _blocked => _timer?.isActive ?? false;
 
   Future<void> _onCode(String code) async {
-    if (_blocked) {
+    // Some PIN field versions emit onCompleted twice. In particular, never let a panic PIN
+    // trigger destructive handling twice for one physical entry.
+    if (_blocked || _checking) {
       _controller.clear();
       return;
     }
-    final result = await appLock.attemptPin(code);
-    _controller.clear();
-    await _handle(result);
+    _checking = true;
+    try {
+      final result = await appLock.attemptPin(code);
+      _controller.clear();
+      await _handle(result);
+    } catch (e, stack) {
+      _controller.clear();
+      // Verification/runtime errors must not be interpreted as a wrong PIN or trigger a nuke.
+      if (mounted) setState(() => _message = context.l10n.genericFailureFeedback);
+    } finally {
+      _checking = false;
+    }
   }
 
   Future<void> _onBiometric() async {
