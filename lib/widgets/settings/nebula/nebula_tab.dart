@@ -607,36 +607,53 @@ class _GlassCard extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final radius = BorderRadius.circular(20);
-    Widget content = Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+    final surfaceColor = Colors.black.withValues(alpha: .7);
+
+    // Keep the rim and glow outside the clipping layer. Clipping the entire card
+    // cut off the shadows of theme pills and other VFX near the card's edges.
+    return Container(
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: .7),
         borderRadius: radius,
         border: Border.all(color: scheme.primary.withValues(alpha: .5)),
         boxShadow: [
           BoxShadow(color: scheme.primary.withValues(alpha: .18), blurRadius: 26, spreadRadius: -8),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
+        clipBehavior: Clip.none,
         children: [
-          Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-          if (subtitle != null) ...[
-            const SizedBox(height: 4),
-            Text(subtitle!, style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant, height: 1.3)),
-          ],
-          const SizedBox(height: 14),
-          child,
+          Positioned.fill(
+            child: Padding(
+              padding: const EdgeInsets.all(1),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(19),
+                child: blur
+                    ? BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                        child: ColoredBox(color: surfaceColor),
+                      )
+                    : ColoredBox(color: surfaceColor),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 4),
+                  Text(subtitle!, style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant, height: 1.3)),
+                ],
+                const SizedBox(height: 14),
+                child,
+              ],
+            ),
+          ),
         ],
       ),
     );
-    if (blur) {
-      content = BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: content,
-      );
-    }
-    return ClipRRect(borderRadius: radius, child: content);
   }
 }
 
