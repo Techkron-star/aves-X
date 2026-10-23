@@ -68,7 +68,7 @@ class _BlackHolePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = size.center(Offset.zero);
-    final r = size.shortestSide / 2;
+    final r = size.shortestSide * .43;
 
     // faint halo around everything
     canvas.drawCircle(
