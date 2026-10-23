@@ -368,15 +368,11 @@ class _NebulaComponentSurfacePainter extends CustomPainter {
             activeTick ? 1.1 : .7, glow: activeTick ? 2 + pulse * 2 : 0);
       }
       if (selected) {
-        final center = Offset(w * .92, h * .5);
-        final r = (h * .11).clamp(3.0, 6.0).toDouble();
-        final diamond = Path()
-          ..moveTo(center.dx, center.dy - r)
-          ..lineTo(center.dx + r * .68, center.dy)
-          ..lineTo(center.dx, center.dy + r)
-          ..lineTo(center.dx - r * .68, center.dy)
-          ..close();
-        _path(canvas, diamond, _light, .5 + pulse * .32, .9, glow: 1.5 + pulse * 2);
+        // Reinforce the leading registration rail rather than placing an emblem
+        // beneath trailing actions/icons at the opposite edge of the row.
+        final y = h * .5;
+        _line(canvas, Offset(x + 1, y), Offset(x + 7 + pulse * 2, y),
+            _light, .46 + pulse * .34, 1.0, glow: 1.5 + pulse * 2);
       }
       _line(canvas, Offset(w * .12, h * .93), Offset(w * (selected ? .32 : .2), h * .93),
           _accent, selected ? .22 + pulse * .15 : .08, .7);
