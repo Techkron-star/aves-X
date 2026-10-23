@@ -182,7 +182,10 @@ class SecretLock {
     switch (lockType) {
       case VaultLockType.system:
         try {
-          return await LocalAuthentication().authenticate(localizedReason: reason);
+          // Platform biometric cancellation and rejection are indistinguishable here; do not
+          // count either as a secret mismatch or let it contribute toward a destructive action.
+          final authenticated = await LocalAuthentication().authenticate(localizedReason: reason);
+          return authenticated ? true : null;
         } on PlatformException catch (e, stack) {
           if (!{'auth_in_progress', 'NotAvailable'}.contains(e.code)) {
             await reportService.recordError(e, stack);
