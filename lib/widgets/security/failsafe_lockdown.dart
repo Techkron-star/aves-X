@@ -77,6 +77,7 @@ class _LockdownScreenState extends State<_LockdownBody> {
   Timer? _timer;
   int _fails = 0;
   bool _checking = false;
+  bool _unlocked = false;
 
   @override
   void initState() {
@@ -125,7 +126,7 @@ class _LockdownScreenState extends State<_LockdownBody> {
   }
 
   Future<void> _onCode(String code) async {
-    if (_blocked || _checking) {
+    if (_unlocked || _blocked || _checking) {
       _controller.clear();
       return;
     }
@@ -142,6 +143,9 @@ class _LockdownScreenState extends State<_LockdownBody> {
       }
       _controller.clear();
       if (ok) {
+        // Mark success synchronously before awaiting anything: some PIN fields emit onCompleted twice.
+        // A duplicate callback must never be processed as a failed Master Code.
+        _unlocked = true;
         await AttemptGuard.master.reset();
         await AttemptGuard.app.reset();
         await failsafe.releaseLockdown();
@@ -240,6 +244,8 @@ class _LockdownScreenState extends State<_LockdownBody> {
                       ),
                     ),
                     const SizedBox(height: 16),
+                    // Keep the status label centered as a single visual unit; avoid inherited
+                    // row alignment/line-height making "Lockdown active" appear vertically offset.
                     const FailsafeBadge(forceAlert: true),
                     const SizedBox(height: 10),
                     Text(
