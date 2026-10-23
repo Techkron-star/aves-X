@@ -888,7 +888,7 @@
   "settingsCustomNebulaThemeEmptyTitle": "Aún no hay temas personalizados",
   "settingsCustomNebulaThemeEmptySubtitle": "Crea tu primer tema Nebula personalizado o importa uno desde JSON.",
   "settingsTabGeneral": "General",
-  "settingsTabSpecial": "Especiales",
+  "settingsTabSpecial": "Aves-X",
   "experimentalLabel": "EXPERIMENTAL",
   "settingsExperimentalSectionTitle": "Experimental",
   "experimentalWarningMessage": "Estas opciones son experimentales. Pueden causar problemas de rendimiento, mayor consumo de batería o inestabilidad. Actívalas bajo tu propio riesgo.",
