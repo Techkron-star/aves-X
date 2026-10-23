@@ -4,9 +4,6 @@ import 'package:aves/model/security/failsafe_quips.dart';
 import 'package:aves/model/security/failsafe_voice.dart';
 
 import 'package:aves/services/common/services.dart';
-import 'package:aves/model/settings/settings.dart';
-import 'package:aves/theme/nebula/nebula_tokens.dart';
-import 'package:aves/widgets/common/fx/diamond.dart';
 import 'package:aves/model/security/attempt_guard.dart';
 import 'package:aves/model/security/master_guard.dart';
 import 'package:aves/model/security/nuke.dart';
@@ -17,6 +14,7 @@ import 'package:aves/widgets/common/fx/failsafe_badge.dart';
 import 'package:aves/widgets/dialogs/filter_editors/code_dialog.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:aves/widgets/security/security_screen_background.dart';
 
 // Covers the whole app while the Failsafe lockdown is on. Only the Master Code lifts it.
 // The content below is kept but cannot be seen or used.
@@ -178,55 +176,103 @@ class _LockdownScreenState extends State<_LockdownBody> {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final nebula = Theme.of(context).nebula;
-    return Material(
-      color: nebula.securityScrim,
-      // deep ruby crystal with a slow glint: Fail-Safe has taken control
-      child: AnimatedCrystal(
-        animate: !settings.performanceMode,
-        opacity: .3,
-        child: SafeArea(
+    return SecurityScreenBackground(
+      child: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const FailsafeBadge(forceAlert: true),
-                const SizedBox(height: 16),
-                Text(l10n.failsafeLockdownTitle, style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
-                const SizedBox(height: 12),
-                Text(l10n.failsafeLockdownMessage, textAlign: TextAlign.center),
-                const SizedBox(height: 24),
-                if (!_blocked)
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: SizedBox(
-                    width: CodeDialog.fieldWidth,
-                    child: MaterialPinField(
-                      length: CodeDialog.length,
-                      pinController: _controller,
-                      keyboardType: TextInputType.number,
-                      autoFocus: true,
-                      obscureText: true,
-                      onChanged: (v) {},
-                      onCompleted: _onCode,
-                    ),
-                    ),
+            padding: const EdgeInsets.all(20),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 480),
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      nebula.securitySurface.withValues(alpha: .94),
+                      nebula.securityInputFieldBg.withValues(alpha: .96),
+                      nebula.securitySurface.withValues(alpha: .98),
+                    ],
+                    stops: const [0, .56, 1],
                   ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 24),
-                  child: FailsafeBuddy(fails: _fails),
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: nebula.securityCrystalEdge.withValues(alpha: .72), width: 1.2),
+                  boxShadow: [
+                    BoxShadow(color: nebula.securityBubbleGlow.withValues(alpha: .24), blurRadius: 34, spreadRadius: -9),
+                    BoxShadow(color: Colors.black.withValues(alpha: .32), blurRadius: 26, offset: const Offset(0, 14)),
+                  ],
                 ),
-                if (_message != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: Text(_message!, textAlign: TextAlign.center, style: TextStyle(color: scheme.error)),
-                  ),
-              ],
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: nebula.securityBubbleSurface.withValues(alpha: .12),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: nebula.securityCrystalEdge.withValues(alpha: .42)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.shield_outlined, size: 14, color: nebula.securityAccent),
+                          const SizedBox(width: 7),
+                          Text(l10n.failsafeLockdownTitle.toUpperCase(),
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: nebula.securityAccent, fontWeight: FontWeight.w800, letterSpacing: 1.5)),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    const FailsafeBadge(forceAlert: true),
+                    const SizedBox(height: 12),
+                    Text(l10n.failsafeLockdownMessage,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: nebula.securityOnSurface.withValues(alpha: .82), height: 1.45),
+                      textAlign: TextAlign.center),
+                    const SizedBox(height: 24),
+                    if (!_blocked)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: nebula.securityInputFieldBg.withValues(alpha: .64),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(color: nebula.securityInputFieldBorder.withValues(alpha: .68)),
+                        ),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: SizedBox(
+                            width: CodeDialog.fieldWidth,
+                            child: MaterialPinField(
+                              length: CodeDialog.length, pinController: _controller,
+                              keyboardType: TextInputType.number, autoFocus: true, obscureText: true,
+                              onChanged: (v) {}, onCompleted: _onCode,
+                            ),
+                          ),
+                        ),
+                      ),
+                    Padding(padding: const EdgeInsets.only(top: 22), child: FailsafeBuddy(fails: _fails)),
+                    if (_message != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                          decoration: BoxDecoration(
+                            color: scheme.error.withValues(alpha: .10),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: scheme.error.withValues(alpha: .35)),
+                          ),
+                          child: Text(_message!, textAlign: TextAlign.center,
+                            style: TextStyle(color: nebula.securityAlert, height: 1.35)),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
-      ),
       ),
     );
   }
@@ -297,8 +343,9 @@ class _FailsafeBuddyState extends State<FailsafeBuddy> {
                   key: ValueKey('$fails$text'),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
-                    color: nebula.securityBubbleSurface.withValues(alpha: .08),
-                    border: Border.all(color: nebula.securityBubbleBorder.withValues(alpha: .6)),
+                    color: nebula.securityBubbleSurface.withValues(alpha: .94),
+                    border: Border.all(color: nebula.securityBubbleBorder.withValues(alpha: .82)),
+                    boxShadow: [BoxShadow(color: nebula.securityBubbleGlow.withValues(alpha: .22), blurRadius: 16, spreadRadius: -4)],
                     borderRadius: const BorderRadiusDirectional.only(
                       topStart: Radius.circular(16),
                       topEnd: Radius.circular(16),
@@ -306,7 +353,7 @@ class _FailsafeBuddyState extends State<FailsafeBuddy> {
                       bottomStart: Radius.circular(3),
                     ),
                   ),
-                  child: Text(text, style: const TextStyle(color: Colors.white, fontSize: 13)),
+                  child: Text(text, style: TextStyle(color: nebula.securityBubbleInk, fontSize: 13, height: 1.3, fontWeight: FontWeight.w600)),
                 ),
               ),
             ),
