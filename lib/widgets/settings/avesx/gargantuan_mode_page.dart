@@ -71,39 +71,35 @@ class _GargantuanModePageState extends State<GargantuanModePage> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(12, 16, 12, 24),
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
-                    child: Text(l10n.blackHoleRootOptionSubtitle),
-                  ),
                   Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(22),
-                  border: Border.all(color: const Color(0x665F32A5)),
-                  gradient: const RadialGradient(
-                    center: Alignment(-.85, -.2),
-                    radius: 1.45,
-                    colors: [Color(0xFF24103B), Color(0xFF090611), Color(0xFF030206)],
-                  ),
-                  boxShadow: const [
-                    BoxShadow(color: Color(0x262D0D48), blurRadius: 22, spreadRadius: -4),
-                  ],
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: SwitchListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    secondary: _loading
-                        ? const SizedBox.square(dimension: 52, child: Center(child: CircularProgressIndicator()))
-                        : BlackHoleDisc(size: 52, animate: animate),
-                    title: Text(l10n.blackHoleRootOption, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
-                    subtitle: Text(
-                      _rootAvailable ? l10n.blackHoleRootOptionSubtitle : l10n.blackHoleRootUnavailable,
-                      style: const TextStyle(color: Color(0xB3FFFFFF)),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(22),
+                      border: Border.all(color: const Color(0x665F32A5)),
+                      gradient: const RadialGradient(
+                        center: Alignment(-.85, -.2),
+                        radius: 1.45,
+                        colors: [Color(0xFF24103B), Color(0xFF090611), Color(0xFF030206)],
+                      ),
+                      boxShadow: const [
+                        BoxShadow(color: Color(0x262D0D48), blurRadius: 22, spreadRadius: -4),
+                      ],
                     ),
-                    value: _enabled,
-                    onChanged: _loading || safeMode ? null : _setEnabled,
-                  ),
-                ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: SwitchListTile(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        secondary: _loading
+                            ? const SizedBox.square(dimension: 52, child: Center(child: CircularProgressIndicator()))
+                            : BlackHoleDisc(size: 52, animate: animate),
+                        title: Text(l10n.blackHoleRootOption, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+                        subtitle: Text(
+                          _rootAvailable ? l10n.blackHoleRootOptionSubtitle : l10n.blackHoleRootUnavailable,
+                          style: const TextStyle(color: Color(0xB3FFFFFF)),
+                        ),
+                        value: _enabled,
+                        onChanged: _loading || safeMode ? null : _setEnabled,
+                      ),
+                    ),
                   ),
                 ],
               ),
