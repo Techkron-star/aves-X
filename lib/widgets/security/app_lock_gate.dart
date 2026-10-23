@@ -250,6 +250,7 @@ class _LockScreenState extends State<_LockBody> {
     final nebula = Theme.of(context).nebula;
     final textTheme = Theme.of(context).textTheme;
     return SecurityScreenBackground(
+      role: NebulaComponentSurfaceRole.appLockBackdrop,
       child: SafeArea(
         child: Center(
           child: SingleChildScrollView(
