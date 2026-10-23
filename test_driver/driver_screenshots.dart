@@ -14,7 +14,6 @@ void main() {
       // app
       ..hasAcceptedTerms = true
       ..isInstalledAppAccessAllowed = true
-      ..isErrorReportingAllowed = false
       ..setTileExtent(CollectionPage.routeName, 69)
       ..setStoredCollectionTileLayout({}, .mosaic)
       ..setTileExtent(CountryListPage.routeName, 112)
