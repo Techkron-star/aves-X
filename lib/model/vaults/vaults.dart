@@ -92,8 +92,9 @@ class Vaults {
     if (newName == null) return;
 
     final newDetails = oldDetails.copyWith(name: newName);
-    await localMediaDb.updateVault(oldDetails.name, newDetails);
 
+    // Copy the active credential before committing the database rename. If secure storage fails,
+    // the old vault metadata and its working credential remain intact.
     if (oldDetails.lockType != .system) {
       final oldTypedKey = oldDetails.passKeyFor(oldDetails.lockType);
       final pass = await securityService.readValueStrict<String>(oldTypedKey) ?? await securityService.readValueStrict<String>(oldDetails.passKey);
@@ -102,6 +103,7 @@ class Vaults {
         throw StateError('Could not migrate vault credential during rename');
       }
     }
+    await localMediaDb.updateVault(oldDetails.name, newDetails);
     await advancedPrivacy.rename(oldDetails.name, newName);
     await _clearVaultPasses(oldDetails);
 
