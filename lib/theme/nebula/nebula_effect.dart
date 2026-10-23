@@ -221,7 +221,7 @@ class _SakuraPainter extends NebulaEffectPainter {
   const _SakuraPainter(super.t);
   @override void paint(Canvas c,Size s){final w=s.width,h=s.height,a=t*2*math.pi;final moon=Offset(w*.72,h*.22),mr=s.shortestSide*.11;c.drawCircle(moon,mr,Paint()..shader=RadialGradient(colors:const[Color(0xFFFBEEDB),Color(0x55FBEEDB),Colors.transparent]).createShader(Rect.fromCircle(center:moon,radius:mr*2.5)));c.drawCircle(moon,mr,Paint()..color=const Color(0xDDF7EBD9));
     c.drawRect(Offset(0,h*.72)&Size(w,h*.28),Paint()..shader=LinearGradient(begin:Alignment.topCenter,end:Alignment.bottomCenter,colors:const[Color(0x335E5260),Color(0x00000000)]).createShader(Rect.fromLTWH(0,h*.6,w,h*.4)));
-    final rnd=math.Random(73);for(var i=0;i<34;i++){final q=(t*(.45+rnd.nextDouble())+i*.083)%1;final x=(rnd.nextDouble()*w+math.sin(q*6+i)*18)%w;final y=h*(.1+q*.95);final rot=math.sin(q*5+i);c.save();c.translate(x,y);c.rotate(rot);c.drawOval(Rect.fromCenter(center:Offset.zero,width:5,height:2.8),Paint()..color=(i.isEven?const Color(0xD9F29AB0):const Color(0xC9D85B72)));c.restore();}
+    final rnd=math.Random(73);for(var i=0;i<34;i++){final q=(t*(1+rnd.nextInt(2))+i*.083)%1;final x=(rnd.nextDouble()*w+math.sin(q*6+i)*18)%w;final y=h*(.1+q*.95);final rot=math.sin(q*5+i);c.save();c.translate(x,y);c.rotate(rot);c.drawOval(Rect.fromCenter(center:Offset.zero,width:5,height:2.8),Paint()..color=(i.isEven?const Color(0xD9F29AB0):const Color(0xC9D85B72)));c.restore();}
   }
 }
 
