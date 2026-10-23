@@ -231,8 +231,13 @@ class Vaults {
       final report = await masterGuard.decryptVault(vaultName);
       if (report == null || !report.success) {
         // Restore at-rest encryption for files that did decrypt before the failure.
-        final restored = await masterGuard.encryptVault(vaultName);
-        if (!restored) await failsafe.engageLockdown();
+        try {
+          final restored = await masterGuard.encryptVault(vaultName);
+          if (!restored) await failsafe.engageLockdown();
+        } catch (error, stack) {
+          await reportService.recordError(error, stack);
+          await failsafe.engageLockdown();
+        }
         if (context.mounted) {
           final message = report == null
               ? context.l10n.genericFailureFeedback
