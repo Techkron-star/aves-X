@@ -76,7 +76,6 @@ class _LockdownScreenState extends State<_LockdownBody> {
   String? _message;
   Timer? _timer;
   int _fails = 0;
-  // a completed code can be reported twice by the field: one entry must never be counted twice
   bool _checking = false;
 
   @override
@@ -126,7 +125,6 @@ class _LockdownScreenState extends State<_LockdownBody> {
   }
 
   Future<void> _onCode(String code) async {
-    // Pin fields can emit onCompleted more than once; one submission must mean one verification.
     if (_blocked || _checking) {
       _controller.clear();
       return;
@@ -138,21 +136,17 @@ class _LockdownScreenState extends State<_LockdownBody> {
         ok = await masterGuard.matchesRequired('master_code', code);
       } catch (e, stack) {
         await reportService.recordError(e, stack);
-        // A verifier error is not evidence of a wrong code: never count it toward cooldown or nuke.
         _controller.clear();
         if (mounted) setState(() => _message = context.l10n.genericFailureFeedback);
         return;
       }
       _controller.clear();
       if (ok) {
-        // Master Code correct: reset attempt guards and release lockdown.
-        // CRITICAL: a verified Master Code is never registered as a failure.
         await AttemptGuard.master.reset();
         await AttemptGuard.app.reset();
         await failsafe.releaseLockdown();
         return;
       }
-      // Only a completed, successful comparison returning false counts as a wrong Master Code.
       final AttemptOutcome outcome;
       try {
         outcome = await AttemptGuard.master.registerFailure();
@@ -161,7 +155,6 @@ class _LockdownScreenState extends State<_LockdownBody> {
         if (mounted) setState(() => _message = context.l10n.genericFailureFeedback);
         return;
       }
-      // Destructive handling is reachable only after a verified mismatch and only when the user enabled it.
       if (outcome == AttemptOutcome.nuke) {
         await Nuke.nukeEverything();
         return;
@@ -219,7 +212,7 @@ class _LockdownScreenState extends State<_LockdownBody> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: nebula.securityBubbleSurface.withValues(alpha: .12),
                         borderRadius: BorderRadius.circular(20),
@@ -227,23 +220,41 @@ class _LockdownScreenState extends State<_LockdownBody> {
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Icon(Icons.shield_outlined, size: 14, color: nebula.securityAccent),
                           const SizedBox(width: 7),
-                          Text(l10n.failsafeLockdownTitle.toUpperCase(),
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: nebula.securityAccent, fontWeight: FontWeight.w800, letterSpacing: 1.5)),
+                          Text(
+                            l10n.failsafeLockdownTitle.toUpperCase(),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: nebula.securityAccent,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              height: 1.15,
+                              letterSpacing: 1.2,
+                              decoration: TextDecoration.none,
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 16),
                     const FailsafeBadge(forceAlert: true),
-                    const SizedBox(height: 12),
-                    Text(l10n.failsafeLockdownMessage,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: nebula.securityOnSurface.withValues(alpha: .82), height: 1.45),
-                      textAlign: TextAlign.center),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 10),
+                    Text(
+                      l10n.failsafeLockdownMessage,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: nebula.securityOnSurface.withValues(alpha: .82),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        height: 1.45,
+                        letterSpacing: 0,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                    const SizedBox(height: 22),
                     if (!_blocked)
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
@@ -257,9 +268,13 @@ class _LockdownScreenState extends State<_LockdownBody> {
                           child: SizedBox(
                             width: CodeDialog.fieldWidth,
                             child: MaterialPinField(
-                              length: CodeDialog.length, pinController: _controller,
-                              keyboardType: TextInputType.number, autoFocus: true, obscureText: true,
-                              onChanged: (v) {}, onCompleted: _onCode,
+                              length: CodeDialog.length,
+                              pinController: _controller,
+                              keyboardType: TextInputType.number,
+                              autoFocus: true,
+                              obscureText: true,
+                              onChanged: (v) {},
+                              onCompleted: _onCode,
                             ),
                           ),
                         ),
@@ -269,37 +284,37 @@ class _LockdownScreenState extends State<_LockdownBody> {
                       Padding(
                         padding: const EdgeInsets.only(top: 16),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                          constraints: const BoxConstraints(maxWidth: 340),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                           decoration: BoxDecoration(
-                            color: scheme.error.withValues(alpha: .10),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: scheme.error.withValues(alpha: .35)),
+                            color: scheme.error.withValues(alpha: .08),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: scheme.error.withValues(alpha: .28)),
                           ),
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 320),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Icon(Icons.info_outline_rounded, size: 18, color: nebula.securityAlert),
-                                const SizedBox(width: 9),
-                                Flexible(
-                                  child: Text(
-                                    _message!,
-                                    textAlign: TextAlign.start,
-                                    softWrap: true,
-                                    style: TextStyle(
-                                      color: nebula.securityAlert,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.35,
-                                      letterSpacing: 0,
-                                      decoration: TextDecoration.none,
-                                    ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(Icons.info_outline_rounded, size: 17, color: nebula.securityAlert),
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  _message!,
+                                  textAlign: TextAlign.start,
+                                  softWrap: true,
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: nebula.securityAlert,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    height: 1.3,
+                                    letterSpacing: 0,
+                                    decoration: TextDecoration.none,
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -338,7 +353,6 @@ class _FailsafeBuddyState extends State<FailsafeBuddy> {
     super.dispose();
   }
 
-  // picks a new line when the number of failures changes, and says it (when there is something to react to)
   String _currentLine(BuildContext context) {
     final fails = widget.fails;
     if (_line == null || _lineFails != fails) {
@@ -352,7 +366,6 @@ class _FailsafeBuddyState extends State<FailsafeBuddy> {
           if (!mounted || _line != line) return;
           _speechTimer?.cancel();
           final speaking = status == FailsafeVoice.statusOk;
-          // Android reports playback start immediately; keep the mouth/quiver active for the clip's duration.
           setState(() {
             _speaking = speaking;
             _voiceError = FailsafeVoice.isFailure(status) ? FailsafeVoice.describe(context.l10n, status) : null;
@@ -413,7 +426,17 @@ class _FailsafeBuddyState extends State<FailsafeBuddy> {
                       bottomStart: Radius.circular(3),
                     ),
                   ),
-                  child: Text(text, style: TextStyle(color: nebula.securityBubbleInk, fontSize: 13, height: 1.3, fontWeight: FontWeight.w600)),
+                  child: Text(
+                    text,
+                    textAlign: TextAlign.start,
+                    style: TextStyle(
+                      color: nebula.securityBubbleInk,
+                      fontSize: 13,
+                      height: 1.3,
+                      fontWeight: FontWeight.w600,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -427,7 +450,7 @@ class _FailsafeBuddyState extends State<FailsafeBuddy> {
               children: [
                 const Icon(Icons.volume_off, size: 14, color: Colors.white70),
                 const SizedBox(width: 6),
-                Flexible(child: Text(voiceError, style: const TextStyle(color: Colors.white70, fontSize: 11, fontStyle: FontStyle.italic))),
+                Flexible(child: Text(voiceError, style: const TextStyle(color: Colors.white70, fontSize: 11, decoration: TextDecoration.none))),
               ],
             ),
           ),
