@@ -67,7 +67,7 @@ class AdvancedPrivacy extends ChangeNotifier {
       await _clearSecondPasses(name);
     } else {
       _secondLocks[name] = type;
-      await _clearSecondPasses(name, except: type);
+      await _clearSecondPasses(name, except: type == VaultLockType.system ? null : type);
     }
     notifyListeners();
   }
