@@ -28,15 +28,15 @@ class AdvancedPrivacy extends ChangeNotifier {
   AdvancedPrivacy._private();
 
   Future<void> init(Iterable<String> vaultNames) async {
-    _hideVaults = await securityService.readValue<String>(_hideVaultsKey) == '1';
+    _hideVaults = await securityService.readValueStrict<String>(_hideVaultsKey) == '1';
     _secondLocks.clear();
     _sharingBlocked.clear();
     for (final name in vaultNames) {
-      final type = VaultLockType.values.safeByName(await securityService.readValue<String>(_secondLockKey(name)));
+      final type = VaultLockType.values.safeByName(await securityService.readValueStrict<String>(_secondLockKey(name)));
       if (type != null) {
         _secondLocks[name] = type;
       }
-      if (await securityService.readValue<String>(_sharingBlockKey(name)) == '1') {
+      if (await securityService.readValueStrict<String>(_sharingBlockKey(name)) == '1') {
         _sharingBlocked.add(name);
       }
     }
@@ -46,7 +46,7 @@ class AdvancedPrivacy extends ChangeNotifier {
   bool get hideVaults => _hideVaults;
 
   Future<void> setHideVaults(bool value) async {
-    await securityService.writeValue<String>(_hideVaultsKey, value ? '1' : null);
+    if (!await securityService.writeValue<String>(_hideVaultsKey, value ? '1' : null)) throw StateError('Could not persist hidden-vault setting');
     _hideVaults = value;
     notifyListeners();
   }
@@ -55,7 +55,7 @@ class AdvancedPrivacy extends ChangeNotifier {
 
   // the secret of the second lock should be set before calling this
   Future<void> setSecondLock(String name, VaultLockType? type) async {
-    await securityService.writeValue<String>(_secondLockKey(name), type?.name);
+    if (!await securityService.writeValue<String>(_secondLockKey(name), type?.name)) throw StateError('Could not persist second vault lock type');
     if (type == null) {
       _secondLocks.remove(name);
       await securityService.writeValue<String>(secondPassKey(name), null);
@@ -68,7 +68,7 @@ class AdvancedPrivacy extends ChangeNotifier {
   bool blocksSharing(String name) => _sharingBlocked.contains(name);
 
   Future<void> setSharingBlocked(String name, bool blocked) async {
-    await securityService.writeValue<String>(_sharingBlockKey(name), blocked ? '1' : null);
+    if (!await securityService.writeValue<String>(_sharingBlockKey(name), blocked ? '1' : null)) throw StateError('Could not persist vault sharing policy');
     if (blocked) {
       _sharingBlocked.add(name);
     } else {
@@ -82,7 +82,7 @@ class AdvancedPrivacy extends ChangeNotifier {
     if (secondLock != null) {
       _secondLocks[newName] = secondLock;
       await securityService.writeValue<String>(_secondLockKey(newName), secondLock.name);
-      final pass = await securityService.readValue<String>(secondPassKey(oldName));
+      final pass = await securityService.readValueStrict<String>(secondPassKey(oldName));
       if (pass != null) {
         await securityService.writeValue<String>(secondPassKey(newName), pass);
       }
