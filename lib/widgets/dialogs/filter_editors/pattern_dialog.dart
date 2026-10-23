@@ -48,6 +48,11 @@ class _PatternDialogState extends State<PatternDialog> {
 
   void _submit(String pattern) {
     if (_submitting) return;
+    if (widget.needConfirmation && pattern.length < 4) {
+      _submitting = false;
+      showWarningDialog(context: context, message: context.l10n.genericFailureFeedback);
+      return;
+    }
     _submitting = true;
     if (widget.needConfirmation) {
       if (_confirming) {
