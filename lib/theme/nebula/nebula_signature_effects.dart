@@ -407,7 +407,7 @@ class _ImperialGlassPainter extends NebulaEffectPainter {
         path.lineTo(x0 + dx, h - u * h * (.5 + .1 * i));
       }
       smoke
-        ..strokeWidth = 7 + 4 * i
+        ..strokeWidth = 7.0 + 4.0 * i
         ..color = _bone.withValues(alpha: .07);
       canvas.drawPath(path, smoke);
     }
@@ -874,6 +874,94 @@ class _EmeraldGlassPainter extends NebulaEffectPainter {
       canvas.drawCircle(Offset(x, y), 5, dot);
       dot.color = const Color(0xFFD8FFE9).withValues(alpha: .2 + .7 * tw);
       canvas.drawCircle(Offset(x, y), 1.2, dot);
+    }
+  }
+}
+
+/// Nox Terroris: an aperture watches from the void while bone motes fall inward.
+/// Every orbit and pulse completes a whole number of cycles; particles fade at both ends.
+class NoxTerrorisEffect extends NebulaEffect {
+  const NoxTerrorisEffect({super.key, required super.animate});
+
+  @override
+  Duration get duration => const Duration(seconds: 18);
+
+  @override
+  bool get reverse => false;
+
+  @override
+  CustomPainter painter(double t) => _NoxTerrorisPainter(t);
+}
+
+class _NoxTerrorisPainter extends NebulaEffectPainter {
+  const _NoxTerrorisPainter(super.t);
+
+  static const _bone = Color(0xFFDCE8B0);
+  static const _acid = Color(0xFFB7D86B);
+  static const _void = Color(0xFF020403);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width, h = size.height;
+    final m = math.min(w, h).toDouble();
+    final tau = 2 * math.pi;
+    final c = Offset(w * .68, h * .47);
+    final pulse = .5 + .5 * math.sin(t * tau);
+    final eyeW = m * (.18 + .09 * pulse);
+    final eyeH = m * (.018 + .035 * pulse);
+
+    canvas.drawCircle(c, m * .34, Paint()..shader = ui.Gradient.radial(c, m * .34,
+      [_acid.withValues(alpha: .10 + .05 * pulse), _acid.withValues(alpha: 0)]));
+    canvas.drawCircle(c, m * .26, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.0
+      ..color = _bone.withValues(alpha: .12 + .05 * pulse));
+    canvas.drawCircle(c, m * .29, Paint()..style = PaintingStyle.stroke..strokeWidth = .7
+      ..color = _acid.withValues(alpha: .14));
+
+    final eye = Rect.fromCenter(center: c, width: eyeW, height: eyeH * 2.4);
+    canvas.drawOval(eye, Paint()..color = _void.withValues(alpha: .92));
+    canvas.drawOval(eye, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.3
+      ..color = _bone.withValues(alpha: .65));
+    canvas.drawLine(Offset(c.dx, eye.top + eye.height * .12), Offset(c.dx, eye.bottom - eye.height * .12),
+      Paint()..strokeWidth = math.max(1.0, m * .012).toDouble()..color = _acid.withValues(alpha: .65 + .3 * pulse));
+    canvas.drawCircle(c, m * .035, Paint()..color = _acid.withValues(alpha: .15)
+      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 4));
+
+    // Thirteen broken halo marks rotate as one complete revolution per loop.
+    canvas.save();
+    canvas.translate(c.dx, c.dy);
+    canvas.rotate(t * tau);
+    final marks = Paint()..style = PaintingStyle.stroke..strokeCap = StrokeCap.round..strokeWidth = 1.1;
+    for (var i = 0; i < 13; i++) {
+      final a = i * tau / 13;
+      final inner = m * .31, outer = inner + (i % 3 == 0 ? m * .045 : m * .022);
+      marks.color = (i % 3 == 0 ? _bone : _acid).withValues(alpha: i % 3 == 0 ? .42 : .2);
+      canvas.drawLine(Offset(math.cos(a) * inner, math.sin(a) * inner),
+        Offset(math.cos(a) * outer, math.sin(a) * outer), marks);
+    }
+    canvas.restore();
+
+    // Bone dust moves inward under a radial pull; alpha reaches zero at wraparound.
+    final rnd = math.Random(61023);
+    final dust = Paint();
+    for (var i = 0; i < 28; i++) {
+      final phase = (t + i / 28) % 1.0;
+      final angle = rnd.nextDouble() * tau;
+      final radius = m * (.48 - .38 * phase);
+      final x = w * .5 + math.cos(angle + t * tau * .08) * radius;
+      final y = h * .5 + math.sin(angle + t * tau * .08) * radius * .72;
+      final fade = math.sin(math.pi * phase);
+      final alpha = (.10 + .42 * fade) * fade;
+      dust.color = (i.isEven ? _bone : _acid).withValues(alpha: alpha);
+      canvas.drawCircle(Offset(x, y), i % 5 == 0 ? 1.7 : 1.0, dust);
+    }
+
+    final crack = Paint()..style = PaintingStyle.stroke..strokeWidth = .7..color = _bone.withValues(alpha: .16);
+    for (var i = 0; i < 4; i++) {
+      final x = w * (.06 + i * .29);
+      final path = Path()..moveTo(x, h * (i.isEven ? .05 : .95))
+        ..lineTo(x + w * .025, h * (i.isEven ? .12 : .88))
+        ..lineTo(x - w * .01, h * (i.isEven ? .18 : .82));
+      canvas.drawPath(path, crack);
     }
   }
 }
