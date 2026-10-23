@@ -1,29 +1,25 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+Aves-X release notes. Upstream Aves changelog history is retained below.
 
-## Aves-X — 0.3.0 (in progress)
+## Aves-X — Beta 0.5 (2026-10-23)
 
 ### Added
+- **Nox Terroris** visual identity and theme-aware Nebula surfaces.
+- Animated **Nav Lens** reflections and hollow chain links that release during unlock.
+- Richer **Gargantuan / Black Hole** event-horizon animation.
 
-- Nox Terroris: a watching void with ossuary-bone ribs, a sickly slit-eye, a sealed mask emblem and inward-drifting dust; fixes the integer/double type error that blocked the latest libre APK build.
-- Night Demon (Obsidian Glass) and Godly (Aureate Glass) get their own aesthetics instead of a recolored crystal: black volcanic glass with pulsing violet cracks, cut corners, a demon-eye emblem and rising embers; burnished gold leaf with divine rays, soft corners, a haloed winged padlock and drifting gold motes.
-- Imperial Glass (riveted gunmetal plate, gilded winged crest, gears and incense) and Solar Flare Glass (a burning star with plasma, prominences and sparks) get their own aesthetics. Two new themes: Abyssal Glass (deep-sea bioluminescence) and Sakura Glass (ink black, falling cherry blossoms, red lacquer).
-- Theme-aware NEW/Experimental feature stickers, with a glass treatment when Glass-Everywhere or Nosferatu Glass is active.
+### Changed
+- Theme-aware inverse contrast for About and Settings controls in the drawer, including light glass themes.
+- Settings organized into **General** (inherited gallery controls) and **Aves-X** (privacy, security, Fail-Safe and Nebula systems).
+- Fail-Safe comic voice ignores rapid taps and enforces a post-playback cooldown.
+- App version/build metadata aligned to `0.5.0-beta+501`; the About screen and libre APK filenames identify **BETA 0.5**.
+- README and release notes updated to reflect the implementation and remaining roadmap work.
 
-### Renombrado a nombres propios
+### Fixed
+- Removed obsolete Nebula painters and an unreachable material-switch fallback that caused Flutter analysis to fail.
 
-- Bat-Glass → **Nosferatu Glass**
-- Bat-Lens → **Nav Lens**
-- Bat-Curity → **Master Guard**
-- Bat-Mark → **App Mark**
-- Nuevos temas: Obsidian Glass, Aureate Glass, Forge Glass, Hermetic Glass
-
-### Work in progress
-
-- Nebula Engine base: theme model, palettes and tokens; Nosferatu Glass becomes a built-in theme.
-- Fail-Safe visual rework: theme-aware comic bubble, badge, settings, welcome, lockdown and app lock.
-- Gargantua grouped exit policy: categories instead of 24 toggles, with Master Code for sharing.
+---
 
 ## <a id="unreleased"></a>[Unreleased]
 
