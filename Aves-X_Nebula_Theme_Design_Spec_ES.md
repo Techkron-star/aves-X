@@ -9,9 +9,11 @@
 
 ## 1. Auditoría del estado actual
 
-El repositorio declara 19 valores en `NebulaTheme`: el tema base Aves, Nosferatu Glass y **17 temas de fase 2**. Las 19 paletas existen en `nebula_palettes.dart`; `NebulaTokens.fromPalette` contempla los tratamientos; y `nebulaEffectFor` ya conecta los 17 temas de fase 2 con un efecto propio. Sin embargo, `NebulaThemeInfo.phase` clasifica todo salvo Aves y Nosferatu como fase 2, y el selector usa `enabled: t.isPhase1`. Por tanto, **los 17 temas continúan deshabilitados en el selector aunque ya tengan implementación visual**.
+El repositorio declara 19 valores en `NebulaTheme`: el tema base Aves, Nosferatu Glass y **17 temas de fase 2**. Las 19 paletas existen en `nebula_palettes.dart`; `NebulaTokens.fromPalette` contempla los tratamientos; y `nebulaEffectFor` conecta los 17 temas de fase 2 con un efecto propio.
 
-Esto significa que el trabajo visual no parte de cero: conviene refinar y diferenciar las identidades existentes, no reemplazar todo sin necesidad. Se encontraron además algunas discrepancias entre comentarios y código: comentarios antiguos dicen que los VFX de fase 2 todavía no existen; el README solo enumera cinco temas; y el comentario del selector no refleja los 17 temas registrados.
+**Actualización de estado para la rama `develop`:** en el código consultado, `nebula_theme_selector.dart` ya usa `enabled: true` y permite seleccionar las 19 opciones. La clasificación `phase` se conserva como metadato (y como etiqueta experimental), pero ya no debe describirse como un bloqueo del selector. El `ROADMAP.md` indica que hay VFX de fase 2 implementados y que queda medir el rendimiento en dispositivos de gama baja antes de considerarlos plenamente validados. Por ello, este documento es una propuesta de refinamiento y verificación visual; no se debe desbloquear ni rehacer código que ya esté resuelto en la rama actual.
+
+El trabajo visual no parte de cero: conviene refinar y diferenciar las identidades existentes, no reemplazar todo sin necesidad. Persisten discrepancias de documentación: el README público enumera una selección reducida de temas y algunos comentarios de código parecen pertenecer a una fase anterior. El agente debe comprobar la rama vigente antes de decidir si un selector, efecto o token sigue pendiente.
 
 ### Riesgos visuales detectados
 
