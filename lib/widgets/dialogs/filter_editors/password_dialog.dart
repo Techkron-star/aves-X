@@ -59,6 +59,12 @@ class _PasswordDialogState extends State<PasswordDialog> {
 
   void _submit(String password) {
     if (_submitting) return;
+    if (widget.needConfirmation && password.trim().length < 8) {
+      _controller.clear();
+      _submitting = false;
+      showWarningDialog(context: context, message: context.l10n.genericFailureFeedback);
+      return;
+    }
     _submitting = true;
     if (widget.needConfirmation) {
       if (_confirming) {
