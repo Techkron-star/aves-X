@@ -174,10 +174,18 @@ class MasterGuard extends ChangeNotifier {
     return securityService.writeValue<String>(key, await prepare(secret));
   }
 
-  // checks an input against the stored secret
+  // Checks an optional secret. A missing value is a normal mismatch.
   Future<bool> matches(String key, String input) async {
-    final stored = await securityService.readValue<String>(key);
+    final stored = await securityService.readValueStrict<String>(key);
     if (stored == null) return false;
+    return matchesStored(stored, input);
+  }
+
+  // Checks a credential that must exist for the requested operation. Missing/unreadable storage
+  // is an integrity error, not a wrong password; callers must fail closed without counting it.
+  Future<bool> matchesRequired(String key, String input) async {
+    final stored = await securityService.readValueStrict<String>(key);
+    if (stored == null) throw StateError('Required credential is missing: $key');
     return matchesStored(stored, input);
   }
 
