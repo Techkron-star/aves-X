@@ -11,6 +11,7 @@ import 'dart:math';
 import 'package:aves/app_mode.dart';
 import 'package:aves/model/secret_reveal.dart';
 import 'package:aves/model/settings/settings.dart';
+import 'package:aves/theme/nebula/nebula_material.dart';
 import 'package:aves/model/source/collection_lens.dart';
 import 'package:aves/widgets/collection/collection_page.dart';
 import 'package:aves/widgets/common/bars/floating_bar.dart';
@@ -215,8 +216,14 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
   // iOS-like lens over the selected item (rounded and rectangular bars)
   Widget _withLens(BuildContext context, NavBarStyle style, int count, int index, bool isRtl, Widget bar) {
     if (style == NavBarStyle.classic || !settings.navLens) return bar;
-    final blur = settings.enableBlurEffect && settings.glassEverywhere;
     final material = settings.materialStyle;
+    // Eclipse uses a crescent/orbit marker and Hermetic uses calibration ticks;
+    // rendering the shared rounded lens as well would stamp a generic glass pill
+    // underneath both identities.
+    if (material?.material == NebulaMaterial.eclipse || material?.material == NebulaMaterial.hermetic) {
+      return bar;
+    }
+    final blur = settings.enableBlurEffect && settings.glassEverywhere;
     final radius = BorderRadius.circular(style == NavBarStyle.rectangular ? 8 : 22);
     Widget lens = DecoratedBox(
       decoration: BoxDecoration(
