@@ -131,11 +131,20 @@ class _NebulaComponentSurfaceAccentState extends State<NebulaComponentSurfaceAcc
   }
 
   void _syncAnimation() {
-    final shouldAnimate = _supported &&
-        widget.animate &&
-        widget.state != NebulaComponentSurfaceState.disabled;
     final current = _controller;
+    if (!_supported) {
+      // If the selected theme leaves this migration slice, release any
+      // controller that was created while Eclipse/Hermetic was active.
+      if (current != null) {
+        current.stop();
+        current.dispose();
+        _controller = null;
+      }
+      return;
+    }
 
+    final shouldAnimate = widget.animate &&
+        widget.state != NebulaComponentSurfaceState.disabled;
     if (!shouldAnimate) {
       if (current != null && current.isAnimating) {
         current.stop();
