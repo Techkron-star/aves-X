@@ -51,8 +51,21 @@ class ItemLockScreen extends StatelessWidget with FeedbackMixin {
               child: Container(
                 constraints: const BoxConstraints(maxWidth: 420),
                 decoration: BoxDecoration(
-                  color: nebula.securitySurface,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      nebula.securitySurface.withValues(alpha: .98),
+                      nebula.securityInputFieldBg.withValues(alpha: .94),
+                      nebula.securitySurface.withValues(alpha: .99),
+                    ],
+                  ),
                   borderRadius: BorderRadius.circular(26),
+                  border: Border.all(color: nebula.securityCrystalEdge.withValues(alpha: .7), width: 1.1),
+                  boxShadow: [
+                    BoxShadow(color: nebula.securityBubbleGlow.withValues(alpha: .24), blurRadius: 32, spreadRadius: -8),
+                    BoxShadow(color: Colors.black.withValues(alpha: .24), blurRadius: 20, offset: const Offset(0, 10)),
+                  ],
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(32),
@@ -61,7 +74,35 @@ class ItemLockScreen extends StatelessWidget with FeedbackMixin {
                     children: [
                       SizedBox.square(
                         dimension: 160,
-                        child: Center(child: LockedBadge(fresh: false)),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: RadialGradient(
+                                  center: const Alignment(-.25, -.35),
+                                  colors: [
+                                    nebula.securityBubbleGlow.withValues(alpha: .42),
+                                    nebula.securityCrystalHighlight.withValues(alpha: .16),
+                                    Colors.transparent,
+                                  ],
+                                  stops: const [0, .52, 1],
+                                ),
+                              ),
+                            ),
+                            Container(
+                              width: 116,
+                              height: 116,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(color: nebula.securityCrystalEdge.withValues(alpha: .3)),
+                                color: nebula.securityScrim.withValues(alpha: .12),
+                              ),
+                            ),
+                            const LockedBadge(fresh: false),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 24),
                       Text(
