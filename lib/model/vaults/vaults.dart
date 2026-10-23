@@ -92,11 +92,16 @@ class Vaults {
     final newDetails = oldDetails.copyWith(name: newName);
     await localMediaDb.updateVault(oldDetails.name, newDetails);
 
-    final pass = await securityService.readValue(oldDetails.passKey);
+    final oldTypedKey = oldDetails.passKeyFor(oldDetails.lockType);
+    final pass = await securityService.readValueStrict<String>(oldTypedKey) ?? await securityService.readValueStrict<String>(oldDetails.passKey);
     if (pass != null) {
-      await securityService.writeValue(newDetails.passKey, pass);
+      if (!await securityService.writeValue<String>(newDetails.passKeyFor(newDetails.lockType), pass)) {
+        throw StateError('Could not migrate vault credential during rename');
+      }
     }
     await advancedPrivacy.rename(oldDetails.name, newName);
+    await securityService.writeValue<String>(oldTypedKey, null);
+    await securityService.writeValue<String>(oldDetails.passKey, null);
 
     _rows
       ..remove(oldDetails)
