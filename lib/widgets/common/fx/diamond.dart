@@ -19,7 +19,8 @@ Decoration nebulaMaterialDecoration(NebulaMaterial material, {double phase = -1,
     case NebulaMaterial.godly:
       return GoldLeafDecoration(glint: phase, opacity: opacity);
     default:
-      final style = nebulaMaterials.values.firstWhere((style) => style.material == material);
+      final style = nebulaMaterialStylesByMaterial[material];
+      if (style == null) return const BoxDecoration();
       return NebulaMaterialDecoration(style: style, phase: phase, opacity: opacity);
   }
 }
@@ -451,12 +452,12 @@ class _CrystalPainter extends BoxPainter {
   List<_Facet> _facets = const [];
 
   void _build(Size size) {
-    final cached = _cache[size];
+    final cached = _cache.remove(size);
     if (cached != null) {
+      _cache[size] = cached;
       _facets = cached;
       return;
     }
-    if (_cache.length > 8) _cache.clear();
     final cols = (size.width / _cell).ceil() + 1;
     final rows = (size.height / _cell).ceil() + 1;
     final cw = size.width / (cols - 1 == 0 ? 1 : cols - 1);
@@ -483,7 +484,11 @@ class _CrystalPainter extends BoxPainter {
         }
       }
     }
-    _facets = _cache[size] = facets;
+    _facets = facets;
+    _cache[size] = facets;
+    while (_cache.length > 12) {
+      _cache.remove(_cache.keys.first);
+    }
   }
 
   // the static crystal is recorded once per size and replayed, so animating the glint only costs one gradient per frame
@@ -493,13 +498,15 @@ class _CrystalPainter extends BoxPainter {
   void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
     final size = configuration.size;
     if (size == null || size.isEmpty) return;
-    if (_pictures.length > 8) {
-      for (final p in _pictures.values) {
-        p.dispose();
-      }
-      _pictures.clear();
+    final key = (size, opacity);
+    // Keep recently used sizes hot; evict one old picture instead of rebuilding
+    // every crystal when a grid changes between its common tile dimensions.
+    final cached = _pictures.remove(key);
+    final picture = cached ?? _record(size);
+    _pictures[key] = picture;
+    while (_pictures.length > 12) {
+      _pictures.remove(_pictures.keys.first)?.dispose();
     }
-    final picture = _pictures[(size, opacity)] ??= _record(size);
 
     canvas.save();
     canvas.clipRect(offset & size);
