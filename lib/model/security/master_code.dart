@@ -15,7 +15,7 @@ class MasterCode {
   static const _key = 'master_code';
   static bool _promptOpen = false;
 
-  static Future<bool> get isSet async => await securityService.readValue<String>(_key) != null;
+  static Future<bool> get isSet async => await securityService.readValueStrict<String>(_key) != null;
 
   // creates the code if none exists yet; `true` if a code exists afterwards
   static Future<bool> ensure(BuildContext context, {bool proposeExtraSecurity = true}) async {
@@ -29,7 +29,13 @@ class MasterCode {
   }
 
   static Future<bool> _ensure(BuildContext context, {bool proposeExtraSecurity = true}) async {
-    if (await isSet) return true;
+    try {
+      if (await isSet) return true;
+    } catch (error, stack) {
+      await reportService.recordError(error, stack);
+      if (context.mounted) await showWarningDialog(context: context, message: context.l10n.genericFailureFeedback);
+      return false;
+    }
     if (!context.mounted) return false;
 
     final code = await showAvesDialog<String>(
@@ -48,7 +54,15 @@ class MasterCode {
 
   // asks for the code (creating it first if needed); `true` if the user can proceed
   static Future<bool> require(BuildContext context, {String? message, bool proposeExtraSecurity = true}) async {
-    if (!await isSet) return ensure(context, proposeExtraSecurity: proposeExtraSecurity);
+    final bool hasCode;
+    try {
+      hasCode = await isSet;
+    } catch (error, stack) {
+      await reportService.recordError(error, stack);
+      if (context.mounted) await showWarningDialog(context: context, message: context.l10n.genericFailureFeedback);
+      return false;
+    }
+    if (!hasCode) return ensure(context, proposeExtraSecurity: proposeExtraSecurity);
     // Multiple callers must not stack Master Code prompts or race success/reset against a wrong attempt.
     if (_promptOpen || !context.mounted) return false;
     _promptOpen = true;
@@ -79,7 +93,7 @@ class MasterCode {
   
       final bool matches;
       try {
-        matches = await masterGuard.matches(_key, code);
+        matches = await masterGuard.matchesRequired(_key, code);
         if (matches) await guard.reset();
       } catch (error, stack) {
         // Corrupt secure storage, hash parsing errors or a failed counter reset are not a wrong code.
