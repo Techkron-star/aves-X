@@ -525,65 +525,72 @@ class _NebulaHeroCard extends StatelessWidget {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xCC2A1052), Color(0xCC0A001A)],
+    final radius = BorderRadius.circular(24);
+    return Container(
+      // The halo must be painted outside the clipping layer to stay soft.
+      decoration: BoxDecoration(
+        borderRadius: radius,
+        boxShadow: [
+          BoxShadow(color: scheme.primary.withValues(alpha: .22), blurRadius: 30, spreadRadius: -8),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: radius,
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xCC2A1052), Color(0xCC0A001A)],
+            ),
+            borderRadius: radius,
+            border: Border.all(color: scheme.primary.withValues(alpha: .45)),
           ),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: scheme.primary.withValues(alpha: .45)),
-          boxShadow: [
-            BoxShadow(color: scheme.primary.withValues(alpha: .22), blurRadius: 30, spreadRadius: -8),
-          ],
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.black.withValues(alpha: .35),
-                border: Border.all(color: scheme.primary.withValues(alpha: .35)),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.black.withValues(alpha: .35),
+                  border: Border.all(color: scheme.primary.withValues(alpha: .35)),
+                ),
+                padding: const EdgeInsets.all(8),
+                child: const AvesLogoArt(size: 64),
               ),
-              padding: const EdgeInsets.all(8),
-              child: const AvesLogoArt(size: 64),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.nebulaGalaxyHeroTitle,
-                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800, letterSpacing: .2),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    l10n.nebulaGalaxyHeroBody,
-                    style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant, height: 1.35),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Icon(Icons.auto_awesome, size: 16, color: scheme.primary),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          l10n.nebulaGalaxyPhase1,
-                          style: theme.textTheme.labelMedium?.copyWith(color: scheme.primary),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.nebulaGalaxyHeroTitle,
+                      style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800, letterSpacing: .2),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      l10n.nebulaGalaxyHeroBody,
+                      style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant, height: 1.35),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Icon(Icons.auto_awesome, size: 16, color: scheme.primary),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            l10n.nebulaGalaxyPhase1,
+                            style: theme.textTheme.labelMedium?.copyWith(color: scheme.primary),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
