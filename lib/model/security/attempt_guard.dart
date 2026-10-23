@@ -158,7 +158,9 @@ class AttemptGuard {
       try {
         final count = await biometricFailures() + 1;
         await _writeRequired('att_${id}_bio', count.toString());
-        completer.complete(await _registerFailure());
+        // Biometric rejection/cancellation is not a wrong secret and must never trigger a nuke.
+        // The separate counter merely disables biometrics after repeated failures, requiring the secret.
+        completer.complete(AttemptOutcome.failed);
       } catch (error, stack) {
         completer.completeError(error, stack);
       }
