@@ -19,6 +19,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:aves/widgets/security/security_screen_background.dart';
 import 'package:aves/theme/nebula/nebula_tokens.dart';
+import 'package:aves/theme/nebula/nebula_material.dart';
 
 // Covers the whole app while the Failsafe lockdown is on. Only the Master Code lifts it.
 // The content below is kept but cannot be seen or used.
@@ -183,6 +184,16 @@ class _LockdownScreenState extends State<_LockdownBody> {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final nebula = Theme.of(context).nebula;
+    final cardRadius = switch (settings.materialStyle?.material) {
+      NebulaMaterial.eclipse => 22.0,
+      NebulaMaterial.hermetic => 10.0,
+      _ => 30.0,
+    };
+    final inputRadius = switch (settings.materialStyle?.material) {
+      NebulaMaterial.eclipse => 12.0,
+      NebulaMaterial.hermetic => 5.0,
+      _ => 18.0,
+    };
     return SecurityScreenBackground(
       role: NebulaComponentSurfaceRole.lockdownBackdrop,
       child: SafeArea(
@@ -197,7 +208,7 @@ class _LockdownScreenState extends State<_LockdownBody> {
                 state: NebulaComponentSurfaceState.warning,
                 animate: settings.animate,
                 alertColor: nebula.securityAlert,
-                borderRadius: const BorderRadius.all(Radius.circular(30)),
+                borderRadius: BorderRadius.circular(cardRadius),
                 child: Container(
                 padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
                 decoration: BoxDecoration(
@@ -211,7 +222,7 @@ class _LockdownScreenState extends State<_LockdownBody> {
                     ],
                     stops: const [0, .56, 1],
                   ),
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(cardRadius),
                   border: Border.all(color: nebula.securityCrystalEdge.withValues(alpha: .72), width: 1.2),
                   boxShadow: [
                     BoxShadow(color: nebula.securityBubbleGlow.withValues(alpha: .24), blurRadius: 34, spreadRadius: -9),
@@ -274,12 +285,12 @@ class _LockdownScreenState extends State<_LockdownBody> {
                             : NebulaComponentSurfaceState.focused,
                         animate: settings.animate,
                         alertColor: nebula.securityAlert,
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: BorderRadius.circular(inputRadius),
                         child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                         decoration: BoxDecoration(
                           color: nebula.securityInputFieldBg.withValues(alpha: .64),
-                          borderRadius: BorderRadius.circular(18),
+                          borderRadius: BorderRadius.circular(inputRadius),
                           border: Border.all(color: nebula.securityInputFieldBorder.withValues(alpha: .68)),
                         ),
                         child: FittedBox(
