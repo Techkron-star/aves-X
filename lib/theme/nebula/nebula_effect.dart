@@ -340,23 +340,367 @@ class _ForgePainter extends NebulaEffectPainter {
 
 class _HermeticPainter extends NebulaEffectPainter {
   const _HermeticPainter(super.t);
-  void ring(Canvas c,Offset o,double r,double rot,Color color){final p=Paint()..style=PaintingStyle.stroke..strokeWidth=1.2..color=color; c.save();c.translate(o.dx,o.dy);c.rotate(rot);c.drawCircle(Offset.zero,r,p);c.drawLine(Offset(-r,-r*.28),Offset(r,r*.28),p);c.drawLine(Offset(-r,r*.28),Offset(r,-r*.28),p);c.restore();}
-  @override void paint(Canvas c,Size s){final o=Offset(s.width*.5,s.height*.5),r=s.shortestSide*.27,a=t*2*math.pi;
-    c.drawRect(Offset.zero&s,Paint()..shader=RadialGradient(colors:const[Color(0x331B6A45),Color(0x140A1020),Colors.transparent]).createShader(Rect.fromCircle(center:o,radius:s.shortestSide*.75)));
-    for(var i=0;i<4;i++) ring(c,o,r*(.72+i*.23),a*(i.isEven?1:-.6)+i*.8, i.isEven?const Color(0x6638D39A):const Color(0x553E75FF));
-    final sig=Paint()..style=PaintingStyle.stroke..strokeWidth=2..color=const Color(0xAA4DE7B0); final path=Path()..moveTo(o.dx,o.dy-r*.45)..lineTo(o.dx+r*.39,o.dy+r*.25)..lineTo(o.dx-r*.39,o.dy+r*.25)..close();c.drawPath(path,sig);
-    c.drawCircle(o,r*.1,Paint()..color=const Color(0x6638D39A)..maskFilter=const MaskFilter.blur(BlurStyle.normal,10));
+
+  @override
+  void paint(Canvas c, Size s) {
+    final w = s.width;
+    final h = s.height;
+    final m = s.shortestSide;
+    final center = Offset(w * .5, h * .49);
+    final r = m * .255;
+    final angle = t * math.pi * 2;
+    final pulse = .5 + .5 * math.sin(angle);
+
+    c.drawRect(
+      Offset.zero & s,
+      Paint()
+        ..shader = RadialGradient(
+          center: const Alignment(0, -.08),
+          radius: 1.05,
+          colors: const [
+            Color(0x4435D8A0),
+            Color(0x222D175D),
+            Color(0x10071310),
+            Colors.transparent,
+          ],
+          stops: const [0, .38, .7, 1],
+        ).createShader(Offset.zero & s),
+    );
+
+    // The hermetic seal is a layered alchemical instrument, not a generic neon ring.
+    // Draw a soft emerald aura and a restrained violet counter-glow behind the geometry.
+    final auraRect = Rect.fromCircle(center: center, radius: r * 1.72);
+    c.drawCircle(
+      center,
+      r * 1.5,
+      Paint()
+        ..color = const Color(0x2435D8A0)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 20),
+    );
+    c.drawCircle(
+      center + Offset(r * .06, r * .04),
+      r * .93,
+      Paint()
+        ..color = Color(0x334F35A2).withValues(alpha: .16 + pulse * .1)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12),
+    );
+
+    // Four orbital rings alternate direction, with separate green and amethyst inks.
+    for (var i = 0; i < 4; i++) {
+      final radius = r * (.72 + i * .22);
+      final rotation = angle * (i.isEven ? .075 : -.055) + i * .43;
+      final color = i.isEven
+          ? const Color(0xAA42E7B1)
+          : const Color(0x997E72E8);
+      c.drawCircle(
+        center,
+        radius,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = i == 3 ? 1.35 : .85
+          ..color = color.withValues(alpha: color.a * (.58 + pulse * .22)),
+      );
+      c.save();
+      c.translate(center.dx, center.dy);
+      c.rotate(rotation);
+      final orbitRect = Rect.fromCircle(center: Offset.zero, radius: radius);
+      c.drawArc(
+        orbitRect,
+        -.52,
+        math.pi * .58,
+        false,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round
+          ..strokeWidth = 2.2
+          ..color = const Color(0xCCB4FFE3)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
+      );
+      c.drawArc(
+        orbitRect,
+        math.pi * .42,
+        math.pi * .34,
+        false,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round
+          ..strokeWidth = 1.4
+          ..color = const Color(0xCC9587FF),
+      );
+      c.restore();
+    }
+
+    // Engraved radial graduations make the seal feel machined and intentional.
+    final tickPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1
+      ..color = const Color(0x8876EBC0);
+    for (var i = 0; i < 24; i++) {
+      final a = i * math.pi / 12 - angle * .018;
+      final inner = r * (i.isEven ? 1.16 : 1.21);
+      final outer = r * (i.isEven ? 1.34 : 1.29);
+      c.drawLine(
+        center + Offset(math.cos(a) * inner, math.sin(a) * inner),
+        center + Offset(math.cos(a) * outer, math.sin(a) * outer),
+        tickPaint,
+      );
+    }
+
+    // Interlocking triangle and diamond: the core sigil glows in two passes.
+    final triangle = Path()
+      ..moveTo(center.dx, center.dy - r * .72)
+      ..lineTo(center.dx + r * .64, center.dy + r * .42)
+      ..lineTo(center.dx - r * .64, center.dy + r * .42)
+      ..close();
+    final inverted = Path()
+      ..moveTo(center.dx, center.dy + r * .72)
+      ..lineTo(center.dx + r * .54, center.dy - r * .24)
+      ..lineTo(center.dx - r * .54, center.dy - r * .24)
+      ..close();
+    final sigilGlow = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeJoin = StrokeJoin.round
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 5
+      ..color = Color(0x5535D8A0).withValues(alpha: .24 + pulse * .16)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 7);
+    final sigilLine = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeJoin = StrokeJoin.round
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 1.45
+      ..color = Color(0xFFB7FFE0).withValues(alpha: .68 + pulse * .24);
+    for (final path in [triangle, inverted]) {
+      c.drawPath(path, sigilGlow);
+      c.drawPath(path, sigilLine);
+    }
+
+    // Four small alchemical nodes mark the cardinal directions.
+    for (var i = 0; i < 4; i++) {
+      final a = angle * (i.isEven ? .035 : -.035) + i * math.pi / 2;
+      final p = center + Offset(math.cos(a) * r * .88, math.sin(a) * r * .88);
+      final node = Path()
+        ..moveTo(p.dx, p.dy - r * .075)
+        ..lineTo(p.dx + r * .075, p.dy)
+        ..lineTo(p.dx, p.dy + r * .075)
+        ..lineTo(p.dx - r * .075, p.dy)
+        ..close();
+      c.drawPath(
+        node,
+        Paint()
+          ..color = const Color(0xFF35D8A0)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+      );
+      c.drawPath(node, Paint()..color = const Color(0xFFD3FFEB));
+    }
+
+    // The central philosopher's stone: a dark glass bead with a living emerald core.
+    c.drawCircle(
+      center,
+      r * (.18 + pulse * .012),
+      Paint()
+        ..color = const Color(0xAA35D8A0)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 13),
+    );
+    c.drawCircle(
+      center,
+      r * .15,
+      Paint()
+        ..shader = const RadialGradient(
+          colors: [Color(0xFFB7FFE0), Color(0xFF35D8A0), Color(0xFF103C31)],
+          stops: [0, .32, 1],
+        ).createShader(Rect.fromCircle(center: center, radius: r * .15)),
+    );
+    c.drawCircle(
+      center,
+      r * .205,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..color = const Color(0xAA9587FF),
+    );
+
+    // Sparse moving sparks follow the outer orbit; no random allocation per frame.
+    for (var i = 0; i < 8; i++) {
+      final a = angle * .12 + i * math.pi / 4;
+      final d = r * 1.52;
+      final p = center + Offset(math.cos(a) * d, math.sin(a) * d * .78);
+      c.drawCircle(
+        p,
+        i.isEven ? 1.6 : 1,
+        Paint()
+          ..color = i.isEven
+              ? const Color(0xCC7CFFD0)
+              : const Color(0xCCB2A5FF),
+      );
+    }
   }
 }
 
 class _EclipsePainter extends NebulaEffectPainter {
   const _EclipsePainter(super.t);
-  @override void paint(Canvas c,Size s){final o=Offset(s.width*.5,s.height*.45),r=s.shortestSide*.23,a=t*2*math.pi;
-    c.drawRect(Offset.zero&s,Paint()..shader=RadialGradient(colors:const[Color(0x221C5B8F),Color(0x08051428),Colors.transparent]).createShader(Rect.fromCircle(center:o,radius:s.shortestSide)));
-    final corona=Paint()..style=PaintingStyle.stroke..strokeWidth=r*.22..shader=SweepGradient(colors:const[Color(0x0029D9FF),Color(0xAA9AF5FF),Color(0x3300B8F5),Color(0x0029D9FF)],transform:GradientRotation(a)).createShader(Rect.fromCircle(center:o,radius:r*1.3))..maskFilter=const MaskFilter.blur(BlurStyle.normal,5);c.drawCircle(o,r*1.22,corona);
-    c.drawCircle(o,r,Paint()..shader=RadialGradient(colors:const[Color(0xFF000207),Color(0xFF07111E)]).createShader(Rect.fromCircle(center:o,radius:r)));
-    final thin=Paint()..style=PaintingStyle.stroke..strokeWidth=1..color=const Color(0x669AF5FF);c.drawCircle(o,r,thin);
-    for(var i=0;i<10;i++){final q=a+i*2.399963; final d=r*1.55; c.drawCircle(o+Offset(math.cos(q)*d,math.sin(q)*d),1.1,Paint()..color=const Color(0x779AF5FF));}
+
+  @override
+  void paint(Canvas c, Size s) {
+    final w = s.width;
+    final h = s.height;
+    final m = s.shortestSide;
+    final center = Offset(w * .5, h * .46);
+    final r = m * .235;
+    final angle = t * math.pi * 2;
+    final pulse = .5 + .5 * math.sin(angle);
+
+    c.drawRect(
+      Offset.zero & s,
+      Paint()
+        ..shader = RadialGradient(
+          center: const Alignment(.08, -.12),
+          radius: 1.05,
+          colors: const [
+            Color(0x33236CA0),
+            Color(0x18081732),
+            Colors.transparent,
+          ],
+          stops: const [0, .48, 1],
+        ).createShader(Offset.zero & s),
+    );
+
+    // Layered corona: broad atmospheric bloom, thin ice-blue rim, bright living arc.
+    final coronaRect = Rect.fromCircle(center: center, radius: r * 1.22);
+    c.drawCircle(
+      center,
+      r * 1.22,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = r * (.29 + pulse * .035)
+        ..color = const Color(0x3329D9FF)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 16),
+    );
+    c.drawCircle(
+      center,
+      r * 1.22,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = r * .16
+        ..shader = SweepGradient(
+          colors: const [
+            Color(0x0029D9FF),
+            Color(0x669AF5FF),
+            Color(0xCC59DFFF),
+            Color(0xEEBDFBFF),
+            Color(0x5500B8F5),
+            Color(0x0029D9FF),
+          ],
+          stops: const [0, .19, .37, .49, .76, 1],
+          transform: GradientRotation(angle * .12),
+        ).createShader(coronaRect)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
+    );
+    c.drawArc(
+      coronaRect,
+      angle * .22 + .25,
+      math.pi * (.52 + pulse * .12),
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round
+        ..strokeWidth = 2.4
+        ..color = const Color(0xFFE5FCFF)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
+    );
+
+    // Near-black lunar body with a cold reflected edge.
+    c.drawCircle(
+      center,
+      r,
+      Paint()
+        ..shader = const RadialGradient(
+          center: Alignment(-.3, -.35),
+          radius: 1.1,
+          colors: [
+            Color(0xFF101B2A),
+            Color(0xFF030711),
+            Color(0xFF000207),
+          ],
+          stops: [0, .58, 1],
+        ).createShader(Rect.fromCircle(center: center, radius: r)),
+    );
+    c.drawCircle(
+      center,
+      r,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.15
+        ..color = Color(0xFF9AF5FF).withValues(alpha: .52 + pulse * .32),
+    );
+
+    // Fine crystalline fractures catch the eclipse light like the Obsidian cracks,
+    // but use glacial cyan and a slow travelling pulse instead of violet hellfire.
+    final fissures = <Path>[
+      Path()..moveTo(center.dx - r * .68, center.dy - r * .12)..lineTo(center.dx - r * .28, center.dy + r * .02)..lineTo(center.dx - r * .08, center.dy - r * .22)..lineTo(center.dx + r * .2, center.dy - r * .1),
+      Path()..moveTo(center.dx - r * .08, center.dy - r * .22)..lineTo(center.dx + r * .02, center.dy - r * .48),
+      Path()..moveTo(center.dx + r * .2, center.dy - r * .1)..lineTo(center.dx + r * .42, center.dy - r * .32),
+      Path()..moveTo(center.dx - r * .28, center.dy + r * .02)..lineTo(center.dx - r * .12, center.dy + r * .34)..lineTo(center.dx + r * .18, center.dy + r * .49),
+      Path()..moveTo(center.dx - r * .12, center.dy + r * .34)..lineTo(center.dx - r * .48, center.dy + r * .46),
+      Path()..moveTo(center.dx + r * .02, center.dy - r * .48)..lineTo(center.dx + r * .24, center.dy - r * .64),
+    ];
+    final crackGlow = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..strokeWidth = 5
+      ..color = Color(0x6659DFFF).withValues(alpha: .17 + pulse * .16)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 7);
+    final crackCore = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..strokeWidth = 1.25
+      ..color = Color(0xFFBDFBFF).withValues(alpha: .52 + pulse * .4);
+    for (final path in fissures) {
+      c.drawPath(path, crackGlow);
+      c.drawPath(path, crackCore);
+    }
+
+    // Solar prominences rise from the corona in long, delicate arcs.
+    for (var i = 0; i < 5; i++) {
+      final a = angle * .035 + i * math.pi * .4;
+      final p1 = center + Offset(math.cos(a) * r * 1.16, math.sin(a) * r * 1.16);
+      final p2 = center + Offset(math.cos(a + .25) * r * (1.53 + .08 * pulse), math.sin(a + .25) * r * (1.53 + .08 * pulse));
+      final p3 = center + Offset(math.cos(a + .52) * r * 1.18, math.sin(a + .52) * r * 1.18);
+      final arc = Path()
+        ..moveTo(p1.dx, p1.dy)
+        ..quadraticBezierTo(p2.dx, p2.dy, p3.dx, p3.dy);
+      c.drawPath(
+        arc,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round
+          ..strokeWidth = 4
+          ..color = const Color(0x5529D9FF)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
+      );
+      c.drawPath(
+        arc,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round
+          ..strokeWidth = 1.15
+          ..color = const Color(0xAA9AF5FF),
+      );
+    }
+
+    // A few cold motes drift along the corona instead of filling the whole scene.
+    for (var i = 0; i < 10; i++) {
+      final a = angle * .035 + i * 2.399963;
+      final d = r * (1.48 + (i % 3) * .1);
+      final p = center + Offset(math.cos(a) * d, math.sin(a) * d * .82);
+      c.drawCircle(
+        p,
+        i % 3 == 0 ? 1.7 : 1,
+        Paint()..color = const Color(0xBB9AF5FF),
+      );
+    }
   }
 }
 
