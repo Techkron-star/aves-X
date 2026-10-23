@@ -1,11 +1,9 @@
-import 'package:aves/model/settings/settings.dart';
-import 'package:aves/widgets/common/basic/scaffold.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/settings/accessibility/accessibility.dart';
 import 'package:aves/widgets/settings/display/display.dart';
+import 'package:aves/widgets/settings/experimental/experimental.dart';
 import 'package:aves/widgets/settings/language/language.dart';
 import 'package:aves/widgets/settings/navigation/navigation.dart';
-import 'package:aves/widgets/settings/nebula/custom_nebula_theme_tile.dart';
 import 'package:aves/widgets/settings/nebula/nebula_section.dart';
 import 'package:aves/widgets/settings/privacy/privacy.dart';
 import 'package:aves/widgets/settings/security/failsafe_section.dart';
@@ -14,25 +12,21 @@ import 'package:aves/widgets/settings/settings_definition.dart';
 import 'package:aves/widgets/settings/thumbnails/thumbnails.dart';
 import 'package:aves/widgets/settings/video/video.dart';
 import 'package:aves/widgets/settings/viewer/viewer.dart';
-import 'package:aves/widgets/settings/experimental/experimental.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:aves_model/aves_model.dart';
-import 'package:provider/provider.dart';
+import 'package:material_ui/material_ui.dart';
 
-class SettingsTabbedPage extends StatefulWidget {
+// Settings split in two tabs.
+//
+// General: everything inherited from upstream Aves (navigation, thumbnails,
+// viewer, video, language, privacy, security, fail-safe, accessibility,
+// display and experimental).
+//
+// Special (Especiales): only settings that are unique to Aves-X, i.e. the
+// Nebula Engine and the custom Nebula themes. Anything that exists upstream
+// must stay in General.
+class SettingsTabbedPage extends StatelessWidget {
   const SettingsTabbedPage({super.key});
 
-  @override
-  State<SettingsTabbedPage> createState() => _SettingsTabbedPageState();
-}
-
-class _SettingsTabbedPageState extends State<SettingsTabbedPage>
-    with SingleTickerProviderStateMixin {
-  late final TabController _tabController;
-  final ValueNotifier<String?> _expandedNotifier = ValueNotifier(null);
-
-  static final List<SettingsSection> _generalSections = [
+  static final List<SettingsSection> generalSections = [
     NavigationSection(),
     ThumbnailsSection(),
     ViewerSection(),
@@ -46,44 +40,29 @@ class _SettingsTabbedPageState extends State<SettingsTabbedPage>
     ExperimentalSection(),
   ];
 
-  static final List<SettingsSection> _specialSections = [
+  static final List<SettingsSection> specialSections = [
     NebulaSection(),
   ];
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    _expandedNotifier.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.settingsPageTitle)),
-      body: Column(
+    return DefaultTabController(
+      length: 2,
+      child: Column(
         children: [
           TabBar(
-            controller: _tabController,
             tabs: [
               Tab(icon: const Icon(Icons.tune), text: l10n.settingsTabGeneral),
-              Tab(icon: const Icon(Icons.settings_applications), text: l10n.settingsTabSpecial),
+              Tab(icon: const Icon(Icons.auto_awesome), text: l10n.settingsTabSpecial),
             ],
           ),
           Expanded(
             child: TabBarView(
-              controller: _tabController,
               children: [
-                _SettingsTabContent(sections: _generalSections, expandedNotifier: _expandedNotifier),
-                _SettingsTabContent(sections: _specialSections, expandedNotifier: _expandedNotifier),
+                _SettingsTabContent(sections: generalSections),
+                _SettingsTabContent(sections: specialSections),
               ],
             ),
           ),
@@ -93,16 +72,30 @@ class _SettingsTabbedPageState extends State<SettingsTabbedPage>
   }
 }
 
-class _SettingsTabContent extends StatelessWidget {
+class _SettingsTabContent extends StatefulWidget {
   final List<SettingsSection> sections;
-  final ValueNotifier<String?> expandedNotifier;
 
-  const _SettingsTabContent({required this.sections, required this.expandedNotifier});
+  const _SettingsTabContent({required this.sections});
+
+  @override
+  State<_SettingsTabContent> createState() => _SettingsTabContentState();
+}
+
+class _SettingsTabContentState extends State<_SettingsTabContent> {
+  // Section currently expanded, shared by the tiles of this tab so that only
+  // one section stays open at a time.
+  final ValueNotifier<String?> _expandedNotifier = ValueNotifier(null);
+
+  @override
+  void dispose() {
+    _expandedNotifier.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return ListView(
-      children: sections.map((v) => v.build(context, expandedNotifier)).toList(),
+      children: widget.sections.map((v) => v.build(context, _expandedNotifier)).toList(),
     );
   }
 }

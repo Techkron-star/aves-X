@@ -1,12 +1,10 @@
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/nebula/nebula_custom_theme.dart';
-import 'package:aves/theme/nebula/nebula_custom_theme_store.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/settings/common/tiles/sub_page.dart';
 import 'package:aves/widgets/settings/nebula/custom_nebula_theme_page.dart';
 import 'package:aves/widgets/settings/settings_definition.dart';
 import 'package:aves_model/aves_model.dart';
-import 'package:flutter/material.dart';
 import 'package:material_ui/material_ui.dart';
 
 // Entrada de Ajustes → Nebula Engine → Temas personalizados.

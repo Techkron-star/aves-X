@@ -1,98 +1,107 @@
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/nebula/nebula_custom_theme.dart';
-import 'package:collection/collection.dart';
 import 'package:aves/theme/nebula/nebula_custom_theme_store.dart';
 import 'package:aves/theme/nebula/nebula_palette.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
 import 'package:aves_model/aves_model.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
-// Ajustes de temas Nebula personalizados.
+// Settings for the custom Nebula themes.
 //
-// Los temas personalizados se almacenan como archivos JSON en el directorio de
-// archivos de la app (<filesDir>/nebula_themes/). El tema personalizado activo
-// se recuerda en `SettingKeys.nebulaCustomThemeKey`.
+// Every custom theme is stored as one JSON object inside a single JSON list
+// kept in the app preferences (`nebula_custom_themes`). The theme currently in
+// use is remembered by `SettingKeys.nebulaCustomThemeKey`.
 //
-// Los temas integrados (Nosferatu, Obsidian, etc.) se definen en
-// `nebula_palettes.dart` y no se almacenan aquí.
+// Built-in themes (Nosferatu, Obsidian, etc.) are defined in
+// `nebula_palettes.dart` and are never stored here.
 mixin CustomNebulaThemeSettings on SettingsAccess {
-  NebulaCustomThemeStore get _store => _customNebulaThemeStore;
-  final NebulaCustomThemeStore _customNebulaThemeStore = NebulaCustomThemeStore();
+  // Raw JSON last decoded, to avoid reparsing on every widget rebuild.
+  String? _customThemesRaw;
+  List<CustomNebulaTheme> _customThemes = const [];
 
-  /// Tema personalizado actualmente seleccionado, o null si se usa un tema integrado.
+  /// All custom themes available on this device, sorted by name.
+  List<CustomNebulaTheme> get customNebulaThemes {
+    final raw = getString(NebulaCustomThemeStore.preferenceKey);
+    if (raw != _customThemesRaw) {
+      _customThemesRaw = raw;
+      _customThemes = NebulaCustomThemeStore.decodeAll(raw);
+    }
+    return _customThemes;
+  }
+
+  /// Custom theme currently selected, or null when a built-in theme is in use.
   CustomNebulaTheme? get customNebulaTheme {
     final id = getString(SettingKeys.nebulaCustomThemeKey);
     if (id == null) return null;
-    return _loadedThemes.firstWhereOrNull((t) => t.id == id);
+    return customNebulaThemes.firstWhereOrNull((t) => t.id == id);
   }
 
-  set customNebulaTheme(CustomNebulaTheme? newValue) {
-    set(SettingKeys.nebulaCustomThemeKey, newValue?.id);
-    notifyListeners();
-  }
+  set customNebulaTheme(CustomNebulaTheme? newValue) => set(SettingKeys.nebulaCustomThemeKey, newValue?.id);
 
-  /// Carga todos los temas personalizados disponibles desde disco.
-  Future<List<CustomNebulaTheme>> loadCustomThemes() async {
-    return _store.loadAll();
-  }
-
-  /// Guarda un tema personalizado y lo activa.
-  Future<void> saveCustomTheme(CustomNebulaTheme theme) async {
-    await _store.save(theme);
-    customNebulaTheme = theme;
-    notifyListeners();
-  }
-
-  /// Elimina un tema personalizado por su id. Si es el activo, se desactiva.
-  Future<void> deleteCustomTheme(String id) async {
-    await _store.delete(id);
-    if (customNebulaTheme?.id == id) {
+  /// Forces the cached list to be read again from the preferences.
+  Future<void> refreshCustomThemes() async {
+    _customThemesRaw = null;
+    final themes = customNebulaThemes;
+    final activeId = getString(SettingKeys.nebulaCustomThemeKey);
+    if (activeId != null && themes.none((t) => t.id == activeId)) {
+      // the active theme was removed or its id is no longer valid
       customNebulaTheme = null;
     }
-    notifyListeners();
   }
 
-  /// Exporta un tema a un string JSON listo para compartir.
-  String exportCustomTheme(CustomNebulaTheme theme) => NebulaCustomThemeStore.exportToJson(theme);
+  /// All custom themes, read from the preferences on demand.
+  Future<List<CustomNebulaTheme>> loadCustomThemes() async => customNebulaThemes;
 
-  /// Importa un tema desde un string JSON y lo guarda.
-  /// Lanza [FormatException] si el JSON es inválido.
+  /// Saves a custom theme and makes it the active one.
+  Future<void> saveCustomTheme(CustomNebulaTheme theme) async {
+    _write(NebulaCustomThemeStore.upsert(customNebulaThemes, theme));
+    customNebulaTheme = theme;
+  }
+
+  /// Deletes a custom theme by id, deactivating it when it was the active one.
+  Future<void> deleteCustomTheme(String id) async {
+    _write(NebulaCustomThemeStore.remove(customNebulaThemes, id));
+    if (getString(SettingKeys.nebulaCustomThemeKey) == id) {
+      customNebulaTheme = null;
+    }
+  }
+
+  /// Imports a theme from a JSON string and saves it.
+  /// Throws [FormatException] when the payload is invalid.
   Future<void> importCustomTheme(String json) async {
     final theme = NebulaCustomThemeStore.importFromJson(json);
     await saveCustomTheme(theme);
   }
 
-  /// Devuelve la plantilla base para crear un nuevo tema personalizado.
+  /// Exports a theme to a JSON string ready to be shared or stored.
+  String exportCustomTheme(CustomNebulaTheme theme) => NebulaCustomThemeStore.exportToJson(theme);
+
+  /// Base template offered when creating a new custom theme.
   String get customNebulaThemeTemplate => NebulaCustomThemeStore.template;
 
-  // Cache de temas cargados en esta sesión
-  List<CustomNebulaTheme> _loadedThemes = [];
-
-  /// Recarga la caché de temas desde disco.
-  Future<void> refreshCustomThemes() async {
-    _loadedThemes = await _store.loadAll();
-    // Si el tema activo ya no existe, desactivarlo
-    final activeId = getString(SettingKeys.nebulaCustomThemeKey);
-    if (activeId != null && _loadedThemes.none((t) => t.id == activeId)) {
-      customNebulaTheme = null;
-    }
+  void _write(List<CustomNebulaTheme> themes) {
+    final raw = NebulaCustomThemeStore.encodeAll(themes);
+    _customThemesRaw = raw;
+    _customThemes = themes;
+    set(NebulaCustomThemeStore.preferenceKey, raw);
   }
 }
 
-/// Tema Nebula efectivo: puede ser un tema integrado o uno personalizado.
+/// Nebula theme actually applied: either a built-in theme or a custom one.
 abstract class EffectiveNebulaTheme {
-  /// Paleta a usar para renderizar. Los temas personalizados llevan sus propios
-  /// colores; los temas integrados usan `nebulaPalettes`.
+  /// Palette used for rendering. Custom themes carry their own colors, while
+  /// built-in themes use `nebulaPalettes`.
   NebulaPalette get palette;
 
-  /// Tratamiento de superficie del tema.
+  /// Surface treatment of the theme.
   NebulaSurfaceTreatment get treatment;
 
-  /// Nombre legible del tema.
+  /// Human readable theme name.
   String get displayName;
 }
 
-/// Adapter que expone un [CustomNebulaTheme] como [EffectiveNebulaTheme].
+/// Adapter exposing a [CustomNebulaTheme] as an [EffectiveNebulaTheme].
 class CustomNebulaThemeAdapter implements EffectiveNebulaTheme {
   final CustomNebulaTheme theme;
 

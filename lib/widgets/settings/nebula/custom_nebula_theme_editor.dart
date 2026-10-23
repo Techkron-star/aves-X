@@ -1,17 +1,17 @@
 import 'dart:convert';
-import 'dart:ui' as ui;
 
 import 'package:aves/theme/nebula/nebula_custom_theme.dart';
 import 'package:aves/theme/nebula/nebula_palette.dart';
-import 'package:aves/theme/nebula/nebula_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
-ui.Color parseHexColor(String hex) {
+// Parses `#RRGGBB` or `#AARRGGBB` into a [Color]. Kept as a top level function
+// so that both the editor state and `_ColorField` can validate user input.
+Color parseHexColor(String hex) {
   hex = hex.replaceAll('#', '');
   if (hex.length == 6) {
     hex = 'FF$hex';
   }
-  return ui.Color(int.parse(hex, radix: 16));
+  return Color(int.parse(hex, radix: 16));
 }
 
 class CustomNebulaThemeEditor extends StatefulWidget {
@@ -79,7 +79,7 @@ class _CustomNebulaThemeEditorState extends State<CustomNebulaThemeEditor> {
     super.dispose();
   }
 
-  ui.Color _parseColor(String? text, ui.Color fallback) {
+  Color _parseColor(String? text, Color fallback) {
     if (text == null || text.isEmpty) return fallback;
     try {
       return parseHexColor(text);
@@ -91,10 +91,10 @@ class _CustomNebulaThemeEditorState extends State<CustomNebulaThemeEditor> {
   void _save() {
     if (!_formKey.currentState!.validate()) return;
 
-    final seed = _parseColor(_seedController.text, const ui.Color(0xFF000000));
-    final accent = _parseColor(_accentController.text, const ui.Color(0xFF000000));
-    final surface = _parseColor(_surfaceController.text, const ui.Color(0xFF000000));
-    final glow = _parseColor(_glowController.text, const ui.Color(0xFF000000));
+    final seed = _parseColor(_seedController.text, const Color(0xFF000000));
+    final accent = _parseColor(_accentController.text, const Color(0xFF000000));
+    final surface = _parseColor(_surfaceController.text, const Color(0xFF000000));
+    final glow = _parseColor(_glowController.text, const Color(0xFF000000));
 
     final theme = CustomNebulaTheme(
       schema: 1,

@@ -1,89 +1,69 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:aves/theme/nebula/nebula_custom_theme.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 
-// Almacenamiento de temas Nebula personalizados.
+// Storage serialization for user-created Nebula themes.
 //
-// Los temas se guardan como archivos JSON en el directorio de archivos de la
-// app (`<filesDir>/nebula_themes/`). Cada tema es un archivo independiente
-// llamado `<id>.json`. El tema activo se recuerda en la preferencia
-// `nebula_custom_theme_key` (en el módulo de display).
-//
-// Los temas integrados (Nosferatu, Obsidian, etc.) no se almacenan aquí: vienen
-// de `nebula_palettes.dart`. Esta tienda solo gestiona temas creados por el
-// usuario mediante importación o edición de plantilla.
+// Themes are persisted as a single JSON list in the app preferences (see
+// `CustomNebulaThemeSettings`), instead of one file per theme. This keeps the
+// import/export format identical to a standalone `.json` file, but avoids the
+// extra `path_provider` plugin, file permissions and asynchronous file IO.
 class NebulaCustomThemeStore {
-  static const _folderName = 'nebula_themes';
-  static const _extension = '.json';
+  // Preference key holding the JSON list of custom themes.
+  static const preferenceKey = 'nebula_custom_themes';
 
-  Directory? _dir;
-  Future<Directory> get _themesDir async {
-    _dir ??= Directory(p.join(await _localPath(), _folderName));
-    return _dir!;
-  }
+  static int _compare(CustomNebulaTheme a, CustomNebulaTheme b) => a.name.toLowerCase().compareTo(b.name.toLowerCase());
 
-  Future<String> _localPath() async {
-    final dir = await getApplicationDocumentsDirectory();
-    return dir.path;
-  }
+  // Serializes every theme into the JSON list stored in the preferences.
+  static String encodeAll(List<CustomNebulaTheme> themes) => jsonEncode(themes.map((v) => v.toJson()).toList());
 
-  /// Carga todos los temas personalizados disponibles.
-  Future<List<CustomNebulaTheme>> loadAll() async {
-    final dir = await _themesDir;
-    if (!await dir.exists()) {
-      await dir.create(recursive: true);
-      return const <CustomNebulaTheme>[];
-    }
-
-    final themes = <CustomNebulaTheme>[];
-    await for (final entity in dir.list()) {
-      if (entity is File && entity.path.endsWith(_extension)) {
-        try {
-          final json = jsonDecode(await entity.readAsString()) as Map<String, dynamic>;
-          themes.add(CustomNebulaTheme.fromJson(json));
-        } catch (_) {
-          // Ignorar archivos corruptos: no deben bloquear la carga de los demás
+  // Parses the JSON list stored in the preferences, skipping corrupted entries
+  // so that a single bad theme never hides the rest.
+  static List<CustomNebulaTheme> decodeAll(String? raw) {
+    if (raw == null || raw.isEmpty) return const [];
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! List) return const [];
+      final themes = <CustomNebulaTheme>[];
+      for (final item in decoded) {
+        if (item is Map) {
+          try {
+            themes.add(CustomNebulaTheme.fromJson(item.cast<String, dynamic>()));
+          } catch (_) {
+            // ignore corrupted entry
+          }
         }
       }
-    }
-
-    // Ordenar alfabéticamente por nombre
-    themes.sort((a, b) => a.name.compareTo(b.name));
-    return themes;
-  }
-
-  /// Guarda un tema personalizado, sobrescribiendo si ya existe con ese id.
-  Future<void> save(CustomNebulaTheme theme) async {
-    final dir = await _themesDir;
-    if (!await dir.exists()) {
-      await dir.create(recursive: true);
-    }
-    final file = File(p.join(dir.path, '${theme.id}$_extension'));
-    await file.writeAsString(jsonEncode(theme.toJson()), flush: true);
-  }
-
-  /// Elimina un tema personalizado por su id.
-  Future<void> delete(String id) async {
-    final dir = await _themesDir;
-    final file = File(p.join(dir.path, '$id$_extension'));
-    if (await file.exists()) {
-      await file.delete();
+      themes.sort(_compare);
+      return themes;
+    } catch (_) {
+      return const [];
     }
   }
 
-  /// Exporta un tema a un string JSON listo para compartir/guardar.
-  static String exportToJson(CustomNebulaTheme theme) => jsonEncode(theme.toJson());
+  // Adds [theme] to [themes], replacing the entry with the same id.
+  static List<CustomNebulaTheme> upsert(List<CustomNebulaTheme> themes, CustomNebulaTheme theme) {
+    final result = themes.where((v) => v.id != theme.id).toList()..add(theme);
+    result.sort(_compare);
+    return result;
+  }
 
-  /// Importa un tema desde un string JSON, validando el esquema.
-  /// Lanza [FormatException] si el JSON es inválido.
+  // Removes the theme with [id] from [themes].
+  static List<CustomNebulaTheme> remove(List<CustomNebulaTheme> themes, String id) => themes.where((v) => v.id != id).toList();
+
+  // Pretty printed JSON for clipboard export.
+  static String exportToJson(CustomNebulaTheme theme) => const JsonEncoder.withIndent('  ').convert(theme.toJson());
+
+  // Parses an exported theme. Throws [FormatException] when the payload is not
+  // valid JSON or does not match the expected schema.
   static CustomNebulaTheme importFromJson(String json) {
-    final decoded = jsonDecode(json) as Map<String, dynamic>;
-    return CustomNebulaTheme.fromJson(decoded);
+    final decoded = jsonDecode(json);
+    if (decoded is! Map) {
+      throw const FormatException('Theme JSON must be an object');
+    }
+    return CustomNebulaTheme.fromJson(decoded.cast<String, dynamic>());
   }
 
-  /// Devuelve la plantilla base para crear un nuevo tema personalizado.
+  // Base template offered when creating a new custom theme.
   static String get template => kCustomNebulaThemeTemplate;
 }
