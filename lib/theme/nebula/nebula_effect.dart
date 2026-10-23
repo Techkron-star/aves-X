@@ -1,5 +1,5 @@
 import 'dart:math' as math;
-import 'dart:ui' show BlurStyle, MaskFilter;
+import 'dart:ui' show BlurStyle, MaskFilter, Path, StrokeCap;
 import 'package:flutter/material.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
 
@@ -16,6 +16,10 @@ import 'package:aves/theme/nebula/nebula_theme.dart';
 ///
 /// [animate] indica si la animación debe avanzar (false en modo rendimiento /
 /// movimiento reducido).
+///
+/// Un tema solo necesita implementar [painter]; [duration] y [reverse] ajustan
+/// el ritmo de la animación, y el host compartido se encarga del
+/// `AnimationController` (sin rebuilds de estado por frame).
 abstract class NebulaEffect extends StatelessWidget {
   final bool animate;
 
@@ -23,6 +27,73 @@ abstract class NebulaEffect extends StatelessWidget {
 
   /// Construye el pintor para este efecto.
   CustomPainter painter(double t);
+
+  /// Duración de un ciclo completo de la animación.
+  Duration get duration => const Duration(seconds: 12);
+
+  /// Si el ciclo se reproduce de ida y vuelta.
+  bool get reverse => true;
+
+  @override
+  Widget build(BuildContext context) => _NebulaEffectHost(
+    animate: animate,
+    duration: duration,
+    reverse: reverse,
+    painterBuilder: painter,
+  );
+}
+
+/// Host compartido: mantiene el [AnimationController] y repinta con
+/// [AnimatedBuilder] sin reconstruir el árbol de widgets en cada frame.
+class _NebulaEffectHost extends StatefulWidget {
+  final bool animate;
+  final Duration duration;
+  final bool reverse;
+  final CustomPainter Function(double t) painterBuilder;
+
+  const _NebulaEffectHost({
+    required this.animate,
+    required this.duration,
+    required this.reverse,
+    required this.painterBuilder,
+  });
+
+  @override
+  State<_NebulaEffectHost> createState() => _NebulaEffectHostState();
+}
+
+class _NebulaEffectHostState extends State<_NebulaEffectHost> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(vsync: this, duration: widget.duration);
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.animate) _controller.repeat(reverse: widget.reverse);
+  }
+
+  @override
+  void didUpdateWidget(covariant _NebulaEffectHost old) {
+    super.didUpdateWidget(old);
+    if (widget.animate && !_controller.isAnimating) {
+      _controller.repeat(reverse: widget.reverse);
+    } else if (!widget.animate && _controller.isAnimating) {
+      _controller.stop();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (_, __) => CustomPaint(painter: widget.painterBuilder(_controller.value)),
+    );
+  }
 }
 
 /// Pintor base que repinta desde un [AnimationController] sin rebuilds de widget.
@@ -752,6 +823,430 @@ class _EmeraldGlassPainter extends NebulaEffectPainter {
 }
 
 // ============================================================================
+// Aurora Glass — polar green and ice blue northern lights
+// ============================================================================
+
+/// Aurora Glass: cintas de luz polar verde/cian/azul que ondulan como una
+/// aurora boreal sobre negro absoluto.
+class AuroraGlassEffect extends NebulaEffect {
+  const AuroraGlassEffect({super.key, required super.animate});
+
+  @override
+  Duration get duration => const Duration(seconds: 18);
+
+  @override
+  CustomPainter painter(double t) => _AuroraGlassPainter(t);
+}
+
+class _AuroraGlassPainter extends NebulaEffectPainter {
+  const _AuroraGlassPainter(super.t);
+
+  static const _ribbons = [
+    [Color(0x6639FF9C), Color(0x0019E0C4)],
+    [Color(0x553B82F6), Color(0x0022D3EE)],
+    [Color(0x4439FF9C), Color(0x00A78BFA)],
+    [Color(0x3322D3EE), Color(0x0039FF9C)],
+  ];
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
+    final rect = Rect.fromLTWH(0, 0, w, h);
+
+    // polar glow at the horizon
+    final glow = Paint()
+      ..shader = RadialGradient(
+        center: const Alignment(0, .55),
+        radius: 1.1,
+        colors: [
+          Color(0x3322D3EE),
+          Color(0x1139FF9C),
+          Colors.transparent,
+        ],
+        stops: const [0, .45, 1],
+      ).createShader(rect);
+    canvas.drawRect(rect, glow);
+
+    // dancing ribbons
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, w * .05);
+
+    for (var i = 0; i < _ribbons.length; i++) {
+      final phase = t * 2 * math.pi + i * 1.7;
+      final dx = math.sin(phase) * w * .1;
+      final path = Path()
+        ..moveTo(-w * .15 + dx, h * (1.1 - i * .06))
+        ..cubicTo(
+          w * .25 + dx,
+          h * (.62 + .12 * math.sin(phase)),
+          w * .62 - dx,
+          h * (.22 + .14 * math.cos(phase)),
+          w * 1.15 + dx,
+          -h * .1,
+        );
+      paint
+        ..strokeWidth = w * (.2 - i * .035)
+        ..shader = LinearGradient(
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+          colors: _ribbons[i],
+        ).createShader(rect);
+      canvas.drawPath(path, paint);
+    }
+
+    // ice sparkles in the sky
+    final sparkle = Paint()..color = Color(0xFFFFFFFF).withValues(alpha: .5);
+    for (var i = 0; i < 9; i++) {
+      final a = i * 2.399963;
+      final dist = size.shortestSide * (.18 + .1 * (i % 4));
+      final center = size.center(Offset.zero);
+      final twinkle = .3 + .7 * (.5 + .5 * math.sin(t * 4 * math.pi + i));
+      canvas.drawCircle(
+        center + Offset(math.cos(a + t) * dist, math.sin(a + t) * dist),
+        w * .0025 * twinkle,
+        sparkle,
+      );
+    }
+  }
+}
+
+// ============================================================================
+// Sapphire Glass — deep royal sapphire with brilliant cyan glints
+// ============================================================================
+
+/// Sapphire Glass: zafiro azul profundo con destellos cian que titilan como
+/// estrellas sobre terciopelo.
+class SapphireGlassEffect extends NebulaEffect {
+  const SapphireGlassEffect({super.key, required super.animate});
+
+  @override
+  Duration get duration => const Duration(seconds: 14);
+
+  @override
+  CustomPainter painter(double t) => _SapphireGlassPainter(t);
+}
+
+class _SapphireGlassPainter extends NebulaEffectPainter {
+  const _SapphireGlassPainter(super.t);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = size.center(Offset.zero);
+    final r = size.shortestSide;
+
+    // breathing royal core
+    final breath = .5 + .5 * math.sin(t * 2 * math.pi);
+    final coreRadius = r * (.5 + .06 * breath);
+    canvas.drawCircle(
+      center,
+      coreRadius,
+      Paint()
+        ..shader = RadialGradient(
+          colors: [
+            Color(0x66244BFF),
+            Color(0x1A0B1E6B),
+            Colors.transparent,
+          ],
+          stops: const [0, .5, 1],
+        ).createShader(Rect.fromCircle(center: center, radius: coreRadius)),
+    );
+
+    // brilliant cyan glints, each on its own phase
+    for (var i = 0; i < 16; i++) {
+      final angle = i * 2.399963 + t * .5;
+      final distance = r * (.1 + .04 * (i % 5));
+      final twinkle = .5 + .5 * math.sin(t * 6 * math.pi + i * 1.7);
+      final glintCenter = center + Offset(math.cos(angle) * distance, math.sin(angle) * distance);
+      final glintRadius = r * (.003 + .007 * twinkle);
+
+      canvas.drawCircle(
+        glintCenter,
+        glintRadius * 3,
+        Paint()
+          ..color = Color(0xFF22D3EE).withValues(alpha: .18 * twinkle)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, glintRadius * 2),
+      );
+      canvas.drawCircle(
+        glintCenter,
+        glintRadius,
+        Paint()..color = Color(0xFFE0F7FF).withValues(alpha: .85 * twinkle),
+      );
+    }
+  }
+}
+
+// ============================================================================
+// Amber Glass — warm fossil amber with honey and gold
+// ============================================================================
+
+/// Amber Glass: ámbar fósil cálido, con un núcleo de miel que respira y anillos
+/// dorados que se expanden lentamente.
+class AmberGlassEffect extends NebulaEffect {
+  const AmberGlassEffect({super.key, required super.animate});
+
+  @override
+  Duration get duration => const Duration(seconds: 16);
+
+  @override
+  CustomPainter painter(double t) => _AmberGlassPainter(t);
+}
+
+class _AmberGlassPainter extends NebulaEffectPainter {
+  const _AmberGlassPainter(super.t);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = size.center(Offset.zero);
+    final r = size.shortestSide;
+
+    // honey core
+    final pulse = .5 + .5 * math.sin(t * 2 * math.pi);
+    final coreRadius = r * (.32 + .05 * pulse);
+    canvas.drawCircle(
+      center,
+      coreRadius,
+      Paint()
+        ..shader = RadialGradient(
+          colors: [
+            Color(0x88FFC107),
+            Color(0x44FF7A18),
+            Colors.transparent,
+          ],
+          stops: const [0, .55, 1],
+        ).createShader(Rect.fromCircle(center: center, radius: coreRadius)),
+    );
+
+    // expanding honey rings
+    for (var i = 0; i < 3; i++) {
+      final progress = (t + i / 3) % 1;
+      final radius = r * (.16 + .52 * progress);
+      canvas.drawCircle(
+        center,
+        radius,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = r * .012
+          ..color = Color(0xFFFFC107).withValues(alpha: (1 - progress) * .3)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * .015),
+      );
+    }
+
+    // golden specks like trapped bubbles
+    for (var i = 0; i < 10; i++) {
+      final angle = i * 2.399963;
+      final distance = r * (.08 + .05 * (i % 4));
+      final drift = .4 + .6 * (.5 + .5 * math.sin(t * 4 * math.pi + i));
+      canvas.drawCircle(
+        center + Offset(math.cos(angle) * distance, math.sin(angle) * distance - r * .04 * drift),
+        r * .006 * drift,
+        Paint()..color = Color(0xFFFFE082).withValues(alpha: .5 * drift),
+      );
+    }
+  }
+}
+
+// ============================================================================
+// Onyx Glass — pure black with graphite shimmer
+// ============================================================================
+
+/// Onyx Glass: negro puro y minimalista, recorrido por un brillo de grafito que
+/// barre la pantalla en diagonal.
+class OnyxGlassEffect extends NebulaEffect {
+  const OnyxGlassEffect({super.key, required super.animate});
+
+  @override
+  Duration get duration => const Duration(seconds: 10);
+
+  // continuous sweep: reversing it would look like a bounce
+  @override
+  bool get reverse => false;
+
+  @override
+  CustomPainter painter(double t) => _OnyxGlassPainter(t);
+}
+
+class _OnyxGlassPainter extends NebulaEffectPainter {
+  const _OnyxGlassPainter(super.t);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final shift = -2.5 + 5 * t;
+
+    // graphite sheen travelling across the black
+    canvas.drawRect(
+      rect,
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment(shift - 1.2, -1),
+          end: Alignment(shift + 1.2, 1),
+          colors: const [
+            Color(0x00000000),
+            Color(0x0DFFFFFF),
+            Color(0x1FFFFFFF),
+            Color(0x0DFFFFFF),
+            Color(0x00000000),
+          ],
+          stops: const [0, .34, .5, .66, 1],
+        ).createShader(rect),
+    );
+
+    // soft vignette keeps the monochrome look deep
+    canvas.drawRect(
+      rect,
+      Paint()
+        ..shader = RadialGradient(
+          colors: [Color(0x00000000), Color(0x88000000)],
+          stops: const [.55, 1],
+        ).createShader(rect),
+    );
+  }
+}
+
+// ============================================================================
+// Pearl Glass — soft pearl white with iridescence
+// ============================================================================
+
+/// Pearl Glass: nácar luminoso, con iridiscencias pastel girando muy despacio y
+/// un halo blanco que respira.
+class PearlGlassEffect extends NebulaEffect {
+  const PearlGlassEffect({super.key, required super.animate});
+
+  @override
+  Duration get duration => const Duration(seconds: 20);
+
+  // always spinning the same way avoids a visible "rewind"
+  @override
+  bool get reverse => false;
+
+  @override
+  CustomPainter painter(double t) => _PearlGlassPainter(t);
+}
+
+class _PearlGlassPainter extends NebulaEffectPainter {
+  const _PearlGlassPainter(super.t);
+
+  static const _iridescence = [
+    Color(0x33FFD1DC), // shell pink
+    Color(0x33E0F7FA), // ice
+    Color(0x33EDE7F6), // lavender
+    Color(0x33FFF8E1), // champagne
+    Color(0x33B2EBF2), // aqua
+    Color(0x33FFD1DC),
+  ];
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = size.center(Offset.zero);
+    final r = size.shortestSide;
+
+    // slow iridescent shell
+    final radius = r * .75;
+    canvas.drawCircle(
+      center,
+      radius,
+      Paint()
+        ..shader = SweepGradient(
+          colors: _iridescence,
+          stops: const [0, .2, .4, .6, .8, 1],
+          transform: GradientRotation(t * 2 * math.pi),
+        ).createShader(Rect.fromCircle(center: center, radius: radius))
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * .05),
+    );
+
+    // breathing pearl halo
+    final halo = .5 + .5 * math.sin(t * 2 * math.pi);
+    canvas.drawCircle(
+      center,
+      r * (.22 + .06 * halo),
+      Paint()
+        ..color = Color(0xFFFFFFFF).withValues(alpha: .16 + .1 * halo)
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * .12),
+    );
+  }
+}
+
+// ============================================================================
+// Ivory Glass — warm ivory cream with champagne gold veins
+// ============================================================================
+
+/// Ivory Glass: marfil cálido con vetas de oro champán que se mecen lentamente.
+class IvoryGlassEffect extends NebulaEffect {
+  const IvoryGlassEffect({super.key, required super.animate});
+
+  @override
+  Duration get duration => const Duration(seconds: 22);
+
+  @override
+  CustomPainter painter(double t) => _IvoryGlassPainter(t);
+}
+
+class _IvoryGlassPainter extends NebulaEffectPainter {
+  const _IvoryGlassPainter(super.t);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
+    final rect = Rect.fromLTWH(0, 0, w, h);
+
+    // warm ivory wash
+    canvas.drawRect(
+      rect,
+      Paint()
+        ..shader = RadialGradient(
+          center: const Alignment(0, -.2),
+          radius: 1.2,
+          colors: [
+            Color(0x14FFF3E0),
+            Color(0x08FFE0B2),
+            Colors.transparent,
+          ],
+          stops: const [0, .5, 1],
+        ).createShader(rect),
+    );
+
+    // champagne gold veins
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = w * .004
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, w * .003);
+
+    for (var i = 0; i < 4; i++) {
+      final phase = t * 2 * math.pi + i * 1.3;
+      final sway = math.sin(phase) * w * .04;
+      final baseX = w * (i * .28);
+      final path = Path()
+        ..moveTo(baseX + sway, -h * .05)
+        ..cubicTo(
+          baseX + w * .12 - sway,
+          h * .3,
+          baseX - w * .1 + sway,
+          h * .7,
+          baseX + w * .06 + sway,
+          h * 1.05,
+        );
+      paint.shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: const [
+          Color(0x00FFE082),
+          Color(0x99FFD54F),
+          Color(0x00FFE082),
+        ],
+        stops: const [0, .5, 1],
+        transform: GradientRotation(math.sin(phase) * .18),
+      ).createShader(rect);
+      canvas.drawPath(path, paint);
+    }
+  }
+}
+
+// ============================================================================
 // Factory
 // ============================================================================
 
@@ -766,11 +1261,11 @@ NebulaEffect? nebulaEffectFor(NebulaTheme theme, {required bool animate}) => swi
   NebulaTheme.crimsonGlass => CrimsonGlassEffect(animate: animate),
   NebulaTheme.neonGlass => NeonGlassEffect(animate: animate),
   NebulaTheme.emeraldGlass => EmeraldGlassEffect(animate: animate),
-  NebulaTheme.auroraGlass => null,
-  NebulaTheme.sapphireGlass => null,
-  NebulaTheme.amberGlass => null,
-  NebulaTheme.onyxGlass => null,
-  NebulaTheme.pearlGlass => null,
-  NebulaTheme.ivoryGlass => null,
+  NebulaTheme.auroraGlass => AuroraGlassEffect(animate: animate),
+  NebulaTheme.sapphireGlass => SapphireGlassEffect(animate: animate),
+  NebulaTheme.amberGlass => AmberGlassEffect(animate: animate),
+  NebulaTheme.onyxGlass => OnyxGlassEffect(animate: animate),
+  NebulaTheme.pearlGlass => PearlGlassEffect(animate: animate),
+  NebulaTheme.ivoryGlass => IvoryGlassEffect(animate: animate),
   _ => null,
 };
