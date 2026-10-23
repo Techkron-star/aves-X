@@ -212,24 +212,24 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
     );
   }
 
-  // iOS-like lens over the selected item (rounded and rectangular bars)
+  // Nav Lens: layered glass and a restrained reflection tied to the existing spring.
   Widget _withLens(BuildContext context, NavBarStyle style, int count, int index, bool isRtl, Widget bar) {
     if (style == NavBarStyle.classic || !settings.navLens) return bar;
     final blur = settings.enableBlurEffect && settings.glassEverywhere;
     final material = settings.materialStyle;
     final radius = BorderRadius.circular(style == NavBarStyle.rectangular ? 8 : 22);
+    final lensColors = material?.lens ?? const [Color(0x40FFFFFF), Color(0x0DFFFFFF)];
+    final lensBorder = material?.lensBorder ?? const Color(0x73FFFFFF);
+    final lensAccent = material?.accent ?? Theme.of(context).colorScheme.primary;
     Widget lens = DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: radius,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: material?.lens ?? const [Color(0x40FFFFFF), Color(0x0DFFFFFF)],
-        ),
-        border: Border.all(color: material?.lensBorder ?? const Color(0x73FFFFFF), width: 1.2),
+        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: lensColors),
+        border: Border.all(color: lensBorder, width: 1.15),
         boxShadow: [
-          const BoxShadow(color: Color(0x33000000), blurRadius: 8),
-          if (material != null) BoxShadow(color: material.accent.withValues(alpha: .15), blurRadius: 14),
+          BoxShadow(color: const Color(0x33000000), blurRadius: 9, spreadRadius: -2, offset: const Offset(0, 3)),
+          BoxShadow(color: lensAccent.withValues(alpha: .20), blurRadius: 15, spreadRadius: -4),
+          BoxShadow(color: Colors.white.withValues(alpha: .08), blurRadius: 2, offset: const Offset(0, -1)),
         ],
       ),
     );
@@ -237,8 +237,7 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
       lens = ClipRRect(
         borderRadius: radius,
         child: BackdropFilter(
-          // very light blur only, so that the icon below stays crisp
-          filter: ImageFilter.blur(sigmaX: .6, sigmaY: .6),
+          filter: ImageFilter.blur(sigmaX: 1.05, sigmaY: 1.05),
           child: lens,
         ),
       );
@@ -249,7 +248,16 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
         bar,
         Positioned.fill(
           child: IgnorePointer(
-            child: _LensSlider(count: count, index: index, isRtl: isRtl, lens: lens),
+            child: _LensSlider(
+              count: count,
+              index: index,
+              isRtl: isRtl,
+              lens: lens,
+              radius: radius,
+              accent: lensAccent,
+              edge: lensBorder,
+              animateReflection: settings.animate && !settings.performanceMode,
+            ),
           ),
         ),
       ],
@@ -482,12 +490,20 @@ class _LensSlider extends StatefulWidget {
     required this.index,
     required this.isRtl,
     required this.lens,
+    required this.radius,
+    required this.accent,
+    required this.edge,
+    required this.animateReflection,
   });
 
   final int count;
   final int index;
   final bool isRtl;
   final Widget lens;
+  final BorderRadius radius;
+  final Color accent;
+  final Color edge;
+  final bool animateReflection;
 
   @override
   State<_LensSlider> createState() => _LensSliderState();
@@ -505,7 +521,7 @@ class _LensSliderState extends State<_LensSlider> with SingleTickerProviderState
     super.initState();
     _to = widget.index;
     _from = LensMemory.recent() ?? _to;
-    if (_from != _to && settings.animate) {
+    if (_from != _to && widget.animateReflection) {
       _controller.forward(from: LensMemory.progress());
     } else {
       _controller.value = 1;
@@ -515,14 +531,16 @@ class _LensSliderState extends State<_LensSlider> with SingleTickerProviderState
   @override
   void didUpdateWidget(covariant _LensSlider oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (!widget.animateReflection) {
+      _controller.value = 1;
+      _from = widget.index;
+      _to = widget.index;
+      return;
+    }
     if (widget.index != _to) {
       _from = _to;
       _to = widget.index;
-      if (settings.animate) {
-        _controller.forward(from: 0);
-      } else {
-        _controller.value = 1;
-      }
+      _controller.forward(from: 0);
     }
   }
 
@@ -542,32 +560,138 @@ class _LensSliderState extends State<_LensSlider> with SingleTickerProviderState
         final d = to - from;
         return AnimatedBuilder(
           animation: _controller,
-          builder: (context, child) {
+          builder: (context, _) {
             final t = _controller.value;
-            // one soft overshoot for the leading edge, the trailing edge follows a little later without bouncing
             const fast = Cubic(.2, .9, .3, 1.12);
             final slow = Interval(.1, 1, curve: Curves.easeOutCubic);
             final lead = fast.transform(t);
             final trail = slow.transform(t);
-            // moving right: the right edge leads, moving left: the left edge leads
             final left = from + d * (d >= 0 ? trail : lead);
             final right = from + 1 + d * (d >= 0 ? lead : trail);
             final width = max(.6, right - left);
+            final stretch = (lead - trail).abs().clamp(0.0, .22).toDouble();
+            final inset = constraints.maxHeight * (.09 + stretch * .14);
             return Stack(
+              clipBehavior: Clip.hardEdge,
               children: [
                 Positioned(
                   left: left * itemWidth,
                   width: width * itemWidth,
-                  top: constraints.maxHeight * .09,
-                  bottom: constraints.maxHeight * .09,
-                  child: child!,
+                  top: inset,
+                  bottom: inset,
+                  child: ClipRect(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          widget.lens,
+                          IgnorePointer(
+                            child: CustomPaint(
+                              painter: _LensReflectionPainter(
+                                progress: t,
+                                radius: widget.radius,
+                                accent: widget.accent,
+                                edge: widget.edge,
+                                animate: widget.animateReflection,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ],
             );
           },
-          child: Padding(padding: const EdgeInsets.symmetric(horizontal: 6), child: widget.lens),
         );
       },
     );
   }
+}
+
+// Surface-only reflection: animated with the slider, never as a perpetual background effect.
+class _LensReflectionPainter extends CustomPainter {
+  const _LensReflectionPainter({
+    required this.progress,
+    required this.radius,
+    required this.accent,
+    required this.edge,
+    required this.animate,
+  });
+
+  final double progress;
+  final BorderRadius radius;
+  final Color accent;
+  final Color edge;
+  final bool animate;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty) return;
+    final rect = Offset.zero & size;
+    final corner = radius.topLeft.x;
+    canvas.save();
+    canvas.clipRRect(RRect.fromRectAndRadius(rect, Radius.circular(corner)));
+
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(rect.deflate(1.1), Radius.circular(max(0.0, corner - 1.1))),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = .65
+        ..color = edge.withValues(alpha: .40),
+    );
+    final topEdge = Path()
+      ..moveTo(corner, 1.5)
+      ..quadraticBezierTo(size.width * .5, -1, size.width - corner, 1.5);
+    canvas.drawPath(
+      topEdge,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..strokeCap = StrokeCap.round
+        ..shader = LinearGradient(
+          colors: [Colors.white.withValues(alpha: .46), edge.withValues(alpha: .20), Colors.transparent],
+        ).createShader(rect),
+    );
+
+    if (animate && progress < .985) {
+      final t = Curves.easeInOutCubic.transform(progress.clamp(0.0, 1.0).toDouble());
+      final sweepWidth = max(8.0, size.width * .24);
+      final centerX = size.width * (1.72 * t - .34);
+      final sweep = Path()
+        ..moveTo(centerX - sweepWidth, 0)
+        ..lineTo(centerX - sweepWidth * .34, 0)
+        ..lineTo(centerX + sweepWidth, size.height)
+        ..lineTo(centerX + sweepWidth * .34, size.height)
+        ..close();
+      canvas.drawPath(
+        sweep,
+        Paint()
+          ..shader = LinearGradient(
+            colors: [
+              Colors.transparent,
+              Colors.white.withValues(alpha: .055),
+              Colors.white.withValues(alpha: .28),
+              accent.withValues(alpha: .15),
+              Colors.transparent,
+            ],
+            stops: const [0, .32, .49, .62, 1],
+          ).createShader(Rect.fromLTWH(centerX - sweepWidth, 0, sweepWidth * 2, size.height)),
+      );
+      final glint = Path()
+        ..moveTo(centerX - sweepWidth * .12, 0)
+        ..lineTo(centerX + sweepWidth * .02, 0)
+        ..lineTo(centerX + sweepWidth * .47, size.height)
+        ..lineTo(centerX + sweepWidth * .31, size.height)
+        ..close();
+      canvas.drawPath(glint, Paint()..color = Colors.white.withValues(alpha: .16));
+    }
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant _LensReflectionPainter old) =>
+      old.progress != progress || old.radius != radius || old.accent != accent || old.edge != edge || old.animate != animate;
 }
