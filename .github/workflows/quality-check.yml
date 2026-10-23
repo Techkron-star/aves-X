@@ -79,12 +79,13 @@ jobs:
 
       - if: matrix.build-mode == 'manual'
         shell: bash
-        # build in profile mode, instead of release,
-        # so that setting up signing environment variables is not required
+        # Build the existing libre flavor. The old play-flavor generator scripts
+        # are not part of this repository; using libre keeps CodeQL aligned with
+        # the APK workflow and compiles the Android/Kotlin sources without signing.
         run: |
-          scripts/gen_flavor_play.sh
-          scripts/apply_flavor_play.sh
-          ./flutterw build apk --profile -t lib/main_play.dart --flavor play
+          ./flutterw pub get
+          ./flutterw gen-l10n
+          ./flutterw build apk --profile -t lib/main_libre.dart --flavor libre
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
