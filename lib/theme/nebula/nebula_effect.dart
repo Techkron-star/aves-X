@@ -232,7 +232,7 @@ class _HermeticGlassPainterWidget extends StatefulWidget {
 class _HermeticGlassPainterState extends State<_HermeticGlassPainterWidget>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller =
-      AnimationController(vsync: this, duration: const Duration(seconds: 10));
+      AnimationController(vsync: this, duration: const Duration(seconds: 16));
 
   @override
   void initState() {
@@ -280,7 +280,7 @@ class _HermeticGlassPainter extends NebulaEffectPainter {
 
     // Rotating alchemical rings
     for (var i = 0; i < _ringColors.length; i++) {
-      final phase = t + i * (2 * math.pi / _ringColors.length);
+      final phase = t * (2 * math.pi) + i * (2 * math.pi / _ringColors.length);
       final radius = r * (.22 + .16 * i);
       canvas.drawCircle(
         center,
@@ -295,7 +295,7 @@ class _HermeticGlassPainter extends NebulaEffectPainter {
     }
 
     // Central glowing sigil
-    final glow = .6 + .4 * math.sin(t * 3 * math.pi);
+    final glow = .6 + .4 * math.sin(t * 2 * math.pi);
     canvas.drawCircle(
       center,
       r * .18 * glow,
@@ -333,18 +333,18 @@ class _EclipseGlassPainterWidget extends StatefulWidget {
 class _EclipseGlassPainterState extends State<_EclipseGlassPainterWidget>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller =
-      AnimationController(vsync: this, duration: const Duration(seconds: 14));
+      AnimationController(vsync: this, duration: const Duration(seconds: 20));
 
   @override
   void initState() {
     super.initState();
-    if (widget.animate) _controller.repeat(reverse: true);
+    if (widget.animate) _controller.repeat();
   }
 
   @override
   void didUpdateWidget(covariant _EclipseGlassPainterWidget old) {
     super.didUpdateWidget(old);
-    if (widget.animate && !_controller.isAnimating) _controller.repeat(reverse: true);
+    if (widget.animate && !_controller.isAnimating) _controller.repeat();
     if (!widget.animate && _controller.isAnimating) _controller.stop();
   }
 
@@ -365,28 +365,44 @@ class _EclipseGlassPainterState extends State<_EclipseGlassPainterWidget>
 
 class _EclipseGlassPainter extends NebulaEffectPainter {
   const _EclipseGlassPainter(super.t);
-
   @override
   void paint(Canvas canvas, Size size) {
-    final center = size.center(Offset.zero);
+    final center = Offset(size.width * .5, size.height * .43);
     final r = size.shortestSide;
-
-    // Slowly drifting cyan nebula over midnight blue
-    canvas.drawCircle(
-      center,
-      r,
-      Paint()
-        ..shader = RadialGradient(
-          colors: [
-            Color(0x4400B0FF),
-            Color(0x1A0066CC),
-            Color(0x05003366),
-            Colors.transparent,
-          ],
-          stops: const [0, .35, .7, 1],
-          transform: GradientRotation(t * math.pi),
-        ).createShader(Rect.fromCircle(center: center, radius: r)),
-    );
+    final rect = Offset.zero & size;
+    final coronaRadius = r * .22;
+    canvas.drawRect(rect, Paint()..shader = RadialGradient(
+      center: Alignment.center, radius: 1.05,
+      colors: const [Color(0x220D47A1), Color(0x08051935), Colors.transparent],
+      stops: const [0, .55, 1],
+    ).createShader(rect));
+    final coronaRect = Rect.fromCircle(center: center, radius: coronaRadius * 1.45);
+    canvas.drawCircle(center, coronaRadius * 1.25, Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = coronaRadius * .34
+      ..shader = SweepGradient(
+        colors: const [Color(0x0000D9FF), Color(0x5500D9FF), Color(0xAA9AF5FF), Color(0x4400B8F5), Color(0x0000D9FF)],
+        stops: const [0, .19, .34, .7, 1],
+        transform: GradientRotation(t * 2 * math.pi),
+      ).createShader(coronaRect)
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, coronaRadius * .08));
+    final transit = math.sin(t * 2 * math.pi) * r * .14;
+    final discCenter = center + Offset(transit, 0);
+    canvas.drawCircle(discCenter, coronaRadius, Paint()
+      ..shader = RadialGradient(
+        colors: const [Color(0xFF02040B), Color(0xFF04091A), Color(0xFF071026)],
+        stops: const [0, .72, 1],
+      ).createShader(Rect.fromCircle(center: discCenter, radius: coronaRadius)));
+    canvas.drawCircle(discCenter, coronaRadius, Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = r * .0025
+      ..color = const Color(0x669AF5FF));
+    for (var i = 0; i < 7; i++) {
+      final angle = i * 2.399963;
+      final dist = r * (.34 + .025 * (i % 3));
+      final point = center + Offset(math.cos(angle) * dist, math.sin(angle) * dist);
+      canvas.drawCircle(point, r * .0028, Paint()..color = const Color(0x669AF5FF));
+    }
   }
 }
 
@@ -513,18 +529,18 @@ class _VoidGlassPainterWidget extends StatefulWidget {
 class _VoidGlassPainterState extends State<_VoidGlassPainterWidget>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller =
-      AnimationController(vsync: this, duration: const Duration(seconds: 13));
+      AnimationController(vsync: this, duration: const Duration(seconds: 16));
 
   @override
   void initState() {
     super.initState();
-    if (widget.animate) _controller.repeat(reverse: true);
+    if (widget.animate) _controller.repeat();
   }
 
   @override
   void didUpdateWidget(covariant _VoidGlassPainterWidget old) {
     super.didUpdateWidget(old);
-    if (widget.animate && !_controller.isAnimating) _controller.repeat(reverse: true);
+    if (widget.animate && !_controller.isAnimating) _controller.repeat();
     if (!widget.animate && _controller.isAnimating) _controller.stop();
   }
 
@@ -545,24 +561,36 @@ class _VoidGlassPainterState extends State<_VoidGlassPainterWidget>
 
 class _VoidGlassPainter extends NebulaEffectPainter {
   const _VoidGlassPainter(super.t);
-
   @override
   void paint(Canvas canvas, Size size) {
-    final center = size.center(Offset.zero);
-    final r = size.shortestSide;
-
-    // Neon green grid-like pulses on graphite
-    for (var i = 0; i < 3; i++) {
-      final phase = t + i * 2 * math.pi / 3;
-      final radius = r * (.15 + .1 * math.sin(phase));
-      canvas.drawCircle(
-        center,
-        radius,
-        Paint()
-          ..color = Color(0xFF00E676).withValues(alpha: .15 + .1 * math.sin(phase * 2))
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, 6),
-      );
+    final w = size.width;
+    final h = size.height;
+    final focus = Offset(w * .5, h * .42);
+    final rect = Offset.zero & size;
+    canvas.drawRect(rect, Paint()..shader = RadialGradient(
+      center: const Alignment(0, -.1), radius: 1.1,
+      colors: const [Color(0x160E2818), Color(0x06070A08), Colors.transparent],
+    ).createShader(rect));
+    final line = Paint()..style = PaintingStyle.stroke..strokeWidth = 1..color = const Color(0x44AEFF35);
+    for (var i = -7; i <= 7; i++) {
+      final x = w * (.5 + i * .075);
+      canvas.drawLine(focus, Offset(x, h * 1.08), line);
     }
+    for (var i = 0; i < 9; i++) {
+      final depth = ((i / 9.0 - t) % 1 + 1) % 1;
+      final eased = depth * depth;
+      final y = focus.dy + (h - focus.dy) * eased;
+      final halfWidth = w * (.025 + .58 * depth);
+      final alpha = .12 + .28 * (1 - depth);
+      final p = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = depth < .16 ? 1.7 : .85
+        ..color = const Color(0xFFAEFF35).withValues(alpha: alpha);
+      final waveHeight = h * (.003 + .009 * depth);
+      canvas.drawRect(Rect.fromCenter(center: Offset(focus.dx, y), width: halfWidth * 2, height: waveHeight < 1.0 ? 1.0 : waveHeight), p);
+    }
+    final reticle = Paint()..style = PaintingStyle.stroke..strokeWidth = 1..color = const Color(0x668EFF00);
+    canvas.drawRect(Rect.fromCenter(center: focus, width: w * .035, height: w * .035), reticle);
   }
 }
 
@@ -593,18 +621,18 @@ class _CrimsonGlassPainterWidget extends StatefulWidget {
 class _CrimsonGlassPainterState extends State<_CrimsonGlassPainterWidget>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller =
-      AnimationController(vsync: this, duration: const Duration(seconds: 9));
+      AnimationController(vsync: this, duration: const Duration(seconds: 8));
 
   @override
   void initState() {
     super.initState();
-    if (widget.animate) _controller.repeat(reverse: true);
+    if (widget.animate) _controller.repeat();
   }
 
   @override
   void didUpdateWidget(covariant _CrimsonGlassPainterWidget old) {
     super.didUpdateWidget(old);
-    if (widget.animate && !_controller.isAnimating) _controller.repeat(reverse: true);
+    if (widget.animate && !_controller.isAnimating) _controller.repeat();
     if (!widget.animate && _controller.isAnimating) _controller.stop();
   }
 
@@ -675,18 +703,18 @@ class _NeonGlassPainterWidget extends StatefulWidget {
 class _NeonGlassPainterState extends State<_NeonGlassPainterWidget>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller =
-      AnimationController(vsync: this, duration: const Duration(seconds: 8));
+      AnimationController(vsync: this, duration: const Duration(seconds: 11));
 
   @override
   void initState() {
     super.initState();
-    if (widget.animate) _controller.repeat(reverse: true);
+    if (widget.animate) _controller.repeat();
   }
 
   @override
   void didUpdateWidget(covariant _NeonGlassPainterWidget old) {
     super.didUpdateWidget(old);
-    if (widget.animate && !_controller.isAnimating) _controller.repeat(reverse: true);
+    if (widget.animate && !_controller.isAnimating) _controller.repeat();
     if (!widget.animate && _controller.isAnimating) _controller.stop();
   }
 
@@ -707,24 +735,24 @@ class _NeonGlassPainterState extends State<_NeonGlassPainterWidget>
 
 class _NeonGlassPainter extends NebulaEffectPainter {
   const _NeonGlassPainter(super.t);
-
   @override
   void paint(Canvas canvas, Size size) {
-    final center = size.center(Offset.zero);
+    final center = Offset(size.width * .5, size.height * .46);
     final r = size.shortestSide;
-
-    // Alternating pink/blue neon rings
-    canvas.drawCircle(
-      center,
-      r * (.5 + .1 * math.sin(t * 2 * math.pi)),
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 4
-        ..shader = SweepGradient(
-          colors: [Color(0x44FF00FF), Color(0x4400FFFF), Color(0x44FF00FF)],
-          transform: GradientRotation(t * math.pi),
-        ).createShader(Rect.fromCircle(center: center, radius: r * .5)),
-    );
+    final rect = Offset.zero & size;
+    const magenta = Color(0x66FF2BD6);
+    const cyan = Color(0x6624EFFF);
+    canvas.drawCircle(center, r * (.43 + .018 * math.sin(t * 2 * math.pi)), Paint()
+      ..style = PaintingStyle.stroke..strokeWidth = r * .012
+      ..shader = const SweepGradient(colors: [magenta, cyan, magenta]).createShader(Rect.fromCircle(center: center, radius: r * .43))
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * .006));
+    final innerCenter = center + Offset(r * .035, -r * .02);
+    canvas.drawCircle(innerCenter, r * .29, Paint()..style = PaintingStyle.stroke..strokeWidth = r * .006
+      ..shader = const SweepGradient(colors: [cyan, Color(0x44FFFFFF), magenta, cyan]).createShader(Rect.fromCircle(center: innerCenter, radius: r * .29)));
+    final y = size.height * (.18 + .62 * t);
+    final scanHeight = r * .002 < 1 ? 1.0 : r * .002;
+    canvas.drawRect(Rect.fromLTWH(0, y, size.width, scanHeight), Paint()
+      ..shader = LinearGradient(colors: const [Colors.transparent, Color(0x44FF2BD6), Color(0x4424EFFF), Colors.transparent]).createShader(rect));
   }
 }
 
@@ -755,7 +783,7 @@ class _EmeraldGlassPainterWidget extends StatefulWidget {
 class _EmeraldGlassPainterState extends State<_EmeraldGlassPainterWidget>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller =
-      AnimationController(vsync: this, duration: const Duration(seconds: 12));
+      AnimationController(vsync: this, duration: const Duration(seconds: 19));
 
   @override
   void initState() {
@@ -787,39 +815,35 @@ class _EmeraldGlassPainterState extends State<_EmeraldGlassPainterWidget>
 
 class _EmeraldGlassPainter extends NebulaEffectPainter {
   const _EmeraldGlassPainter(super.t);
-
   @override
   void paint(Canvas canvas, Size size) {
-    final center = size.center(Offset.zero);
-    final r = size.shortestSide;
-
-    // Emerald veins like tree roots, slowly shifting
-    canvas.drawCircle(
-      center,
-      r,
-      Paint()
-        ..shader = RadialGradient(
-          colors: [
-            Color(0x3300C853),
-            Color(0x1100897B),
-            Color(0x05004D40),
-            Colors.transparent,
-          ],
-          stops: const [0, .4, .75, 1],
-          transform: GradientRotation(t * math.pi / 2),
-        ).createShader(Rect.fromCircle(center: center, radius: r)),
-    );
-
-    // Gold vein glint
-    canvas.drawCircle(
-      center,
-      r * (.35 + .05 * math.sin(t * 3 * math.pi)),
-      Paint()
-        ..shader = SweepGradient(
-          colors: [Color(0x22FFB300), Color(0x00FFB300), Color(0x22FFB300)],
-          transform: GradientRotation(-t * math.pi),
-        ).createShader(Rect.fromCircle(center: center, radius: r * .35)),
-    );
+    final w = size.width;
+    final h = size.height;
+    final veins = <Path>[
+      Path()..moveTo(w*.08,h*1.02)..cubicTo(w*.24,h*.78,w*.34,h*.66,w*.5,h*.42)..cubicTo(w*.60,h*.29,w*.78,h*.19,w*.90,-h*.04),
+      Path()..moveTo(w*.24,h*.83)..cubicTo(w*.17,h*.68,w*.16,h*.53,w*.06,h*.43),
+      Path()..moveTo(w*.32,h*.68)..cubicTo(w*.39,h*.58,w*.40,h*.47,w*.34,h*.35),
+      Path()..moveTo(w*.49,h*.43)..cubicTo(w*.60,h*.46,w*.67,h*.55,w*.70,h*.68),
+      Path()..moveTo(w*.62,h*.29)..cubicTo(w*.74,h*.30,w*.81,h*.38,w*.95,h*.36),
+      Path()..moveTo(w*.39,h*.57)..cubicTo(w*.31,h*.48,w*.25,h*.44,w*.20,h*.29),
+      Path()..moveTo(w*.72,h*.55)..cubicTo(w*.79,h*.63,w*.83,h*.71,w*.84,h*.86),
+    ];
+    for (var i = 0; i < veins.length; i++) {
+      canvas.drawPath(veins[i], Paint()..style = PaintingStyle.stroke..strokeCap = StrokeCap.round
+        ..strokeWidth = w * (i == 0 ? .006 : .003)..color = const Color(0xFF26C77A).withValues(alpha: i == 0 ? .28 : .18));
+    }
+    final metrics = veins.first.computeMetrics();
+    if (metrics.isNotEmpty) {
+      final metric = metrics.first;
+      final progress = Curves.easeInOutCubic.transform(t);
+      canvas.drawPath(metric.extractPath(0, metric.length * progress), Paint()..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round..strokeWidth = w * .004..color = const Color(0x66D8B45B));
+      final tangent = metric.getTangentForOffset(metric.length * progress);
+      if (tangent != null) {
+        canvas.drawCircle(tangent.position, w * .009, Paint()..color = const Color(0x44D8B45B));
+        canvas.drawCircle(tangent.position, w * .003, Paint()..color = const Color(0x99D8B45B));
+      }
+    }
   }
 }
 
@@ -1059,7 +1083,7 @@ class OnyxGlassEffect extends NebulaEffect {
   const OnyxGlassEffect({super.key, required super.animate});
 
   @override
-  Duration get duration => const Duration(seconds: 10);
+  Duration get duration => const Duration(seconds: 15);
 
   // continuous sweep: reversing it would look like a bounce
   @override
@@ -1179,7 +1203,7 @@ class IvoryGlassEffect extends NebulaEffect {
   const IvoryGlassEffect({super.key, required super.animate});
 
   @override
-  Duration get duration => const Duration(seconds: 22);
+  Duration get duration => const Duration(seconds: 19);
 
   @override
   CustomPainter painter(double t) => _IvoryGlassPainter(t);
@@ -1450,7 +1474,7 @@ class ImperialGlassEffect extends NebulaEffect {
   const ImperialGlassEffect({super.key, required super.animate});
 
   @override
-  Duration get duration => const Duration(seconds: 12);
+  Duration get duration => const Duration(seconds: 18);
 
   // continuous sweep like a forge inspection lamp
   @override
