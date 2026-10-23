@@ -7,8 +7,8 @@ import 'package:aves/widgets/security/failsafe_sprite.dart';
 import 'package:aves/widgets/security/failsafe_speech_duration.dart';
 import 'package:material_ui/material_ui.dart';
 
-// Warning and confirmation messages as a comic speech bubble said by the Fail-Safe character,
-// who also reads the message out loud with his voice (tap the bubble to hear it again).
+// Warning and confirmation messages as a comic speech bubble said by Fail-Safe.
+// Tapping replays the voice only when playback and the anti-spam cooldown are idle.
 // Used by `AvesDialog` when the option is on, for dialogs that only show a message.
 class FailsafeComicDialog extends StatefulWidget {
   final String message;
@@ -23,6 +23,7 @@ class FailsafeComicDialog extends StatefulWidget {
 class _FailsafeComicDialogState extends State<FailsafeComicDialog> {
   bool _narrating = false;
   bool _speaking = false;
+  DateTime? _replayAllowedAt;
 
   @override
   void initState() {
@@ -32,14 +33,28 @@ class _FailsafeComicDialogState extends State<FailsafeComicDialog> {
 
   String? _voiceError;
 
+  void _onBubbleTap() {
+    if (_narrating) return;
+    final now = DateTime.now();
+    if (_replayAllowedAt?.isAfter(now) ?? false) return;
+    unawaited(_narrate());
+  }
+
   Future<void> _narrate() async {
-    if (_narrating) return; // prevent spam
+    if (_narrating) return;
     _narrating = true;
     try {
       final status = await FailsafeVoice.say(widget.message);
       if (status == FailsafeVoice.statusOk && mounted) {
+        final motionDuration = estimateFailsafeSpeechMotionDuration(widget.message);
+        // The audio platform may finish asynchronously; don't let taps restart
+        // the voice during its expected duration or immediately after it ends.
+        _replayAllowedAt = DateTime.now().add(motionDuration + const Duration(milliseconds: 900));
         setState(() => _speaking = true);
-        await Future<void>.delayed(estimateFailsafeSpeechMotionDuration(widget.message));
+        await Future<void>.delayed(motionDuration);
+      } else {
+        // Repeated failed attempts must not hammer the audio channel either.
+        _replayAllowedAt = DateTime.now().add(const Duration(milliseconds: 900));
       }
       if (!mounted) return;
       setState(() {
@@ -108,7 +123,7 @@ class _FailsafeComicDialogState extends State<FailsafeComicDialog> {
             clipBehavior: Clip.none,
             children: [
               GestureDetector(
-                onTap: _narrate,
+                onTap: _onBubbleTap,
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
                   decoration: BoxDecoration(
