@@ -447,7 +447,6 @@ class _LockScreenState extends State<_LockBody> {
             ),
           ),
         ),
-      ),
     );
   }
 }
