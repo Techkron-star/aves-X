@@ -20,6 +20,7 @@ import 'package:material_ui/material_ui.dart';
 // The lock type and its secret are kept in the secure store (like vault secrets),
 // so that they are neither part of the regular settings nor of their export.
 class SecretLock {
+  static final Set<String> _activeChallenges = {};
   // locks the recycle bin
   static final bin = SecretLock._(
     id: 'bin_lock',
@@ -133,38 +134,47 @@ class SecretLock {
     Future<void> Function()? onNuke,
     bool resetOnSuccess = true,
   }) async {
-    if (guard != null) {
-      final remaining = await guard.remainingCooldown();
-      if (remaining != null) {
-        if (context.mounted) await MasterCode.showCooldownMessage(context, remaining);
-        return false;
-      }
-      if (!context.mounted) return false;
-    }
-
-    bool? result;
-    try {
-      result = await _attempt(context, lockType, reason, passKey);
-    } catch (error, stack) {
-      // A storage/hash/system error is not proof of a wrong secret. Fail closed without
-      // incrementing counters or reaching any configured destructive action.
-      await reportService.recordError(error, stack);
-      if (context.mounted) {
-        await showWarningDialog(context: context, message: context.l10n.genericFailureFeedback);
-      }
+    final challengeKey = guard?.id;
+    if (challengeKey != null && !_activeChallenges.add(challengeKey)) {
+      // A second widget/callback must not verify or count the same protected flow concurrently.
       return false;
     }
-    // Cancellation, unavailable authentication and verifier errors are not failed attempts.
-    if (result == null) return false;
+    try {
+      if (guard != null) {
+        final remaining = await guard.remainingCooldown();
+        if (remaining != null) {
+          if (context.mounted) await MasterCode.showCooldownMessage(context, remaining);
+          return false;
+        }
+        if (!context.mounted) return false;
+      }
 
-    if (result) {
-      if (guard != null && resetOnSuccess) await guard.reset();
-      return true;
+      bool? result;
+      try {
+        result = await _attempt(context, lockType, reason, passKey);
+      } catch (error, stack) {
+        // A storage/hash/system error is not proof of a wrong secret. Fail closed without
+        // incrementing counters or reaching any configured destructive action.
+        await reportService.recordError(error, stack);
+        if (context.mounted) {
+          await showWarningDialog(context: context, message: context.l10n.genericFailureFeedback);
+        }
+        return false;
+      }
+      // Cancellation, unavailable authentication and verifier errors are not failed attempts.
+      if (result == null) return false;
+
+      if (result) {
+        if (guard != null && resetOnSuccess) await guard.reset();
+        return true;
+      }
+      if (guard != null && context.mounted) {
+        await MasterCode.handleFailure(context, guard, onNuke ?? () async {});
+      }
+      return false;
+    } finally {
+      if (challengeKey != null) _activeChallenges.remove(challengeKey);
     }
-    if (guard != null && context.mounted) {
-      await MasterCode.handleFailure(context, guard, onNuke ?? () async {});
-    }
-    return false;
   }
 
   // `null` when cancelled or unavailable (not counted as a failure)
