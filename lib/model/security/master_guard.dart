@@ -189,8 +189,14 @@ class MasterGuard extends ChangeNotifier {
       'bin_lock_pass',
       'reveal_lock_pass',
       'items_lock_pass',
+      for (final lock in ['bin_lock', 'reveal_lock', 'items_lock'])
+        for (final type in ['system', 'pattern', 'pin', 'password']) '${lock}_pass_${type}',
       for (final v in vaults.all) v.passKey,
+      for (final v in vaults.all)
+        for (final type in ['system', 'pattern', 'pin', 'password']) '${v.passKey}_${type}',
       for (final v in vaults.all) 'adv_vault2pass_${v.name}',
+      for (final v in vaults.all)
+        for (final type in ['system', 'pattern', 'pin', 'password']) 'adv_vault2pass_${v.name}_${type}',
     };
     for (final key in keys) {
       final stored = await securityService.readValueStrict<String>(key);
