@@ -209,7 +209,7 @@ class _TrashIconMotionState extends State<TrashIconMotion> with SingleTickerProv
     child: widget.child,
     builder: (context, child) {
       if (!widget.animate) return child!;
-      final swing = math.sin(_controller.value * 2 * math.pi);
+      final swing = sin(_controller.value * 2 * pi);
       return Transform.rotate(
         angle: swing * .035,
         child: Transform.scale(
