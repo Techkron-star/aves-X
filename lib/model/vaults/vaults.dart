@@ -240,7 +240,6 @@ class Vaults {
   Future<Set<AvesEntry>> recoverUntrackedItems(CollectionSource source, String dirPath) async {
     final newEntries = <AvesEntry>{};
 
-    final vaultName = detailsForPath(dirPath)?.name;
     if (vaultName == null) return newEntries;
 
     final knownPaths = source.allEntries.where((v) => v.origin == EntryOrigins.vault && v.directory == dirPath).map((v) => v.path).nonNulls.toSet();
