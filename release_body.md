@@ -1,51 +1,25 @@
-# Aves-X v0.5.0 — Nebula Engine v1
+# Aves-X Beta 0.5
 
-## 🏷️ Renombrado a nombres propios
-- **Bat-Glass** → **Nosferatu Glass**
-- **Bat-Lens** → **Nav Lens**
-- **Bat-Curity** → **Master Guard**
-- **Bat-Mark** → **App Mark**
+A privacy-oriented Android gallery fork based on Aves, with distinctive theme identities and optional local protection systems.
 
-## 🎨 Nebula Engine — Fase 1 completa
-**5 temas** con paletas completas y tokens de Fail-Safe:
-- **Nosferatu Glass** — ruby/negro (ex Bat-Glass, paridad exacta)
-- **Obsidian Glass** — sangre/obsidiana, vetas naranjas
-- **Aureate Glass** — dorado/hoja de oro, vetas cálidas
-- **Forge Glass** (Fase 2) — nebular/naranja, vetas fundidas
-- **Hermetic Glass** (Fase 2) — alquímico/esmeralda-violeta, glifos
+## Visual identity and navigation
+- Nebula themes, including **Nox Terroris**, with distinct surfaces, palettes and effects.
+- **Nav Lens**: layered glass reflection, sliding active lens and individual chain links that release during unlock.
+- **Glass-Everywhere** remains separate from each theme's own material.
+- Drawer About/Settings controls invert their contrast according to the theme's dominant color.
 
-## 🌌 Pestaña Nebula
-- Nueva pestaña dedicada, con estilo galáctico: nebulosa lenta, estrellas que
-  parpadean y partículas flotantes.
-- Selector de tema con nombre, descripción y pegatina de función.
-- Los efectos se pausan en modo rendimiento y con las animaciones desactivadas.
+## Privacy and security
+- Protected albums, individual photos/favourites, trash, hidden items and vaults.
+- Master Code, optional Argon2id credential hashing, app lock and optional biometrics.
+- Persistent failed-attempt counters, progressive cooldown, lockdown and opt-in emergency wipe.
+- **Fail-Safe** local-only diagnostic log, safe mode after unexpected exits, and voice bubble with anti-spam cooldown.
+- Experimental encrypted vaults and root-assisted **Gargantuan / Black Hole** mode; their warnings and limitations still apply.
+- **Gargantua** protects sharing/hand-off paths, but complete enforcement for every exit path remains work in progress.
 
-## 🔐 Item Lock Screen + Animación de desbloqueo
-- Pantalla `ItemLockScreen` con tokens Nebula.
-- Animación de desbloqueo en `LockedBadge` + `_UnlockingThumbnail`.
-- Al bloquear sin opción activada, la app guía a los ajustes correspondientes.
+## General improvements
+- Settings separated into **General** and **Aves-X** systems.
+- Local captions, compatible metadata removal, `.nomedia` controls and expanded video controls.
+- Version metadata aligned to **0.5.0-beta+501**; downloadable libre APKs are labelled **Beta 0.5**.
 
-## 🎭 Fail-Safe tokenizado
-- `FailsafeComicDialog`: anti-spam narrado + `stopPcm()`.
-- `FailsafeBuddy`, `FailsafeLockdown` y `AppLockGate` usan los tokens del tema activo,
-  conservando el rojo de peligro.
-- **Master Code en lockdown**: un código maestro correcto nunca cuenta como intento
-  fallido, así que no puede disparar el borrado de emergencia.
-- `MasterGuard` (ex `BatCurity`): renombrado puro, claves de almacenamiento intactas.
-
-## 🦇 Logo e identidad
-- El logo es el murciélago exacto de `aves_logo.svg`: los mismos 155 trazados se usan
-  en el icono del launcher, el splash, la bienvenida, el cajón y Acerca de.
-- Icono adaptativo con foreground vectorial y variante **monochrome** (Android 13+),
-  compatible con Material You / Material 3 Expressive.
-- El logo sigue el color semilla en los temas dinámicos; en Nosferatu Glass conserva
-  el ruby y el negro originales.
-
-## 📦 APKs
-Adjuntos a esta release:
-- `Aves-X-libre-arm64-v8a.apk`
-- `Aves-X-libre-armeabi-v7a.apk`
-- `Aves-X-libre-x86_64.apk`
-
-> Forge Glass y Hermetic Glass ya tienen paleta, pero sus efectos propios llegan en la
-> Fase 2 del Nebula Engine.
+## Important
+This is a beta, not a security audit. Back up important files. Some security paths and devices still require broader testing, and emergency deletion is irreversible.
