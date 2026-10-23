@@ -160,16 +160,16 @@ void main() {
     test('phase', () {
       expect(NebulaTheme.aves.phase, 1);
       expect(NebulaTheme.nosferatuGlass.phase, 1);
-      expect(NebulaTheme.obsidianGlass.phase, 1);
-      expect(NebulaTheme.aureateGlass.phase, 1);
+      expect(NebulaTheme.obsidianGlass.phase, 2);
+      expect(NebulaTheme.aureateGlass.phase, 2);
       expect(NebulaTheme.forgeGlass.phase, 2);
       expect(NebulaTheme.hermeticGlass.phase, 2);
     });
 
     test('isPhase1', () {
       expect(NebulaTheme.nosferatuGlass.isPhase1, isTrue);
-      expect(NebulaTheme.obsidianGlass.isPhase1, isTrue);
-      expect(NebulaTheme.aureateGlass.isPhase1, isTrue);
+      expect(NebulaTheme.obsidianGlass.isPhase1, isFalse);
+      expect(NebulaTheme.aureateGlass.isPhase1, isFalse);
       expect(NebulaTheme.forgeGlass.isPhase1, isFalse);
       expect(NebulaTheme.hermeticGlass.isPhase1, isFalse);
     });
@@ -178,10 +178,10 @@ void main() {
   group('colors of each crystal theme', () {
     final cases = <(NebulaTheme, Color, Color, Color, Color)>{
       (NebulaTheme.nosferatuGlass, const Color(0xFF000000), const Color(0xFFE0183E), const Color(0xFF5A1626), const Color(0x80FF3B5C)),
-      (NebulaTheme.obsidianGlass, const Color(0xFF0A0000), const Color(0xFFE0183E), const Color(0xFF4A0000), const Color(0x80FF3B5C)),
+      (NebulaTheme.obsidianGlass, const Color(0xFF0A050F), const Color(0xFF9B5DE5), const Color(0xFF3A1C52), const Color(0x806A1B9A)),
       (NebulaTheme.aureateGlass, const Color(0xFF120E06), const Color(0xFFE8C547), const Color(0xFF4A3A1C), const Color(0x80FFE08A)),
-      (NebulaTheme.forgeGlass, const Color(0xFF080611), const Color(0xFFFF7A18), const Color(0xFF3A2C63), const Color(0x80B07CFF)),
-      (NebulaTheme.hermeticGlass, const Color(0xFF04100C), const Color(0xFF35E0A1), const Color(0xFF2A4F3F), const Color(0x809B7BFF)),
+      (NebulaTheme.forgeGlass, const Color(0xFF070610), const Color(0xFFFF762B), const Color(0xFF44365F), const Color(0x80FF762B)),
+      (NebulaTheme.hermeticGlass, const Color(0xFF030D09), const Color(0xFF35D8A0), const Color(0xFF2F5B47), const Color(0x80A58AFF)),
     };
 
     for (final (theme, surface, accent, outlineVariant, crystalEdge) in cases) {
@@ -206,10 +206,10 @@ void main() {
   group('Fail-Safe tokens of each crystal theme', () {
     final cases = <(NebulaTheme, Color, Color, Color, Color)>{
       (NebulaTheme.nosferatuGlass, const Color(0xFF24060E), const Color(0xFFFFFBF0), const Color(0xFF14121A), const Color(0xFFE0183E)),
-      (NebulaTheme.obsidianGlass, const Color(0xFF1A0000), const Color(0xFF2A0000), const Color(0xFFFF3B30), const Color(0xFF1A0000)),
+      (NebulaTheme.obsidianGlass, const Color(0xFF12001A), const Color(0xFF1A002A), const Color(0xFF9B5DE5), const Color(0xFF12001A)),
       (NebulaTheme.aureateGlass, const Color(0xFF1A1409), const Color(0xFFFFF4D6), const Color(0xFF8A6A1F), const Color(0xFF2C2312)),
-      (NebulaTheme.forgeGlass, const Color(0xFF1B1533), const Color(0xFF241B44), const Color(0xFFB07CFF), const Color(0xFF1B1533)),
-      (NebulaTheme.hermeticGlass, const Color(0xFF112B21), const Color(0xFF17382B), const Color(0x809B7BFF), const Color(0xFF112B21)),
+      (NebulaTheme.forgeGlass, const Color(0xFF1F1735), const Color(0xFF0D0A1A), const Color(0xFF44365F), const Color(0xFF2B2045)),
+      (NebulaTheme.hermeticGlass, const Color(0xFF143125), const Color(0xFF071610), const Color(0xFF2F5B47), const Color(0xFF1D4030)),
     };
 
     for (final (theme, surface, bubbleSurface, bubbleBorder, inputFieldBg) in cases) {
@@ -229,6 +229,33 @@ void main() {
         expect(tokens.securityCrystalBody, hasLength(4));
       });
     }
+  });
+
+  group('phase-two palette targets', () {
+    test('every enum value resolves to a palette', () {
+      for (final theme in NebulaTheme.values) {
+        expect(nebulaPaletteFor(theme), isNotNull, reason: theme.id);
+      }
+    });
+
+    test('Pearl and Ivory are true light themes with readable text', () {
+      for (final theme in [NebulaTheme.pearlGlass, NebulaTheme.ivoryGlass]) {
+        final palette = nebulaPalettes[theme]!;
+        final data = _theme(theme, locale);
+        expect(palette.brightness, Brightness.light, reason: theme.id);
+        expect(palette.darkOnly, isFalse, reason: theme.id);
+        expect(palette.allowDynamicColor, isFalse, reason: theme.id);
+        expect(data.colorScheme.brightness, Brightness.light, reason: theme.id);
+        expect(_contrast(data.colorScheme.onSurface, data.colorScheme.surface), greaterThanOrEqualTo(4.5), reason: theme.id);
+        expect(_contrast(data.colorScheme.onSurface, data.colorScheme.surfaceContainerHighest), greaterThanOrEqualTo(4.5), reason: theme.id);
+      }
+    });
+
+    test('all non-default themes keep system dynamic colors disabled', () {
+      for (final theme in NebulaTheme.values.where((t) => t != NebulaTheme.aves)) {
+        expect(nebulaPalettes[theme]!.allowDynamicColor, isFalse, reason: theme.id);
+      }
+    });
   });
 
   group('Nebula theme ids', () {
