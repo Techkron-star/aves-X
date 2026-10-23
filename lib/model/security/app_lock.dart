@@ -155,20 +155,20 @@ class AppLock extends ChangeNotifier {
   }
 
   // the panic PIN has to differ from the app PIN, otherwise it would never be usable
-  Future<bool> isSameAsPin(String code) => masterGuard.matches(_pinKey, code);
+  Future<bool> isSameAsPin(String code) => masterGuard.matchesRequired(_pinKey, code);
 
   Future<AppLockResult> attemptPin(String code) async {
     if (_lockTypeName != 'code') throw StateError('PIN verification requested for an alternative lock type');
     final guard = AttemptGuard.app;
     if (await guard.remainingCooldown() != null) return AppLockResult.cooldown;
 
-    if (await masterGuard.matches(_pinKey, code)) {
+    if (await masterGuard.matchesRequired(_pinKey, code)) {
       await guard.reset();
       _locked = false;
       notifyListeners();
       return AppLockResult.unlocked;
     }
-    if (_hasPanic && await masterGuard.matches(_panicKey, code)) {
+    if (_hasPanic && await masterGuard.matchesRequired(_panicKey, code)) {
       return AppLockResult.panic;
     }
     return _fail(guard.registerFailure());
