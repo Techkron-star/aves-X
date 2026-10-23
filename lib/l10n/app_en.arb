@@ -1153,7 +1153,7 @@
   "settingsCustomNebulaThemeEmptyTitle": "No custom themes yet",
   "settingsCustomNebulaThemeEmptySubtitle": "Create your first custom Nebula theme or import one from JSON.",
   "settingsTabGeneral": "General",
-  "settingsTabSpecial": "Special",
+  "settingsTabSpecial": "Aves-X",
   "experimentalLabel": "EXPERIMENTAL",
   "settingsExperimentalSectionTitle": "Experimental",
   "experimentalWarningMessage": "These options are experimental. They may cause performance issues, higher battery use or instability. Enable them at your own risk.",
