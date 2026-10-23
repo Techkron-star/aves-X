@@ -15,6 +15,7 @@ import 'package:aves/widgets/dialogs/filter_editors/code_dialog.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:aves/widgets/security/security_screen_background.dart';
+import 'package:aves/theme/nebula/nebula_tokens.dart';
 
 // Covers the whole app while the Failsafe lockdown is on. Only the Master Code lifts it.
 // The content below is kept but cannot be seen or used.
