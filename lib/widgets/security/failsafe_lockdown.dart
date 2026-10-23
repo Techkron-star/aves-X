@@ -8,10 +8,12 @@ import 'package:aves/model/security/attempt_guard.dart';
 import 'package:aves/model/security/master_guard.dart';
 import 'package:aves/model/security/nuke.dart';
 import 'package:aves/model/security/failsafe.dart';
+import 'package:aves/model/settings/settings.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/security/failsafe_sprite.dart';
 import 'package:aves/widgets/security/failsafe_speech_duration.dart';
 import 'package:aves/widgets/common/fx/failsafe_badge.dart';
+import 'package:aves/widgets/common/fx/nebula_component_surfaces.dart';
 import 'package:aves/widgets/dialogs/filter_editors/code_dialog.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
@@ -188,7 +190,14 @@ class _LockdownScreenState extends State<_LockdownBody> {
             padding: const EdgeInsets.all(20),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 480),
-              child: Container(
+              child: NebulaComponentSurfaceAccent(
+                style: settings.materialStyle,
+                role: NebulaComponentSurfaceRole.lockdownCard,
+                state: NebulaComponentSurfaceState.warning,
+                animate: settings.animate,
+                alertColor: nebula.securityAlert,
+                borderRadius: const BorderRadius.all(Radius.circular(30)),
+                child: Container(
                 padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -256,7 +265,16 @@ class _LockdownScreenState extends State<_LockdownBody> {
                     ),
                     const SizedBox(height: 22),
                     if (!_blocked)
-                      Container(
+                      NebulaComponentSurfaceAccent(
+                        style: settings.materialStyle,
+                        role: NebulaComponentSurfaceRole.securityInput,
+                        state: _message != null || _fails >= 3
+                            ? NebulaComponentSurfaceState.warning
+                            : NebulaComponentSurfaceState.focused,
+                        animate: settings.animate,
+                        alertColor: nebula.securityAlert,
+                        borderRadius: BorderRadius.circular(18),
+                        child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                         decoration: BoxDecoration(
                           color: nebula.securityInputFieldBg.withValues(alpha: .64),
@@ -278,6 +296,7 @@ class _LockdownScreenState extends State<_LockdownBody> {
                             ),
                           ),
                         ),
+                      ),
                       ),
                     Padding(padding: const EdgeInsets.only(top: 22), child: FailsafeBuddy(fails: _fails)),
                     if (_message != null)
@@ -320,6 +339,8 @@ class _LockdownScreenState extends State<_LockdownBody> {
                       ),
                   ],
                 ),
+                ),
+              ),
               ),
             ),
           ),
