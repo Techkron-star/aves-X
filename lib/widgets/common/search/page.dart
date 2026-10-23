@@ -11,6 +11,7 @@ import 'package:aves/widgets/common/behaviour/pop/scope.dart';
 import 'package:aves/widgets/common/behaviour/pop/tv_navigation.dart';
 import 'package:aves/widgets/common/search/delegate.dart';
 import 'package:aves/widgets/common/search/route.dart';
+import 'package:aves/widgets/common/fx/nebula_component_surfaces.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
@@ -79,6 +80,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void _onFocusChanged() {
+    if (mounted) setState(() {});
     if (_searchFieldFocusNode.hasFocus && widget.delegate.currentBody != SearchBody.suggestions) {
       widget.delegate.showSuggestions(context);
     }
@@ -157,8 +159,18 @@ class _SearchPageState extends State<SearchPage> {
       );
     }
 
+    final material = settings.materialStyle;
     return AvesScaffold(
       appBar: AppBar(
+        flexibleSpace: material == null ? null : NebulaComponentSurfaceAccent(
+          style: material,
+          role: NebulaComponentSurfaceRole.searchBar,
+          state: _searchFieldFocusNode.hasFocus
+              ? NebulaComponentSurfaceState.focused
+              : NebulaComponentSurfaceState.idle,
+          animate: animate,
+          child: const SizedBox.expand(),
+        ),
         leading: leading,
         title: title,
         actions: widget.delegate.buildActions(context),
