@@ -64,14 +64,18 @@ class _GargantuanModePageState extends State<GargantuanModePage> {
       body: SafeArea(
         child: ValueListenableBuilder<bool>(
           valueListenable: failsafe.safeMode,
-          builder: (context, safeMode, _) => ListView(
-            padding: const EdgeInsets.fromLTRB(12, 16, 12, 24),
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
-                child: Text(l10n.blackHoleRootOptionSubtitle),
-              ),
-              Container(
+          builder: (context, safeMode, _) => AbsorbPointer(
+            absorbing: safeMode,
+            child: Opacity(
+              opacity: safeMode ? .5 : 1,
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(12, 16, 12, 24),
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
+                    child: Text(l10n.blackHoleRootOptionSubtitle),
+                  ),
+                  Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(22),
                   border: Border.all(color: const Color(0x665F32A5)),
@@ -100,13 +104,10 @@ class _GargantuanModePageState extends State<GargantuanModePage> {
                     onChanged: _loading || safeMode ? null : _setEnabled,
                   ),
                 ),
+                  ),
+                ],
               ),
-              if (safeMode)
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Text(l10n.failsafeLockdownOptionSubtitle),
-                ),
-            ],
+            ),
           ),
         ),
       ),
