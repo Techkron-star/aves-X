@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 
+import 'package:aves/model/security/failsafe_config.dart';
+import 'package:aves/widgets/common/fx/black_hole.dart';
 import 'package:material_ui/material_ui.dart';
 
 enum DestructiveEffect { trash, erase }
@@ -53,12 +55,40 @@ class _DestructiveActionAnimationState extends State<DestructiveActionAnimation>
   }
 
   @override
-  Widget build(BuildContext context) => SizedBox.square(
-    dimension: widget.size,
-    child: AnimatedBuilder(
-      animation: _controller,
-      builder: (context, _) {
-        final phase = widget.animate ? _controller.value * 2 * math.pi : 0.0;
+  Widget build(BuildContext context) => ValueListenableBuilder<bool>(
+    valueListenable: FailsafeConfig.rootModeActive,
+    builder: (context, blackHoleMode, _) => SizedBox.square(
+      dimension: widget.size,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, _) {
+          final phase = widget.animate ? _controller.value * 2 * math.pi : 0.0;
+          if (blackHoleMode && widget.effect == DestructiveEffect.trash) {
+            // Replace the bin with an event horizon and inward-orbiting matter.
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                BlackHoleDisc(size: widget.size * .92, animate: widget.animate),
+                for (var i = 0; i < 5; i++)
+                  Positioned(
+                    left: widget.size * (.5 + .34 * math.cos(phase + i * 2 * math.pi / 5)) - widget.size * .025,
+                    top: widget.size * (.5 + .34 * math.sin(phase + i * 2 * math.pi / 5)) - widget.size * .025,
+                    child: Transform.scale(
+                      scale: .45 + .55 * (.5 + .5 * math.sin(phase * 1.6 + i)),
+                      child: Container(
+                        width: widget.size * .05,
+                        height: widget.size * .05,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: const Color(0xFFFFD6A0).withValues(alpha: .55 + .4 * math.sin(phase).abs()),
+                          boxShadow: [BoxShadow(color: const Color(0xFFFF8A1F).withValues(alpha: .65), blurRadius: widget.size * .07)],
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          }
         final pulse = widget.animate ? .5 + .5 * math.sin(phase) : .5;
         final swing = widget.animate ? math.sin(phase) : 0.0;
         final color = widget.effect == DestructiveEffect.trash ? const Color(0xFFFF8A34) : const Color(0xFFE5394F);
@@ -99,7 +129,8 @@ class _DestructiveActionAnimationState extends State<DestructiveActionAnimation>
               ),
           ],
         );
-      },
+        },
+      ),
     ),
   );
 }
