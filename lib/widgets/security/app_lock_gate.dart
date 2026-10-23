@@ -169,7 +169,14 @@ class _LockScreenState extends State<_LockBody> {
         await reportService.recordError(e, stack);
         return;
       }
-      await _handle(ok ? await appLock.biometricSucceeded() : await appLock.biometricFailed());
+      if (!ok) {
+        // local_auth reports rejection and cancellation with the same boolean; record only in
+        // the biometric-only counter so cancelling the prompt can never trigger a nuke.
+        await appLock.biometricFailed();
+        await _refresh();
+        return;
+      }
+      await _handle(await appLock.biometricSucceeded());
     } finally {
       _checking = false;
     }
