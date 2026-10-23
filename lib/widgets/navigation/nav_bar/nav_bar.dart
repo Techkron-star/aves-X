@@ -636,7 +636,7 @@ class _LensReflectionPainter extends CustomPainter {
     canvas.clipRRect(RRect.fromRectAndRadius(rect, Radius.circular(corner)));
 
     canvas.drawRRect(
-      RRect.fromRectAndRadius(rect.deflate(1.1), Radius.circular(max(0, corner - 1.1))),
+      RRect.fromRectAndRadius(rect.deflate(1.1), Radius.circular(max(0.0, corner - 1.1))),
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = .65
