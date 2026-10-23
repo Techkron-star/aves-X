@@ -70,7 +70,7 @@ class _CustomNebulaThemePageState extends State<CustomNebulaThemePage> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _themes.isEmpty
-              ? _EmptyState(onImport: _import, onNew: () => _createNew())
+              ? _EmptyState(onImport: _import, onNew: () => _createNew(), showImportDialog: _showImportDialog)
               : ListView(
                   children: [
                     for (final theme in _themes)
@@ -183,8 +183,13 @@ class _CustomNebulaThemePageState extends State<CustomNebulaThemePage> {
 class _EmptyState extends StatelessWidget {
   final Future<void> Function(String) onImport;
   final VoidCallback onNew;
+  final void Function(BuildContext, AppLocalizations, Future<void> Function(String)) showImportDialog;
 
-  const _EmptyState({required this.onImport, required this.onNew});
+  const _EmptyState({
+    required this.onImport,
+    required this.onNew,
+    required this.showImportDialog,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -209,7 +214,7 @@ class _EmptyState extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               OutlinedButton.icon(
-                onPressed: () => _showImportDialog(context, l10n, _import),
+                onPressed: () => showImportDialog(context, l10n, onImport),
                 icon: const Icon(Icons.import_export),
                 label: Text(l10n.settingsCustomNebulaThemeImport),
               ),
