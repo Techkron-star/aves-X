@@ -5,6 +5,7 @@ import 'package:aves/widgets/security/failsafe_lockdown.dart';
 import 'package:aves/model/security/app_lock.dart';
 import 'package:aves/model/security/attempt_guard.dart';
 import 'package:aves/model/security/nuke.dart';
+import 'package:aves/services/common/services.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/dialogs/filter_editors/code_dialog.dart';
 import 'package:aves/theme/nebula/nebula_tokens.dart';
@@ -143,6 +144,7 @@ class _LockScreenState extends State<_LockBody> {
       _controller.clear();
       await _handle(result);
     } catch (e, stack) {
+      await reportService.recordError(e, stack);
       _controller.clear();
       // Verification/runtime errors must not be interpreted as a wrong PIN or trigger a nuke.
       if (mounted) setState(() => _message = context.l10n.genericFailureFeedback);
@@ -152,14 +154,20 @@ class _LockScreenState extends State<_LockBody> {
   }
 
   Future<void> _onBiometric() async {
-    if (_blocked) return;
-    bool? ok;
+    if (_blocked || _checking) return;
+    _checking = true;
     try {
-      ok = await LocalAuthentication().authenticate(localizedReason: context.l10n.appLockBiometricReason);
-    } on PlatformException {
-      return;
+      final bool ok;
+      try {
+        ok = await LocalAuthentication().authenticate(localizedReason: context.l10n.appLockBiometricReason);
+      } on PlatformException catch (e, stack) {
+        await reportService.recordError(e, stack);
+        return;
+      }
+      await _handle(ok ? await appLock.biometricSucceeded() : await appLock.biometricFailed());
+    } finally {
+      _checking = false;
     }
-    await _handle(ok ? await appLock.biometricSucceeded() : await appLock.biometricFailed());
   }
 
   Future<void> _loadFails() async {
