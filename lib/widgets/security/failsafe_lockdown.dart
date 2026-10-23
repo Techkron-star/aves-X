@@ -126,37 +126,46 @@ class _LockdownScreenState extends State<_LockdownBody> {
   }
 
   Future<void> _onCode(String code) async {
-    if (_blocked) {
+    // Pin fields can emit onCompleted more than once; one submission must mean one verification.
+    if (_blocked || _checking) {
       _controller.clear();
       return;
     }
-    bool ok = false;
+    _checking = true;
+    var verificationError = false;
     try {
-      ok = await masterGuard.matches('master_code', code);
-    } catch (e, stack) {
-      await reportService.recordError(e, stack);
-      // If matching fails unexpectedly, treat as incorrect code but log the error
-      ok = false;
-    }
-    _controller.clear();
-    if (ok) {
+      final bool ok;
+      try {
+        ok = await masterGuard.matches('master_code', code);
+      } catch (e, stack) {
+        await reportService.recordError(e, stack);
+        // A verifier error is not evidence of a wrong code: never count it toward cooldown or nuke.
+        verificationError = true;
+        if (mounted) setState(() => _message = context.l10n.genericFailureFeedback);
+        return;
+      }
+      _controller.clear();
+      if (ok) {
       // Master Code correct: reset attempt guards and release lockdown
       // CRITICAL: Never register a failure for the Master Code
       await AttemptGuard.master.reset();
       await AttemptGuard.app.reset();
-      await failsafe.releaseLockdown();
-      return;
-    }
-    // Incorrect code: register failure normally
-    await AttemptGuard.master.registerFailure();
-    final fails = await AttemptGuard.master.failures();
-    if (mounted) setState(() => _fails = fails);
-    final remaining = await AttemptGuard.master.remainingCooldown();
-    if (!mounted) return;
-    if (remaining != null) {
-      _showCooldown(remaining);
-    } else {
-      setState(() => _message = context.l10n.appLockWrongPin);
+        await failsafe.releaseLockdown();
+        return;
+      }
+      // Only a completed, successful comparison returning false counts as a wrong Master Code.
+      await AttemptGuard.master.registerFailure();
+      final fails = await AttemptGuard.master.failures();
+      if (mounted) setState(() => _fails = fails);
+      final remaining = await AttemptGuard.master.remainingCooldown();
+      if (!mounted) return;
+      if (remaining != null) {
+        _showCooldown(remaining);
+      } else {
+        setState(() => _message = context.l10n.appLockWrongPin);
+      }
+    } finally {
+      _checking = false;
     }
   }
 
