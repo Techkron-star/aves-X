@@ -42,7 +42,6 @@ class Failsafe with WidgetsBindingObserver {
   int _crashes = 0;
   bool _dirty = false;
   Timer? _healthyTimer;
-  Timer? _flushTimer;
   bool _ready = false;
 
   Future<void> init() async {
@@ -91,7 +90,7 @@ class Failsafe with WidgetsBindingObserver {
       debugPrint('Failsafe init failed; entering fail-closed mode: $e');
     }
     WidgetsBinding.instance.addObserver(this);
-    _flushTimer = Timer.periodic(const Duration(seconds: 6), (_) => _flush());
+    Timer.periodic(const Duration(seconds: 6), (_) => _flush());
     _scheduleHealthy();
     unawaited(_flush());
   }
