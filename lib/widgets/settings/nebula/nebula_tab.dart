@@ -251,7 +251,7 @@ class _NebulaPainter extends CustomPainter {
       final center = base +
           Offset(
             math.cos(t + blob.phase) * size.width * blob.drift,
-            math.sin(t * .8 + blob.phase) * size.height * blob.drift,
+            math.sin(t + blob.phase) * size.height * blob.drift,
           );
       final radius = size.shortestSide * blob.radiusFactor;
       final paint = Paint()
@@ -320,7 +320,7 @@ class _StarFieldState extends State<_StarField> {
         size: 1.4 + random.nextDouble() * 2.2,
         phase: random.nextDouble() * math.pi * 2,
         speed: .5 + random.nextDouble() * .8,
-        duration: Duration(milliseconds: 500 + random.nextInt(1500)),
+        duration: Duration(milliseconds: 500 + random.nextInt(400)),
       );
     }, growable: false);
   }
@@ -438,7 +438,7 @@ class _ParticleFieldState extends State<_ParticleField> {
         left: _random.nextDouble(),
         top: _random.nextDouble(),
         size: 2.0 + _random.nextDouble() * 3.5,
-        duration: Duration(seconds: 6 + _random.nextInt(5)),
+        duration: const Duration(seconds: 6),
       );
     }, growable: false);
   }
