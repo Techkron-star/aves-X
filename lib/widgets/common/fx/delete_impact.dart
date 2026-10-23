@@ -74,13 +74,13 @@ class _DestructiveActionAnimationState extends State<DestructiveActionAnimation>
                     left: widget.size * (.5 + .34 * math.cos(phase + i * 2 * math.pi / 5)) - widget.size * .025,
                     top: widget.size * (.5 + .34 * math.sin(phase + i * 2 * math.pi / 5)) - widget.size * .025,
                     child: Transform.scale(
-                      scale: .45 + .55 * (.5 + .5 * math.sin(phase * 1.6 + i)),
+                      scale: .45 + .55 * (.5 + .5 * math.sin(phase * 2 + i)),
                       child: Container(
                         width: widget.size * .05,
                         height: widget.size * .05,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: const Color(0xFFFFD6A0).withValues(alpha: .55 + .4 * math.sin(phase).abs()),
+                          color: const Color(0xFFFFD6A0).withValues(alpha: .55 + .4 * (.5 + .5 * math.cos(phase))),
                           boxShadow: [BoxShadow(color: const Color(0xFFFF8A1F).withValues(alpha: .65), blurRadius: widget.size * .07)],
                         ),
                       ),
