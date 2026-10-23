@@ -69,8 +69,8 @@ extension NebulaThemeInfo on NebulaTheme {
 
   // 1: palettes and surfaces, no own effects. 2: own shaders/animations.
   int get phase => switch (this) {
-    .aves || .nosferatuGlass || .obsidianGlass || .aureateGlass => 1,
-    .forgeGlass || .hermeticGlass || .eclipseGlass || .solarFlareGlass || .voidGlass || .crimsonGlass || .neonGlass || .emeraldGlass || .auroraGlass || .sapphireGlass || .amberGlass || .onyxGlass || .pearlGlass || .ivoryGlass || .imperialGlass => 2,
+    .aves || .nosferatuGlass => 1,
+    .obsidianGlass || .aureateGlass || .forgeGlass || .hermeticGlass || .eclipseGlass || .solarFlareGlass || .voidGlass || .crimsonGlass || .neonGlass || .emeraldGlass || .auroraGlass || .sapphireGlass || .amberGlass || .onyxGlass || .pearlGlass || .ivoryGlass || .imperialGlass => 2,
   };
 
   // only phase 1 themes can be offered by the selector for now

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
+import 'package:aves/theme/nebula/nebula_tokens.dart';
 import 'package:aves/widgets/common/fx/liquid.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
@@ -62,7 +63,37 @@ class LockedBadgeState extends State<LockedBadge> with SingleTickerProviderState
     final nebulaTheme = settings.nebulaTheme;
     final bat = nebulaTheme == NebulaTheme.nosferatuGlass;
     final themed = nebulaTheme != NebulaTheme.aves;
-    final palette = _LockPalette.of(context, themed: themed);
+    final tokens = themed ? Theme.of(context).nebula : null;
+    final chainColor = bat
+        ? const Color(0xFFFF6A80)
+        : (tokens?.securityCrystalBody.first ?? const Color(0xFFE0E0E0));
+    final chainFillEnd = bat
+        ? const Color(0xFF8E0F26)
+        : (tokens?.securityCrystalBody[1] ?? const Color(0xFF6E6E6E));
+    final chainStroke = bat
+        ? const Color(0xCCFFB3BF)
+        : (tokens?.securityCrystalEdge ?? const Color(0xFF3A3A3A));
+    final padlockBody = bat
+        ? const [Color(0xFFFF6A80), Color(0xFF8E0F26)]
+        : (tokens != null
+            ? [tokens.securityCrystalBody.first, tokens.securityCrystalBody[1]]
+            : const [Color(0xFFF2C94C), Color(0xFFB8860B)]);
+    final padlockShackle = bat
+        ? const Color(0xFFFFB3BF)
+        : (tokens?.securityCrystalHighlight ?? const Color(0xFFB8B8B8));
+    final padlockStroke = bat
+        ? const Color(0xCCFFB3BF)
+        : (tokens?.securityCrystalEdge ?? const Color(0xFF5C4300));
+    final padlockKeyhole = bat
+        ? const Color(0xFF1A0308)
+        : (tokens?.securityBubbleSurface ?? const Color(0xFF3B2A00));
+    final padlockKey = bat
+        ? const Color(0xFFFFB3BF)
+        : (tokens?.securityBubbleInk ?? const Color(0xFFB8B8B8));
+    final shimmerColor = bat
+        ? const Color(0xFFFFB3BF)
+        : (tokens?.securityAccent ?? const Color(0xFFFFFFFF));
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final box = min(constraints.maxWidth.isFinite ? constraints.maxWidth : 120.0, constraints.maxHeight.isFinite ? constraints.maxHeight : 120.0);
@@ -83,8 +114,16 @@ class LockedBadgeState extends State<LockedBadge> with SingleTickerProviderState
                 // the chains stay in place once locked (not in performance mode: padlock only)
                 if (!settings.performanceMode && !isUnlocking)
                   Positioned.fill(
-                  child: CustomPaint(painter: _ChainsPainter(progress: chains, ruby: bat, scale: scale)),
-                ),
+                    child: CustomPaint(
+                      painter: _ChainsPainter(
+                        progress: chains,
+                        scale: scale,
+                        fillStart: chainColor,
+                        fillEnd: chainFillEnd,
+                        strokeColor: chainStroke,
+                      ),
+                    ),
+                  ),
                 Transform.translate(
                   offset: Offset(shake, -(1 - fall) * box * .9),
                   child: SizedBox(
@@ -92,11 +131,18 @@ class LockedBadgeState extends State<LockedBadge> with SingleTickerProviderState
                     height: lockSize,
                     child: _Shimmer(
                       enabled: bat && settings.animate,
+                      shimmerColor: shimmerColor,
                       child: CustomPaint(
                         painter: _PadlockPainter(
                           bat: bat,
                           open: isUnlocking,
                           openProgress: _unlockController.value,
+                          bodyGradient: padlockBody,
+                          shackleColor: padlockShackle,
+                          strokeColor: padlockStroke,
+                          keyholeColor: padlockKeyhole,
+                          keyColor: padlockKey,
+                          shimmerColor: shimmerColor,
                         ),
                       ),
                     ),
@@ -114,9 +160,10 @@ class LockedBadgeState extends State<LockedBadge> with SingleTickerProviderState
 // a soft light sweeping across the child from time to time, keeping its shape and details
 class _Shimmer extends StatelessWidget {
   final bool enabled;
+  final Color shimmerColor;
   final Widget child;
 
-  const _Shimmer({required this.enabled, required this.child});
+  const _Shimmer({required this.enabled, required this.shimmerColor, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +179,7 @@ class _Shimmer extends StatelessWidget {
           shaderCallback: (bounds) => LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [const Color(0x00FFFFFF), Color(0xFFFFB3BF).withValues(alpha: .7 * e), const Color(0x00FFFFFF)],
+            colors: [const Color(0x00FFFFFF), shimmerColor.withValues(alpha: .7 * e), const Color(0x00FFFFFF)],
             stops: const [.25, .5, .75],
             transform: _Slide(t),
           ).createShader(bounds),
@@ -154,9 +201,15 @@ class _Slide extends GradientTransform {
 
 class _ChainsPainter extends CustomPainter {
   final double progress, scale;
-  final bool ruby;
+  final Color fillStart, fillEnd, strokeColor;
 
-  const _ChainsPainter({required this.progress, required this.ruby, required this.scale});
+  const _ChainsPainter({
+    required this.progress,
+    required this.scale,
+    required this.fillStart,
+    required this.fillEnd,
+    required this.strokeColor,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -176,17 +229,14 @@ class _ChainsPainter extends CustomPainter {
           Radius.circular(5 * scale),
         );
         final fill = Paint()
-          ..shader = (ruby
-                  ? const LinearGradient(colors: [Color(0xFFFF6A80), Color(0xFF8E0F26)])
-                  : const LinearGradient(colors: [Color(0xFFE0E0E0), Color(0xFF6E6E6E)]))
-              .createShader(rect.outerRect);
+          ..shader = LinearGradient(colors: [fillStart, fillEnd]).createShader(rect.outerRect);
         canvas.drawRRect(rect, fill);
         canvas.drawRRect(
           rect,
           Paint()
             ..style = PaintingStyle.stroke
             ..strokeWidth = 1.4 * scale
-            ..color = ruby ? const Color(0xCCFFB3BF) : const Color(0xFF3A3A3A),
+            ..color = strokeColor,
         );
         canvas.restore();
       }
@@ -194,7 +244,8 @@ class _ChainsPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _ChainsPainter old) => old.progress != progress || old.ruby != ruby || old.scale != scale;
+  bool shouldRepaint(covariant _ChainsPainter old) =>
+      old.progress != progress || old.scale != scale || old.fillStart != fillStart || old.fillEnd != fillEnd || old.strokeColor != strokeColor;
 }
 
 class _PadlockPainter extends CustomPainter {
@@ -202,8 +253,25 @@ class _PadlockPainter extends CustomPainter {
   final bool open;
   final bool keyhole;
   final double openProgress;
+  final List<Color> bodyGradient;
+  final Color shackleColor;
+  final Color strokeColor;
+  final Color keyholeColor;
+  final Color keyColor;
+  final Color shimmerColor;
 
-  const _PadlockPainter({required this.bat, required this.open, this.keyhole = true, this.openProgress = 0.0});
+  const _PadlockPainter({
+    required this.bat,
+    required this.open,
+    this.keyhole = true,
+    this.openProgress = 0.0,
+    required this.bodyGradient,
+    required this.shackleColor,
+    required this.strokeColor,
+    required this.keyholeColor,
+    required this.keyColor,
+    required this.shimmerColor,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -221,7 +289,7 @@ class _PadlockPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 9
       ..strokeCap = StrokeCap.round
-      ..color = const Color(0xFFB8B8B8);
+      ..color = shackleColor;
     final shacklePath = Path()
       ..moveTo(32, 46)
       ..lineTo(32, 32)
@@ -229,10 +297,10 @@ class _PadlockPainter extends CustomPainter {
       ..lineTo(68, open ? 30 : 46);
     canvas.drawPath(shacklePath, shackle);
     final body = RRect.fromRectAndRadius(const Rect.fromLTWH(22, 44, 56, 44), const Radius.circular(9));
-    canvas.drawRRect(body, Paint()..shader = const LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFF2C94C), Color(0xFFB8860B)]).createShader(body.outerRect));
-    canvas.drawRRect(body, Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = const Color(0xFF5C4300));
-    canvas.drawCircle(const Offset(50, 62), 6, Paint()..color = const Color(0xFF3B2A00));
-    canvas.drawRect(const Rect.fromLTWH(47.5, 62, 5, 14), Paint()..color = const Color(0xFF3B2A00));
+    canvas.drawRRect(body, Paint()..shader = LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: bodyGradient).createShader(body.outerRect));
+    canvas.drawRRect(body, Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = strokeColor);
+    canvas.drawCircle(const Offset(50, 62), 6, Paint()..color = keyholeColor);
+    canvas.drawRect(const Rect.fromLTWH(47.5, 62, 5, 14), Paint()..color = keyholeColor);
   }
 
   // translucent ruby bat with a keyhole
@@ -276,14 +344,15 @@ class _PadlockPainter extends CustomPainter {
     );
     if (!keyhole) return;
     // keyhole, with a small key shape when unlocked
-    final hole = Paint()..color = const Color(0xFF1A0308);
+    final hole = Paint()..color = keyholeColor;
     canvas.drawCircle(const Offset(50, 50), 6, hole);
     canvas.drawPath(Path()..moveTo(46.5, 54)..lineTo(53.5, 54)..lineTo(55.5, 70)..lineTo(44.5, 70)..close(), hole);
     if (open) {
-      canvas.drawLine(const Offset(50, 40), const Offset(50, 30), Paint()..color = const Color(0xFFFFB3BF)..strokeWidth = 3..strokeCap = StrokeCap.round);
+      canvas.drawLine(const Offset(50, 40), const Offset(50, 30), Paint()..color = keyColor..strokeWidth = 3..strokeCap = StrokeCap.round);
     }
   }
 
   @override
-  bool shouldRepaint(covariant _PadlockPainter old) => old.bat != bat || old.open != open || old.keyhole != keyhole;
+  bool shouldRepaint(covariant _PadlockPainter old) =>
+      old.bat != bat || old.open != open || old.keyhole != keyhole || old.openProgress != openProgress;
 }

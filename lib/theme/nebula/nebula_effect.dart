@@ -1247,6 +1247,187 @@ class _IvoryGlassPainter extends NebulaEffectPainter {
 }
 
 // ============================================================================
+// Obsidian Glass — blood-ruby crystal over near-black surfaces
+// ============================================================================
+
+/// Obsidian Glass: cristales de rubí sangriento sobre negro profundo,
+/// con pulsos lentos y vetas que respiran como venas.
+class ObsidianGlassEffect extends NebulaEffect {
+  const ObsidianGlassEffect({super.key, required super.animate});
+
+  @override
+  Duration get duration => const Duration(seconds: 15);
+
+  @override
+  CustomPainter painter(double t) => _ObsidianGlassPainter(t);
+}
+
+class _ObsidianGlassPainter extends NebulaEffectPainter {
+  const _ObsidianGlassPainter(super.t);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = size.center(Offset.zero);
+    final r = size.shortestSide;
+
+    // deep crimson core pulse
+    final pulse = .5 + .5 * math.sin(t * 2 * math.pi);
+    final coreRadius = r * (.35 + .08 * pulse);
+    canvas.drawCircle(
+      center,
+      coreRadius,
+      Paint()
+        ..shader = RadialGradient(
+          colors: [
+            Color(0x88E0183E),
+            Color(0x448B0016),
+            Colors.transparent,
+          ],
+          stops: const [0, .55, 1],
+        ).createShader(Rect.fromCircle(center: center, radius: coreRadius)),
+    );
+
+    // breathing ruby veins
+    for (var i = 0; i < 5; i++) {
+      final angle = i * 2.513274;
+      final phase = t * 2 * math.pi + i * 1.2;
+      final length = r * (.25 + .06 * math.sin(phase));
+      final width = r * (.008 + .003 * math.sin(phase * 2));
+      final veinPaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round
+        ..strokeWidth = width
+        ..shader = LinearGradient(
+          begin: Alignment.center,
+          end: Alignment(angle, 0),
+          colors: [
+            Color(0x00E0183E),
+            Color(0xCCE0183E),
+            Color(0x00E0183E),
+          ],
+        ).createShader(Rect.fromCircle(center: center, radius: length));
+      canvas.drawPath(
+        Path()
+          ..moveTo(center.dx, center.dy)
+          ..quadraticBezierTo(
+            center.dx + math.cos(angle) * length * .5,
+            center.dy + math.sin(angle) * length * .5,
+            center.dx + math.cos(angle) * length,
+            center.dy + math.sin(angle) * length,
+          ),
+        veinPaint,
+      );
+    }
+
+    // subtle ruby dust motes
+    for (var i = 0; i < 8; i++) {
+      final a = i * 2.399963 + t * .3;
+      final dist = r * (.3 + .15 * math.sin(t * 3 * math.pi + i));
+      final twinkle = .4 + .6 * (.5 + .5 * math.sin(t * 5 * math.pi + i * 1.3));
+      canvas.drawCircle(
+        center + Offset(math.cos(a) * dist, math.sin(a) * dist),
+        r * .002 * twinkle,
+        Paint()..color = Color(0xFFFF6B8A).withValues(alpha: .6 * twinkle),
+      );
+    }
+  }
+}
+
+// ============================================================================
+// Aureate Glass — gold crystal
+// ============================================================================
+
+/// Aureate Glass: oro puro y cristal, con un núcleo que late y filamentos
+/// dorados que se estiran y contraen como hilos de luz.
+class AureateGlassEffect extends NebulaEffect {
+  const AureateGlassEffect({super.key, required super.animate});
+
+  @override
+  Duration get duration => const Duration(seconds: 18);
+
+  @override
+  CustomPainter painter(double t) => _AureateGlassPainter(t);
+}
+
+class _AureateGlassPainter extends NebulaEffectPainter {
+  const _AureateGlassPainter(super.t);
+
+  static const _goldStops = [
+    Color(0xFFFFF8E1),
+    Color(0xFFFFECB3),
+    Color(0xFFFFD54F),
+    Color(0xFFFFC107),
+    Color(0xFFF9A825),
+  ];
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = size.center(Offset.zero);
+    final r = size.shortestSide;
+
+    // radiant gold core
+    final pulse = .5 + .5 * math.sin(t * 2 * math.pi);
+    final coreRadius = r * (.4 + .06 * pulse);
+    canvas.drawCircle(
+      center,
+      coreRadius,
+      Paint()
+        ..shader = RadialGradient(
+          colors: [
+            Color(0xCCFFF8E1),
+            Color(0x66FFD54F),
+            Color(0x22FFC107),
+            Colors.transparent,
+          ],
+          stops: const [0, .3, .65, 1],
+        ).createShader(Rect.fromCircle(center: center, radius: coreRadius)),
+    );
+
+    // gold filaments stretching and retracting
+    final filamentPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * .02);
+
+    for (var i = 0; i < 12; i++) {
+      final baseAngle = i * 2.617994;
+      final phase = t * math.pi + i * .8;
+      final length = r * (.25 + .4 * (.5 + .5 * math.sin(phase)));
+      final width = r * (.004 + .008 * (.5 + .5 * math.sin(phase * 1.5)));
+      filamentPaint.strokeWidth = width;
+      filamentPaint.shader = LinearGradient(
+        begin: Alignment.center,
+        end: Alignment(baseAngle, 0),
+        colors: _goldStops,
+      ).createShader(Rect.fromCircle(center: center, radius: length));
+      canvas.drawPath(
+        Path()
+          ..moveTo(center.dx, center.dy)
+          ..quadraticBezierTo(
+            center.dx + math.cos(baseAngle + .2 * math.sin(phase)) * length * .5,
+            center.dy + math.sin(baseAngle + .2 * math.sin(phase)) * length * .5,
+            center.dx + math.cos(baseAngle) * length,
+            center.dy + math.sin(baseAngle) * length,
+          ),
+        filamentPaint,
+      );
+    }
+
+    // golden sparkles
+    for (var i = 0; i < 10; i++) {
+      final a = i * 2.399963 + t * .4;
+      final dist = r * (.2 + .35 * (.5 + .5 * math.sin(t * 2.5 * math.pi + i)));
+      final twinkle = .3 + .7 * (.5 + .5 * math.sin(t * 6 * math.pi + i * 1.1));
+      canvas.drawCircle(
+        center + Offset(math.cos(a) * dist, math.sin(a) * dist),
+        r * .003 * twinkle,
+        Paint()..color = Color(0xFFFFF8E1).withValues(alpha: .9 * twinkle),
+      );
+    }
+  }
+}
+
+// ============================================================================
 // Imperial Glass — gunmetal steel with brass rivets and aquila gold
 // ============================================================================
 
@@ -1361,6 +1542,8 @@ class _ImperialGlassPainter extends NebulaEffectPainter {
 /// Crea el efecto visual para un tema dado, o null si el tema no tiene efecto
 /// propio (Fase 1 o temas sin efecto implementado).
 NebulaEffect? nebulaEffectFor(NebulaTheme theme, {required bool animate}) => switch (theme) {
+  NebulaTheme.obsidianGlass => ObsidianGlassEffect(animate: animate),
+  NebulaTheme.aureateGlass => AureateGlassEffect(animate: animate),
   NebulaTheme.forgeGlass => ForgeGlassEffect(animate: animate),
   NebulaTheme.hermeticGlass => HermeticGlassEffect(animate: animate),
   NebulaTheme.eclipseGlass => EclipseGlassEffect(animate: animate),
