@@ -111,7 +111,7 @@ class _NebulaMaterialPainter extends BoxPainter {
       case NebulaMaterial.eclipse:
         canvas.drawCircle(const Offset(53, 47), 34, lightInk);
         canvas.drawCircle(const Offset(67, 34), 28, Paint()..color = style.surface.withValues(alpha: opacity));
-        canvas.drawArc(const Rect.fromCircle(center: const Offset(50, 50), radius: 42), -.85, 2.3, false, ink);
+        canvas.drawArc(Rect.fromCircle(center: const Offset(50, 50), radius: 42), -.85, 2.3, false, ink);
         break;
       case NebulaMaterial.solarFlare:
         for (var i = 0; i < 16; i++) {
@@ -223,9 +223,6 @@ class _NebulaMaterialPainter extends BoxPainter {
     canvas.restore();
   }
 
-  @override
-  bool shouldRepaint(covariant _NebulaMaterialPainter old) =>
-      old.style.material != style.material || old.phase != phase || old.opacity != opacity;
 }
 
 // Bat-Glass 2.0 material: a cut red diamond (ruby crystal).
