@@ -195,7 +195,7 @@ class _LockScreenState extends State<_LockBody> {
         context,
         type,
         context.l10n.appLockTitle,
-        AppLock.alternativeSecretKey,
+        AppLock.alternativeSecretKeyFor(appLock.lockTypeName),
         guard: AttemptGuard.app,
         onNuke: Nuke.nukeEverything,
       );
