@@ -144,7 +144,7 @@ class _NebulaComponentSurfaceAccentState extends State<NebulaComponentSurfaceAcc
       return;
     }
 
-    final controller = current ??= AnimationController(
+    final controller = current ?? AnimationController(
       vsync: this,
       duration: _duration(widget.role, widget.style?.material),
       value: _restingProgress,
