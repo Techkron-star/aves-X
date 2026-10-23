@@ -83,6 +83,11 @@ class Failsafe with WidgetsBindingObserver {
       // If security state cannot be read, do not start in an apparently healthy/unlocked mode.
       safeMode.value = true;
       lockdown.value = true;
+      try {
+        await FailsafeConfig.setLockdownActive(true);
+      } catch (_) {
+        // Keep the current process locked even if the secure store is unavailable.
+      }
       debugPrint('Failsafe init failed; entering fail-closed mode: $e');
     }
     WidgetsBinding.instance.addObserver(this);
