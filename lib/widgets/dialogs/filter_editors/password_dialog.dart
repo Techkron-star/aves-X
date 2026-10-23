@@ -16,6 +16,7 @@ class _PasswordDialogState extends State<PasswordDialog> {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
   bool _confirming = false;
+  bool _submitting = false;
   String? _firstPassword;
 
   @override
@@ -44,6 +45,9 @@ class _PasswordDialogState extends State<PasswordDialog> {
               controller: _controller,
               focusNode: _focusNode,
               obscureText: true,
+              onChanged: (v) {
+                if (v.isNotEmpty) _submitting = false;
+              },
               onSubmitted: _submit,
               autofillHints: const [AutofillHints.password],
             ),
@@ -54,6 +58,8 @@ class _PasswordDialogState extends State<PasswordDialog> {
   }
 
   void _submit(String password) {
+    if (_submitting) return;
+    _submitting = true;
     if (widget.needConfirmation) {
       if (_confirming) {
         final match = _firstPassword == password;
