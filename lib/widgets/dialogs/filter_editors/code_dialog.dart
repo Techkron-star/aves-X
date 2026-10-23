@@ -22,6 +22,7 @@ class CodeDialog extends StatefulWidget {
 class _CodeDialogState extends State<CodeDialog> {
   final _controller = PinInputController();
   bool _confirming = false;
+  bool _submitting = false;
   String? _firstCode;
 
   @override
@@ -52,7 +53,11 @@ class _CodeDialogState extends State<CodeDialog> {
                     autoFocus: true,
                     autoDismissKeyboard: !widget.needConfirmation || _confirming,
                     obscureText: true,
-                    onChanged: (v) {},
+                    onChanged: (v) {
+                      // Keep duplicate completion callbacks from reusing the first entry as confirmation.
+                      // The guard is released only when the user starts typing the next entry.
+                      if (v.isNotEmpty) _submitting = false;
+                    },
                     onCompleted: _submit,
                   ),
                 ),
@@ -65,6 +70,8 @@ class _CodeDialogState extends State<CodeDialog> {
   }
 
   void _submit(String code) {
+    if (_submitting) return;
+    _submitting = true;
     if (!widget.needConfirmation) {
       Navigator.maybeOf(context)?.pop<String>(code);
     } else if (_confirming) {
