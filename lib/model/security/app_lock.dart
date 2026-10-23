@@ -54,9 +54,9 @@ class AppLock extends ChangeNotifier {
   Duration get relockDelay => _relockDelay;
 
   Future<void> init() async {
-    final storedType = await securityService.readValue<String>(_typeKey);
+    final storedType = await securityService.readValueStrict<String>(_typeKey);
     _lockTypeName = storedType ?? 'code';
-    final hasSecret = await securityService.readValue<String>(_pinKey) != null;
+    final hasSecret = await securityService.readValueStrict<String>(_pinKey) != null;
     final typedAlternativeSecret = storedType == null || storedType == 'code' || storedType == 'system'
         ? null
         : await securityService.readValueStrict<String>(alternativeSecretKeyFor(storedType));
@@ -72,9 +72,9 @@ class AppLock extends ChangeNotifier {
       // Keep a malformed configured lock closed instead of silently disabling protection.
       _enabled = true;
     }
-    _biometric = await securityService.readValue<String>(_biometricKey) == '1';
-    _hasPanic = await securityService.readValue<String>(_panicKey) != null;
-    final delaySeconds = int.tryParse(await securityService.readValue<String>(_delayKey) ?? '');
+    _biometric = await securityService.readValueStrict<String>(_biometricKey) == '1';
+    _hasPanic = await securityService.readValueStrict<String>(_panicKey) != null;
+    final delaySeconds = int.tryParse(await securityService.readValueStrict<String>(_delayKey) ?? '');
     _relockDelay = relockDelayOptions.firstWhere((v) => v.inSeconds == delaySeconds, orElse: () => defaultRelockDelay);
     _locked = _enabled;
     _ready = true;
