@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 enum NebulaComponentSurfaceRole {
   navigationBar,
   drawerHeader,
+  drawerItem,
   searchBar,
   appLockBackdrop,
   lockdownBackdrop,
@@ -76,6 +77,7 @@ class _NebulaComponentSurfaceAccentState extends State<NebulaComponentSurfaceAcc
       return switch (role) {
         NebulaComponentSurfaceRole.navigationBar => const Duration(seconds: 14),
         NebulaComponentSurfaceRole.drawerHeader => const Duration(seconds: 17),
+        NebulaComponentSurfaceRole.drawerItem => const Duration(seconds: 11),
         NebulaComponentSurfaceRole.searchBar => const Duration(seconds: 8),
         NebulaComponentSurfaceRole.appLockBackdrop => const Duration(seconds: 20),
         NebulaComponentSurfaceRole.lockdownBackdrop => const Duration(milliseconds: 3800),
@@ -90,6 +92,7 @@ class _NebulaComponentSurfaceAccentState extends State<NebulaComponentSurfaceAcc
     return switch (role) {
       NebulaComponentSurfaceRole.navigationBar => const Duration(seconds: 9),
       NebulaComponentSurfaceRole.drawerHeader => const Duration(seconds: 13),
+      NebulaComponentSurfaceRole.drawerItem => const Duration(seconds: 7),
       NebulaComponentSurfaceRole.searchBar => const Duration(seconds: 5),
       NebulaComponentSurfaceRole.appLockBackdrop => const Duration(seconds: 12),
       NebulaComponentSurfaceRole.lockdownBackdrop => const Duration(seconds: 5),
@@ -216,6 +219,8 @@ class _NebulaComponentSurfacePainter extends CustomPainter {
         _paintNavigation(canvas, size);
       case NebulaComponentSurfaceRole.drawerHeader:
         _paintDrawerHeader(canvas, size);
+      case NebulaComponentSurfaceRole.drawerItem:
+        _paintDrawerItem(canvas, size);
       case NebulaComponentSurfaceRole.searchBar:
         _paintSearchBar(canvas, size);
       case NebulaComponentSurfaceRole.appLockBackdrop:
@@ -325,6 +330,56 @@ class _NebulaComponentSurfacePainter extends CustomPainter {
       }
       _dot(canvas, Offset(center.dx, center.dy - r * .32), _light,
           .8 + pulse * .8, glow: 1.5 + pulse * 2.0);
+    }
+  }
+
+  void _paintDrawerItem(Canvas canvas, Size size) {
+    final w = size.width, h = size.height;
+    final pulse = .5 + .5 * math.sin(progress * math.pi * 2);
+    final selected = state == NebulaComponentSurfaceState.selected ||
+        state == NebulaComponentSurfaceState.focused ||
+        state == NebulaComponentSurfaceState.warning;
+    if (_eclipse) {
+      // A selected route is caught by an incomplete orbital rim on its leading
+      // edge. Idle rows only have a quiet terminator so the drawer stays calm.
+      final r = (h * .24).clamp(5.0, 14.0).toDouble();
+      final center = Offset(r * .55, h * .5);
+      if (selected) {
+        final start = -math.pi * .82 + progress * .055;
+        _arc(canvas, Rect.fromCircle(center: center, radius: r), start,
+            math.pi * 1.42, _light, .48 + pulse * .32, 1.1, glow: 2 + pulse * 2.5);
+        final a = start + math.pi * 1.42;
+        _dot(canvas, center + Offset(math.cos(a) * r, math.sin(a) * r),
+            _light, 1.1 + pulse * .45, glow: 2 + pulse * 2.2);
+      } else {
+        _line(canvas, Offset(2, h * .3), Offset(2, h * .7), _accent, .16 + pulse * .1, .8);
+      }
+      _line(canvas, Offset(w * .16, h * .92), Offset(w * .16 + (selected ? w * .18 : w * .06), h * .92),
+          _accent, selected ? .26 + pulse * .16 : .1, .7);
+    } else {
+      // Hermetic is a measured row index: the active entry closes a tiny
+      // registration diamond, while the remaining rows keep spaced ticks.
+      final x = w * .035;
+      for (var i = 0; i < 3; i++) {
+        final tickY = h * (.32 + i * .18);
+        final activeTick = selected && i == 1;
+        _line(canvas, Offset(x, tickY), Offset(x + (activeTick ? 7 : 4), tickY),
+            _light, activeTick ? .6 + pulse * .3 : .16 + pulse * .08,
+            activeTick ? 1.1 : .7, glow: activeTick ? 2 + pulse * 2 : 0);
+      }
+      if (selected) {
+        final center = Offset(w * .92, h * .5);
+        final r = (h * .11).clamp(3.0, 6.0).toDouble();
+        final diamond = Path()
+          ..moveTo(center.dx, center.dy - r)
+          ..lineTo(center.dx + r * .68, center.dy)
+          ..lineTo(center.dx, center.dy + r)
+          ..lineTo(center.dx - r * .68, center.dy)
+          ..close();
+        _path(canvas, diamond, _light, .5 + pulse * .32, .9, glow: 1.5 + pulse * 2);
+      }
+      _line(canvas, Offset(w * .12, h * .93), Offset(w * (selected ? .32 : .2), h * .93),
+          _accent, selected ? .22 + pulse * .15 : .08, .7);
     }
   }
 
