@@ -107,9 +107,23 @@ class AppReference extends StatelessWidget {
           appName,
           style: appTitleStyle,
         ),
-        Text(
-          'alpha',
-          style: appTitleStyle,
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primaryContainer,
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+            child: Text(
+              'BETA 0.5',
+              style: appTitleStyle.copyWith(
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.1,
+              ),
+            ),
+          ),
         ),
       ],
     );

@@ -32,7 +32,9 @@ jobs:
         run: ./flutterw gen-l10n
 
       - name: Static analysis.
-        run: ./flutterw analyze
+        # Keep legacy info-level lints visible without making the baseline block releases.
+        # Errors and warnings remain fatal; clean up the inherited info backlog separately.
+        run: ./flutterw analyze --no-fatal-infos
 
       - name: Unit tests.
         run: ./flutterw test

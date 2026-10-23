@@ -2,10 +2,14 @@ name: Build Aves-X libre APK
 
 on:
   workflow_dispatch:
+  workflow_call:
+  push:
+    branches:
+      - develop
 
 permissions: read-all
 
-# Keep APK builds intentional; replacing a manual run cancels the previous run for this ref.
+# Build an installable Aves-X APK after changes land on develop, and keep manual dispatch available.
 concurrency:
   group: aves-x-libre-apk-${{ github.ref }}
   cancel-in-progress: true
@@ -76,7 +80,7 @@ jobs:
             base=$(basename "$f" .apk)
             abi=${base#app-libre-}
             abi=${abi%-release}
-            mv "$f" "Aves-X-libre-${abi}.apk"
+            mv "$f" "Aves-X-Beta-0.5-libre-${abi}.apk"
           done
 
       - name: Upload Aves-X APKs

@@ -194,7 +194,8 @@ class _AppDrawerState extends State<AppDrawer> with WidgetsBindingObserver {
     }
 
     final colorScheme = Theme.of(context).colorScheme;
-    final onPrimary = colorScheme.onPrimary;
+    // Glass materials can differ from ColorScheme.onPrimary, especially in light themes.
+    final pointerColor = ThemeData.estimateBrightnessForColor(colorScheme.primary) == Brightness.light ? Colors.black : Colors.white;
 
     final drawerButtonStyle = ButtonStyle(
       padding: WidgetStateProperty.all(const EdgeInsetsDirectional.only(start: 12, end: 16)),
@@ -209,10 +210,11 @@ class _AppDrawerState extends State<AppDrawer> with WidgetsBindingObserver {
         child: OutlinedButtonTheme(
           data: OutlinedButtonThemeData(
             style: ButtonStyle(
-              foregroundColor: WidgetStateProperty.all<Color>(onPrimary),
-              overlayColor: WidgetStateProperty.all<Color>(onPrimary.withValues(alpha: .12)),
-              iconColor: WidgetStateProperty.all<Color>(onPrimary),
-              side: WidgetStateProperty.all<BorderSide>(BorderSide(width: 1, color: onPrimary.withValues(alpha: .24))),
+              foregroundColor: WidgetStateProperty.all<Color>(colorScheme.primary),
+              backgroundColor: WidgetStateProperty.all<Color>(pointerColor),
+              overlayColor: WidgetStateProperty.all<Color>(colorScheme.primary.withValues(alpha: .12)),
+              iconColor: WidgetStateProperty.all<Color>(colorScheme.primary),
+              side: WidgetStateProperty.all<BorderSide>(BorderSide(width: 1, color: colorScheme.primary.withValues(alpha: .45))),
             ),
           ),
           child: Column(
@@ -231,7 +233,7 @@ class _AppDrawerState extends State<AppDrawer> with WidgetsBindingObserver {
                         TextSpan(
                           text: appName,
                           style: AStyles.appNameStyle(context, appName).copyWith(
-                            color: Colors.white,
+                            color: pointerColor,
                             fontSize: 38,
                             fontWeight: .w300,
                           ),
@@ -431,7 +433,7 @@ class _AppDrawerState extends State<AppDrawer> with WidgetsBindingObserver {
         valueListenable: FailsafeConfig.rootModeActive,
         builder: (context, blackHole, _) {
           final icon = const DrawerFilterIcon(filter: filter);
-          final animate = settings.animate;
+          final animate = settings.animate && !settings.performanceMode;
           return blackHole
               ? BlackHoleIcon(size: 30, animate: animate, child: icon)
               : TrashIconMotion(animate: animate, child: icon);

@@ -24,18 +24,19 @@ import 'package:provider/provider.dart';
 class SettingsPage extends StatelessWidget {
   static const routeName = '/settings';
 
+  // Standard gallery controls first; fork-specific systems stay grouped at the end.
   static final List<SettingsSection> sections = [
     NavigationSection(),
     ThumbnailsSection(),
     ViewerSection(),
     VideoSection(),
+    LanguageSection(),
+    AccessibilitySection(),
+    DisplaySection(),
     PrivacySection(),
     SecuritySection(),
     FailsafeSection(),
     NebulaSection(),
-    AccessibilitySection(),
-    DisplaySection(),
-    LanguageSection(),
     AvesXSection(),
   ];
 

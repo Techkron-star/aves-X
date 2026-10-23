@@ -1,124 +1,26 @@
-name: Release on tag
+name: Aves-X Beta release
 
+# Use an Aves-X-specific tag prefix. Ordinary upstream-style v* tags must
+# never invoke the inherited Aves Play Store publishing path.
 on:
   push:
     tags:
-      - v*
+      - 'aves-x-v*'
 
-# Declare default permissions as read only.
-permissions: read-all
+permissions:
+  contents: read
 
 jobs:
-  release_github:
-    name: GitHub release
+  build_libre:
+    name: Build Aves-X libre APKs
+    uses: ./.github/workflows/build-libre-apk.yml
+
+  publish_github:
+    name: Publish Aves-X prerelease
+    needs: [build_libre]
     runs-on: ubuntu-latest
     permissions:
-      attestations: write
       contents: write
-      id-token: write
-    steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
-        with:
-          egress-policy: audit
-
-      # Building relies on the Android Gradle plugin,
-      # which requires a modern Java version (not the default one).
-      - name: Set up JDK for Android Gradle plugin
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Get Flutter packages
-        run: |
-          ./flutterw doctor -v
-          ./flutterw pub get
-
-      # cf https://github.com/deckerst/aves/issues/1521#issuecomment-5229015364
-      - name: Remove build ID from native lib
-        run: |
-          PUB_CACHE=$HOME/.pub-cache
-          echo "PUB_CACHE=$PUB_CACHE"
-          echo "Edit native lib build scripts from pub-cache hosted packages:"
-          ls ${PUB_CACHE}/hosted/*
-          sed -i -e 's/-Wl,/-Wl,--build-id=none,/' ${PUB_CACHE}/hosted/*/jni-*/src/CMakeLists.txt 2>/dev/null || true
-
-      - name: Generate app localizations
-        run: ./flutterw gen-l10n
-
-      - name: Build signed artifacts
-        # specify NDK for `icu4x` hook linker
-        # cf https://github.com/deckerst/aves/issues/1521#issuecomment-5599985874
-        #
-        # `KEY_JKS` should contain the result of:
-        # gpg -c --armor keystore.jks
-        # `KEY_JKS_PASSPHRASE` should contain the passphrase used for the command above
-        run: |
-          echo "Default Android NDK environment paths:"
-          echo "ANDROID_NDK=$ANDROID_NDK"
-          echo "ANDROID_NDK_HOME=$ANDROID_NDK_HOME"
-          echo "ANDROID_NDK_ROOT=$ANDROID_NDK_ROOT"
-          echo "ANDROID_NDK_LATEST_HOME=$ANDROID_NDK_LATEST_HOME"
-          NDK_VERSION=28.2.13676358
-          echo "Set Android NDK to version $NDK_VERSION:"
-          ANDROID_NDK=$ANDROID_SDK_ROOT/ndk/$NDK_VERSION
-          ANDROID_NDK_HOME=$ANDROID_NDK
-          ANDROID_NDK_ROOT=$ANDROID_NDK
-          echo "ANDROID_NDK=$ANDROID_NDK"
-          echo "ANDROID_NDK_HOME=$ANDROID_NDK_HOME"
-          echo "ANDROID_NDK_ROOT=$ANDROID_NDK_ROOT"
-          echo "${{ secrets.KEY_JKS }}" > release.keystore.asc
-          gpg -d --passphrase "${{ secrets.KEY_JKS_PASSPHRASE }}" --batch release.keystore.asc > $AVES_STORE_FILE
-          rm release.keystore.asc
-          mkdir outputs
-          scripts/apply_flavor_play.sh
-          ./flutterw build appbundle -t lib/main_play.dart --flavor play
-          cp build/app/outputs/bundle/playRelease/*.aab outputs
-          ./flutterw build apk -t lib/main_play.dart --flavor play
-          cp build/app/outputs/apk/play/release/*.apk outputs
-          scripts/apply_flavor_izzy.sh
-          ./flutterw build apk -t lib/main_izzy.dart --flavor izzy --split-per-abi
-          cp build/app/outputs/apk/izzy/release/*.apk outputs
-          export AVES_GOOGLE_API_KEY="NONE"
-          scripts/apply_flavor_libre.sh
-          ./flutterw build appbundle -t lib/main_libre.dart --flavor libre
-          cp build/app/outputs/bundle/libreRelease/*.aab outputs
-          ./flutterw build apk -t lib/main_libre.dart --flavor libre --split-per-abi
-          cp build/app/outputs/apk/libre/release/*.apk outputs
-          rm $AVES_STORE_FILE
-        env:
-          AVES_STORE_FILE: ${{ github.workspace }}/key.jks
-          AVES_STORE_PASSWORD: ${{ secrets.AVES_STORE_PASSWORD }}
-          AVES_KEY_ALIAS: ${{ secrets.AVES_KEY_ALIAS }}
-          AVES_KEY_PASSWORD: ${{ secrets.AVES_KEY_PASSWORD }}
-          AVES_GOOGLE_API_KEY: ${{ secrets.AVES_GOOGLE_API_KEY }}
-
-      - name: Generate artifact attestation
-        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6
-        with:
-          subject-path: 'outputs/*'
-
-      - name: Create GitHub release
-        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
-        with:
-          artifacts: "outputs/*"
-          body: "[Changelog](https://github.com/${{ github.repository }}/blob/develop/CHANGELOG.md#${{ github.ref_name }})"
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload app bundle
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: appbundle
-          path: outputs/app-play-release.aab
-
-  release_play:
-    name: Play Store beta release
-    needs: [ release_github ]
-    runs-on: ubuntu-latest
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
@@ -128,17 +30,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Get appbundle from artifacts
+      - name: Download Aves-X APKs
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          name: appbundle
+          name: aves-x-libre-apks
+          path: outputs
 
-      - name: Release to beta channel
-        uses: r0adkll/upload-google-play@e738b9dd8f2476ea806d921b64aacd24f34515a5 # v1.1.5
+      - name: Create GitHub beta release
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
-          serviceAccountJsonPlainText: ${{ secrets.PLAYSTORE_ACCOUNT_KEY }}
-          packageName: deckers.thibault.aves
-          releaseFiles: app-play-release.aab
-          tracks: beta
-          status: completed
-          whatsNewDirectory: whatsnew
+          artifacts: "outputs/*.apk"
+          name: "Aves-X Beta 0.5"
+          bodyFile: "release_body.md"
+          prerelease: true
+          makeLatest: false
+          token: ${{ secrets.GITHUB_TOKEN }}

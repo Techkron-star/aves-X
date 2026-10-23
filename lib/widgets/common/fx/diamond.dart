@@ -56,10 +56,6 @@ Decoration nebulaMaterialDecoration(NebulaMaterial material, {double phase = -1,
       return NebulaSurfaceDecoration(NebulaSurfaceArt.emerald, opacity: opacity);
     case NebulaMaterial.noxTerroris:
       return NebulaSurfaceDecoration(NebulaSurfaceArt.noxTerroris, opacity: opacity);
-    default:
-      final style = nebulaMaterialStylesByMaterial[material];
-      if (style == null) return const BoxDecoration();
-      return NebulaMaterialDecoration(style: style, phase: phase, opacity: opacity);
   }
 }
 
