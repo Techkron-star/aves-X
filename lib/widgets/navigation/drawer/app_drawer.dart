@@ -1,6 +1,7 @@
 import 'package:aves/widgets/common/fx/failsafe_badge.dart';
 import 'package:aves/widgets/common/fx/diamond.dart';
 import 'package:aves/widgets/common/fx/nebula_component_surfaces.dart';
+import 'package:aves/theme/nebula/nebula_material.dart';
 import 'package:aves/model/security/failsafe_config.dart';
 import 'package:aves/widgets/common/fx/black_hole.dart';
 import 'dart:ui';
@@ -201,10 +202,48 @@ class _AppDrawerState extends State<AppDrawer> with WidgetsBindingObserver {
       padding: WidgetStateProperty.all(const EdgeInsetsDirectional.only(start: 12, end: 16)),
     );
     final material = settings.materialStyle;
+    final componentSurface = material?.material == NebulaMaterial.eclipse ||
+        material?.material == NebulaMaterial.hermetic;
+    final headerDecoration = switch (material?.material) {
+      NebulaMaterial.eclipse => BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              material!.surface.withValues(alpha: .96),
+              material.surface.withValues(alpha: .78),
+              material.surface.withValues(alpha: .45),
+            ],
+          ),
+          border: Border(
+            bottom: BorderSide(color: material.edge.withValues(alpha: .66), width: 1),
+          ),
+        ),
+      NebulaMaterial.hermetic => BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              material!.surface.withValues(alpha: .94),
+              material.surface.withValues(alpha: .72),
+              const Color(0x00000000),
+            ],
+          ),
+          border: Border(
+            bottom: BorderSide(color: material.edge.withValues(alpha: .48), width: .8),
+          ),
+        ),
+      _ => material != null
+          ? null
+          : settings.glassEverywhere
+              ? BoxDecoration(color: colorScheme.primary.withValues(alpha: .55))
+              : BoxDecoration(color: colorScheme.primary),
+    };
     final header = Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      // the glass material of the theme (red diamond, demon glass, gold leaf) paints the header itself
-      decoration: material != null ? null : settings.glassEverywhere ? BoxDecoration(color: colorScheme.primary.withValues(alpha: .55)) : BoxDecoration(color: colorScheme.primary),
+      // Eclipse reads as a cold, interrupted horizon; Hermetic as a measured, fading instrument field.
+      // Their header surfaces are not the generic tiled crystal used by other materials.
+      decoration: headerDecoration,
       child: SafeArea(
         bottom: false,
         child: OutlinedButtonTheme(
@@ -294,13 +333,16 @@ class _AppDrawerState extends State<AppDrawer> with WidgetsBindingObserver {
       ),
     );
     if (material == null) return header;
-    return NebulaComponentSurfaceAccent(
-      style: material,
-      role: NebulaComponentSurfaceRole.drawerHeader,
-      state: NebulaComponentSurfaceState.idle,
-      animate: settings.animate,
-      child: AnimatedCrystal(animate: settings.animate, material: material.material, child: header),
-    );
+    if (componentSurface) {
+      return NebulaComponentSurfaceAccent(
+        style: material,
+        role: NebulaComponentSurfaceRole.drawerHeader,
+        state: NebulaComponentSurfaceState.idle,
+        animate: settings.animate,
+        child: header,
+      );
+    }
+    return AnimatedCrystal(animate: settings.animate, material: material.material, child: header);
   }
 
   Widget _buildHomeLink() {
