@@ -12,11 +12,10 @@ import 'package:material_ui/material_ui.dart';
 
 // Entrada principal del Nebula Engine en Ajustes.
 //
-// Es una seccion propia (no un tile secundario dentro de Display) con una
-// tarjeta visual especial al estilo del modo Black Hole: borde brillante,
-// gradiente oscurecido y el logo de Aves-X. Al tocarla se abre la pestaña
-// Nebula, que es el escaparate completo del motor (fondo galaxia, selector
-// de temas y efectos galaticos).
+// Es una sección propia (no un tile secundario dentro de Display) con una
+// tarjeta cósmica distintiva de Aves-X: borde brillante, gradiente profundo
+// y el logo de la app. Al tocarla se abre la pestaña Nebula con el fondo
+// galáctico, el selector de temas y los efectos visuales de cada identidad.
 class NebulaSection extends SettingsSection {
   @override
   String get key => 'nebula';
