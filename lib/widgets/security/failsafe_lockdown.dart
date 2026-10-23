@@ -132,7 +132,6 @@ class _LockdownScreenState extends State<_LockdownBody> {
       return;
     }
     _checking = true;
-    var verificationError = false;
     try {
       final bool ok;
       try {
@@ -140,16 +139,16 @@ class _LockdownScreenState extends State<_LockdownBody> {
       } catch (e, stack) {
         await reportService.recordError(e, stack);
         // A verifier error is not evidence of a wrong code: never count it toward cooldown or nuke.
-        verificationError = true;
+        _controller.clear();
         if (mounted) setState(() => _message = context.l10n.genericFailureFeedback);
         return;
       }
       _controller.clear();
       if (ok) {
-      // Master Code correct: reset attempt guards and release lockdown
-      // CRITICAL: Never register a failure for the Master Code
-      await AttemptGuard.master.reset();
-      await AttemptGuard.app.reset();
+        // Master Code correct: reset attempt guards and release lockdown.
+        // CRITICAL: a verified Master Code is never registered as a failure.
+        await AttemptGuard.master.reset();
+        await AttemptGuard.app.reset();
         await failsafe.releaseLockdown();
         return;
       }
