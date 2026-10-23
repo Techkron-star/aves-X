@@ -60,13 +60,27 @@ Security apps usually stop other people from getting *in*. Gargantua decides whe
 
 ### 🎨 Customization
 
-- **Nebula Engine** — the visual layer of Aves-X. Five themes share one token system, so surfaces, Fail-Safe cards, lock screens, and bubbles follow the active theme:
-  - **Nosferatu Glass** — ruby and black crystal (the original Aves-X look).
-  - **Obsidian Glass** — blood and obsidian with warm orange veins.
-  - **Aureate Glass** — gold leaf and warm highlights.
-  - **Forge Glass** — nebular orange and molten veins (phase 2 effects pending).
-  - **Hermetic Glass** — alchemical emerald and violet glyphs (phase 2 effects pending).
-- **Nebula tab** — a dedicated galactic settings page with a slow nebula, twinkling stars, floating particles, and the theme selector with descriptions.
+- **Nebula themes** — 19 choices with dedicated palettes and visual identities:
+  - **Nosferatu Glass** — ruby crystal and black glass.
+  - **Obsidian Glass** — volcanic black glass with violet fissures.
+  - **Aureate Glass** — an antique-gold ceremonial relic.
+  - **Forge Glass** — molten metal swirling inside an indigo forge.
+  - **Hermetic Glass** — precise emerald/violet alchemical geometry.
+  - **Eclipse Glass** — a dark occulting disc and electric-cyan corona.
+  - **Solar Flare Glass** — stellar plasma arcs and outward ejections.
+  - **Void Glass** — an acid-green technical grid converging into emptiness.
+  - **Crimson Glass** — a dense garnet orb with a slow heartbeat.
+  - **Neon Glass** — separate magenta/cyan tubes over reflective black.
+  - **Emerald Glass** — forest-green mineral with branching golden veins.
+  - **Aurora Glass** — long polar ribbons in green and ice blue.
+  - **Sapphire Glass** — sharply faceted royal-blue crystal.
+  - **Amber Glass** — honey resin with fossil-like inclusions.
+  - **Onyx Glass** — minimal black stone with a graphite sweep.
+  - **Pearl Glass** — a genuinely light nacre surface with pastel iridescence.
+  - **Ivory Glass** — warm paper/porcelain with champagne filigree.
+  - **Imperial Glass** — gunmetal plates, brass rivets and insignia gold.
+  - **Aves** — the original adaptive light/dark appearance.
+- **Nebula tab** — a dedicated galactic settings page with atmospheric VFX and a selector for all 19 themes.
 - **Custom Navigation Bar** — multiple navigation styles to personalize the interface.
 - **Nav Lens** — glass-lens effect over the active navigation section.
 - **Glass-Everywhere** — experimental frosted glass throughout the interface, including the NEW/Experimental feature stickers.
@@ -126,7 +140,7 @@ Mantiene las funciones principales de Aves — visor, álbumes, metadatos, etiqu
 - 🕵️ **Álbumes, fotos, favoritos y papelera protegidos**; vaults avanzadas con cifrado opcional.
 - 🚪 **Gargantua**: control de salidas por categorías (compartir, exportar, portapapeles, abrir con, cast), con interruptor maestro y regla de Código Maestro. Compartir pide credencial.
 - 🧹 **Borrado automático** de contenido y papelera.
-- 🎨 **Nebula Engine**: Nosferatu Glass, Obsidian Glass, Aureate Glass, Forge Glass y Hermetic Glass, con tokens compartidos; pestaña Nebula dedicada con fondo galáctico y selector de tema.
+- 🎨 **Nebula Engine**: 19 temas con paletas, superficies y VFX propios: Aves, Nosferatu, Obsidian, Aureate, Forge, Hermetic, Eclipse, Solar Flare, Void, Crimson, Neon, Emerald, Aurora, Sapphire, Amber, Onyx, Pearl, Ivory e Imperial. Pearl e Ivory son temas claros reales; los efectos respetan el modo de rendimiento y el movimiento reducido.
 - 🦇 **Logo exacto** de Aves-X en el launcher, el splash, la bienvenida, el cajón y Acerca de; icono adaptativo con variante monochrome para Material You.
 - 🏷️ **Pegatinas NEW/Experimental** con tratamiento de cristal.
 - ⚡ **Modo rendimiento** para dispositivos modestos; pausa las animaciones del Nebula Engine.
