@@ -6,6 +6,7 @@ import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/settings/nebula/custom_nebula_theme_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/localizations.dart';
 
 class CustomNebulaThemePage extends StatefulWidget {
   static const routeName = '/settings/nebula/custom_themes';
@@ -70,7 +71,7 @@ class _CustomNebulaThemePageState extends State<CustomNebulaThemePage> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _themes.isEmpty
-              ? _EmptyState(onImport: _import, onNew: _createNew)
+              ? _EmptyState(onImport: _import, onNew: () => _createNew())
               : ListView(
                   children: [
                     for (final theme in _themes)
@@ -90,7 +91,7 @@ class _CustomNebulaThemePageState extends State<CustomNebulaThemePage> {
                               actions: [
                                 TextButton(
                                   onPressed: () => Navigator.pop(dialogContext, false),
-                                  child: Text(l10n.cancelButtonLabel),
+                                  child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
                                 ),
                                 TextButton(
                                   onPressed: () => Navigator.pop(dialogContext, true),
@@ -113,7 +114,7 @@ class _CustomNebulaThemePageState extends State<CustomNebulaThemePage> {
                       leading: const Icon(Icons.add),
                       title: Text(l10n.settingsCustomNebulaThemeNew),
                       subtitle: Text(l10n.settingsCustomNebulaThemeNewSubtitle),
-                      onTap: _createNew,
+                      onTap: () => _createNew(),
                     ),
                     ListTile(
                       leading: const Icon(Icons.import_export),
@@ -165,7 +166,7 @@ class _CustomNebulaThemePageState extends State<CustomNebulaThemePage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: Text(l10n.cancelButtonLabel),
+            child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
           ),
           TextButton(
             onPressed: () {
@@ -181,7 +182,7 @@ class _CustomNebulaThemePageState extends State<CustomNebulaThemePage> {
 }
 
 class _EmptyState extends StatelessWidget {
-  final VoidCallback onImport;
+  final Future<void> Function(String) onImport;
   final VoidCallback onNew;
 
   const _EmptyState({required this.onImport, required this.onNew});
