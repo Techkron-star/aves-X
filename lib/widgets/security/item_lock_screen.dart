@@ -31,7 +31,7 @@ class ItemLockScreen extends StatelessWidget with FeedbackMixin {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final nebula = Theme.of(context).nebula;
+    final nebula = Theme.of(context).extension<NebulaTokens>() ?? NebulaTokens.fallback;
     final animate = settings.animate && !settings.performanceMode;
     final material = settings.materialStyle;
     final glass = material != null || settings.glassEverywhere;
