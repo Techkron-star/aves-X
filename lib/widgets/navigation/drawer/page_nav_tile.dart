@@ -5,6 +5,7 @@ import 'package:aves/widgets/navigation/drawer/tile.dart';
 import 'package:aves/widgets/common/fx/nebula_component_surfaces.dart';
 import 'package:aves/widgets/navigation/nav_item.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:provider/provider.dart';
 
 typedef TileRouteBuilder = Route Function(BuildContext context, String routeName, bool topLevel);
 
