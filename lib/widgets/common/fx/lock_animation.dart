@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:aves/model/settings/settings.dart';
+import 'package:aves/theme/nebula/nebula_theme.dart';
 import 'package:aves/widgets/common/fx/liquid.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
@@ -56,7 +57,12 @@ class LockedBadgeState extends State<LockedBadge> with SingleTickerProviderState
 
   @override
   Widget build(BuildContext context) {
-    final bat = settings.batGlass;
+    // the lock art follows the active Nebula theme: only the default Aves theme
+    // keeps the neutral metal look, every Nebula theme tints it with its crystal
+    final nebulaTheme = settings.nebulaTheme;
+    final bat = nebulaTheme == NebulaTheme.nosferatuGlass;
+    final themed = nebulaTheme != NebulaTheme.aves;
+    final palette = _LockPalette.of(context, themed: themed);
     return LayoutBuilder(
       builder: (context, constraints) {
         final box = min(constraints.maxWidth.isFinite ? constraints.maxWidth : 120.0, constraints.maxHeight.isFinite ? constraints.maxHeight : 120.0);

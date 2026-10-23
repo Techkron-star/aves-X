@@ -126,6 +126,7 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
     NebulaSurfaceTreatment.onyxGlass => _onyx(palette),
     NebulaSurfaceTreatment.pearlGlass => _pearl(palette),
     NebulaSurfaceTreatment.ivoryGlass => _ivory(palette),
+    NebulaSurfaceTreatment.imperialGlass => _imperial(palette),
     NebulaSurfaceTreatment.flat || NebulaSurfaceTreatment.frosted => _fromScheme(palette, colors),
   };
 
@@ -536,6 +537,30 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
     securityCrystalBody: palette.crystalBody,
     securityInputFieldBg: const Color(0xFF2A2620),
     securityInputFieldBorder: const Color(0xFFFFF8E1),
+    securityScrimOverlay: const Color(0xCC000000),
+  );
+
+  // Imperial Glass: gunmetal steel, brass rivets, parchment and aquila gold.
+  static NebulaTokens _imperial(NebulaPalette palette) => NebulaTokens(
+    securityScrim: const Color(0xFF000000),
+    securitySurface: const Color(0xFF141210),
+    securityOnSurface: const Color(0xFFFFF8E7),
+    securityAccent: const Color(0xFFD4A72A),
+    securityAlert: const Color(0xFFFF3B3B),
+    securityOk: _ok,
+    securityWarning: const Color(0xFFFFB800),
+    securityInfo: const Color(0xFF6BA4FF),
+    securityBubbleSurface: const Color(0xFF1E1C18),
+    securityBubbleBorder: const Color(0xFFC9B896),
+    securityBubbleTail: const Color(0xFF141210),
+    securityBubbleGlow: const Color(0x66D4A72A),
+    securityBubbleShadow: const Color(0xFF000000),
+    securityBubbleInk: const Color(0xFFFFF8E7),
+    securityCrystalEdge: const Color(0x80C9B896),
+    securityCrystalHighlight: const Color(0x55D4A72A),
+    securityCrystalBody: palette.crystalBody,
+    securityInputFieldBg: const Color(0xFF141210),
+    securityInputFieldBorder: const Color(0xFF8B7355),
     securityScrimOverlay: const Color(0xCC000000),
   );
 

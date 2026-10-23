@@ -42,6 +42,8 @@ enum NebulaSurfaceTreatment {
   pearlGlass,
   // Ivory Glass: warm ivory cream with champagne gold accents (phase 2 effects)
   ivoryGlass,
+  // Imperial Glass: gunmetal steel with brass rivets and aquila gold (phase 2 effects)
+  imperialGlass,
 }
 
 // A Nebula palette: colors and surface treatment only.

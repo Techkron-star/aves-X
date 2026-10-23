@@ -39,6 +39,8 @@ enum NebulaTheme {
   pearlGlass,
   // Ivory Glass: warm ivory cream with champagne gold accents — classic elegance (phase 2 effects)
   ivoryGlass,
+  // Imperial Glass: gunmetal steel, brass rivets, parchment and aquila gold — the Adeptus aesthetic (phase 2 effects)
+  imperialGlass,
 }
 
 extension NebulaThemeInfo on NebulaTheme {
@@ -62,12 +64,13 @@ extension NebulaThemeInfo on NebulaTheme {
     .onyxGlass => 'onyx_glass',
     .pearlGlass => 'pearl_glass',
     .ivoryGlass => 'ivory_glass',
+    .imperialGlass => 'imperial_glass',
   };
 
   // 1: palettes and surfaces, no own effects. 2: own shaders/animations.
   int get phase => switch (this) {
     .aves || .nosferatuGlass || .obsidianGlass || .aureateGlass => 1,
-    .forgeGlass || .hermeticGlass || .eclipseGlass || .solarFlareGlass || .voidGlass || .crimsonGlass || .neonGlass || .emeraldGlass || .auroraGlass || .sapphireGlass || .amberGlass || .onyxGlass || .pearlGlass || .ivoryGlass => 2,
+    .forgeGlass || .hermeticGlass || .eclipseGlass || .solarFlareGlass || .voidGlass || .crimsonGlass || .neonGlass || .emeraldGlass || .auroraGlass || .sapphireGlass || .amberGlass || .onyxGlass || .pearlGlass || .ivoryGlass || .imperialGlass => 2,
   };
 
   // only phase 1 themes can be offered by the selector for now

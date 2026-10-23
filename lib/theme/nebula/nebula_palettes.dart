@@ -532,6 +532,35 @@ const Map<NebulaTheme, NebulaPalette> nebulaPalettes = {
     filledButtonBackground: Color(0xB3FFF8E1),
     filledButtonBorder: Color(0x99FFF8E1),
   ),
+  // Imperial Glass: gunmetal steel, brass rivets, parchment and aquila gold.
+  NebulaTheme.imperialGlass: NebulaPalette(
+    theme: NebulaTheme.imperialGlass,
+    brightness: Brightness.dark,
+    darkOnly: true,
+    allowDynamicColor: false,
+    seed: Color(0xFFC9B896),
+    accent: Color(0xFFD4A72A),
+    surface: Color(0xFF101010),
+    surfaceContainerLowest: Color(0xFF000000),
+    surfaceContainerLow: Color(0xFF1A1A1A),
+    surfaceContainer: Color(0xFF222222),
+    surfaceContainerHigh: Color(0xFF2A2A2A),
+    surfaceContainerHighest: Color(0xFF333333),
+    outlineVariant: Color(0xFF444444),
+    treatment: NebulaSurfaceTreatment.imperialGlass,
+    glow: Color(0xFFD4A72A),
+    crystalEdge: Color(0x80C9B896),
+    crystalHighlight: Color(0x55D4A72A),
+    crystalBody: [
+      Color(0xFFB8860B),
+      Color(0xFFC9B896),
+      Color(0xFF8B7355),
+      Color(0xFF5D4E37),
+    ],
+    liquidIcons: false,
+    filledButtonBackground: Color(0xB33A3A3A),
+    filledButtonBorder: Color(0x99D4A72A),
+  ),
 };
 
 // Palette actually used for a theme. Unknown or not-yet-implemented themes fall back to the default one.

@@ -144,6 +144,7 @@ String nebulaThemeName(BuildContext context, NebulaTheme theme) => switch (theme
   NebulaTheme.onyxGlass => context.l10n.nebulaThemeOnyxGlass,
   NebulaTheme.pearlGlass => context.l10n.nebulaThemePearlGlass,
   NebulaTheme.ivoryGlass => context.l10n.nebulaThemeIvoryGlass,
+  NebulaTheme.imperialGlass => context.l10n.nebulaThemeImperialGlass,
 };
 
 String nebulaThemeDescription(BuildContext context, NebulaTheme theme) => switch (theme) {
@@ -165,4 +166,5 @@ String nebulaThemeDescription(BuildContext context, NebulaTheme theme) => switch
   NebulaTheme.onyxGlass => context.l10n.nebulaThemeOnyxGlassDesc,
   NebulaTheme.pearlGlass => context.l10n.nebulaThemePearlGlassDesc,
   NebulaTheme.ivoryGlass => context.l10n.nebulaThemeIvoryGlassDesc,
+  NebulaTheme.imperialGlass => context.l10n.nebulaThemeImperialGlassDesc,
 };

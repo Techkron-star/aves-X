@@ -1247,6 +1247,114 @@ class _IvoryGlassPainter extends NebulaEffectPainter {
 }
 
 // ============================================================================
+// Imperial Glass — gunmetal steel with brass rivets and aquila gold
+// ============================================================================
+
+/// Imperial Glass: acero pavonado, remaches de latón, pergamino y oro águila.
+/// Efecto industrial: barrido de luz sobre metal rayado, con destellos de latón.
+class ImperialGlassEffect extends NebulaEffect {
+  const ImperialGlassEffect({super.key, required super.animate});
+
+  @override
+  Duration get duration => const Duration(seconds: 12);
+
+  // continuous sweep like a forge inspection lamp
+  @override
+  bool get reverse => false;
+
+  @override
+  CustomPainter painter(double t) => _ImperialGlassPainter(t);
+}
+
+class _ImperialGlassPainter extends NebulaEffectPainter {
+  const _ImperialGlassPainter(super.t);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
+    final rect = Rect.fromLTWH(0, 0, w, h);
+    final center = size.center(Offset.zero);
+    final r = size.shortestSide;
+
+    // gunmetal base with subtle scratches
+    canvas.drawRect(
+      rect,
+      Paint()
+        ..shader = RadialGradient(
+          center: const Alignment(0, .1),
+          radius: 1.1,
+          colors: [
+            Color(0xFF2A2A2A),
+            Color(0xFF181818),
+            Color(0xFF0C0C0C),
+          ],
+          stops: const [0, .6, 1],
+        ).createShader(rect),
+    );
+
+    // diagonal scratch texture (static noise approximation)
+    final scratchPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = .5
+      ..color = Color(0x11FFFFFF);
+    for (var i = 0; i < 12; i++) {
+      final y = -h + (i * h / 6) + (t * h * .3 % (h / 6));
+      canvas.drawLine(Offset(-w, y), Offset(w * 2, y + w * .6), scratchPaint);
+    }
+
+    // sweeping inspection lamp (brass gold)
+    final shift = -1.2 + 2.4 * t;
+    canvas.drawRect(
+      rect,
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment(shift - .6, -1),
+          end: Alignment(shift + .6, 1),
+          colors: const [
+            Color(0x00D4A72A),
+            Color(0x33D4A72A),
+            Color(0x66D4A72A),
+            Color(0x33D4A72A),
+            Color(0x00D4A72A),
+          ],
+          stops: const [0, .25, .5, .75, 1],
+        ).createShader(rect),
+    );
+
+    // rivet glints at the corners
+    final rivetPaint = Paint()..color = Color(0xFFD4A72A);
+    final rivetR = w * .018;
+    for (final corner in [
+      Offset(rivetR * 3, rivetR * 3),
+      Offset(w - rivetR * 3, rivetR * 3),
+      Offset(rivetR * 3, h - rivetR * 3),
+      Offset(w - rivetR * 3, h - rivetR * 3),
+    ]) {
+      final twinkle = .5 + .5 * math.sin(t * 4 * math.pi + corner.dx * .01);
+      canvas.drawCircle(corner, rivetR * twinkle, rivetPaint);
+      canvas.drawCircle(corner, rivetR * .6, Paint()..color = Color(0xFFFFF8E7).withValues(alpha: .8 * twinkle));
+    }
+
+    // central aquila pulse (very subtle)
+    final aquilaPulse = .5 + .5 * math.sin(t * 2 * math.pi);
+    canvas.drawCircle(
+      center,
+      r * (.12 + .02 * aquilaPulse),
+      Paint()
+        ..shader = RadialGradient(
+          colors: [
+            Color(0x00D4A72A),
+            Color(0x11D4A72A),
+            Color(0x00D4A72A),
+          ],
+          stops: const [0, .5, 1],
+        ).createShader(Rect.fromCircle(center: center, radius: r * .15)),
+    );
+  }
+}
+
+// ============================================================================
 // Factory
 // ============================================================================
 
@@ -1267,5 +1375,6 @@ NebulaEffect? nebulaEffectFor(NebulaTheme theme, {required bool animate}) => swi
   NebulaTheme.onyxGlass => OnyxGlassEffect(animate: animate),
   NebulaTheme.pearlGlass => PearlGlassEffect(animate: animate),
   NebulaTheme.ivoryGlass => IvoryGlassEffect(animate: animate),
+  NebulaTheme.imperialGlass => ImperialGlassEffect(animate: animate),
   _ => null,
 };
