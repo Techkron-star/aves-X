@@ -80,7 +80,10 @@ class Failsafe with WidgetsBindingObserver {
       await securityService.writeValue<String>(_crashesKey, '$_crashes');
       await securityService.writeValue<String>(_stateKey, 'running');
     } catch (e) {
-      debugPrint('Failsafe init failed: $e');
+      // If security state cannot be read, do not start in an apparently healthy/unlocked mode.
+      safeMode.value = true;
+      lockdown.value = true;
+      debugPrint('Failsafe init failed; entering fail-closed mode: $e');
     }
     WidgetsBinding.instance.addObserver(this);
     _flushTimer = Timer.periodic(const Duration(seconds: 6), (_) => _flush());
@@ -129,8 +132,9 @@ class Failsafe with WidgetsBindingObserver {
   }
 
   Future<void> engageLockdown() async {
-    await FailsafeConfig.setLockdownActive(true);
+    // Cover the UI immediately; persistence failure must not leave this session exposed.
     lockdown.value = true;
+    await FailsafeConfig.setLockdownActive(true);
     _add('LOCK', 'Lockdown engaged after repeated failed attempts');
     await _flush();
   }
