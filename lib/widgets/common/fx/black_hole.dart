@@ -213,7 +213,7 @@ class _TrashIconMotionState extends State<TrashIconMotion> with SingleTickerProv
       return Transform.rotate(
         angle: swing * .035,
         child: Transform.scale(
-          scale: 1 + swing.abs() * .02,
+          scale: 1 + swing * swing * .02,
           child: child,
         ),
       );
