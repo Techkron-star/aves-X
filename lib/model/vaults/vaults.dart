@@ -194,8 +194,13 @@ class Vaults {
 
     // encryption at rest (Bat-curity), if enabled
     for (final path in unlocked) {
-      final name = detailsForPath(path)?.name;
-      if (name != null) unawaited(_encryptLockedVault(name));
+      final name = detailsForPath(path)?.name ?? VaultDetails.nameFromPath(path);
+      if (name != null) {
+        unawaited(_encryptLockedVault(name));
+      } else if (masterGuard.vaultEncryption) {
+        // Without a resolvable vault identity we cannot guarantee at-rest encryption.
+        unawaited(failsafe.engageLockdown());
+      }
     }
   }
 
