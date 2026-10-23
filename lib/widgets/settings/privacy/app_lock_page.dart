@@ -141,7 +141,7 @@ class AppLockPage extends StatelessWidget {
 
     final type = VaultLockType.values.safeByName(choice);
     if (type == null) return;
-    if (!await SecretLock.setPass(context, type, AppLock.alternativeSecretKey, context.l10n.authenticateToConfigureVault)) return;
+    if (!await SecretLock.setPass(context, type, AppLock.alternativeSecretKeyFor(type.name), context.l10n.authenticateToConfigureVault)) return;
     await appLock.setLockType(type.name);
   }
 
