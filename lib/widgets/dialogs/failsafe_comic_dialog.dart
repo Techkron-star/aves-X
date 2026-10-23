@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:aves/model/security/failsafe_voice.dart';
 import 'package:aves/theme/nebula/nebula_tokens.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
-import 'package:aves/widgets/common/fx/app_mark.dart';
+import 'package:aves/widgets/security/failsafe_sprite.dart';
+import 'package:aves/widgets/security/failsafe_speech_duration.dart';
 import 'package:material_ui/material_ui.dart';
 
 // Warning and confirmation messages as a comic speech bubble said by the Fail-Safe character,
@@ -21,6 +22,7 @@ class FailsafeComicDialog extends StatefulWidget {
 
 class _FailsafeComicDialogState extends State<FailsafeComicDialog> {
   bool _narrating = false;
+  bool _speaking = false;
 
   @override
   void initState() {
@@ -35,11 +37,21 @@ class _FailsafeComicDialogState extends State<FailsafeComicDialog> {
     _narrating = true;
     try {
       final status = await FailsafeVoice.say(widget.message);
+      if (status == FailsafeVoice.statusOk && mounted) {
+        setState(() => _speaking = true);
+        await Future<void>.delayed(estimateFailsafeSpeechMotionDuration(widget.message));
+      }
       if (!mounted) return;
-      setState(() => _voiceError = FailsafeVoice.isFailure(status) ? FailsafeVoice.describe(context.l10n, status) : null);
+      setState(() {
+        _voiceError = FailsafeVoice.isFailure(status) ? FailsafeVoice.describe(context.l10n, status) : null;
+        _speaking = false;
+      });
     } finally {
       if (mounted) {
-        setState(() => _narrating = false);
+        setState(() {
+          _narrating = false;
+          _speaking = false;
+        });
       }
     }
   }
@@ -75,7 +87,7 @@ class _FailsafeComicDialogState extends State<FailsafeComicDialog> {
                   color: t.securityScrim,
                   border: Border.all(color: t.securityAccent, width: 2),
                 ),
-                child: const Center(child: AppMark(size: 24)),
+                child: Center(child: FailsafeSprite(size: 27, speaking: _speaking)),
               ),
               const SizedBox(width: 10),
               // name plate: `securityOnSurface` is the readable ink on `securitySurface`, which is not the

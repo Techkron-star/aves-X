@@ -9,7 +9,8 @@ import 'package:aves/model/security/master_guard.dart';
 import 'package:aves/model/security/nuke.dart';
 import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
-import 'package:aves/widgets/common/fx/app_mark.dart';
+import 'package:aves/widgets/security/failsafe_sprite.dart';
+import 'package:aves/widgets/security/failsafe_speech_duration.dart';
 import 'package:aves/widgets/common/fx/failsafe_badge.dart';
 import 'package:aves/widgets/dialogs/filter_editors/code_dialog.dart';
 import 'package:material_ui/material_ui.dart';
@@ -304,6 +305,14 @@ class _FailsafeBuddyState extends State<FailsafeBuddy> {
   String? _line;
   int? _lineFails;
   String? _voiceError;
+  bool _speaking = false;
+  Timer? _speechTimer;
+
+  @override
+  void dispose() {
+    _speechTimer?.cancel();
+    super.dispose();
+  }
 
   // picks a new line when the number of failures changes, and says it (when there is something to react to)
   String _currentLine(BuildContext context) {
@@ -317,8 +326,18 @@ class _FailsafeBuddyState extends State<FailsafeBuddy> {
           if (!mounted || _line != line) return;
           final status = await FailsafeVoice.say(line);
           if (!mounted || _line != line) return;
-          // these screens have no scaffold for a snack bar, so a failure is shown right under the bubble
-          setState(() => _voiceError = FailsafeVoice.isFailure(status) ? FailsafeVoice.describe(context.l10n, status) : null);
+          _speechTimer?.cancel();
+          final speaking = status == FailsafeVoice.statusOk;
+          // Android reports playback start immediately; keep the mouth/quiver active for the clip's duration.
+          setState(() {
+            _speaking = speaking;
+            _voiceError = FailsafeVoice.isFailure(status) ? FailsafeVoice.describe(context.l10n, status) : null;
+          });
+          if (speaking) {
+            _speechTimer = Timer(estimateFailsafeSpeechMotionDuration(line), () {
+              if (mounted && _line == line) setState(() => _speaking = false);
+            });
+          }
         });
       }
     }
@@ -344,7 +363,13 @@ class _FailsafeBuddyState extends State<FailsafeBuddy> {
               width: 44,
               height: 44,
               decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: color, width: 1.5), color: Colors.black54),
-              child: const Center(child: AppMark(size: 22)),
+              child: Center(
+                child: FailsafeSprite(
+                  size: 28,
+                  mood: alert ? FailsafeSpriteMood.alert : fails > 0 ? FailsafeSpriteMood.suspicious : FailsafeSpriteMood.idle,
+                  speaking: _speaking,
+                ),
+              ),
             ),
             const SizedBox(width: 10),
             Flexible(
