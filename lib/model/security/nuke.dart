@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:aves/model/security/failsafe_config.dart';
 
-import 'package:aves/model/db/db.dart';
 import 'package:aves/model/entry/origins.dart';
 import 'package:aves/model/security/attempt_guard.dart';
 import 'package:aves/model/source/collection_source.dart';
