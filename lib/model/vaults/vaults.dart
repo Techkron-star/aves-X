@@ -94,9 +94,10 @@ class Vaults {
     final newDetails = oldDetails.copyWith(name: newName);
     await localMediaDb.updateVault(oldDetails.name, newDetails);
 
-    final oldTypedKey = oldDetails.passKeyFor(oldDetails.lockType);
-    final pass = await securityService.readValueStrict<String>(oldTypedKey) ?? await securityService.readValueStrict<String>(oldDetails.passKey);
-    if (pass != null) {
+    if (oldDetails.lockType != .system) {
+      final oldTypedKey = oldDetails.passKeyFor(oldDetails.lockType);
+      final pass = await securityService.readValueStrict<String>(oldTypedKey) ?? await securityService.readValueStrict<String>(oldDetails.passKey);
+      if (pass == null) throw StateError('Missing vault credential during rename');
       if (!await securityService.writeValue<String>(newDetails.passKeyFor(newDetails.lockType), pass)) {
         throw StateError('Could not migrate vault credential during rename');
       }
@@ -124,7 +125,7 @@ class Vaults {
     await localMediaDb.updateVault(newDetails.name, newDetails);
     // The active type has already been configured in its own key slot. Remove obsolete secrets only
     // after the database has committed the new lock type.
-    await _clearVaultPasses(oldDetails, keepKey: newDetails.passKeyFor(newDetails.lockType));
+    await _clearVaultPasses(oldDetails, keepKey: newDetails.lockType == .system ? null : newDetails.passKeyFor(newDetails.lockType));
 
     _rows
       ..remove(oldDetails)
