@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:aves/widgets/common/fx/liquid.dart';
+import 'package:aves/widgets/common/fx/black_hole.dart';
 import 'package:aves/model/settings/enums/nav_bar_style.dart';
 import 'package:aves/model/security/failsafe_config.dart';
 import 'package:aves/model/security/privacy_options.dart';
@@ -53,6 +54,8 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
   @override
   void initState() {
     super.initState();
+    // Prime the persisted root-mode state so the bin icon is correct after relaunch.
+    unawaited(FailsafeConfig.rootMode.then<void>((_) {}));
     _registerWidget(widget);
   }
 
@@ -175,14 +178,17 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
 
   void _onCollectionFilterChanged() => setState(() {});
 
-  // The Black Hole bin is a painted disc: it must not go through the liquid highlight,
-  // which would tint its colours.
+  // The bin has its own motion; Black Hole mode replaces the ordinary icon
+  // with an accretion disc while preserving the familiar trash silhouette.
   Widget _navIcon(BuildContext context, AvesNavItem item) {
     final icon = item.getIcon(context);
     if (!item.opensBin) return LiquidIcon(child: icon);
+    final animate = settings.animate;
     return ValueListenableBuilder<bool>(
       valueListenable: FailsafeConfig.rootModeActive,
-      builder: (context, blackHole, _) => blackHole ? icon : LiquidIcon(child: icon),
+      builder: (context, blackHole, _) => blackHole
+          ? BlackHoleIcon(size: 30, animate: animate, child: icon)
+          : TrashIconMotion(animate: animate, child: LiquidIcon(child: icon)),
     );
   }
 
@@ -200,7 +206,7 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
   // iOS-like lens over the selected item (rounded and rectangular bars)
   Widget _withLens(BuildContext context, NavBarStyle style, int count, int index, bool isRtl, Widget bar) {
     if (style == NavBarStyle.classic || !settings.navLens) return bar;
-    final blur = settings.enableBlurEffect;
+    final blur = settings.enableBlurEffect && settings.glassEverywhere;
     final material = settings.materialStyle;
     final radius = BorderRadius.circular(style == NavBarStyle.rectangular ? 8 : 22);
     Widget lens = DecoratedBox(
@@ -212,7 +218,10 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
           colors: material?.lens ?? const [Color(0x40FFFFFF), Color(0x0DFFFFFF)],
         ),
         border: Border.all(color: material?.lensBorder ?? const Color(0x73FFFFFF), width: 1.2),
-        boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 8)],
+        boxShadow: [
+          const BoxShadow(color: Color(0x33000000), blurRadius: 8),
+          if (material != null) BoxShadow(color: material.accent.withValues(alpha: .15), blurRadius: 14),
+        ],
       ),
     );
     if (blur) {
