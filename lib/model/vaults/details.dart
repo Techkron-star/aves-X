@@ -32,11 +32,15 @@ class VaultDetails extends Equatable {
   }
 
   factory fromMap(Map map) {
+    final rawLockType = map['lockType'] as String?;
+    // Missing values from legacy databases retain the historical system-auth default.
+    // A present but invalid value must not fall back to system auth and bypass a secret.
+    final lockType = rawLockType == null ? VaultLockType.system : (VaultLockType.values.safeByName(rawLockType) ?? VaultLockType.password);
     return VaultDetails(
       name: map['name'] as String,
       autoLockScreenOff: (map['autoLock'] as int? ?? 0) != 0,
       useBin: (map['useBin'] as int? ?? 0) != 0,
-      lockType: VaultLockType.values.safeByName(map['lockType'] as String) ?? .system,
+      lockType: lockType,
     );
   }
 
