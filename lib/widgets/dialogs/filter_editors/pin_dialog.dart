@@ -16,6 +16,7 @@ class const PinDialog({
 class _PinDialogState extends State<PinDialog> {
   final _controller = PinInputController();
   bool _confirming = false;
+  bool _submitting = false;
   String? _firstPin;
 
   @override
@@ -40,7 +41,9 @@ class _PinDialogState extends State<PinDialog> {
               autoFocus: true,
               autoDismissKeyboard: !widget.needConfirmation || _confirming,
               obscureText: true,
-              onChanged: (v) {},
+              onChanged: (v) {
+                if (v.isNotEmpty) _submitting = false;
+              },
               onCompleted: _submit,
             ),
           ),
@@ -50,6 +53,8 @@ class _PinDialogState extends State<PinDialog> {
   }
 
   void _submit(String pin) {
+    if (_submitting) return;
+    _submitting = true;
     if (widget.needConfirmation) {
       if (_confirming) {
         final match = _firstPin == pin;
