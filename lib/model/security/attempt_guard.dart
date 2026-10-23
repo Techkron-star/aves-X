@@ -38,6 +38,12 @@ class AttemptGuard {
 
   String get _cooldownKey => 'att_${id}_cooldown';
 
+  Future<void> _writeRequired(String key, String? value) async {
+    if (!await securityService.writeValue<String>(key, value)) {
+      throw StateError('Could not persist security state for $key');
+    }
+  }
+
   Future<int> failures() async => int.tryParse(await securityService.readValue<String>(_failsKey) ?? '') ?? 0;
 
   // `null` when there is no cooldown
@@ -76,7 +82,7 @@ class AttemptGuard {
     final remaining = duration - Duration(milliseconds: elapsedSinceStart);
     if (remaining <= Duration.zero) {
       // keep the marker: the failure counter stays at its value, and the next failure will nuke
-      await securityService.writeValue<String>(_cooldownKey, null);
+      await _writeRequired(_cooldownKey, null);
       return null;
     }
     return remaining;
@@ -85,7 +91,7 @@ class AttemptGuard {
   Future<void> _startCooldown(Duration duration) async {
     final clock = await securityService.getClockInfo();
     final value = '${clock?.elapsedRealtimeMillis ?? 0}|${clock?.bootCount ?? -1}|${DateTime.now().millisecondsSinceEpoch}|${duration.inMilliseconds}';
-    await securityService.writeValue<String>(_cooldownKey, value);
+    await _writeRequired(_cooldownKey, value);
   }
 
   // to be called after each verified failed attempt (the counter is persisted before returning)
@@ -104,7 +110,7 @@ class AttemptGuard {
 
   Future<AttemptOutcome> _registerFailure() async {
     final count = await failures() + 1;
-    await securityService.writeValue<String>(_failsKey, count.toString());
+    await _writeRequired(_failsKey, count.toString());
     final nukeEnabled = await FailsafeConfig.nukeOnFailures;
     // Global nuke is only valid for the app lock and Master Code. Vaults have their own
     // targeted nuke callback; auxiliary locks (bin/reveal/items) must never wipe app data.
@@ -131,9 +137,9 @@ class AttemptGuard {
     // with a stale read-modify-write and leave the counter incremented.
     _failureQueue = _failureQueue.then((_) async {
       try {
-        await securityService.writeValue<String>(_failsKey, null);
+        await _writeRequired(_failsKey, null);
         await securityService.writeValue<String>(_cooldownKey, null);
-        await securityService.writeValue<String>('att_${id}_bio', null);
+        await _writeRequired('att_${id}_bio', null);
         completer.complete();
       } catch (error, stack) {
         completer.completeError(error, stack);
@@ -151,7 +157,7 @@ class AttemptGuard {
     _failureQueue = _failureQueue.then((_) async {
       try {
         final count = await biometricFailures() + 1;
-        await securityService.writeValue<String>('att_${id}_bio', count.toString());
+        await _writeRequired('att_${id}_bio', count.toString());
         completer.complete(await _registerFailure());
       } catch (error, stack) {
         completer.completeError(error, stack);
