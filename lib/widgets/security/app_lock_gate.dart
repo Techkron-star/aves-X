@@ -13,6 +13,7 @@ import 'package:aves/services/common/services.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/dialogs/filter_editors/code_dialog.dart';
 import 'package:aves/theme/nebula/nebula_tokens.dart';
+import 'package:aves/theme/nebula/nebula_material.dart';
 import 'package:aves/widgets/common/fx/nebula_component_surfaces.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
@@ -249,6 +250,16 @@ class _LockScreenState extends State<_LockBody> {
     final l10n = context.l10n;
     final nebula = Theme.of(context).nebula;
     final textTheme = Theme.of(context).textTheme;
+    final cardRadius = switch (settings.materialStyle?.material) {
+      NebulaMaterial.eclipse => 22.0,
+      NebulaMaterial.hermetic => 10.0,
+      _ => 30.0,
+    };
+    final inputRadius = switch (settings.materialStyle?.material) {
+      NebulaMaterial.eclipse => 12.0,
+      NebulaMaterial.hermetic => 5.0,
+      _ => 18.0,
+    };
     return SecurityScreenBackground(
       role: NebulaComponentSurfaceRole.appLockBackdrop,
       child: SafeArea(
@@ -265,7 +276,7 @@ class _LockScreenState extends State<_LockBody> {
                     : NebulaComponentSurfaceState.idle,
                 animate: settings.animate,
                 alertColor: nebula.securityAlert,
-                borderRadius: const BorderRadius.all(Radius.circular(30)),
+                borderRadius: BorderRadius.circular(cardRadius),
                 child: Container(
                 padding: const EdgeInsets.fromLTRB(26, 30, 26, 26),
                 decoration: BoxDecoration(
@@ -278,7 +289,7 @@ class _LockScreenState extends State<_LockBody> {
                       nebula.securitySurface.withValues(alpha: .99),
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(cardRadius),
                   border: Border.all(color: nebula.securityCrystalEdge.withValues(alpha: .72), width: 1.2),
                   boxShadow: [
                     BoxShadow(color: nebula.securityBubbleGlow.withValues(alpha: .24), blurRadius: 36, spreadRadius: -8),
@@ -343,12 +354,12 @@ class _LockScreenState extends State<_LockBody> {
                             : NebulaComponentSurfaceState.focused,
                         animate: settings.animate,
                         alertColor: nebula.securityAlert,
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: BorderRadius.circular(inputRadius),
                         child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                         decoration: BoxDecoration(
                           color: nebula.securityInputFieldBg.withValues(alpha: .68),
-                          borderRadius: BorderRadius.circular(18),
+                          borderRadius: BorderRadius.circular(inputRadius),
                           border: Border.all(color: nebula.securityInputFieldBorder.withValues(alpha: .72)),
                         ),
                         child: FittedBox(
