@@ -121,7 +121,7 @@ class SecretLock {
     if (!await setPass(context, lockType, nextPassKey, configReason(context))) return;
     if (!await securityService.writeValue<String>(_typeKey, lockType.name)) return;
     // The new type and its secret are now committed; remove credentials that no longer apply.
-    await _clearPasses(_passKey, except: lockType);
+    await _clearPasses(_passKey, except: lockType == VaultLockType.system ? null : lockType);
   }
 
   // lock types available on this device, by name
