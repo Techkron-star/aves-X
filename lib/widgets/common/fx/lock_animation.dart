@@ -254,6 +254,22 @@ class _PadlockPainter extends CustomPainter {
       _paintJelly(canvas);
     } else if (material == NebulaMaterial.sakura) {
       _paintBlossom(canvas);
+    } else if (material == NebulaMaterial.aurora) {
+      _paintAurora(canvas);
+    } else if (material == NebulaMaterial.sapphire) {
+      _paintGem(canvas);
+    } else if (material == NebulaMaterial.amber) {
+      _paintResin(canvas);
+    } else if (material == NebulaMaterial.onyx) {
+      _paintOnyx(canvas);
+    } else if (material == NebulaMaterial.pearl) {
+      _paintPearl(canvas);
+    } else if (material == NebulaMaterial.ivory) {
+      _paintIvory(canvas);
+    } else if (material == NebulaMaterial.neon) {
+      _paintNeon(canvas);
+    } else if (material == NebulaMaterial.voidGlass) {
+      _paintVoid(canvas);
     } else if (material != null && style != null) {
       _paintSignature(canvas, material!, style!, open);
     } else {
@@ -815,6 +831,152 @@ class _PadlockPainter extends CustomPainter {
     canvas.rotate(.7);
     canvas.drawOval(Rect.fromCenter(center: Offset.zero, width: 10, height: 5.5), Paint()..color = pink.withValues(alpha: .85));
     canvas.restore();
+  }
+
+  // Aurora: a dark shield with three ribbons of northern light and a few stars.
+  void _paintAurora(Canvas canvas) {
+    const green = Color(0xFF69F0AE);
+    const cyan = Color(0xFF18FFFF);
+    _shackle(canvas, const Color(0xFFB9F6CA), width: 6, glow: const Color(0x6600E676));
+    final body = RRect.fromRectAndRadius(const Rect.fromLTWH(22, 46, 56, 44), const Radius.circular(16));
+    canvas.drawRRect(body, Paint()..shader = const LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFF0B3A44), Color(0xFF04141E)]).createShader(body.outerRect));
+    canvas.save();
+    canvas.clipRRect(body);
+    for (var i = 0; i < 3; i++) {
+      final c = [green, cyan, const Color(0xFFB388FF)][i];
+      final y = 56.0 + i * 8;
+      canvas.drawPath(
+        Path()..moveTo(18, y)..cubicTo(34, y - 12, 44, y + 12, 58, y - 4)..cubicTo(66, y - 12, 76, y - 2, 84, y - 8),
+        Paint()..style = PaintingStyle.stroke..strokeWidth = 4.5..strokeCap = StrokeCap.round..color = c.withValues(alpha: .55)..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 2.5),
+      );
+    }
+    canvas.restore();
+    canvas.drawRRect(body, Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = green);
+    for (final p in const [Offset(32, 53), Offset(66, 52), Offset(72, 62)]) {
+      canvas.drawCircle(p, 1, Paint()..color = Colors.white.withValues(alpha: .85));
+    }
+    _keyhole(canvas, const Offset(50, 64), const Color(0xFF021014), scale: .9);
+  }
+
+  // Sapphire: an emerald-cut gem with step facets.
+  void _paintGem(Canvas canvas) {
+    const pale = Color(0xFFBBDEFB);
+    _shackle(canvas, pale, width: 6);
+    final gem = Path()
+      ..moveTo(32, 46)..lineTo(68, 46)..lineTo(80, 58)..lineTo(80, 80)..lineTo(68, 92)..lineTo(32, 92)..lineTo(20, 80)..lineTo(20, 58)..close();
+    canvas.drawPath(gem, Paint()..shader = const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF4F8DF5), Color(0xFF1A4BB5), Color(0xFF081C5C)]).createShader(gem.getBounds()));
+    final inner = Path()
+      ..moveTo(36, 54)..lineTo(64, 54)..lineTo(72, 62)..lineTo(72, 76)..lineTo(64, 84)..lineTo(36, 84)..lineTo(28, 76)..lineTo(28, 62)..close();
+    canvas.drawPath(inner, Paint()..style = PaintingStyle.stroke..strokeWidth = 1..color = pale.withValues(alpha: .6));
+    canvas.drawPath(
+      Path()..moveTo(32, 46)..lineTo(36, 54)..moveTo(68, 46)..lineTo(64, 54)..moveTo(80, 58)..lineTo(72, 62)..moveTo(80, 80)..lineTo(72, 76)..moveTo(68, 92)..lineTo(64, 84)..moveTo(32, 92)..lineTo(36, 84)..moveTo(20, 80)..lineTo(28, 76)..moveTo(20, 58)..lineTo(28, 62),
+      Paint()..style = PaintingStyle.stroke..strokeWidth = .8..color = pale.withValues(alpha: .45),
+    );
+    canvas.drawPath(gem, Paint()..style = PaintingStyle.stroke..strokeWidth = 2..strokeJoin = StrokeJoin.round..color = pale);
+    canvas.drawPath(Path()..moveTo(26, 50)..lineTo(44, 50)..lineTo(30, 66)..close(), Paint()..color = Colors.white.withValues(alpha: .22));
+    _keyhole(canvas, const Offset(50, 63), const Color(0xFF04123A), scale: .85);
+  }
+
+  // Amber: a drop of fossil resin with a padlock-shaped shadow trapped inside.
+  void _paintResin(Canvas canvas) {
+    const honey = Color(0xFFFFC04D);
+    final drop = Path()
+      ..moveTo(50, 10)
+      ..cubicTo(60, 30, 84, 50, 80, 72)
+      ..cubicTo(77, 92, 23, 92, 20, 72)
+      ..cubicTo(16, 50, 40, 30, 50, 10)
+      ..close();
+    canvas.save();
+    canvas.translate(0, open ? -4.0 : 0.0);
+    canvas.drawPath(drop, Paint()..color = const Color(0x66FFB300)..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 4));
+    canvas.drawPath(drop, Paint()..shader = const RadialGradient(center: Alignment(-.3, -.5), radius: 1.1, colors: [Color(0xFFFFE082), Color(0xFFE58A00), Color(0xFF6B3500)]).createShader(drop.getBounds()));
+    canvas.drawPath(drop, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.8..strokeJoin = StrokeJoin.round..color = honey);
+    final dark = Paint()..color = const Color(0xFF3A1A00).withValues(alpha: .6);
+    canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(38, 60, 24, 20), const Radius.circular(4)), dark);
+    canvas.drawPath(
+      Path()..moveTo(43, 60)..lineTo(43, 52)..arcToPoint(const Offset(57, 52), radius: const Radius.circular(7))..lineTo(57, 60),
+      Paint()..style = PaintingStyle.stroke..strokeWidth = 3.4..strokeCap = StrokeCap.round..color = const Color(0xFF3A1A00).withValues(alpha: .6),
+    );
+    if (keyhole) canvas.drawCircle(const Offset(50, 69), 2.2, Paint()..color = const Color(0xFFFFE082));
+    for (final p in const [Offset(34, 62), Offset(66, 54), Offset(58, 84)]) {
+      canvas.drawCircle(p, 2, Paint()..style = PaintingStyle.stroke..strokeWidth = .8..color = Colors.white.withValues(alpha: .6));
+    }
+    canvas.drawPath(Path()..moveTo(32, 54)..quadraticBezierTo(36, 40, 46, 30), Paint()..style = PaintingStyle.stroke..strokeWidth = 3..strokeCap = StrokeCap.round..color = Colors.white.withValues(alpha: .32));
+    canvas.restore();
+  }
+
+  // Onyx: a polished black disc, a thin white ring, nothing else.
+  void _paintOnyx(Canvas canvas) {
+    _shackle(canvas, const Color(0xFFE6E6E8), width: 4);
+    const c = Offset(50, 66);
+    canvas.drawCircle(c, 27, Paint()..shader = const RadialGradient(center: Alignment(-.4, -.5), radius: 1.1, colors: [Color(0xFF4A4A50), Color(0xFF111113), Color(0xFF000000)]).createShader(Rect.fromCircle(center: c, radius: 27)));
+    canvas.drawCircle(c, 27, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.4..color = Colors.white.withValues(alpha: .85));
+    canvas.drawArc(Rect.fromCircle(center: c, radius: 21), pi * 1.1, pi * .5, false, Paint()..style = PaintingStyle.stroke..strokeWidth = 2..strokeCap = StrokeCap.round..color = Colors.white.withValues(alpha: .35));
+    _keyhole(canvas, c + const Offset(0, -6), const Color(0xFFF2F2F4), scale: .8);
+  }
+
+  // Pearl: a lustrous sphere with an iridescent sheen.
+  void _paintPearl(Canvas canvas) {
+    _shackle(canvas, const Color(0xFFF5E1EC), width: 5);
+    const c = Offset(50, 66);
+    canvas.drawCircle(c, 29, Paint()..color = const Color(0x55FFC2DD)..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 4));
+    canvas.drawCircle(c, 27, Paint()..shader = const RadialGradient(center: Alignment(-.35, -.45), radius: 1.05, colors: [Color(0xFFFFFFFF), Color(0xFFF6DDE9), Color(0xFFBBA3C2), Color(0xFF7D6B8C)], stops: [0, .35, .75, 1]).createShader(Rect.fromCircle(center: c, radius: 27)));
+    canvas.drawCircle(c, 27, Paint()..shader = const SweepGradient(colors: [Color(0x44A7FFEB), Color(0x44FFB3D1), Color(0x44D1C4E9), Color(0x44FFE9A3), Color(0x44A7FFEB)]).createShader(Rect.fromCircle(center: c, radius: 27)));
+    canvas.drawOval(Rect.fromCenter(center: const Offset(40, 54), width: 14, height: 8), Paint()..color = Colors.white.withValues(alpha: .7));
+    _keyhole(canvas, c + const Offset(0, -4), const Color(0xFF5A4660), scale: .8);
+  }
+
+  // Ivory: an ornate cream plaque in a gold frame, with scrolled corners.
+  void _paintIvory(Canvas canvas) {
+    const gold = Color(0xFFE6C068);
+    _shackle(canvas, gold, width: 6);
+    final body = RRect.fromRectAndRadius(const Rect.fromLTWH(22, 46, 56, 44), const Radius.circular(6));
+    canvas.drawRRect(body, Paint()..shader = const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFFFFF8E1), Color(0xFFEBD8A8), Color(0xFFC9A862)]).createShader(body.outerRect));
+    canvas.drawRRect(body, Paint()..style = PaintingStyle.stroke..strokeWidth = 2.4..color = gold);
+    canvas.drawRRect(body.deflate(4), Paint()..style = PaintingStyle.stroke..strokeWidth = .8..color = const Color(0xFF9C7A2C));
+    final scroll = Paint()..style = PaintingStyle.stroke..strokeWidth = 1.1..strokeCap = StrokeCap.round..color = const Color(0xFF9C7A2C);
+    for (final (corner, dx, dy) in const [(Offset(27, 51), 1.0, 1.0), (Offset(73, 51), -1.0, 1.0), (Offset(27, 85), 1.0, -1.0), (Offset(73, 85), -1.0, -1.0)]) {
+      canvas.drawPath(Path()..moveTo(corner.dx + dx * 9, corner.dy)..quadraticBezierTo(corner.dx, corner.dy, corner.dx, corner.dy + dy * 9), scroll);
+    }
+    _keyhole(canvas, const Offset(50, 64), const Color(0xFF4A3510), scale: .95);
+  }
+
+  // Neon: a padlock made of glowing tubes.
+  void _paintNeon(Canvas canvas) {
+    const pink = Color(0xFFFF2D95);
+    const cyan = Color(0xFF00E5FF);
+    void tube(Path path, Color color, double width) {
+      canvas.drawPath(path, Paint()..style = PaintingStyle.stroke..strokeWidth = width + 5..strokeCap = StrokeCap.round..strokeJoin = StrokeJoin.round..color = color.withValues(alpha: .45)..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 3));
+      canvas.drawPath(path, Paint()..style = PaintingStyle.stroke..strokeWidth = width..strokeCap = StrokeCap.round..strokeJoin = StrokeJoin.round..color = color);
+      canvas.drawPath(path, Paint()..style = PaintingStyle.stroke..strokeWidth = width * .35..strokeCap = StrokeCap.round..strokeJoin = StrokeJoin.round..color = Colors.white.withValues(alpha: .9));
+    }
+
+    final lift = open ? -7.0 : 0.0;
+    tube(Path()..moveTo(35, 50 + lift)..lineTo(35, 34 + lift)..cubicTo(35, 10 + lift, 65, 10 + lift, 65, 34 + lift)..lineTo(65, open ? 40 + lift : 50), cyan, 4.5);
+    tube(Path()..addRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(22, 48, 56, 42), const Radius.circular(6))), pink, 4.5);
+    if (keyhole) {
+      tube(Path()..addOval(Rect.fromCircle(center: const Offset(50, 64), radius: 4.5)), cyan, 2.6);
+      tube(Path()..moveTo(50, 69)..lineTo(50, 79), cyan, 2.6);
+    }
+  }
+
+  // Void: a black hole with a tilted, glowing accretion disc; the keyhole is the event horizon.
+  void _paintVoid(Canvas canvas) {
+    const green = Color(0xFF39FF14);
+    const c = Offset(50, 66);
+    _shackle(canvas, const Color(0xFF9AA09A), width: 5);
+    canvas.drawCircle(c, 33, Paint()..color = green.withValues(alpha: .25)..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 5));
+    canvas.save();
+    canvas.translate(c.dx, c.dy);
+    canvas.rotate(-.35 + (open ? .5 : 0));
+    final disc = Rect.fromCenter(center: Offset.zero, width: 72, height: 18);
+    canvas.drawOval(disc, Paint()..style = PaintingStyle.stroke..strokeWidth = 5..color = green.withValues(alpha: .4)..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 3));
+    canvas.drawOval(disc, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.6..color = const Color(0xFFCCFFC2));
+    canvas.restore();
+    canvas.drawCircle(c, 22, Paint()..color = Colors.black);
+    canvas.drawCircle(c, 22, Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = green);
+    canvas.drawArc(Rect.fromCircle(center: c, radius: 26), pi * 1.2, pi * .6, false, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.2..strokeCap = StrokeCap.round..color = Colors.white.withValues(alpha: .7));
+    _keyhole(canvas, c + const Offset(0, -6), green, scale: .75);
   }
 
   void _paintPadlock(Canvas canvas) {

@@ -10,7 +10,7 @@ import 'package:material_ui/material_ui.dart';
 // - abyssal: deep water with caustics, bubbles and bioluminescent specks.
 // - sakura: ink black washi with a blossoming branch and fallen petals.
 // Like the other glass decorations, each one is recorded once per (size, opacity) and replayed.
-enum NebulaSurfaceArt { imperial, solarFlare, abyssal, sakura }
+enum NebulaSurfaceArt { imperial, solarFlare, abyssal, sakura, aurora, sapphire, amber, onyx, pearl, ivory, neon, voidGlass }
 
 class NebulaSurfaceDecoration extends Decoration {
   final NebulaSurfaceArt art;
@@ -66,6 +66,22 @@ class _SurfacePainter extends BoxPainter {
         _abyssal(canvas, size, opacity);
       case NebulaSurfaceArt.sakura:
         _sakura(canvas, size, opacity);
+      case NebulaSurfaceArt.aurora:
+        _aurora(canvas, size, opacity);
+      case NebulaSurfaceArt.sapphire:
+        _sapphire(canvas, size, opacity);
+      case NebulaSurfaceArt.amber:
+        _amber(canvas, size, opacity);
+      case NebulaSurfaceArt.onyx:
+        _onyx(canvas, size, opacity);
+      case NebulaSurfaceArt.pearl:
+        _pearl(canvas, size, opacity);
+      case NebulaSurfaceArt.ivory:
+        _ivory(canvas, size, opacity);
+      case NebulaSurfaceArt.neon:
+        _neon(canvas, size, opacity);
+      case NebulaSurfaceArt.voidGlass:
+        _void(canvas, size, opacity);
     }
     return recorder.endRecording();
   }
@@ -437,5 +453,366 @@ class _SurfacePainter extends BoxPainter {
     canvas.drawLine(Offset.zero, Offset(size.width, 0), rim..color = const Color(0xFFFFC2D4).withValues(alpha: .5));
     canvas.drawLine(Offset.zero, Offset(0, size.height), rim..color = const Color(0xFFFFC2D4).withValues(alpha: .22));
     canvas.drawLine(Offset(0, size.height), Offset(size.width, size.height), rim..color = const Color(0x99000000));
+  }
+
+  // ------------------------------------------------------------------ aurora
+
+  static void _aurora(Canvas canvas, Size size, double opacity) {
+    final rnd = Random(61);
+    final local = Offset.zero & size;
+    _fill(canvas, size, const [Color(0xFF061C28), Color(0xFF04121C), Color(0xFF02070D)], const [0, .55, 1], opacity, begin: Alignment.topCenter, end: Alignment.bottomCenter);
+
+    // stars
+    final star = Paint();
+    for (var i = 0; i < (size.width * size.height / 1500).round().clamp(6, 60); i++) {
+      star.color = Color.fromRGBO(220, 255, 250, .15 + rnd.nextDouble() * .5);
+      canvas.drawCircle(Offset(rnd.nextDouble() * size.width, rnd.nextDouble() * size.height * .7), .5 + rnd.nextDouble() * .8, star);
+    }
+
+    // curtains of light: wavy vertical ribbons, soft and bright
+    canvas.save();
+    canvas.clipRect(local);
+    const colors = [Color(0xFF00E676), Color(0xFF18FFFF), Color(0xFF7C4DFF)];
+    for (var k = 0; k < 3; k++) {
+      final x0 = size.width * (.1 + k * .32);
+      final amp = size.width * (.05 + rnd.nextDouble() * .05);
+      final phase = rnd.nextDouble() * 2 * pi;
+      final top = size.height * (.05 + rnd.nextDouble() * .1);
+      final bottom = size.height * (.7 + rnd.nextDouble() * .2);
+      final path = Path()..moveTo(x0, top);
+      for (var y = top; y <= bottom; y += 6) {
+        path.lineTo(x0 + sin(y / size.height * 5 + phase) * amp, y);
+      }
+      final width = size.width * .26;
+      for (var y = bottom; y >= top; y -= 6) {
+        path.lineTo(x0 + width + sin(y / size.height * 5 + phase + 1) * amp, y);
+      }
+      path.close();
+      canvas.drawPath(
+        path,
+        Paint()
+          ..shader = ui.Gradient.linear(Offset(0, top), Offset(0, bottom), [colors[k].withValues(alpha: .0), colors[k].withValues(alpha: .26), colors[k].withValues(alpha: .06)], const [0, .25, 1])
+          ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 7),
+      );
+    }
+    canvas.restore();
+
+    // treeline silhouette
+    final ridge = Path()..moveTo(0, size.height);
+    for (var x = 0.0; x <= size.width; x += 9) {
+      final h = 6 + rnd.nextDouble() * 12;
+      ridge.lineTo(x, size.height - h * .5);
+      ridge.lineTo(x + 4.5, size.height - h);
+    }
+    ridge..lineTo(size.width, size.height)..close();
+    canvas.drawPath(ridge, Paint()..color = const Color(0xFF010508).withValues(alpha: .9));
+
+    final rim = Paint()..strokeWidth = 1.2;
+    canvas.drawLine(Offset.zero, Offset(size.width, 0), rim..color = const Color(0xFF69F0AE).withValues(alpha: .5));
+    canvas.drawLine(Offset.zero, Offset(0, size.height), rim..color = const Color(0xFF69F0AE).withValues(alpha: .2));
+  }
+
+  // ---------------------------------------------------------------- sapphire
+
+  static void _sapphire(Canvas canvas, Size size, double opacity) {
+    final w = size.width, h = size.height;
+    _fill(canvas, size, const [Color(0xFF2A6FE8), Color(0xFF14409F), Color(0xFF0A2262), Color(0xFF040C28)], const [0, .3, .68, 1], opacity);
+
+    // step cut: nested chamfered frames, like the pavilion of an emerald-cut gem
+    Path frame(double inset, double chamfer) => Path()
+      ..moveTo(inset + chamfer, inset)
+      ..lineTo(w - inset - chamfer, inset)
+      ..lineTo(w - inset, inset + chamfer)
+      ..lineTo(w - inset, h - inset - chamfer)
+      ..lineTo(w - inset - chamfer, h - inset)
+      ..lineTo(inset + chamfer, h - inset)
+      ..lineTo(inset, h - inset - chamfer)
+      ..lineTo(inset, inset + chamfer)
+      ..close();
+    final insets = [0.0, min(w, h) * .13, min(w, h) * .27];
+    final line = Paint()..style = PaintingStyle.stroke..strokeWidth = .9;
+    for (var i = 0; i < insets.length; i++) {
+      final path = frame(insets[i], 9 - i * 2.5);
+      line.color = const Color(0xFFBBDEFB).withValues(alpha: .38 - i * .08);
+      canvas.drawPath(path, line);
+    }
+    // facets between frames: alternate lit and shadowed bands
+    final a = frame(insets[0], 9), b = frame(insets[1], 6.5);
+    canvas.drawPath(Path.combine(PathOperation.difference, a, b), Paint()..color = const Color(0xFF90CAF9).withValues(alpha: .10));
+    final c = frame(insets[2], 4);
+    canvas.drawPath(Path.combine(PathOperation.difference, b, c), Paint()..color = const Color(0xFF020A30).withValues(alpha: .22));
+    // diagonal facet joins from the corners
+    final join = Paint()..strokeWidth = .7..color = const Color(0xFFBBDEFB).withValues(alpha: .22);
+    final m = insets[2];
+    canvas.drawLine(Offset.zero, Offset(m, m), join);
+    canvas.drawLine(Offset(w, 0), Offset(w - m, m), join);
+    canvas.drawLine(Offset(0, h), Offset(m, h - m), join);
+    canvas.drawLine(Offset(w, h), Offset(w - m, h - m), join);
+
+    // table reflection and a star glint
+    final table = Rect.fromLTWH(insets[2], insets[2], w - insets[2] * 2, (h - insets[2] * 2) * .45);
+    canvas.drawRect(table, Paint()..shader = LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Colors.white.withValues(alpha: .20), Colors.white.withValues(alpha: 0)]).createShader(table));
+    final g = Offset(w * .18, h * .2);
+    canvas.drawPath(
+      Path()
+        ..moveTo(g.dx, g.dy - 6)..quadraticBezierTo(g.dx, g.dy, g.dx + 6, g.dy)..quadraticBezierTo(g.dx, g.dy, g.dx, g.dy + 6)
+        ..quadraticBezierTo(g.dx, g.dy, g.dx - 6, g.dy)..quadraticBezierTo(g.dx, g.dy, g.dx, g.dy - 6)..close(),
+      Paint()..color = Colors.white.withValues(alpha: .9),
+    );
+  }
+
+  // ------------------------------------------------------------------- amber
+
+  static void _amber(Canvas canvas, Size size, double opacity) {
+    final rnd = Random(333);
+    final w = size.width, h = size.height;
+    _fill(canvas, size, const [Color(0xFFFFB74D), Color(0xFFE58A00), Color(0xFF8A4A00), Color(0xFF301500)], const [0, .3, .7, 1], opacity,
+        begin: Alignment.topCenter, end: Alignment.bottomCenter);
+    final local = Offset.zero & size;
+    // glow of light passing through the resin
+    canvas.drawRect(local, Paint()..shader = RadialGradient(center: const Alignment(-.3, -.5), radius: .9, colors: [const Color(0xFFFFE082).withValues(alpha: .38), const Color(0x00FFE082)]).createShader(local));
+
+    // flow lines of the cooling resin
+    final flow = Paint()..style = PaintingStyle.stroke..strokeCap = StrokeCap.round;
+    for (var i = 0; i < 6; i++) {
+      final y = h * (.1 + i * .16) + rnd.nextDouble() * 8;
+      final path = Path()..moveTo(0, y);
+      path.cubicTo(w * .3, y + (rnd.nextDouble() - .5) * 30, w * .7, y + (rnd.nextDouble() - .5) * 30, w, y + (rnd.nextDouble() - .5) * 20);
+      flow..strokeWidth = 3..color = const Color(0xFFFFE082).withValues(alpha: .07);
+      canvas.drawPath(path, flow);
+      flow..strokeWidth = .7..color = const Color(0xFFFFF3C4).withValues(alpha: .18);
+      canvas.drawPath(path, flow);
+    }
+
+    // plant fibers trapped inside
+    final fiber = Paint()..style = PaintingStyle.stroke..strokeWidth = .9..color = const Color(0xFF4A2400).withValues(alpha: .5);
+    for (var i = 0; i < 3; i++) {
+      final p = Offset(w * (.2 + rnd.nextDouble() * .6), h * (.3 + rnd.nextDouble() * .5));
+      final dir = rnd.nextDouble() * pi;
+      canvas.drawPath(Path()..moveTo(p.dx, p.dy)..quadraticBezierTo(p.dx + cos(dir) * 14, p.dy + sin(dir) * 6, p.dx + cos(dir) * 26, p.dy + sin(dir + .6) * 14), fiber);
+    }
+    // a tiny fossil: two wings and a body
+    if (w > 70 && h > 50) {
+      final c = Offset(w * .72, h * .64);
+      canvas.save();
+      canvas.translate(c.dx, c.dy);
+      canvas.rotate(-.4);
+      final dark = Paint()..color = const Color(0xFF2A1400).withValues(alpha: .6);
+      canvas.drawOval(Rect.fromCenter(center: Offset.zero, width: 12, height: 3.6), dark);
+      canvas.drawOval(Rect.fromCenter(center: const Offset(-1, -5), width: 11, height: 4.4), Paint()..color = const Color(0xFF2A1400).withValues(alpha: .28));
+      canvas.drawOval(Rect.fromCenter(center: const Offset(-1, 5), width: 11, height: 4.4), Paint()..color = const Color(0xFF2A1400).withValues(alpha: .28));
+      canvas.restore();
+    }
+
+    // bubbles
+    for (var i = 0; i < (w * h / 3800).round().clamp(4, 22); i++) {
+      final p = Offset(rnd.nextDouble() * w, rnd.nextDouble() * h);
+      final r = .8 + rnd.nextDouble() * 3;
+      canvas.drawCircle(p, r, Paint()..style = PaintingStyle.stroke..strokeWidth = .7..color = const Color(0xFFFFF3C4).withValues(alpha: .5));
+      canvas.drawCircle(p + Offset(-r * .35, -r * .35), r * .25, Paint()..color = Colors.white.withValues(alpha: .7));
+    }
+    final rim = Paint()..strokeWidth = 1.3;
+    canvas.drawLine(Offset.zero, Offset(w, 0), rim..color = const Color(0xFFFFF3C4).withValues(alpha: .7));
+    canvas.drawLine(Offset.zero, Offset(0, h), rim..color = const Color(0xFFFFF3C4).withValues(alpha: .3));
+    canvas.drawLine(Offset(0, h), Offset(w, h), rim..color = const Color(0x99301500));
+  }
+
+  // -------------------------------------------------------------------- onyx
+
+  static void _onyx(Canvas canvas, Size size, double opacity) {
+    final w = size.width, h = size.height;
+    _fill(canvas, size, const [Color(0xFF212124), Color(0xFF111113), Color(0xFF060607)], const [0, .5, 1], opacity);
+    // one thin polished streak, nothing else
+    final streak = Path()
+      ..moveTo(w * .12, 0)..lineTo(w * .2, 0)..lineTo(w * .2 - h * .45, h)..lineTo(w * .12 - h * .45, h)..close();
+    canvas.drawPath(streak, Paint()..shader = ui.Gradient.linear(Offset(w * .12, 0), Offset(w * .2, 0), [Colors.white.withValues(alpha: 0), Colors.white.withValues(alpha: .09), Colors.white.withValues(alpha: 0)], const [0, .5, 1]));
+    final streak2 = streak.shift(Offset(w * .08, 0));
+    canvas.drawPath(streak2, Paint()..color = Colors.white.withValues(alpha: .025));
+    // hairline frame and four dots
+    canvas.drawRect(Rect.fromLTWH(5, 5, w - 10, h - 10), Paint()..style = PaintingStyle.stroke..strokeWidth = .6..color = Colors.white.withValues(alpha: .14));
+    for (final p in [Offset(5, 5), Offset(w - 5, 5), Offset(5, h - 5), Offset(w - 5, h - 5)]) {
+      canvas.drawCircle(p, 1.1, Paint()..color = Colors.white.withValues(alpha: .5));
+    }
+    final rim = Paint()..strokeWidth = 1;
+    canvas.drawLine(Offset.zero, Offset(w, 0), rim..color = Colors.white.withValues(alpha: .35));
+    canvas.drawLine(Offset(0, h), Offset(w, h), rim..color = const Color(0xAA000000));
+  }
+
+  // ------------------------------------------------------------------- pearl
+
+  static void _pearl(Canvas canvas, Size size, double opacity) {
+    final rnd = Random(808);
+    final w = size.width, h = size.height;
+    final local = Offset.zero & size;
+    _fill(canvas, size, const [Color(0xFF4C4553), Color(0xFF2F2A36), Color(0xFF1A1620)], const [0, .55, 1], opacity);
+
+    // iridescent nacre: soft overlapping blooms of pink, mint, lavender and gold
+    const blooms = [Color(0xFFFFB3D1), Color(0xFFA7FFEB), Color(0xFFD1C4E9), Color(0xFFFFE9A3), Color(0xFFB3E5FC)];
+    for (var i = 0; i < 6; i++) {
+      final c = Offset(rnd.nextDouble() * w, rnd.nextDouble() * h);
+      final r = min(w, h) * (.5 + rnd.nextDouble() * .5);
+      canvas.drawCircle(c, r, Paint()..shader = ui.Gradient.radial(c, r, [blooms[i % blooms.length].withValues(alpha: .24), blooms[i % blooms.length].withValues(alpha: 0)]));
+    }
+
+    // mother-of-pearl growth rings fanning from the bottom
+    final ring = Paint()..style = PaintingStyle.stroke..strokeWidth = .7;
+    final origin = Offset(w * .5, h * 1.25);
+    for (var i = 1; i <= 9; i++) {
+      ring.color = Colors.white.withValues(alpha: .05 + .02 * (i % 3));
+      canvas.drawCircle(origin, h * .18 * i, ring);
+    }
+    canvas.save();
+    canvas.clipRect(local);
+    for (var i = 0; i < 9; i++) {
+      final a = -pi * (.12 + i * .095);
+      canvas.drawLine(origin, origin + Offset(cos(a), sin(a)) * h * 2, Paint()..strokeWidth = .6..color = Colors.white.withValues(alpha: .05));
+    }
+    canvas.restore();
+
+    // a few little pearls
+    final n = (w * h / 9000).round().clamp(1, 5);
+    for (var i = 0; i < n; i++) {
+      final c = Offset(w * (.12 + rnd.nextDouble() * .76), h * (.62 + rnd.nextDouble() * .3));
+      final r = 3 + rnd.nextDouble() * 3.4;
+      canvas.drawCircle(c, r, Paint()..shader = ui.Gradient.radial(c + Offset(-r * .35, -r * .35), r * 1.5, const [Color(0xFFFFFFFF), Color(0xFFF3D9E8), Color(0xFF9C8AA8)], const [0, .5, 1]));
+    }
+    final rim = Paint()..strokeWidth = 1.2;
+    canvas.drawLine(Offset.zero, Offset(w, 0), rim..color = Colors.white.withValues(alpha: .6));
+    canvas.drawLine(Offset.zero, Offset(0, h), rim..color = Colors.white.withValues(alpha: .25));
+    canvas.drawLine(Offset(0, h), Offset(w, h), rim..color = const Color(0x88000000));
+  }
+
+  // ------------------------------------------------------------------- ivory
+
+  static void _ivory(Canvas canvas, Size size, double opacity) {
+    final rnd = Random(1888);
+    final w = size.width, h = size.height;
+    const gold = Color(0xFFE6C068);
+    _fill(canvas, size, const [Color(0xFF45301E), Color(0xFF2E1F13), Color(0xFF1A110A)], const [0, .55, 1], opacity);
+
+    // walnut grain
+    final grain = Paint()..style = PaintingStyle.stroke..strokeWidth = .7;
+    for (var i = 0; i < min(40, (h / 5).round()); i++) {
+      final y = rnd.nextDouble() * h;
+      final path = Path()..moveTo(0, y);
+      path.cubicTo(w * .3, y + (rnd.nextDouble() - .5) * 10, w * .65, y + (rnd.nextDouble() - .5) * 10, w, y + (rnd.nextDouble() - .5) * 8);
+      grain.color = rnd.nextBool() ? Color.fromRGBO(255, 214, 160, .05) : Color.fromRGBO(0, 0, 0, .12);
+      canvas.drawPath(path, grain);
+    }
+
+    // ivory inlay: a soft cream oval in the middle
+    final c = Offset(w / 2, h / 2);
+    final oval = Rect.fromCenter(center: c, width: w * .72, height: h * .62);
+    canvas.drawOval(oval, Paint()..shader = RadialGradient(colors: [const Color(0xFFFFF8E1).withValues(alpha: .12), const Color(0x00FFF8E1)]).createShader(oval));
+
+    // gold double frame with corner scrolls
+    final outer = Rect.fromLTWH(5, 5, w - 10, h - 10);
+    canvas.drawRect(outer, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.2..color = gold.withValues(alpha: .8));
+    canvas.drawRect(outer.deflate(4), Paint()..style = PaintingStyle.stroke..strokeWidth = .6..color = gold.withValues(alpha: .45));
+    final scroll = Paint()..style = PaintingStyle.stroke..strokeWidth = 1..strokeCap = StrokeCap.round..color = gold.withValues(alpha: .85);
+    for (final (corner, dx, dy) in [(Offset(5, 5), 1.0, 1.0), (Offset(w - 5, 5), -1.0, 1.0), (Offset(5, h - 5), 1.0, -1.0), (Offset(w - 5, h - 5), -1.0, -1.0)]) {
+      final p = corner + Offset(dx * 7, dy * 7);
+      canvas.drawPath(
+        Path()
+          ..moveTo(p.dx + dx * 14, p.dy)
+          ..quadraticBezierTo(p.dx, p.dy, p.dx, p.dy + dy * 14)
+          ..moveTo(p.dx + dx * 8, p.dy + dy * 3)
+          ..quadraticBezierTo(p.dx + dx * 3, p.dy + dy * 3, p.dx + dx * 3, p.dy + dy * 8),
+        scroll,
+      );
+      canvas.drawCircle(p, 1.6, Paint()..color = gold);
+    }
+    final rim = Paint()..strokeWidth = 1.2;
+    canvas.drawLine(Offset.zero, Offset(w, 0), rim..color = const Color(0xFFFFE9A3).withValues(alpha: .45));
+    canvas.drawLine(Offset(0, h), Offset(w, h), rim..color = const Color(0xAA000000));
+  }
+
+  // -------------------------------------------------------------------- neon
+
+  static void _neon(Canvas canvas, Size size, double opacity) {
+    final w = size.width, h = size.height;
+    final local = Offset.zero & size;
+    const pink = Color(0xFFFF2D95);
+    const cyan = Color(0xFF00E5FF);
+    _fill(canvas, size, const [Color(0xFF1B0634), Color(0xFF0C0220), Color(0xFF05010F)], const [0, .55, 1], opacity, begin: Alignment.topCenter, end: Alignment.bottomCenter);
+
+    // retro sun with cut stripes
+    final horizon = h * .62;
+    final sunC = Offset(w * .5, horizon - min(w, h) * .02);
+    final sunR = min(w, h) * .3;
+    canvas.save();
+    canvas.clipRect(Rect.fromLTWH(0, 0, w, horizon));
+    canvas.drawCircle(sunC, sunR * 1.5, Paint()..shader = ui.Gradient.radial(sunC, sunR * 1.5, [pink.withValues(alpha: .28), pink.withValues(alpha: 0)]));
+    canvas.drawCircle(sunC, sunR, Paint()..shader = ui.Gradient.linear(Offset(0, sunC.dy - sunR), Offset(0, sunC.dy + sunR), const [Color(0xFFFFE066), Color(0xFFFF2D95), Color(0xFF7B1FA2)]));
+    for (var i = 0; i < 5; i++) {
+      final y = sunC.dy - sunR * .1 + i * sunR * .2;
+      canvas.drawRect(Rect.fromLTWH(0, y, w, 1.2 + i * .9), Paint()..color = const Color(0xFF0C0220));
+    }
+    canvas.restore();
+
+    // perspective grid
+    canvas.drawRect(Rect.fromLTWH(0, horizon, w, h - horizon), Paint()..color = const Color(0xFF07010F).withValues(alpha: .85));
+    final grid = Paint()..strokeWidth = .9..color = cyan.withValues(alpha: .55);
+    for (var i = -8; i <= 8; i++) {
+      canvas.drawLine(Offset(w / 2 + i * 6, horizon), Offset(w / 2 + i * w * .16, h), grid);
+    }
+    for (var i = 1; i <= 5; i++) {
+      final t = i / 5;
+      final y = horizon + (h - horizon) * t * t;
+      canvas.drawLine(Offset(0, y), Offset(w, y), grid..color = cyan.withValues(alpha: .15 + .4 * t));
+    }
+    canvas.drawLine(Offset(0, horizon), Offset(w, horizon), Paint()..strokeWidth = 1.6..color = pink.withValues(alpha: .9));
+
+    // neon tube frame: wide soft halo, thin hot core
+    final frame = RRect.fromRectAndRadius(Rect.fromLTWH(3, 3, w - 6, h - 6), const Radius.circular(3));
+    canvas.drawRRect(frame, Paint()..style = PaintingStyle.stroke..strokeWidth = 4..color = pink.withValues(alpha: .45)..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 3));
+    canvas.drawRRect(frame, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.1..color = const Color(0xFFFFD1E8));
+    canvas.drawRect(local, Paint()..shader = ui.Gradient.linear(Offset.zero, Offset(w, h), [cyan.withValues(alpha: .06), const Color(0x00000000)]));
+  }
+
+  // -------------------------------------------------------------------- void
+
+  static void _void(Canvas canvas, Size size, double opacity) {
+    final rnd = Random(9);
+    final w = size.width, h = size.height;
+    const green = Color(0xFF39FF14);
+    _fill(canvas, size, const [Color(0xFF14171A), Color(0xFF0A0C0E), Color(0xFF020303)], const [0, .5, 1], opacity);
+    final c = Offset(w * .72, h * .55);
+    final r = min(w, h) * .22;
+
+    // stars stretched towards the singularity
+    final streak = Paint()..strokeWidth = .7;
+    for (var i = 0; i < (w * h / 1400).round().clamp(10, 90); i++) {
+      final p = Offset(rnd.nextDouble() * w, rnd.nextDouble() * h);
+      final d = c - p;
+      final dist = d.distance;
+      if (dist < r * 1.4) continue;
+      final dir = d / dist;
+      final len = (r * 3 / dist * 10).clamp(1.0, 14.0);
+      streak.color = Colors.white.withValues(alpha: .12 + rnd.nextDouble() * .3);
+      canvas.drawLine(p, p + dir * len, streak);
+    }
+
+    // accretion disc: tilted glowing ellipse behind and in front of the hole
+    canvas.save();
+    canvas.translate(c.dx, c.dy);
+    canvas.rotate(-.35);
+    final disc = Rect.fromCenter(center: Offset.zero, width: r * 4.2, height: r * 1.1);
+    canvas.drawOval(disc, Paint()..style = PaintingStyle.stroke..strokeWidth = r * .22..color = green.withValues(alpha: .35)..maskFilter = ui.MaskFilter.blur(ui.BlurStyle.normal, r * .18));
+    canvas.drawOval(disc, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.4..color = const Color(0xFFCCFFC2).withValues(alpha: .85));
+    canvas.restore();
+
+    // the event horizon and its photon ring
+    canvas.drawCircle(c, r * 1.12, Paint()..color = green.withValues(alpha: .25)..maskFilter = ui.MaskFilter.blur(ui.BlurStyle.normal, r * .2));
+    canvas.drawCircle(c, r, Paint()..color = const Color(0xFF000000));
+    canvas.drawCircle(c, r, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.6..color = green.withValues(alpha: .9));
+
+    // faint concentric lensing arcs
+    for (var i = 1; i <= 3; i++) {
+      canvas.drawCircle(c, r * (1.6 + i * .5), Paint()..style = PaintingStyle.stroke..strokeWidth = .6..color = green.withValues(alpha: .10 / i));
+    }
+    final rim = Paint()..strokeWidth = 1.1;
+    canvas.drawLine(Offset.zero, Offset(w, 0), rim..color = green.withValues(alpha: .35));
+    canvas.drawLine(Offset.zero, Offset(0, h), rim..color = green.withValues(alpha: .15));
   }
 }
