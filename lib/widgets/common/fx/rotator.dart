@@ -55,7 +55,12 @@ class _RotatorState extends State<Rotator> with TickerProviderStateMixin {
     widget.listenable.removeListener(_triggerAnimation);
   }
 
-  void _triggerAnimation() => _controller.forward(from: 0);
+  void _triggerAnimation() {
+    // Rapid notifier updates used to jump the same icon back to frame zero.
+    // Let the current turn finish, then respond to the next state change.
+    if (_controller.isAnimating) return;
+    _controller.forward(from: 0);
+  }
 
   @override
   Widget build(BuildContext context) {
