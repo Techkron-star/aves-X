@@ -138,10 +138,10 @@ class _RadarPainter extends CustomPainter {
     // Leave an inset around the icon so both stroke and blur remain fully visible.
     canvas.drawCircle(
       c,
-      r * .68,
+      r * .35,
       Paint()
-        ..color = color.withValues(alpha: .07)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+        ..color = color.withValues(alpha: .09)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.7),
     );
     canvas.drawCircle(c, r - 3, Paint()
       ..style = PaintingStyle.stroke
@@ -158,7 +158,7 @@ class _RadarPainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.35
           ..color = color.withValues(alpha: fade * .66)
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, .7),
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, .4),
       );
     }
     // rotating sweep
