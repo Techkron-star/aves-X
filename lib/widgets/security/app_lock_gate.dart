@@ -299,7 +299,14 @@ class _LockScreenState extends State<_LockBody> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(
+                      NebulaComponentSurfaceAccent(
+                        style: settings.materialStyle,
+                        role: NebulaComponentSurfaceRole.appLockEmblem,
+                        state: _fake || _blocked ? NebulaComponentSurfaceState.warning : NebulaComponentSurfaceState.focused,
+                        animate: settings.animate,
+                        alertColor: nebula.securityAlert,
+                        borderRadius: BorderRadius.circular(50),
+                        child: Container(
                         width: 100, height: 100,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
@@ -332,6 +339,7 @@ class _LockScreenState extends State<_LockBody> {
                             ),
                           ],
                         ),
+                      ),
                       ),
                       const SizedBox(height: 22),
                       Text(_fake ? l10n.appLockWrongPin : l10n.appLockTitle,
