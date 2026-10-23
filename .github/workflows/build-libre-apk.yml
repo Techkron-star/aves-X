@@ -2,10 +2,13 @@ name: Build Aves-X libre APK
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - develop
 
 permissions: read-all
 
-# Keep APK builds intentional; replacing a manual run cancels the previous run for this ref.
+# Build an installable Aves-X APK after changes land on develop, and keep manual dispatch available.
 concurrency:
   group: aves-x-libre-apk-${{ github.ref }}
   cancel-in-progress: true
