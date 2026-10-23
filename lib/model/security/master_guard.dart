@@ -138,7 +138,9 @@ class MasterGuard extends ChangeNotifier {
     if (value) {
       await _migrateSecrets();
     }
-    await securityService.writeValue<String>(_enabledKey, value ? '1' : null);
+    if (!await securityService.writeValue<String>(_enabledKey, value ? '1' : null)) {
+      throw StateError('Could not persist Bat-Curity credential hashing setting');
+    }
     _enabled = value;
     notifyListeners();
     return true;
@@ -150,6 +152,7 @@ class MasterGuard extends ChangeNotifier {
     final keys = <String>{
       'master_code',
       'app_lock_pin',
+      'app_lock_alt_secret',
       'app_lock_panic',
       'bin_lock_pass',
       'reveal_lock_pass',
@@ -158,9 +161,11 @@ class MasterGuard extends ChangeNotifier {
       for (final v in vaults.all) 'adv_vault2pass_${v.name}',
     };
     for (final key in keys) {
-      final stored = await securityService.readValue<String>(key);
+      final stored = await securityService.readValueStrict<String>(key);
       if (stored == null || isHashed(stored)) continue;
-      await securityService.writeValue<String>(key, await _hash(stored));
+      if (!await securityService.writeValue<String>(key, await _hash(stored))) {
+        throw StateError('Could not migrate protected credential: $key');
+      }
     }
   }
 
@@ -193,12 +198,26 @@ class MasterGuard extends ChangeNotifier {
     if (!isHashed(stored)) return _constantTimeEquals(utf8.encode(stored), utf8.encode(input));
 
     final parts = stored.split(':');
-    if (parts.length != 7) return false;
+    if (parts.length != 7 || parts[0] != _prefix) {
+      throw const FormatException('Malformed Argon2id credential record');
+    }
+    final memoryPower = int.tryParse(parts[1]);
+    final iterations = int.tryParse(parts[2]);
+    final lanes = int.tryParse(parts[3]);
+    final version = int.tryParse(parts[4]);
+    if (memoryPower == null || memoryPower < 10 || memoryPower > 18 ||
+        iterations == null || iterations < 1 || iterations > 6 ||
+        lanes == null || lanes < 1 || lanes > 4 || version != 19) {
+      throw const FormatException('Unsupported Argon2id credential parameters');
+    }
     final salt = base64.decode(parts[5]);
     final expected = base64.decode(parts[6]);
+    if (salt.length < 16 || expected.length < 16 || expected.length > 64) {
+      throw const FormatException('Invalid Argon2id credential lengths');
+    }
     final actual = await compute(
       _derive,
-      _Job(input, salt, int.parse(parts[1]), int.parse(parts[2]), int.parse(parts[3]), expected.length),
+      _Job(input, salt, memoryPower, iterations, lanes, expected.length),
     );
     return _constantTimeEquals(actual, expected);
   }
