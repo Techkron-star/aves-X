@@ -32,8 +32,10 @@ class AdvancedPrivacy extends ChangeNotifier {
     _secondLocks.clear();
     _sharingBlocked.clear();
     for (final name in vaultNames) {
-      final type = VaultLockType.values.safeByName(await securityService.readValueStrict<String>(_secondLockKey(name)));
-      if (type != null) {
+      final rawType = await securityService.readValueStrict<String>(_secondLockKey(name));
+      if (rawType != null) {
+        final type = VaultLockType.values.safeByName(rawType);
+        if (type == null) throw FormatException('Invalid second lock type for vault $name');
         _secondLocks[name] = type;
       }
       if (await securityService.readValueStrict<String>(_sharingBlockKey(name)) == '1') {
