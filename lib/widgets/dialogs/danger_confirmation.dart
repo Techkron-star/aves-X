@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:aves/model/security/privacy_options.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
+import 'package:aves/widgets/common/fx/delete_impact.dart';
 import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/dialogs/aves_dialog.dart';
 import 'package:aves_model/aves_model.dart';
@@ -26,7 +27,7 @@ Future<bool> confirmDangerousDelete({
 
   final first = await showAvesDialog<bool>(
     context: context,
-    builder: (context) => _DelayedDangerDialog(message: message, confirmLabel: confirmLabel),
+    builder: (context) => _DelayedDangerDialog(message: message, confirmLabel: confirmLabel, effect: DestructiveEffect.erase),
     routeSettings: const RouteSettings(name: AvesDialog.confirmationRouteName),
   );
   if (first != true || !context.mounted) return false;
@@ -41,8 +42,9 @@ Future<bool> confirmDangerousDelete({
 
 class _DelayedDangerDialog extends StatefulWidget {
   final String message, confirmLabel;
+  final DestructiveEffect? effect;
 
-  const _DelayedDangerDialog({required this.message, required this.confirmLabel});
+  const _DelayedDangerDialog({required this.message, required this.confirmLabel, this.effect});
 
   @override
   State<_DelayedDangerDialog> createState() => _DelayedDangerDialogState();
@@ -70,7 +72,16 @@ class _DelayedDangerDialogState extends State<_DelayedDangerDialog> {
   @override
   Widget build(BuildContext context) {
     return AvesDialog(
-      content: Text(widget.message),
+      content: widget.effect == null
+          ? Text(widget.message)
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DestructiveActionAnimation(effect: widget.effect!, animate: settings.animate),
+                const SizedBox(height: 8),
+                Text(widget.message),
+              ],
+            ),
       actions: [
         const CancelButton<bool>(result: false),
         _HoldToConfirmButton(
@@ -108,6 +119,8 @@ class _TypeWordDialogState extends State<_TypeWordDialog> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          DestructiveActionAnimation(effect: DestructiveEffect.erase, animate: settings.animate),
+          const SizedBox(height: 8),
           Text(context.l10n.dangerTypeWordMessage(widget.word)),
           const SizedBox(height: 12),
           TextField(
