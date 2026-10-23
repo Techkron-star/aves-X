@@ -130,6 +130,8 @@ class AppLock extends ChangeNotifier {
       securityService.writeValue<String>(_panicKey, null),
       securityService.writeValue<String>(_typeKey, null),
       securityService.writeValue<String>(_delayKey, null),
+      for (final type in ['system', 'pattern', 'pin', 'password'])
+        securityService.writeValue<String>(alternativeSecretKeyFor(type), null),
     ]);
     // Never report the lock as disabled if secure storage did not confirm every removal.
     if (writes.any((ok) => !ok)) throw StateError('Could not persist app-lock disable operation');
