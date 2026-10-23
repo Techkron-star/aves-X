@@ -25,6 +25,7 @@ import 'package:aves/model/settings/modules/screen_saver.dart';
 import 'package:aves/model/settings/modules/slideshow.dart';
 import 'package:aves/model/settings/modules/viewer.dart';
 import 'package:aves/model/settings/modules/widget.dart';
+import 'package:aves/theme/nebula/nebula_material.dart';
 import 'package:aves/ref/bursts.dart';
 import 'package:aves/services/accessibility_service.dart';
 import 'package:aves/services/common/services.dart';
@@ -67,6 +68,16 @@ class Settings
         VideoSettings,
         ViewerSettings,
         WidgetSettings {
+  @override
+  NebulaMaterialStyle? get materialStyle {
+    if (performanceMode) return null;
+    final customTheme = customNebulaTheme;
+    if (customTheme != null) {
+      return nebulaMaterialStyleForPalette(customTheme.toPalette());
+    }
+    return nebulaMaterials[nebulaTheme];
+  }
+
   final Set<StreamSubscription> _subscriptions = {};
   final EventChannel _platformSettingsChangeChannel = const OptionalEventChannel('deckers.thibault/aves/settings_change');
   final StreamController<SettingsChangedEvent> _updateStreamController = StreamController.broadcast();

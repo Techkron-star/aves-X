@@ -1,4 +1,5 @@
 import 'package:aves/model/settings/settings.dart';
+import 'package:aves/theme/nebula/nebula_custom_theme.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
 import 'package:aves/widgets/common/basic/feature_sticker.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
@@ -20,21 +21,27 @@ class NebulaThemeSelector extends StatelessWidget {
   const NebulaThemeSelector({super.key});
 
   @override
-  Widget build(BuildContext context) => Selector<Settings, NebulaTheme>(
-    selector: (context, s) => s.nebulaTheme,
-    builder: (context, theme, _) => Wrap(
-      spacing: 10,
-      runSpacing: 10,
-      children: [
-        for (final t in NebulaTheme.values)
-          NebulaThemePill(
-            theme: t,
-            selected: theme == t,
-            enabled: true,
-            onSelected: () => settings.nebulaTheme = t,
-          ),
-      ],
-    ),
+  Widget build(BuildContext context) => Selector<Settings, (NebulaTheme, CustomNebulaTheme?)>(
+    selector: (context, s) => (s.nebulaTheme, s.customNebulaTheme),
+    builder: (context, selection, _) {
+      final (theme, customTheme) = selection;
+      return Wrap(
+        spacing: 10,
+        runSpacing: 10,
+        children: [
+          for (final t in NebulaTheme.values)
+            NebulaThemePill(
+              theme: t,
+              selected: customTheme == null && theme == t,
+              enabled: true,
+              onSelected: () {
+                settings.customNebulaTheme = null;
+                settings.nebulaTheme = t;
+              },
+            ),
+        ],
+      );
+    },
   );
 }
 

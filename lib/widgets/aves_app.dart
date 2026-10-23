@@ -37,6 +37,7 @@ import 'package:aves/services/accessibility_service.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/theme/colors.dart';
 import 'package:aves/theme/icons.dart';
+import 'package:aves/theme/nebula/nebula_custom_theme.dart';
 import 'package:aves/theme/nebula/nebula_palettes.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
 import 'package:aves/theme/text.dart';
@@ -271,15 +272,16 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
                   : AvesScaffold(
                       body: snapshot.hasError ? _buildError(snapshot.error!) : const SizedBox(),
                     );
-              return Selector<Settings, (Locale?, AvesThemeBrightness, bool, NebulaTheme)>(
+              return Selector<Settings, (Locale?, AvesThemeBrightness, bool, NebulaTheme, CustomNebulaTheme?)>(
                 selector: (context, s) => (
                   s.basicLocale,
                   s.initialized ? s.themeBrightness : SettingsDefaults.themeBrightness,
                   s.initialized ? s.enableDynamicColor : SettingsDefaults.enableDynamicColor,
                   s.initialized ? s.effectiveNebulaTheme : NebulaTheme.aves,
+                  s.initialized ? s.customNebulaTheme : null,
                 ),
                 builder: (context, s, child) {
-                  final (settingsLocale, themeBrightness, enableDynamicColor, nebulaTheme) = s;
+                  final (settingsLocale, themeBrightness, enableDynamicColor, nebulaTheme, customNebulaTheme) = s;
                   return DynamicColorBuilder(
                     builder: (lightScheme, darkScheme) {
                       const defaultAccent = AvesColorsData.defaultAccent;
@@ -289,7 +291,7 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
                         darkAccent = darkScheme?.primary ?? darkAccent;
                       }
                       final knownLocale = KnownLocale.fromBcp47(settingsLocale?.toLanguageTag()) ?? KnownLocale.english;
-                      final palette = nebulaPaletteFor(nebulaTheme);
+                      final palette = customNebulaTheme?.toPalette() ?? nebulaPaletteFor(nebulaTheme);
                       // the default Aves palette delegates to the legacy light/dark/black themes;
                       // palette themes are built from the palette and may be dark only
                       ThemeData buildTheme(Brightness brightness) => Themes.nebulaTheme(

@@ -258,3 +258,40 @@ final Map<NebulaTheme, NebulaMaterialStyle> nebulaMaterials = Map.unmodifiable({
     if (entry.key != NebulaTheme.aves && !_legacyNebulaMaterials.containsKey(entry.key))
       entry.key: NebulaMaterialStyle.fromPalette(entry.value, _materialForTheme(entry.key)),
 });
+
+
+// Custom themes reuse NebulaTheme.aves as their storage identity, so resolve their
+// surface treatment separately. Recipes use the supplied palette colors and select
+// only geometry/pattern family from the treatment.
+const Map<NebulaSurfaceTreatment, NebulaMaterial> _customMaterialByTreatment = {
+  NebulaSurfaceTreatment.nosferatuGlass: NebulaMaterial.crimson,
+  NebulaSurfaceTreatment.frosted: NebulaMaterial.pearl,
+  NebulaSurfaceTreatment.aureateGlass: NebulaMaterial.imperial,
+  NebulaSurfaceTreatment.obsidianGlass: NebulaMaterial.voidGlass,
+  NebulaSurfaceTreatment.forgeGlass: NebulaMaterial.forge,
+  NebulaSurfaceTreatment.hermeticGlass: NebulaMaterial.hermetic,
+  NebulaSurfaceTreatment.eclipseGlass: NebulaMaterial.eclipse,
+  NebulaSurfaceTreatment.solarFlareGlass: NebulaMaterial.solarFlare,
+  NebulaSurfaceTreatment.voidGlass: NebulaMaterial.voidGlass,
+  NebulaSurfaceTreatment.crimsonGlass: NebulaMaterial.crimson,
+  NebulaSurfaceTreatment.neonGlass: NebulaMaterial.neon,
+  NebulaSurfaceTreatment.emeraldGlass: NebulaMaterial.emerald,
+  NebulaSurfaceTreatment.auroraGlass: NebulaMaterial.aurora,
+  NebulaSurfaceTreatment.sapphireGlass: NebulaMaterial.sapphire,
+  NebulaSurfaceTreatment.amberGlass: NebulaMaterial.amber,
+  NebulaSurfaceTreatment.onyxGlass: NebulaMaterial.onyx,
+  NebulaSurfaceTreatment.pearlGlass: NebulaMaterial.pearl,
+  NebulaSurfaceTreatment.ivoryGlass: NebulaMaterial.ivory,
+  NebulaSurfaceTreatment.imperialGlass: NebulaMaterial.imperial,
+};
+
+/// Resolves a material recipe from a palette. Built-in palettes preserve their
+/// hand-authored materials; custom palettes derive colors from their own data.
+NebulaMaterialStyle? nebulaMaterialStyleForPalette(NebulaPalette palette) {
+  final builtIn = nebulaMaterials[palette.theme];
+  if (builtIn != null) return builtIn;
+  if (palette.treatment == NebulaSurfaceTreatment.flat) return null;
+  final material = _customMaterialByTreatment[palette.treatment];
+  if (material == null) return null;
+  return NebulaMaterialStyle.fromPalette(palette, material);
+}

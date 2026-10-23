@@ -65,6 +65,10 @@ class AppMark extends StatelessWidget {
       tone != AppMarkTone.auto ? tone : (settings.effectiveNebulaTheme == NebulaTheme.nosferatuGlass ? AppMarkTone.brand : AppMarkTone.scheme);
 
   List<Color>? get _themeInk {
+    final customPalette = settings.customNebulaTheme?.toPalette();
+    if (customPalette != null) {
+      return [customPalette.crystalBody.first, customPalette.accent, customPalette.crystalBody.last];
+    }
     final theme = settings.effectiveNebulaTheme;
     switch (theme) {
       case NebulaTheme.obsidianGlass:

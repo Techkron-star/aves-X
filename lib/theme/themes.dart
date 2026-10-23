@@ -314,7 +314,7 @@ class Themes {
   }) {
     final accent = palette.allowDynamicColor ? (dynamicAccent ?? palette.accent) : palette.accent;
     final ThemeData base;
-    if (palette.theme == NebulaTheme.aves) {
+    if (palette.theme == NebulaTheme.aves && palette.allowDynamicColor) {
       // the legacy themes stay the single source of truth for the default look
       base = switch (themeBrightness) {
         AvesThemeBrightness.light => lightTheme(accent, deviceInitialized, locale),
@@ -377,7 +377,7 @@ class Themes {
     if (!isLegacyAves) {
       final colors = result.colorScheme;
       final outline = BorderSide(color: palette.outlineVariant.withValues(alpha: .86), width: .8);
-      final material = nebulaMaterials[palette.theme];
+      final material = nebulaMaterialStyleForPalette(palette);
       final ShapeBorder sharedShape = material?.shape(14, outline) ??
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: outline);
       final fieldBorder = OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: outline);

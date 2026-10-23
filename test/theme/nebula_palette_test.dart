@@ -286,6 +286,41 @@ void main() {
     });
   });
 
+  group('custom Nebula palette integration', () {
+    test('custom colors and surface treatment reach ThemeData and material recipes', () {
+      final source = nebulaPalettes[NebulaTheme.forgeGlass]!;
+      final custom = NebulaPalette(
+        theme: NebulaTheme.aves,
+        brightness: null,
+        darkOnly: true,
+        allowDynamicColor: false,
+        seed: source.seed,
+        accent: const Color(0xFFEB7C4E),
+        surface: source.surface,
+        surfaceContainerLowest: source.surfaceContainerLowest,
+        surfaceContainerLow: source.surfaceContainerLow,
+        surfaceContainer: source.surfaceContainer,
+        surfaceContainerHigh: source.surfaceContainerHigh,
+        surfaceContainerHighest: source.surfaceContainerHighest,
+        outlineVariant: source.outlineVariant,
+        treatment: NebulaSurfaceTreatment.forgeGlass,
+        glow: source.glow,
+        crystalEdge: source.crystalEdge,
+        crystalHighlight: source.crystalHighlight,
+        crystalBody: source.crystalBody,
+        liquidIcons: source.liquidIcons,
+      );
+
+      final data = Themes.nebulaTheme(custom, false, locale);
+      expect(data.colorScheme.primary, custom.accent);
+      expect(data.colorScheme.surface, custom.surface);
+      expect(data.cardTheme.color, custom.surfaceContainerLow);
+      expect(data.appBarTheme.backgroundColor, custom.surfaceContainer);
+      expect(nebulaMaterialStyleForPalette(custom)?.material, NebulaMaterial.forge);
+      expect(nebulaMaterialStyleForPalette(custom)?.accent, custom.accent);
+    });
+  });
+
   group('Nebula theme ids', () {
     test('ids are stable and parse back', () {
       expect(NebulaTheme.aves.id, 'aves');
