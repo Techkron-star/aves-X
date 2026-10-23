@@ -1,4 +1,5 @@
 import 'package:aves/model/settings/settings.dart';
+import 'package:aves/theme/nebula/nebula_tokens.dart';
 import 'package:aves/widgets/common/fx/blurred.dart';
 import 'package:aves/widgets/common/fx/diamond.dart';
 import 'package:material_ui/material_ui.dart';
@@ -28,7 +29,7 @@ class SecurityScreenBackground extends StatelessWidget {
       builder: (context, state, _) {
         final (nebulaGlass, glassEverywhere, animate) = state;
         final glass = nebulaGlass || glassEverywhere; // los getters ya respetan performanceMode
-        final nebula = Theme.of(context).nebula;
+        final nebula = Theme.of(context).extension<NebulaTokens>() ?? NebulaTokens.fallback;
         final radius = borderRadius ?? BorderRadius.zero;
 
         return Stack(
