@@ -76,7 +76,7 @@ jobs:
             base=$(basename "$f" .apk)
             abi=${base#app-libre-}
             abi=${abi%-release}
-            mv "$f" "Aves-X-libre-${abi}.apk"
+            mv "$f" "Aves-X-Beta-0.5-libre-${abi}.apk"
           done
 
       - name: Upload Aves-X APKs
