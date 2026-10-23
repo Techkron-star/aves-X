@@ -81,7 +81,7 @@ class _FailsafeBadgeState extends State<FailsafeBadge> with SingleTickerProvider
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(color: color.withValues(alpha: .28)),
                 ),
-                child: Row(
+                child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -111,16 +111,16 @@ class _FailsafeBadgeState extends State<FailsafeBadge> with SingleTickerProvider
                         ],
                       ),
                     ),
-                    const SizedBox(width: 9),
+                    const SizedBox(height: 5),
                     Text(
                       title,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: color,
                         fontSize: 13,
-                        height: 1.15,
+                        height: 1.2,
                         fontWeight: FontWeight.w600,
-                        letterSpacing: .35,
+                        letterSpacing: .2,
                         decoration: TextDecoration.none,
                       ),
                     ),
