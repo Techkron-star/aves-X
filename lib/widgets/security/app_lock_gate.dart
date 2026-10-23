@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:aves/widgets/security/failsafe_lockdown.dart';
 
 import 'package:aves/model/security/app_lock.dart';
+import 'package:aves/widgets/common/action_mixins/secret_lock.dart';
+import 'package:aves_model/aves_model.dart';
+import 'package:aves_utils/aves_utils.dart';
 import 'package:aves/model/security/attempt_guard.dart';
 import 'package:aves/model/security/nuke.dart';
 import 'package:aves/services/common/services.dart';
@@ -97,7 +100,7 @@ class _LockScreenState extends State<_LockBody> {
   }
 
   Future<void> _refresh() async {
-    final canBio = await appLock.canUseBiometric();
+    final canBio = appLock.lockTypeName != 'system' && await appLock.canUseBiometric();
     final remaining = await AttemptGuard.app.remainingCooldown();
     if (!mounted) return;
     setState(() => _showBiometric = canBio && remaining == null);
@@ -167,6 +170,36 @@ class _LockScreenState extends State<_LockBody> {
         return;
       }
       await _handle(ok ? await appLock.biometricSucceeded() : await appLock.biometricFailed());
+    } finally {
+      _checking = false;
+    }
+  }
+
+  Future<void> _onAlternativeLock() async {
+    if (_blocked || _checking) return;
+    final type = VaultLockType.values.safeByName(appLock.lockTypeName);
+    if (type == null) {
+      if (mounted) setState(() => _message = context.l10n.genericFailureFeedback);
+      return;
+    }
+    _checking = true;
+    try {
+      final ok = await SecretLock.challenge(
+        context,
+        type,
+        context.l10n.appLockTitle,
+        AppLock.alternativeSecretKey,
+        guard: AttemptGuard.app,
+        onNuke: Nuke.nukeEverything,
+      );
+      if (ok) {
+        await appLock.alternativeSucceeded();
+      } else {
+        await _refresh();
+      }
+    } catch (error, stack) {
+      await reportService.recordError(error, stack);
+      if (mounted) setState(() => _message = context.l10n.genericFailureFeedback);
     } finally {
       _checking = false;
     }
@@ -279,7 +312,7 @@ class _LockScreenState extends State<_LockBody> {
                           color: nebula.securityOnSurface.withValues(alpha: .68), height: 1.4),
                         textAlign: TextAlign.center),
                     const SizedBox(height: 26),
-                    if (!_fake && !_blocked)
+                    if (!_fake && !_blocked && appLock.lockTypeName == 'code')
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                         decoration: BoxDecoration(
@@ -297,6 +330,15 @@ class _LockScreenState extends State<_LockBody> {
                               onChanged: (v) {}, onCompleted: _onCode,
                             ),
                           ),
+                        ),
+                      ),
+                    if (!_fake && !_blocked && appLock.lockTypeName != 'code')
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: FilledButton.icon(
+                          onPressed: _onAlternativeLock,
+                          icon: const Icon(Icons.lock_open),
+                          label: Text(l10n.itemLockUnlockButton),
                         ),
                       ),
                     if (_fails > 0 && !_fake)
