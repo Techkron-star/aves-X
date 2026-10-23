@@ -287,7 +287,7 @@ class _NebulaComponentSurfacePainter extends CustomPainter {
   /// These are procedural, size-aware washes—not a shared bitmap or a global sweep.
   void _paintSurfaceAtmosphere(Canvas canvas, Size size) {
     final w = size.width, h = size.height;
-    final m = math.min(w, h);
+    final m = math.min(w, h).toDouble();
     final pulse = _pulse;
 
     void wash(Offset center, double rx, double ry, double strength, Color color) {
@@ -312,7 +312,7 @@ class _NebulaComponentSurfacePainter extends CustomPainter {
         // Light gathers around the selected destination; it never sweeps the whole bar.
         wash(
           Offset(w * focalPosition, h * (.48 + math.sin(progress * math.pi * 2) * .025)),
-          math.max(h * .5, w * .06),
+          math.max(h * .5, w * .06).toDouble(),
           h * .72,
           .065 + pulse * .035,
           _light,
