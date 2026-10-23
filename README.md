@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/aves_x_logo.png" alt="Aves-X logo" width="220" />
+<img src="aves_logo.svg" alt="Aves-X logo" width="220" />
 
 # Aves-X
 

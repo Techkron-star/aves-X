@@ -11,13 +11,11 @@ Resumen de cómo está montado el icono y qué hay que tocar (y qué no) para ca
 | `app/src/main/res/values/colors.xml` | `ic_launcher_background` y los 4 colores de marca del vector. |
 | `app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml` | Icono adaptativo: `background` + `foreground` + `monochrome`. |
 | `app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml` | Igual que el anterior (los launchers redondos aplican su máscara). |
+| `app/src/main/res/mipmap-anydpi/ic_launcher.xml` y `ic_launcher_round.xml` | Fallback vectorial para Android 21–25; usa el mismo arte y fondo, sin PNGs antiguos. |
 | `app/src/main/res/drawable/launch_background.xml` | Fondo de arranque de Flutter: superficie + logo vectorial centrado. |
 | `app/src/main/res/values/styles.xml`, `values-night/styles.xml` | Splash de Android 12+ (`windowSplashScreen*`). |
 
-Los `mipmap-*/ic_launcher.png` y `ic_launcher_round.png` son el **fallback para API < 26**
-(antes de los iconos adaptativos) y siguen siendo los PNG antiguos. Para regenerarlos,
-parte de un render cuadrado de 1024 px del logo y exporta 48/72/96/144/192 px
-(mdpi→xxxhdpi), con la misma superficie que `ic_launcher_background`.
+Los recursos `mipmap-anydpi/ic_launcher.xml` y `ic_launcher_round.xml` cubren Android 21–25 usando el vector del SVG original. Los PNG `mipmap-*/ic_launcher.png` se conservan solo como compatibilidad para API anteriores a 21; son históricos y no deben usarse como fuente de verdad. El archivo fuente del arte es `aves_logo.svg`, y el fondo del icono debe conservar su lienzo claro `#FEFEFE`: el dibujo original usa tinta negra y rubí, por lo que un fondo casi negro lo vuelve prácticamente invisible.
 
 ## Material You: qué se puede y qué no
 

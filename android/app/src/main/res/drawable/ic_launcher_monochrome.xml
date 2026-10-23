@@ -12,10 +12,10 @@
     android:viewportWidth="1024"
     android:viewportHeight="1024">
     <group
-        android:scaleX="0.076386"
-        android:scaleY="0.076386"
-        android:translateX="14.913072"
-        android:translateY="14.959668">
+        android:scaleX="0.800000"
+        android:scaleY="0.800000"
+        android:translateX="102.400000"
+        android:translateY="102.400000">
         <!-- path 1 -->
         <path
             android:fillColor="@android:color/white"
