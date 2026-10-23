@@ -41,11 +41,12 @@ mixin VaultAwareMixin on FeedbackMixin {
       await Nuke.nukeVaultContent(details.name, source: source);
     }
 
+    final vaultPassKey = await SecretLock.resolvePassKey(details.passKey, details.lockType, legacyType: details.lockType);
     final confirmed = await SecretLock.challenge(
       context,
       details.lockType,
       context.l10n.authenticateToUnlockVault,
-      details.passKey,
+      vaultPassKey,
       guard: guard,
       onNuke: onNuke,
       resetOnSuccess: secondLockType == null,
@@ -128,7 +129,7 @@ mixin VaultAwareMixin on FeedbackMixin {
           routeSettings: const RouteSettings(name: PatternDialog.routeName),
         );
         if (pattern != null) {
-          return await masterGuard.store(details.passKey, pattern);
+          return await masterGuard.store(details.passKeyFor(details.lockType), pattern);
         }
       case .pin:
         final pin = await showAvesDialog<String>(
@@ -137,7 +138,7 @@ mixin VaultAwareMixin on FeedbackMixin {
           routeSettings: const RouteSettings(name: PinDialog.routeName),
         );
         if (pin != null) {
-          return await masterGuard.store(details.passKey, pin);
+          return await masterGuard.store(details.passKeyFor(details.lockType), pin);
         }
       case .password:
         final password = await showAvesDialog<String>(
@@ -146,7 +147,7 @@ mixin VaultAwareMixin on FeedbackMixin {
           routeSettings: const RouteSettings(name: PasswordDialog.routeName),
         );
         if (password != null) {
-          return await masterGuard.store(details.passKey, password);
+          return await masterGuard.store(details.passKeyFor(details.lockType), password);
         }
     }
     return false;
