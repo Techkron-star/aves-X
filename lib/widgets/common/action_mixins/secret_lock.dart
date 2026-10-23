@@ -136,6 +136,7 @@ class SecretLock {
 
   static Future<String> resolvePassKey(String baseKey, VaultLockType type, {VaultLockType? legacyType}) async {
     final typedKey = keyForType(baseKey, type);
+    if (type == VaultLockType.system) return typedKey;
     final typed = await securityService.readValueStrict<String>(typedKey);
     if (typed != null) return typedKey;
     if (legacyType == type) {
