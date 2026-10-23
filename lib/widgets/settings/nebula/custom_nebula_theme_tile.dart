@@ -1,5 +1,3 @@
-import 'package:aves/model/settings/settings.dart';
-import 'package:aves/theme/nebula/nebula_custom_theme.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/settings/common/tiles/sub_page.dart';
 import 'package:aves/widgets/settings/nebula/custom_nebula_theme_page.dart';
