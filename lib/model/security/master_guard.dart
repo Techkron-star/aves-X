@@ -142,7 +142,11 @@ class MasterGuard extends ChangeNotifier {
         }
       } catch (error, stack) {
         await reportService.recordError(error, stack);
-        _vaultEncryption = true;
+        try {
+          _vaultEncryption = await securityService.readValueStrict<String>(_vaultEncKey) == '1';
+        } catch (_) {
+          _vaultEncryption = true;
+        }
         await failsafe.engageLockdown();
         notifyListeners();
         return false;
