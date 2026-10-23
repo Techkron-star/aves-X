@@ -23,11 +23,12 @@ class LockedBadge extends StatefulWidget {
   State<LockedBadge> createState() => LockedBadgeState();
 }
 
-class LockedBadgeState extends State<LockedBadge> with SingleTickerProviderStateMixin {
+class LockedBadgeState extends State<LockedBadge> with TickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1100));
   late final AnimationController _unlockController = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
   bool get _playing => widget.fresh && settings.animate && !settings.performanceMode;
   bool _unlocking = false;
+  bool _unlockAnimationCompleted = false;
 
   @override
   void initState() {
@@ -49,12 +50,22 @@ class LockedBadgeState extends State<LockedBadge> with SingleTickerProviderState
   }
 
   void playUnlockAnimation() {
-    if (_unlocking) return;
-    _unlocking = true;
+    if (_unlocking || _unlockAnimationCompleted) return;
+
+    // In reduced-motion/performance mode, remove the transition overlay immediately.
+    // Do not leave a static lock sitting on top of an already-unlocked thumbnail.
+    if (!settings.animate || settings.performanceMode) {
+      setState(() => _unlockAnimationCompleted = true);
+      return;
+    }
+
+    setState(() => _unlocking = true);
     _unlockController.forward(from: 0).then((_) {
-      if (mounted) {
-        setState(() => _unlocking = false);
-      }
+      if (!mounted) return;
+      setState(() {
+        _unlocking = false;
+        _unlockAnimationCompleted = true;
+      });
     });
   }
 
@@ -77,30 +88,43 @@ class LockedBadgeState extends State<LockedBadge> with SingleTickerProviderState
             final chains = Curves.easeOut.transform((t / 0.35).clamp(0, 1));
             final fall = Curves.bounceOut.transform(((t - 0.3) / 0.45).clamp(0, 1));
             final shake = t > 0.6 && t < 0.78 ? sin((t - 0.6) * 90) * 2 : 0.0;
-            final unlockProgress = Curves.easeOut.transform(_unlockController.value);
-            final isUnlocking = _unlockController.value > 0 && _unlockController.value < 1;
+            if (_unlockAnimationCompleted) return const SizedBox.shrink();
+
+            final unlockProgress = Curves.easeOutCubic.transform(_unlockController.value);
+            final isUnlocking = _unlocking && _unlockController.value < 1;
             return Stack(
               alignment: Alignment.center,
               children: [
                 // the chains stay in place once locked (not in performance mode: padlock only)
                 if (!settings.performanceMode && !isUnlocking)
                   Positioned.fill(
-                  child: CustomPaint(painter: _ChainsPainter(progress: chains, colors: chainColors, stroke: chainStroke, scale: scale)),
-                ),
+                    child: CustomPaint(painter: _ChainsPainter(progress: chains, colors: chainColors, stroke: chainStroke, scale: scale)),
+                  ),
                 Transform.translate(
-                  offset: Offset(shake, -(1 - fall) * box * .9),
-                  child: SizedBox(
-                    width: lockSize,
-                    height: lockSize,
-                    child: _Shimmer(
-                      enabled: style != null && settings.animate,
-                      color: style?.shimmer ?? const Color(0xFFFFB3BF),
-                      child: CustomPaint(
-                        painter: _PadlockPainter(
-                          material: style?.material,
-                          style: style,
-                          open: isUnlocking,
-                          openProgress: _unlockController.value,
+                  offset: Offset(
+                    shake,
+                    -(1 - fall) * box * .9 - box * .18 * unlockProgress,
+                  ),
+                  child: Opacity(
+                    opacity: 1 - unlockProgress,
+                    child: Transform.rotate(
+                      angle: -.18 * unlockProgress,
+                      child: Transform.scale(
+                        scale: 1 + .3 * unlockProgress,
+                        child: SizedBox(
+                          width: lockSize,
+                          height: lockSize,
+                          child: _Shimmer(
+                            enabled: style != null && settings.animate,
+                            color: style?.shimmer ?? const Color(0xFFFFB3BF),
+                            child: CustomPaint(
+                              painter: _PadlockPainter(
+                                material: style?.material,
+                                style: style,
+                                open: isUnlocking,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -210,9 +234,7 @@ class _PadlockPainter extends CustomPainter {
   final NebulaMaterialStyle? style;
   final bool open;
   final bool keyhole;
-  final double openProgress;
-
-  const _PadlockPainter({required this.material, required this.open, this.keyhole = true, this.openProgress = 0.0, this.style});
+  const _PadlockPainter({required this.material, required this.open, this.keyhole = true, this.style});
 
   @override
   void paint(Canvas canvas, Size size) {

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
@@ -32,10 +34,13 @@ class ItemLocks extends ChangeNotifier {
   final Set<String> _fresh = {};
   // recently unlocked: thumbnails play the unlock animation
   final Set<String> _recentlyUnlocked = {};
+  final Map<String, Timer> _recentlyUnlockedTimers = {};
 
   bool isFresh(AvesEntry entry) => _fresh.contains(entryKey(entry)) || (entry.directory != null && _fresh.contains('dir:${entry.directory}'));
 
-  bool isRecentlyUnlocked(AvesEntry entry) => _recentlyUnlocked.contains(entryKey(entry));
+  bool isRecentlyUnlocked(AvesEntry entry) =>
+      _recentlyUnlocked.contains(entryKey(entry)) ||
+      (entry.directory != null && _recentlyUnlocked.contains('dir:${entry.directory}'));
 
   void _markFresh(Iterable<String> keys) {
     _fresh.addAll(keys);
@@ -44,7 +49,11 @@ class ItemLocks extends ChangeNotifier {
 
   void _markRecentlyUnlocked(String key) {
     _recentlyUnlocked.add(key);
-    Future.delayed(const Duration(milliseconds: 800), () => _recentlyUnlocked.remove(key));
+    _recentlyUnlockedTimers.remove(key)?.cancel();
+    _recentlyUnlockedTimers[key] = Timer(const Duration(milliseconds: 800), () {
+      _recentlyUnlockedTimers.remove(key);
+      if (_recentlyUnlocked.remove(key)) notifyListeners();
+    });
   }
 
   Future<void> init() async {
@@ -162,6 +171,8 @@ class ItemLocks extends ChangeNotifier {
     if (!await SecretLock.items.authenticate(context)) return false;
 
     _open.add('a:$dirPath');
+    // Mark the album briefly so its visible thumbnails can play the same unlock transition.
+    _markRecentlyUnlocked('dir:$dirPath');
     notifyListeners();
     return true;
   }
