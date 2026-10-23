@@ -56,11 +56,16 @@ mixin VaultAwareMixin on FeedbackMixin {
     // optional second lock, from the advanced vault security
     if (secondLockType != null) {
       if (!context.mounted) return false;
+      final secondPassKey = await SecretLock.resolvePassKey(
+        AdvancedPrivacy.secondPassKey(details.name),
+        secondLockType,
+        legacyType: secondLockType,
+      );
       final secondConfirmed = await SecretLock.challenge(
         context,
         secondLockType,
         context.l10n.authenticateToUnlockVault,
-        AdvancedPrivacy.secondPassKey(details.name),
+        secondPassKey,
         guard: guard,
         onNuke: onNuke,
       );
