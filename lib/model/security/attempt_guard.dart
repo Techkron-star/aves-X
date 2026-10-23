@@ -44,11 +44,11 @@ class AttemptGuard {
     }
   }
 
-  Future<int> failures() async => int.tryParse(await securityService.readValue<String>(_failsKey) ?? '') ?? 0;
+  Future<int> failures() async => int.tryParse(await securityService.readValueStrict<String>(_failsKey) ?? '') ?? 0;
 
   // `null` when there is no cooldown
   Future<Duration?> remainingCooldown() async {
-    final raw = await securityService.readValue<String>(_cooldownKey);
+    final raw = await securityService.readValueStrict<String>(_cooldownKey);
     if (raw == null) return null;
 
     // `elapsedRealtime|bootCount|wallClockMillis|durationMillis` (the duration is missing in older markers)
@@ -149,7 +149,7 @@ class AttemptGuard {
   }
 
   // biometric failures add to the same counter, but after 3 of them the PIN is mandatory
-  Future<int> biometricFailures() async => int.tryParse(await securityService.readValue<String>('att_${id}_bio') ?? '') ?? 0;
+  Future<int> biometricFailures() async => int.tryParse(await securityService.readValueStrict<String>('att_${id}_bio') ?? '') ?? 0;
 
   Future<AttemptOutcome> registerBiometricFailure() {
     final completer = Completer<AttemptOutcome>();
