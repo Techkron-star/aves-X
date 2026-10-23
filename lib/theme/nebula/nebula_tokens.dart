@@ -1,4 +1,5 @@
 import 'package:aves/theme/nebula/nebula_palette.dart';
+import 'package:aves/theme/nebula/nebula_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -108,7 +109,12 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
   );
 
   // Tokens of a palette applied on top of the effective color scheme.
-  factory NebulaTokens.fromPalette(NebulaPalette palette, ColorScheme colors) => switch (palette.treatment) {
+  factory NebulaTokens.fromPalette(NebulaPalette palette, ColorScheme colors) =>
+      // Custom themes reuse the Aves enum value for storage. Their own palette must
+      // win over legacy Nosferatu/Obsidian/Aureate recipes even if treatment names match.
+      (palette.theme == NebulaTheme.aves && !palette.allowDynamicColor)
+          ? _fromScheme(palette, colors)
+          : switch (palette.treatment) {
     // Preserve the original ruby treatment and already-customized materials.
     NebulaSurfaceTreatment.nosferatuGlass => _nosferatu(palette),
     NebulaSurfaceTreatment.obsidianGlass => _obsidian(palette),

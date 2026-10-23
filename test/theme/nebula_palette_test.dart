@@ -303,7 +303,7 @@ void main() {
         surfaceContainerHigh: source.surfaceContainerHigh,
         surfaceContainerHighest: source.surfaceContainerHighest,
         outlineVariant: source.outlineVariant,
-        treatment: NebulaSurfaceTreatment.forgeGlass,
+        treatment: NebulaSurfaceTreatment.nosferatuGlass,
         glow: source.glow,
         crystalEdge: source.crystalEdge,
         crystalHighlight: source.crystalHighlight,
@@ -316,8 +316,11 @@ void main() {
       expect(data.colorScheme.surface, custom.surface);
       expect(data.cardTheme.color, custom.surfaceContainerLow);
       expect(data.appBarTheme.backgroundColor, custom.surfaceContainer);
-      expect(nebulaMaterialStyleForPalette(custom)?.material, NebulaMaterial.forge);
+      expect(nebulaMaterialStyleForPalette(custom)?.material, NebulaMaterial.crimson);
       expect(nebulaMaterialStyleForPalette(custom)?.accent, custom.accent);
+      expect(data.nebula.securityAccent, custom.accent);
+      expect(data.nebula.securitySurface, custom.surfaceContainerHigh);
+      expect(data.nebula.securityBubbleSurface, custom.surfaceContainerLow);
     });
   });
 
