@@ -55,6 +55,8 @@ class VaultDetails extends Equatable {
 
   String get passKey => 'vault_pass_$name';
 
+  String passKeyFor(VaultLockType type) => '${passKey}_${type.name}';
+
   String get path => '${androidFileUtils.vaultRoot}$name';
 
   static String? nameFromPath(String path) {
