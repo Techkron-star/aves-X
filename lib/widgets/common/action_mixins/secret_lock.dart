@@ -64,7 +64,10 @@ class SecretLock {
   // `null` when there is no lock
   Future<VaultLockType?> getLockType() async {
     final name = await securityService.readValueStrict<String>(_typeKey);
-    return VaultLockType.values.safeByName(name);
+    if (name == null) return null;
+    final type = VaultLockType.values.safeByName(name);
+    if (type == null) throw FormatException('Invalid configured lock type for $id');
+    return type;
   }
 
   // returns `true` when there is no lock, or when the user passed the lock
