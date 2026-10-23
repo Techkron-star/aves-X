@@ -16,6 +16,7 @@
 ## Equipo
 - `coordinator`: reparte tareas, decide prioridades y llama al auditor.
 - `nebula-theme`: Nebula Engine, temas, selector, **Nosferatu Glass**, **Obsidian Glass**, **Aureate Glass**, **Forge Glass** y **Hermetic Glass**.
+  - Antes de tocar un tema, lee `NEBULA_THEME_CRAFT_GUIDE.md` (cómo se dibuja un tema de calidad, checklist y errores conocidos). No reescribas `nebula_effect.dart` ni borres VFX de otros temas; los VFX de autor viven en `nebula_signature_effects.dart`.
 - `gargantua`: Sistema Gargantua, salidas de archivos, share/export/open-with/copy, vaults y bloqueos.
 - `aves-ui`: UI general, navegación, iconos y ajustes visuales.
 - `failsafe-ui`: rediseño visual de Fail-Safe, sus tarjetas y sus burbujas, usando los tokens del tema.
