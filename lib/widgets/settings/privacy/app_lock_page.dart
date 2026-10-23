@@ -120,7 +120,7 @@ class AppLockPage extends StatelessWidget {
 
     final options = <String, String>{
       'code': context.l10n.appLockChangePin,
-      ...SecretLock.lockTypeOptions(context).map((key, value) => MapEntry(key.name, value)),
+      ...SecretLock.lockTypeOptions(context),
     };
     final choice = await showAvesDialog<String>(
       context: context,
