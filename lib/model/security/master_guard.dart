@@ -167,6 +167,7 @@ class MasterGuard extends ChangeNotifier {
       'master_code',
       'app_lock_pin',
       'app_lock_alt_secret',
+      for (final type in ['system', 'pattern', 'pin', 'password']) 'app_lock_secret_$type',
       'app_lock_panic',
       'bin_lock_pass',
       'reveal_lock_pass',
