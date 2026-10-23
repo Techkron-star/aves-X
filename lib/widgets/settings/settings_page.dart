@@ -1,6 +1,5 @@
 import 'package:aves/widgets/settings/security/failsafe_section.dart';
 import 'package:aves/widgets/settings/security/security.dart';
-import 'package:aves/widgets/settings/settings_tabbed_page.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/durations.dart';
 import 'package:aves/widgets/common/extensions/media_query.dart';
