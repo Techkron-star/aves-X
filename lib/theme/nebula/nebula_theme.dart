@@ -1,7 +1,6 @@
 // Nebula Engine: the umbrella of the visual themes of Aves-X.
 //
-// Phase 1 themes only change the palette and the surface treatment, reusing the Nosferatu Glass base.
-// Phase 2 themes add their own shaders and animations (not implemented yet).
+// Every Nebula theme owns a palette and a surface treatment; phase 2 themes also add a dedicated visual effect.
 enum NebulaTheme {
   // default Aves theme: delegates to the legacy light/dark/black themes
   aves,
@@ -67,13 +66,13 @@ extension NebulaThemeInfo on NebulaTheme {
     .imperialGlass => 'imperial_glass',
   };
 
-  // 1: palettes and surfaces, no own effects. 2: own shaders/animations.
+  // 1: foundational palette/material themes. 2: dedicated visual-effect themes.
   int get phase => switch (this) {
     .aves || .nosferatuGlass => 1,
     .obsidianGlass || .aureateGlass || .forgeGlass || .hermeticGlass || .eclipseGlass || .solarFlareGlass || .voidGlass || .crimsonGlass || .neonGlass || .emeraldGlass || .auroraGlass || .sapphireGlass || .amberGlass || .onyxGlass || .pearlGlass || .ivoryGlass || .imperialGlass => 2,
   };
 
-  // only phase 1 themes can be offered by the selector for now
+  // Retained as the phase label used by selector stickers; it no longer controls availability.
   bool get isPhase1 => phase == 1;
 }
 
