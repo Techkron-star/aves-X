@@ -177,6 +177,9 @@ class _LockScreenState extends State<_LockBody> {
         return;
       }
       await _handle(await appLock.biometricSucceeded());
+    } catch (error, stack) {
+      await reportService.recordError(error, stack);
+      if (mounted) setState(() => _message = context.l10n.genericFailureFeedback);
     } finally {
       _checking = false;
     }
