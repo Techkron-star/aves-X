@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/model/security/failsafe_config.dart';
 import 'package:aves/services/common/services.dart';
@@ -24,6 +26,8 @@ class AttemptGuard {
   static AttemptGuard named(String name) => AttemptGuard._('lock_$name');
 
   final String id;
+  // Serialize updates so concurrent completions cannot overwrite the persistent counter with a stale value.
+  Future<void> _failureQueue = Future<void>.value();
 
   AttemptGuard._(this.id);
 
@@ -81,8 +85,21 @@ class AttemptGuard {
     await securityService.writeValue<String>(_cooldownKey, value);
   }
 
-  // to be called after each failed attempt (the counter is persisted before returning)
-  Future<AttemptOutcome> registerFailure() async {
+  // to be called after each verified failed attempt (the counter is persisted before returning)
+  // Queue the read-modify-write sequence: two callbacks must never both count as the same failure.
+  Future<AttemptOutcome> registerFailure() {
+    final completer = Completer<AttemptOutcome>();
+    _failureQueue = _failureQueue.then((_) async {
+      try {
+        completer.complete(await _registerFailure());
+      } catch (error, stack) {
+        completer.completeError(error, stack);
+      }
+    });
+    return completer.future;
+  }
+
+  Future<AttemptOutcome> _registerFailure() async {
     final count = await failures() + 1;
     await securityService.writeValue<String>(_failsKey, count.toString());
     final nukeEnabled = await FailsafeConfig.nukeOnFailures;
