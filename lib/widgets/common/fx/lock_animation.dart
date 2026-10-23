@@ -233,8 +233,8 @@ class _PadlockPainter extends CustomPainter {
   final NebulaMaterial? material;
   final NebulaMaterialStyle? style;
   final bool open;
-  final bool keyhole;
-  const _PadlockPainter({required this.material, required this.open, this.keyhole = true, this.style});
+  final bool keyhole = true;
+  const _PadlockPainter({required this.material, required this.open, this.style});
 
   @override
   void paint(Canvas canvas, Size size) {
