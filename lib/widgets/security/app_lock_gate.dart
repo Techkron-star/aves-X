@@ -363,8 +363,32 @@ class _LockScreenState extends State<_LockBody> {
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: nebula.securityAlert.withValues(alpha: .4)),
                           ),
-                          child: Text(_message!, textAlign: TextAlign.center,
-                            style: TextStyle(color: nebula.securityAlert, height: 1.35)),
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 320),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(Icons.info_outline_rounded, size: 18, color: nebula.securityAlert),
+                                const SizedBox(width: 9),
+                                Flexible(
+                                  child: Text(
+                                    _message!,
+                                    textAlign: TextAlign.start,
+                                    softWrap: true,
+                                    style: TextStyle(
+                                      color: nebula.securityAlert,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.35,
+                                      letterSpacing: 0,
+                                      decoration: TextDecoration.none,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     if (_showBiometric && !_fake)
