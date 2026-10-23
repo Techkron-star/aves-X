@@ -619,6 +619,35 @@ const Map<NebulaTheme, NebulaPalette> nebulaPalettes = {
     filledButtonBackground: Color(0xB3B8325A),
     filledButtonBorder: Color(0x99FFC2D4),
   ),
+  // Nox Terroris: the watching void — soot-black glass, ossuary bone and a sickly eye.
+  NebulaTheme.noxTerroris: NebulaPalette(
+    theme: NebulaTheme.noxTerroris,
+    brightness: Brightness.dark,
+    darkOnly: true,
+    allowDynamicColor: false,
+    seed: Color(0xFFB7D86B),
+    accent: Color(0xFFB7D86B),
+    surface: Color(0xFF08090A),
+    surfaceContainerLowest: Color(0xFF020303),
+    surfaceContainerLow: Color(0xFF0D1010),
+    surfaceContainer: Color(0xFF151918),
+    surfaceContainerHigh: Color(0xFF1D2220),
+    surfaceContainerHighest: Color(0xFF282E29),
+    outlineVariant: Color(0xFF414B3D),
+    treatment: NebulaSurfaceTreatment.noxTerroris,
+    glow: Color(0xFFB7D86B),
+    crystalEdge: Color(0x80DCE8B0),
+    crystalHighlight: Color(0x55DCE8B0),
+    crystalBody: [
+      Color(0xFFF0F0D7),
+      Color(0xFFB7D86B),
+      Color(0xFF657A38),
+      Color(0xFF20251A),
+    ],
+    liquidIcons: false,
+    filledButtonBackground: Color(0xFF394728),
+    filledButtonBorder: Color(0x99DCE8B0),
+  ),
 };
 
 // Palette actually used for a theme. Unknown or not-yet-implemented themes fall back to the default one.

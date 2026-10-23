@@ -10,7 +10,7 @@ import 'package:material_ui/material_ui.dart';
 // - abyssal: deep water with caustics, bubbles and bioluminescent specks.
 // - sakura: ink black washi with a blossoming branch and fallen petals.
 // Like the other glass decorations, each one is recorded once per (size, opacity) and replayed.
-enum NebulaSurfaceArt { imperial, solarFlare, abyssal, sakura, aurora, sapphire, amber, onyx, pearl, ivory, neon, voidGlass, forge, hermetic, eclipse, crimson, emerald }
+enum NebulaSurfaceArt { imperial, solarFlare, abyssal, sakura, aurora, sapphire, amber, onyx, pearl, ivory, neon, voidGlass, forge, hermetic, eclipse, crimson, emerald, noxTerroris }
 
 class NebulaSurfaceDecoration extends Decoration {
   final NebulaSurfaceArt art;
@@ -92,6 +92,8 @@ class _SurfacePainter extends BoxPainter {
         _crimson(canvas, size, opacity);
       case NebulaSurfaceArt.emerald:
         _emerald(canvas, size, opacity);
+      case NebulaSurfaceArt.noxTerroris:
+        _noxTerroris(canvas, size, opacity);
     }
     return recorder.endRecording();
   }
@@ -1036,4 +1038,55 @@ class _SurfacePainter extends BoxPainter {
     canvas.drawLine(Offset.zero, Offset(0, h), rim..color = const Color(0xFFB9F6CA).withValues(alpha: .25));
     canvas.drawLine(Offset(0, h), Offset(w, h), rim..color = const Color(0x99000000));
   }
+  // ------------------------------------------------------------- nox terroris
+  // A watching aperture surrounded by ossuary ribs; the center stays quiet for content.
+  static void _noxTerroris(Canvas canvas, Size size, double opacity) {
+    final w = size.width, h = size.height, m = min(size.width, size.height);
+    const bone = Color(0xFFDCE8B0);
+    const acid = Color(0xFFB7D86B);
+    _fill(canvas, size, const [Color(0xFF171A17), Color(0xFF090B0A), Color(0xFF020303)], const [0, .48, 1], opacity,
+        begin: Alignment.topLeft, end: Alignment.bottomRight);
+    final eye = Offset(w * .72, h * .42);
+    final er = m * .22;
+    canvas.drawOval(Rect.fromCenter(center: eye, width: er * 2.8, height: er * .92),
+      Paint()..shader = ui.Gradient.radial(eye, er * 1.5, [acid.withValues(alpha: opacity * .16), acid.withValues(alpha: 0)]));
+    final socket = Rect.fromCenter(center: eye, width: er * 2.1, height: er * .56);
+    canvas.drawOval(socket, Paint()..color = const Color(0xFF020403).withValues(alpha: opacity * .9));
+    canvas.drawOval(socket, Paint()..style = PaintingStyle.stroke..strokeWidth = max(.8, m * .008)..color = bone.withValues(alpha: opacity * .34));
+    canvas.drawLine(Offset(eye.dx, socket.top + socket.height * .08), Offset(eye.dx, socket.bottom - socket.height * .08),
+      Paint()..strokeWidth = max(1.0, m * .012)..color = acid.withValues(alpha: opacity * .85));
+    final rib = Paint()..style = PaintingStyle.stroke..strokeCap = StrokeCap.round..strokeJoin = StrokeJoin.round
+      ..strokeWidth = max(.8, m * .009)..color = bone.withValues(alpha: opacity * .22);
+    for (var i = 0; i < 3; i++) {
+      final inset = m * (.035 + i * .025);
+      final path = Path()
+        ..moveTo(inset, 0)
+        ..quadraticBezierTo(w * .12, h * .12, w * (.08 + i * .025), h * .34)
+        ..moveTo(w - inset, h)
+        ..quadraticBezierTo(w * .88, h * .84, w * (.92 - i * .025), h * .62);
+      canvas.drawPath(path, rib);
+    }
+    final crack = Paint()..style = PaintingStyle.stroke..strokeWidth = max(.65, m * .006)
+      ..color = acid.withValues(alpha: opacity * .28);
+    final paths = [
+      Path()..moveTo(0, h * .58)..lineTo(w * .09, h * .53)..lineTo(w * .13, h * .60)..lineTo(w * .19, h * .57),
+      Path()..moveTo(w, h * .24)..lineTo(w * .91, h * .29)..lineTo(w * .87, h * .22)..lineTo(w * .81, h * .26),
+      Path()..moveTo(w * .12, h)..lineTo(w * .17, h * .91)..lineTo(w * .22, h * .94),
+    ];
+    for (final path in paths) canvas.drawPath(path, crack);
+    final seal = Offset(w * .5, h * .91);
+    final sealPath = Path();
+    for (var i = 0; i < 8; i++) {
+      final a = i * pi / 4 - pi / 8;
+      final p = seal + Offset(cos(a), sin(a)) * m * .035;
+      i == 0 ? sealPath.moveTo(p.dx, p.dy) : sealPath.lineTo(p.dx, p.dy);
+    }
+    sealPath.close();
+    canvas.drawPath(sealPath, Paint()..style = PaintingStyle.stroke..strokeWidth = max(.7, m * .007)..color = bone.withValues(alpha: opacity * .34));
+    final rim = Paint()..strokeWidth = max(.8, m * .008);
+    canvas.drawLine(Offset.zero, Offset(w, 0), rim..color = bone.withValues(alpha: opacity * .20));
+    canvas.drawLine(Offset(0, h), Offset(w, h), rim..color = Colors.black.withValues(alpha: opacity * .8));
+  }
+
+
 }

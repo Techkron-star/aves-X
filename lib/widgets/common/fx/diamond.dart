@@ -54,6 +54,8 @@ Decoration nebulaMaterialDecoration(NebulaMaterial material, {double phase = -1,
       return NebulaSurfaceDecoration(NebulaSurfaceArt.crimson, opacity: opacity);
     case NebulaMaterial.emerald:
       return NebulaSurfaceDecoration(NebulaSurfaceArt.emerald, opacity: opacity);
+    case NebulaMaterial.noxTerroris:
+      return NebulaSurfaceDecoration(NebulaSurfaceArt.noxTerroris, opacity: opacity);
     default:
       final style = nebulaMaterialStylesByMaterial[material];
       if (style == null) return const BoxDecoration();
@@ -417,6 +419,14 @@ class _NebulaMaterialPainter extends BoxPainter {
           canvas.drawCircle(point, 3.2, Paint()..color = bright.withValues(alpha: opacity * .8));
           canvas.drawCircle(point, 5.5, Paint()..style = PaintingStyle.stroke..strokeWidth = .7..color = accent.withValues(alpha: opacity * .5));
         }
+        break;
+      case NebulaMaterial.noxTerroris:
+        final mask = Path()..moveTo(50, 8)..lineTo(76, 23)..lineTo(83, 51)..lineTo(65, 76)..lineTo(50, 87)..lineTo(35, 76)..lineTo(17, 51)..lineTo(24, 23)..close();
+        canvas.drawPath(mask, Paint()..color = accent.withValues(alpha: opacity * .12));
+        canvas.drawPath(mask, lightInk);
+        canvas.drawPath(Path()..moveTo(27, 42)..quadraticBezierTo(38, 34, 47, 43)..quadraticBezierTo(38, 51, 27, 42), ink);
+        canvas.drawPath(Path()..moveTo(53, 43)..quadraticBezierTo(64, 35, 73, 43)..quadraticBezierTo(64, 51, 53, 43), ink);
+        canvas.drawLine(const Offset(50, 43), const Offset(50, 60), lightInk);
         break;
       case NebulaMaterial.ruby:
       case NebulaMaterial.nightDemon:

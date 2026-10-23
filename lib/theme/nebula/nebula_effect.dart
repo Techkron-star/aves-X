@@ -272,5 +272,7 @@ NebulaEffect? nebulaEffectFor(NebulaTheme theme, {required bool animate}) {
       return _SoulEffect(animate:animate,cycle:const Duration(seconds:20),builder:(t)=>_AbyssPainter(t));
     case NebulaTheme.sakuraGlass:
       return _SoulEffect(animate:animate,cycle:const Duration(seconds:17),builder:(t)=>_SakuraPainter(t));
+    case NebulaTheme.noxTerroris:
+      return NoxTerrorisEffect(animate: animate);
   }
 }

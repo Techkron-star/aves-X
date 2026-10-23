@@ -280,6 +280,8 @@ class _PadlockPainter extends CustomPainter {
       _paintHeart(canvas);
     } else if (material == NebulaMaterial.emerald) {
       _paintPrism(canvas);
+    } else if (material == NebulaMaterial.noxTerroris) {
+      _paintNoxTerroris(canvas);
     } else if (material != null && style != null) {
       _paintSignature(canvas, material!, style!, open);
     } else {
@@ -640,6 +642,12 @@ class _PadlockPainter extends CustomPainter {
         spine.strokeWidth = 1.5;
         canvas.drawLine(const Offset(50, 18), const Offset(50, 65), spine);
         for (final point in const [Offset(25, 22), Offset(75, 22), Offset(50, 70)]) { dot(point, 2.2, light); }
+        break;
+      case NebulaMaterial.noxTerroris:
+        stroke(polygon(const [Offset(50, 5), Offset(78, 24), Offset(82, 51), Offset(64, 75), Offset(50, 84), Offset(36, 75), Offset(18, 51), Offset(22, 24)]), width: 2.4, color: light);
+        stroke(Path()..moveTo(27, 42)..quadraticBezierTo(38, 34, 47, 43)..quadraticBezierTo(38, 51, 27, 42), width: 1.6, color: accent);
+        stroke(Path()..moveTo(53, 43)..quadraticBezierTo(64, 35, 73, 43)..quadraticBezierTo(64, 51, 53, 43), width: 1.4, color: light);
+        stroke(Path()..moveTo(50, 42)..lineTo(50, 61), width: 2.0, color: accent);
         break;
       case NebulaMaterial.ruby:
       case NebulaMaterial.nightDemon:
@@ -1151,4 +1159,39 @@ class _PadlockPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _PadlockPainter old) => old.material != material || old.open != open || old.keyhole != keyhole;
+  // Nox Terroris: a sealed ossuary mask with a vertical, predatory eye.
+  void _paintNoxTerroris(Canvas canvas) {
+    const bone = Color(0xFFDCE8B0);
+    const acid = Color(0xFFB7D86B);
+    _shackle(canvas, const Color(0xFF657A38), width: 5.5, glow: const Color(0x5539FF14));
+    final mask = Path()
+      ..moveTo(50, 20)..lineTo(76, 32)..lineTo(82, 55)..lineTo(68, 78)
+      ..lineTo(50, 91)..lineTo(32, 78)..lineTo(18, 55)..lineTo(24, 32)..close();
+    canvas.drawPath(mask, Paint()..color = acid.withValues(alpha: .16)..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 4));
+    canvas.drawPath(mask, Paint()..shader = const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight,
+      colors: [Color(0xFF343A2C), Color(0xFF151A15), Color(0xFF050706)]).createShader(mask.getBounds()));
+    canvas.drawPath(mask, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.8..strokeJoin = StrokeJoin.round..color = bone);
+    final crown = Path()
+      ..moveTo(31, 31)..lineTo(25, 9)..lineTo(42, 25)
+      ..moveTo(50, 25)..lineTo(50, 4)..lineTo(59, 24)
+      ..moveTo(69, 31)..lineTo(78, 11)..lineTo(63, 25);
+    canvas.drawPath(crown, Paint()..style = PaintingStyle.stroke..strokeWidth = 3..strokeCap = StrokeCap.round..strokeJoin = StrokeJoin.round..color = bone.withValues(alpha: .88));
+    final socket = Path()..moveTo(27, 43)..quadraticBezierTo(39, 34, 47, 44)..quadraticBezierTo(38, 53, 27, 43)..close();
+    canvas.drawPath(socket, Paint()..color = const Color(0xFF010302));
+    canvas.drawOval(Rect.fromCenter(center: const Offset(38, 44), width: 3.8, height: 13), Paint()..color = acid);
+    canvas.drawCircle(const Offset(38, 44), 6, Paint()..color = acid.withValues(alpha: .12)..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 3));
+    final deadSocket = Path()..moveTo(55, 43)..quadraticBezierTo(66, 36, 74, 45)..quadraticBezierTo(65, 53, 55, 43)..close();
+    canvas.drawPath(deadSocket, Paint()..color = const Color(0xFF010302));
+    canvas.drawLine(const Offset(61, 43), const Offset(67, 47), Paint()..strokeWidth = 1.2..color = bone.withValues(alpha: .55));
+    final jaw = Path()..moveTo(35, 64)..lineTo(44, 69)..lineTo(50, 65)..lineTo(56, 69)..lineTo(65, 64);
+    canvas.drawPath(jaw, Paint()..style = PaintingStyle.stroke..strokeWidth = 2..strokeCap = StrokeCap.round..color = bone.withValues(alpha: .78));
+    canvas.drawPath(Path()..moveTo(40, 67)..lineTo(43, 76)..lineTo(47, 70)..moveTo(60, 67)..lineTo(57, 76)..lineTo(53, 70),
+      Paint()..style = PaintingStyle.stroke..strokeWidth = 1.8..strokeJoin = StrokeJoin.round..color = bone);
+    _keyhole(canvas, const Offset(50, 57), acid, scale: .52);
+    if (open) {
+      canvas.drawLine(const Offset(50, 78), const Offset(50, 85), Paint()..strokeWidth = 2.2..strokeCap = StrokeCap.round..color = acid);
+    }
+  }
+
+
 }

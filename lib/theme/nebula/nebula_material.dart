@@ -13,7 +13,7 @@ import 'package:material_ui/material_ui.dart';
 //   and a haloed, winged padlock.
 enum NebulaMaterial {
   ruby, nightDemon, godly, forge, hermetic, eclipse, solarFlare, voidGlass,
-  crimson, neon, emerald, aurora, sapphire, amber, onyx, pearl, ivory, imperial, abyssal, sakura,
+  crimson, neon, emerald, aurora, sapphire, amber, onyx, pearl, ivory, imperial, abyssal, sakura, noxTerroris,
 }
 
 @immutable
@@ -103,6 +103,8 @@ class NebulaMaterialStyle {
       side: side,
     ),
     NebulaMaterial.imperial => BeveledRectangleBorder(borderRadius: BorderRadius.circular(radius * .12), side: side),
+    // Nox Terroris: sealed, mask-like corners rather than Obsidian's sharp bevels.
+    NebulaMaterial.noxTerroris => BeveledRectangleBorder(borderRadius: BorderRadius.circular(radius * .32), side: side),
   };
 
   // Bottom sheets retain the same corner language while leaving their lower edge square.
@@ -130,6 +132,7 @@ class NebulaMaterialStyle {
       side: side,
     ),
     NebulaMaterial.imperial => BeveledRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * .12)), side: side),
+    NebulaMaterial.noxTerroris => BeveledRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * .32)), side: side),
   };
 
   /// Derives auxiliary materials from the selected theme's canonical palette.
@@ -279,6 +282,7 @@ NebulaMaterial _materialForTheme(NebulaTheme theme) => switch (theme) {
   NebulaTheme.imperialGlass => NebulaMaterial.imperial,
   NebulaTheme.abyssalGlass => NebulaMaterial.abyssal,
   NebulaTheme.sakuraGlass => NebulaMaterial.sakura,
+  NebulaTheme.noxTerroris => NebulaMaterial.noxTerroris,
   NebulaTheme.aves => NebulaMaterial.onyx,
 };
 
@@ -320,6 +324,7 @@ const Map<NebulaSurfaceTreatment, NebulaMaterial> _customMaterialByTreatment = {
   NebulaSurfaceTreatment.imperialGlass: NebulaMaterial.imperial,
   NebulaSurfaceTreatment.abyssalGlass: NebulaMaterial.abyssal,
   NebulaSurfaceTreatment.sakuraGlass: NebulaMaterial.sakura,
+  NebulaSurfaceTreatment.noxTerroris: NebulaMaterial.noxTerroris,
 };
 
 /// Resolves a material recipe from a palette. Built-in palettes preserve their

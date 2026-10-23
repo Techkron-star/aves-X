@@ -48,6 +48,8 @@ enum NebulaSurfaceTreatment {
   abyssalGlass,
   // Sakura Glass: ink black with cherry blossom pink and lacquer red
   sakuraGlass,
+  // Nox Terroris: matte void, ossuary bone and a toxic watching eye.
+  noxTerroris,
 }
 
 // A Nebula palette: colors and surface treatment only.
