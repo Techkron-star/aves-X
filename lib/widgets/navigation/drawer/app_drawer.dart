@@ -211,12 +211,12 @@ class _AppDrawerState extends State<AppDrawer> with WidgetsBindingObserver {
             end: Alignment.bottomRight,
             colors: [
               material!.surface.withValues(alpha: .96),
-              material.surface.withValues(alpha: .78),
-              material.surface.withValues(alpha: .45),
+              material!.surface.withValues(alpha: .78),
+              material!.surface.withValues(alpha: .45),
             ],
           ),
           border: Border(
-            bottom: BorderSide(color: material.edge.withValues(alpha: .66), width: 1),
+            bottom: BorderSide(color: material!.edge.withValues(alpha: .66), width: 1),
           ),
         ),
       NebulaMaterial.hermetic => BoxDecoration(
@@ -225,12 +225,12 @@ class _AppDrawerState extends State<AppDrawer> with WidgetsBindingObserver {
             end: Alignment.bottomCenter,
             colors: [
               material!.surface.withValues(alpha: .94),
-              material.surface.withValues(alpha: .72),
+              material!.surface.withValues(alpha: .72),
               const Color(0x00000000),
             ],
           ),
           border: Border(
-            bottom: BorderSide(color: material.edge.withValues(alpha: .48), width: .8),
+            bottom: BorderSide(color: material!.edge.withValues(alpha: .48), width: .8),
           ),
         ),
       _ => material != null
