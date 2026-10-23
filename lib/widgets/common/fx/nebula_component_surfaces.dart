@@ -100,7 +100,7 @@ class _NebulaComponentSurfaceAccentState extends State<NebulaComponentSurfaceAcc
       NebulaComponentSurfaceRole.appLockBackdrop => const Duration(seconds: 12),
       NebulaComponentSurfaceRole.lockdownBackdrop => const Duration(seconds: 5),
       NebulaComponentSurfaceRole.appLockEmblem => const Duration(seconds: 4),
-      NebulaComponentSurfaceRole.lockdownStatusBadge => const Duration(seconds: 2200),
+      NebulaComponentSurfaceRole.lockdownStatusBadge => const Duration(milliseconds: 2800),
       NebulaComponentSurfaceRole.itemLockBackdrop => const Duration(seconds: 15),
       NebulaComponentSurfaceRole.itemLockCard => const Duration(seconds: 8),
       NebulaComponentSurfaceRole.itemLockBadge => const Duration(seconds: 6),
