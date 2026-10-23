@@ -34,14 +34,14 @@ class _DestructiveActionAnimationState extends State<DestructiveActionAnimation>
   @override
   void initState() {
     super.initState();
-    if (widget.animate) _controller.repeat(reverse: true);
+    if (widget.animate) _controller.repeat();
   }
 
   @override
   void didUpdateWidget(covariant DestructiveActionAnimation oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.animate && !_controller.isAnimating) {
-      _controller.repeat(reverse: true);
+      _controller.repeat();
     } else if (!widget.animate && _controller.isAnimating) {
       _controller.stop();
       _controller.value = .5;
