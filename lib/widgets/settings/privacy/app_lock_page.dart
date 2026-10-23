@@ -82,7 +82,7 @@ class AppLockPage extends StatelessWidget {
 
   String _lockTypeLabel(BuildContext context, String type) {
     if (type == 'code') return context.l10n.appLockChangePin;
-    return VaultLockType.values.safeByName(type)?.getText(context) ?? context.l10n.genericFailureFeedback;
+    return SecretLock.lockTypeOptions(context)[type] ?? context.l10n.genericFailureFeedback;
   }
 
   String _delayLabel(AppLocalizations l10n, Duration delay) {
