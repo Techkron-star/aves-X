@@ -8,6 +8,7 @@ import 'package:aves/widgets/common/fx/failsafe_badge.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:aves/widgets/security/security_screen_background.dart';
 
 // First launch: Fail-Safe introduces itself and replaces the usual "accept the terms" window.
 // The terms are there (short version), accepted by holding a button; declining closes the app.
@@ -73,77 +74,82 @@ class _WizardState extends State<_Wizard> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
-    return Material(
-      color: scheme.surface,
-      child: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: PageView(
-                controller: _pager,
-                onPageChanged: (i) {
-                  // the setup page is only reachable once the terms were accepted
-                  if (i == 3 && !_accepted) {
-                    _pager.animateToPage(2, duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
-                    return;
-                  }
-                  setState(() => _page = i);
-                },
-                children: [
-                  _Step(
-                    active: _page == 0,
-                    lines: [l10n.failsafeWizGreeting, l10n.failsafeWizGreeting2],
-                    big: true,
-                  ),
-                  _Step(
-                    active: _page == 1,
-                    lines: [l10n.failsafeWizDoes1, l10n.failsafeWizDoes2, l10n.failsafeWizDoes3],
-                  ),
-                  _TermsStep(
-                    active: _page == 2,
-                    onAccepted: () {
-                      _accepted = true;
-                      _next();
-                    },
-                  ),
-                  _SetupStep(
-                    lockdown: _lockdown,
-                    onLockdown: (v) async {
-                      await FailsafeConfig.setLockdownEnabled(v);
-                      if (mounted) setState(() => _lockdown = v);
-                    },
-                  ),
-                ],
+    return SecurityScreenBackground(
+      child: Material(
+        color: Colors.transparent,
+        child: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: PageView(
+                  controller: _pager,
+                  onPageChanged: (i) {
+                    // The setup page is only reachable once the terms were accepted.
+                    if (i == 3 && !_accepted) {
+                      _pager.animateToPage(2, duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
+                      return;
+                    }
+                    setState(() => _page = i);
+                  },
+                  children: [
+                    _Step(
+                      active: _page == 0,
+                      lines: [l10n.failsafeWizGreeting, l10n.failsafeWizGreeting2],
+                      big: true,
+                    ),
+                    _Step(
+                      active: _page == 1,
+                      lines: [l10n.failsafeWizDoes1, l10n.failsafeWizDoes2, l10n.failsafeWizDoes3],
+                    ),
+                    _TermsStep(
+                      active: _page == 2,
+                      onAccepted: () {
+                        _accepted = true;
+                        _next();
+                      },
+                    ),
+                    _SetupStep(
+                      lockdown: _lockdown,
+                      onLockdown: (v) async {
+                        await FailsafeConfig.setLockdownEnabled(v);
+                        if (mounted) setState(() => _lockdown = v);
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
-              child: Row(
-                children: [
-                  for (var i = 0; i < _pageCount; i++)
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 250),
-                      margin: const EdgeInsets.only(right: 6),
-                      width: i == _page ? 22 : 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: i == _page ? scheme.primary : scheme.outlineVariant,
-                        borderRadius: BorderRadius.circular(4),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
+                child: Row(
+                  children: [
+                    for (var i = 0; i < _pageCount; i++)
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        margin: const EdgeInsets.only(right: 6),
+                        width: i == _page ? 22 : 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: i == _page ? scheme.primary : scheme.outlineVariant,
+                          borderRadius: BorderRadius.circular(4),
+                          boxShadow: i == _page
+                              ? [BoxShadow(color: scheme.primary.withValues(alpha: .22), blurRadius: 9, spreadRadius: -2)]
+                              : null,
+                        ),
                       ),
-                    ),
-                  const Spacer(),
-                  if (_page < 2) FilledButton(onPressed: _next, child: Text(l10n.failsafeWizNext)),
-                  if (_page == 2)
-                    TextButton(
-                      onPressed: () => Navigator.maybeOf(context)?.pop(false),
-                      child: Text(l10n.failsafeWizDecline),
-                    ),
-                  if (_page == 3)
-                    FilledButton(onPressed: () => Navigator.maybeOf(context)?.pop(true), child: Text(l10n.failsafeWizFinish)),
-                ],
+                    const Spacer(),
+                    if (_page < 2) FilledButton(onPressed: _next, child: Text(l10n.failsafeWizNext)),
+                    if (_page == 2)
+                      TextButton(
+                        onPressed: () => Navigator.maybeOf(context)?.pop(false),
+                        child: Text(l10n.failsafeWizDecline),
+                      ),
+                    if (_page == 3)
+                      FilledButton(onPressed: () => Navigator.maybeOf(context)?.pop(true), child: Text(l10n.failsafeWizFinish)),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -233,14 +239,41 @@ class _TermsStep extends StatelessWidget {
           Text(l10n.failsafeWizTermsTitle, style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 18),
           for (final (icon, text) in terms)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 14),
+            Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    scheme.surfaceContainerHigh.withValues(alpha: .8),
+                    scheme.surfaceContainerLow.withValues(alpha: .52),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: scheme.primary.withValues(alpha: .24)),
+                boxShadow: [BoxShadow(color: scheme.primary.withValues(alpha: .06), blurRadius: 14, spreadRadius: -5)],
+              ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(icon, color: scheme.primary),
+                  Container(
+                    width: 42, height: 42,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: scheme.primary.withValues(alpha: .12),
+                      border: Border.all(color: scheme.primary.withValues(alpha: .32)),
+                    ),
+                    child: Icon(icon, color: scheme.primary),
+                  ),
                   const SizedBox(width: 14),
-                  Expanded(child: Text(text)),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 3),
+                      child: Text(text, style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.35)),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -271,12 +304,20 @@ class _SetupStep extends StatelessWidget {
           const SizedBox(height: 24),
           Text(l10n.failsafeWizSetupTitle, style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 12),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(l10n.failsafeLockdownOption),
-            subtitle: Text(l10n.failsafeLockdownOptionSubtitle),
-            value: lockdown,
-            onChanged: onLockdown,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHigh.withValues(alpha: .72),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: .28)),
+            ),
+            child: SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.failsafeLockdownOption),
+              subtitle: Text(l10n.failsafeLockdownOptionSubtitle),
+              value: lockdown,
+              onChanged: onLockdown,
+            ),
           ),
           const SizedBox(height: 8),
           Text(l10n.failsafeWizSetupMore, style: Theme.of(context).textTheme.bodySmall),
@@ -392,6 +433,16 @@ class _HoldToAcceptState extends State<HoldToAccept> with SingleTickerProviderSt
           alignment: Alignment.center,
           clipBehavior: Clip.none,
           children: [
+            Container(
+              width: 112, height: 112,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [scheme.primary.withValues(alpha: .16), scheme.primary.withValues(alpha: .04), Colors.transparent],
+                  stops: const [0, .62, 1],
+                ),
+              ),
+            ),
             SizedBox(
               width: 96,
               height: 96,
