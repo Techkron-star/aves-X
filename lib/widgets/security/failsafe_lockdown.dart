@@ -134,7 +134,7 @@ class _LockdownScreenState extends State<_LockdownBody> {
     try {
       final bool ok;
       try {
-        ok = await masterGuard.matches('master_code', code);
+        ok = await masterGuard.matchesRequired('master_code', code);
       } catch (e, stack) {
         await reportService.recordError(e, stack);
         // A verifier error is not evidence of a wrong code: never count it toward cooldown or nuke.
@@ -152,7 +152,14 @@ class _LockdownScreenState extends State<_LockdownBody> {
         return;
       }
       // Only a completed, successful comparison returning false counts as a wrong Master Code.
-      final outcome = await AttemptGuard.master.registerFailure();
+      final AttemptOutcome outcome;
+      try {
+        outcome = await AttemptGuard.master.registerFailure();
+      } catch (e, stack) {
+        await reportService.recordError(e, stack);
+        if (mounted) setState(() => _message = context.l10n.genericFailureFeedback);
+        return;
+      }
       // Destructive handling is reachable only after a verified mismatch and only when the user enabled it.
       if (outcome == AttemptOutcome.nuke) {
         await Nuke.nukeEverything();
