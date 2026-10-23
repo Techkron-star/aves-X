@@ -10,7 +10,7 @@ import 'package:material_ui/material_ui.dart';
 // - abyssal: deep water with caustics, bubbles and bioluminescent specks.
 // - sakura: ink black washi with a blossoming branch and fallen petals.
 // Like the other glass decorations, each one is recorded once per (size, opacity) and replayed.
-enum NebulaSurfaceArt { imperial, solarFlare, abyssal, sakura, aurora, sapphire, amber, onyx, pearl, ivory, neon, voidGlass }
+enum NebulaSurfaceArt { imperial, solarFlare, abyssal, sakura, aurora, sapphire, amber, onyx, pearl, ivory, neon, voidGlass, forge, hermetic, eclipse, crimson, emerald }
 
 class NebulaSurfaceDecoration extends Decoration {
   final NebulaSurfaceArt art;
@@ -82,6 +82,16 @@ class _SurfacePainter extends BoxPainter {
         _neon(canvas, size, opacity);
       case NebulaSurfaceArt.voidGlass:
         _void(canvas, size, opacity);
+      case NebulaSurfaceArt.forge:
+        _forge(canvas, size, opacity);
+      case NebulaSurfaceArt.hermetic:
+        _hermetic(canvas, size, opacity);
+      case NebulaSurfaceArt.eclipse:
+        _eclipse(canvas, size, opacity);
+      case NebulaSurfaceArt.crimson:
+        _crimson(canvas, size, opacity);
+      case NebulaSurfaceArt.emerald:
+        _emerald(canvas, size, opacity);
     }
     return recorder.endRecording();
   }
@@ -814,5 +824,216 @@ class _SurfacePainter extends BoxPainter {
     final rim = Paint()..strokeWidth = 1.1;
     canvas.drawLine(Offset.zero, Offset(w, 0), rim..color = green.withValues(alpha: .35));
     canvas.drawLine(Offset.zero, Offset(0, h), rim..color = green.withValues(alpha: .15));
+  }
+
+  // ------------------------------------------------------------------- forge
+
+  static void _forge(Canvas canvas, Size size, double opacity) {
+    final rnd = Random(12);
+    final w = size.width, h = size.height;
+    _fill(canvas, size, const [Color(0xFF3B2A22), Color(0xFF241812), Color(0xFF130C09), Color(0xFF080403)], const [0, .35, .72, 1], opacity,
+        begin: Alignment.topCenter, end: Alignment.bottomCenter);
+
+    // hammered iron: shallow dimples, light on the upper lip, dark on the lower one
+    final n = (w * h / 260).round().clamp(20, 260);
+    for (var i = 0; i < n; i++) {
+      final c = Offset(rnd.nextDouble() * w, rnd.nextDouble() * h);
+      final r = 2 + rnd.nextDouble() * 4;
+      canvas.drawCircle(c, r, Paint()..style = PaintingStyle.stroke..strokeWidth = .8..color = Colors.black.withValues(alpha: .22));
+      canvas.drawArc(Rect.fromCircle(center: c, radius: r), pi * 1.1, pi * .8, false, Paint()..style = PaintingStyle.stroke..strokeWidth = .7..color = const Color(0xFFFFD9B0).withValues(alpha: .10));
+    }
+
+    // heat rising from the bottom
+    final heat = Rect.fromLTWH(0, h * .45, w, h * .55);
+    canvas.drawRect(heat, Paint()..shader = ui.Gradient.linear(Offset(0, h), Offset(0, h * .45), [const Color(0xFFFF6D00).withValues(alpha: .38), const Color(0x00FF6D00)]));
+
+    // molten seams: cracks full of liquid metal
+    for (var i = 0; i < 3; i++) {
+      var p = Offset(w * (.15 + i * .35 + rnd.nextDouble() * .1), h);
+      final path = Path()..moveTo(p.dx, p.dy);
+      for (var s = 0; s < 9; s++) {
+        p += Offset((rnd.nextDouble() - .5) * 16, -h * .07 - rnd.nextDouble() * 6);
+        path.lineTo(p.dx, p.dy);
+      }
+      canvas.drawPath(path, Paint()..style = PaintingStyle.stroke..strokeWidth = 4..strokeCap = StrokeCap.round..strokeJoin = StrokeJoin.round..color = const Color(0xFFFF6D00).withValues(alpha: .4)..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 3));
+      canvas.drawPath(path, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.1..strokeCap = StrokeCap.round..strokeJoin = StrokeJoin.round..color = const Color(0xFFFFE082));
+    }
+
+    // bolted straps
+    final strap = Paint()..color = const Color(0xFF0A0605).withValues(alpha: .6);
+    canvas.drawRect(Rect.fromLTWH(0, 0, w, 7), strap);
+    for (var x = 10.0; x < w; x += 42) {
+      canvas.drawCircle(Offset(x, 3.5), 1.6, Paint()..color = const Color(0xFF8A6A58));
+    }
+    final rim = Paint()..strokeWidth = 1.2;
+    canvas.drawLine(Offset(0, 7), Offset(w, 7), rim..color = const Color(0xFFFFB074).withValues(alpha: .4));
+    canvas.drawLine(Offset(0, h), Offset(w, h), rim..color = const Color(0xFFFF8A00).withValues(alpha: .6));
+  }
+
+  // ---------------------------------------------------------------- hermetic
+
+  static void _hermetic(Canvas canvas, Size size, double opacity) {
+    final w = size.width, h = size.height;
+    const green = Color(0xFF38D39A);
+    const violet = Color(0xFFB388FF);
+    _fill(canvas, size, const [Color(0xFF10242B), Color(0xFF0A141E), Color(0xFF060A12)], const [0, .55, 1], opacity);
+
+    // engraved alchemical wheel, big and faint
+    final c = Offset(w * .5, h * .5);
+    final r = min(w, h) * .42;
+    final line = Paint()..style = PaintingStyle.stroke..strokeWidth = .8;
+    line.color = green.withValues(alpha: .30);
+    canvas.drawCircle(c, r, line);
+    canvas.drawCircle(c, r * .8, line..color = violet.withValues(alpha: .24));
+    for (var i = 0; i < 48; i++) {
+      final a = i * 2 * pi / 48;
+      final l = i % 4 == 0 ? 5.0 : 2.5;
+      canvas.drawLine(c + Offset(cos(a), sin(a)) * (r - l), c + Offset(cos(a), sin(a)) * r, line..color = green.withValues(alpha: .28));
+    }
+    for (var k = 0; k < 2; k++) {
+      final path = Path();
+      for (var i = 0; i < 3; i++) {
+        final a = k * pi / 3 + i * 2 * pi / 3 - pi / 2;
+        final p = c + Offset(cos(a), sin(a)) * r * .62;
+        i == 0 ? path.moveTo(p.dx, p.dy) : path.lineTo(p.dx, p.dy);
+      }
+      path.close();
+      canvas.drawPath(path, line..color = (k == 0 ? green : violet).withValues(alpha: .36));
+    }
+
+    // planet marks in the corners
+    const marks = ['☉', '☽', '☿', '♀'];
+    final corners = [Offset(12, 12), Offset(w - 12, 12), Offset(12, h - 12), Offset(w - 12, h - 12)];
+    for (var i = 0; i < 4; i++) {
+      final tp = TextPainter(text: TextSpan(text: marks[i], style: TextStyle(color: green.withValues(alpha: .55), fontSize: 11)), textDirection: TextDirection.ltr)..layout();
+      tp.paint(canvas, corners[i] - Offset(tp.width / 2, tp.height / 2));
+      tp.dispose();
+    }
+
+    // double frame, sharp corners
+    canvas.drawRect(Rect.fromLTWH(3, 3, w - 6, h - 6), Paint()..style = PaintingStyle.stroke..strokeWidth = 1..color = green.withValues(alpha: .55));
+    canvas.drawRect(Rect.fromLTWH(6.5, 6.5, w - 13, h - 13), Paint()..style = PaintingStyle.stroke..strokeWidth = .5..color = violet.withValues(alpha: .35));
+  }
+
+  // ----------------------------------------------------------------- eclipse
+
+  static void _eclipse(Canvas canvas, Size size, double opacity) {
+    final rnd = Random(20);
+    final w = size.width, h = size.height;
+    _fill(canvas, size, const [Color(0xFF0A1C2E), Color(0xFF050E1C), Color(0xFF02060D)], const [0, .5, 1], opacity, begin: Alignment.topRight, end: Alignment.bottomLeft);
+    for (var i = 0; i < (w * h / 1600).round().clamp(6, 50); i++) {
+      canvas.drawCircle(Offset(rnd.nextDouble() * w, rnd.nextDouble() * h), .5 + rnd.nextDouble() * .7, Paint()..color = Colors.white.withValues(alpha: .12 + rnd.nextDouble() * .4));
+    }
+    final c = Offset(w * .76, h * .42);
+    final r = min(w, h) * .26;
+
+    // corona: rays and halo
+    final ray = Paint()..strokeCap = StrokeCap.round;
+    for (var i = 0; i < 30; i++) {
+      final a = i * 2 * pi / 30;
+      final len = r * (.5 + rnd.nextDouble() * 1.4);
+      final p0 = c + Offset(cos(a), sin(a)) * r;
+      final p1 = c + Offset(cos(a), sin(a)) * (r + len);
+      ray
+        ..strokeWidth = 1 + rnd.nextDouble()
+        ..shader = ui.Gradient.linear(p0, p1, [const Color(0xFF9AF5FF).withValues(alpha: .4), const Color(0x0029D9FF)]);
+      canvas.drawLine(p0, p1, ray);
+    }
+    canvas.drawCircle(c, r * 1.4, Paint()..shader = ui.Gradient.radial(c, r * 1.4, [const Color(0x0029D9FF), const Color(0x6629D9FF), const Color(0x0029D9FF)], const [.55, .72, 1]));
+    canvas.drawCircle(c, r, Paint()..color = const Color(0xFF000206));
+    canvas.drawCircle(c, r, Paint()..style = PaintingStyle.stroke..strokeWidth = 1..color = const Color(0xFF9AF5FF).withValues(alpha: .7));
+
+    // the diamond ring
+    final d = c + Offset(cos(-pi * .8), sin(-pi * .8)) * r;
+    canvas.drawCircle(d, r * .5, Paint()..shader = ui.Gradient.radial(d, r * .5, [Colors.white.withValues(alpha: .7), const Color(0x339AF5FF), const Color(0x009AF5FF)], const [0, .3, 1]));
+    canvas.drawCircle(d, 2, Paint()..color = Colors.white);
+
+    final rim = Paint()..strokeWidth = 1.1;
+    canvas.drawLine(Offset.zero, Offset(w, 0), rim..color = const Color(0xFF9AF5FF).withValues(alpha: .4));
+    canvas.drawLine(Offset.zero, Offset(0, h), rim..color = const Color(0xFF9AF5FF).withValues(alpha: .18));
+  }
+
+  // ----------------------------------------------------------------- crimson
+
+  static void _crimson(Canvas canvas, Size size, double opacity) {
+    final rnd = Random(1);
+    final w = size.width, h = size.height;
+    _fill(canvas, size, const [Color(0xFF4A0A1C), Color(0xFF2A0610), Color(0xFF14030A), Color(0xFF090105)], const [0, .35, .72, 1], opacity,
+        begin: Alignment.topLeft, end: Alignment.bottomRight);
+
+    // veins from the edges
+    for (var corner = 0; corner < 4; corner++) {
+      final origin = Offset(corner % 2 == 0 ? 0 : w, corner < 2 ? 0 : h);
+      final inward = atan2(h / 2 - origin.dy, w / 2 - origin.dx);
+      for (var b = 0; b < 3; b++) {
+        var pos = origin;
+        var heading = inward + (rnd.nextDouble() - .5) * 1.2;
+        final path = Path()..moveTo(pos.dx, pos.dy);
+        for (var s = 0; s < 9 + rnd.nextInt(6); s++) {
+          heading += (rnd.nextDouble() - .5) * .8;
+          pos += Offset(cos(heading), sin(heading)) * 9;
+          path.lineTo(pos.dx, pos.dy);
+        }
+        canvas.drawPath(path, Paint()..style = PaintingStyle.stroke..strokeWidth = 3..strokeCap = StrokeCap.round..color = const Color(0xFFFF1744).withValues(alpha: .18)..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 2.5));
+        canvas.drawPath(path, Paint()..style = PaintingStyle.stroke..strokeWidth = .8..strokeCap = StrokeCap.round..color = const Color(0xFFFF5C7C).withValues(alpha: .55));
+      }
+    }
+
+    // wet sheen
+    final sheen = Path()..moveTo(0, h * .18)..quadraticBezierTo(w * .5, h * .02, w, h * .14)..lineTo(w, h * .06)..quadraticBezierTo(w * .5, -h * .08, 0, h * .06)..close();
+    canvas.drawPath(sheen, Paint()..color = Colors.white.withValues(alpha: .07));
+
+    // drops hanging from the top edge
+    for (var i = 0; i < (w / 38).round().clamp(2, 10); i++) {
+      final x = rnd.nextDouble() * w;
+      final len = 5 + rnd.nextDouble() * 12;
+      canvas.drawRect(Rect.fromLTWH(x - .8, 0, 1.6, len), Paint()..color = const Color(0xFFB0102E).withValues(alpha: .85));
+      canvas.drawCircle(Offset(x, len + 1.5), 2.3, Paint()..color = const Color(0xFFD81B3F));
+      canvas.drawCircle(Offset(x - .7, len + .8), .7, Paint()..color = Colors.white.withValues(alpha: .6));
+    }
+    final rim = Paint()..strokeWidth = 1.2;
+    canvas.drawLine(Offset(0, h), Offset(w, h), rim..color = const Color(0xFF000000).withValues(alpha: .7));
+    canvas.drawLine(Offset.zero, Offset(0, h), rim..color = const Color(0xFFFF5C7C).withValues(alpha: .3));
+  }
+
+  // ----------------------------------------------------------------- emerald
+
+  static void _emerald(Canvas canvas, Size size, double opacity) {
+    final rnd = Random(55);
+    final w = size.width, h = size.height;
+    const gold = Color(0xFFFFD54F);
+    _fill(canvas, size, const [Color(0xFF138A5E), Color(0xFF0A5A3E), Color(0xFF04301F), Color(0xFF01130C)], const [0, .3, .68, 1], opacity);
+
+    // big lit and shadowed facets
+    final cols = max(2, (w / 54).round()), rows = max(2, (h / 54).round());
+    final cw = w / cols, ch = h / rows;
+    final pts = List.generate(rows + 1, (r) => List.generate(cols + 1, (c) => Offset(c * cw + (c > 0 && c < cols ? (rnd.nextDouble() - .5) * cw * .5 : 0), r * ch + (r > 0 && r < rows ? (rnd.nextDouble() - .5) * ch * .5 : 0))));
+    final fill = Paint();
+    final edge = Paint()..style = PaintingStyle.stroke..strokeWidth = .6..color = const Color(0xFFB9F6CA).withValues(alpha: .20);
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {
+        final a = pts[r][c], b = pts[r][c + 1], d = pts[r + 1][c], e = pts[r + 1][c + 1];
+        for (final tri in [[a, b, e], [a, e, d]]) {
+          final tilt = rnd.nextDouble() * 2 - 1;
+          fill.color = tilt > 0 ? const Color(0xFFB9F6CA).withValues(alpha: tilt * .16) : Colors.black.withValues(alpha: -tilt * .3);
+          final path = Path()..moveTo(tri[0].dx, tri[0].dy)..lineTo(tri[1].dx, tri[1].dy)..lineTo(tri[2].dx, tri[2].dy)..close();
+          canvas.drawPath(path, fill);
+          canvas.drawPath(path, edge);
+        }
+      }
+    }
+
+    // gold veins running through the stone
+    for (var i = 0; i < 2; i++) {
+      final y = h * (.3 + i * .4);
+      final path = Path()..moveTo(0, y)..cubicTo(w * .3, y - 14, w * .5, y + 16, w * .7, y - 4)..cubicTo(w * .85, y - 14, w * .95, y + 6, w, y - 6);
+      canvas.drawPath(path, Paint()..style = PaintingStyle.stroke..strokeWidth = 3..color = gold.withValues(alpha: .20)..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 2.5));
+      canvas.drawPath(path, Paint()..style = PaintingStyle.stroke..strokeWidth = 1..strokeCap = StrokeCap.round..color = gold.withValues(alpha: .85));
+    }
+
+    final rim = Paint()..strokeWidth = 1.2;
+    canvas.drawLine(Offset.zero, Offset(w, 0), rim..color = const Color(0xFFB9F6CA).withValues(alpha: .6));
+    canvas.drawLine(Offset.zero, Offset(0, h), rim..color = const Color(0xFFB9F6CA).withValues(alpha: .25));
+    canvas.drawLine(Offset(0, h), Offset(w, h), rim..color = const Color(0x99000000));
   }
 }

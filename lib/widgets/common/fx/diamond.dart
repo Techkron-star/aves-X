@@ -44,6 +44,16 @@ Decoration nebulaMaterialDecoration(NebulaMaterial material, {double phase = -1,
       return NebulaSurfaceDecoration(NebulaSurfaceArt.neon, opacity: opacity);
     case NebulaMaterial.voidGlass:
       return NebulaSurfaceDecoration(NebulaSurfaceArt.voidGlass, opacity: opacity);
+    case NebulaMaterial.forge:
+      return NebulaSurfaceDecoration(NebulaSurfaceArt.forge, opacity: opacity);
+    case NebulaMaterial.hermetic:
+      return NebulaSurfaceDecoration(NebulaSurfaceArt.hermetic, opacity: opacity);
+    case NebulaMaterial.eclipse:
+      return NebulaSurfaceDecoration(NebulaSurfaceArt.eclipse, opacity: opacity);
+    case NebulaMaterial.crimson:
+      return NebulaSurfaceDecoration(NebulaSurfaceArt.crimson, opacity: opacity);
+    case NebulaMaterial.emerald:
+      return NebulaSurfaceDecoration(NebulaSurfaceArt.emerald, opacity: opacity);
     default:
       final style = nebulaMaterialStylesByMaterial[material];
       if (style == null) return const BoxDecoration();

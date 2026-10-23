@@ -270,6 +270,16 @@ class _PadlockPainter extends CustomPainter {
       _paintNeon(canvas);
     } else if (material == NebulaMaterial.voidGlass) {
       _paintVoid(canvas);
+    } else if (material == NebulaMaterial.forge) {
+      _paintAnvil(canvas);
+    } else if (material == NebulaMaterial.hermetic) {
+      _paintCircle(canvas);
+    } else if (material == NebulaMaterial.eclipse) {
+      _paintMoon(canvas);
+    } else if (material == NebulaMaterial.crimson) {
+      _paintHeart(canvas);
+    } else if (material == NebulaMaterial.emerald) {
+      _paintPrism(canvas);
     } else if (material != null && style != null) {
       _paintSignature(canvas, material!, style!, open);
     } else {
@@ -977,6 +987,98 @@ class _PadlockPainter extends CustomPainter {
     canvas.drawCircle(c, 22, Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = green);
     canvas.drawArc(Rect.fromCircle(center: c, radius: 26), pi * 1.2, pi * .6, false, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.2..strokeCap = StrokeCap.round..color = Colors.white.withValues(alpha: .7));
     _keyhole(canvas, c + const Offset(0, -6), green, scale: .75);
+  }
+
+  // Forge: an iron anvil with a molten keyhole.
+  void _paintAnvil(Canvas canvas) {
+    const orange = Color(0xFFFF6D00);
+    _shackle(canvas, const Color(0xFF9A8F8A), width: 6.5);
+    final anvil = Path()
+      ..moveTo(14, 56)..lineTo(78, 56)..quadraticBezierTo(90, 56, 92, 64)..lineTo(70, 66)..lineTo(66, 72)..lineTo(70, 88)..lineTo(78, 92)..lineTo(24, 92)..lineTo(32, 88)..lineTo(36, 72)..lineTo(32, 66)..lineTo(14, 64)..close();
+    canvas.drawPath(anvil, Paint()..color = orange.withValues(alpha: .35)..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 4));
+    canvas.drawPath(anvil, Paint()..shader = const LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFF8A7F7A), Color(0xFF3E3430), Color(0xFF1A1411)]).createShader(anvil.getBounds()));
+    canvas.drawPath(anvil, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.8..strokeJoin = StrokeJoin.round..color = const Color(0xFFD7C2B8));
+    canvas.drawLine(const Offset(18, 59), const Offset(76, 59), Paint()..strokeWidth = 1.6..color = Colors.white.withValues(alpha: .4));
+    // glowing metal on the face
+    canvas.drawOval(Rect.fromCenter(center: const Offset(50, 57), width: 26, height: 5), Paint()..color = orange.withValues(alpha: .9)..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 2));
+    _keyhole(canvas, const Offset(51, 70), const Color(0xFFFFB300), scale: .55);
+  }
+
+  // Hermetic: a circle of arts with a hexagram and a glowing center.
+  void _paintCircle(Canvas canvas) {
+    const green = Color(0xFF38D39A);
+    const violet = Color(0xFFB388FF);
+    _shackle(canvas, green.withValues(alpha: .9), width: 5);
+    const c = Offset(50, 68);
+    canvas.drawCircle(c, 29, Paint()..color = green.withValues(alpha: .25)..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 5));
+    canvas.drawCircle(c, 26, Paint()..shader = const RadialGradient(colors: [Color(0xFF16423A), Color(0xFF081A1E)]).createShader(Rect.fromCircle(center: c, radius: 26)));
+    canvas.drawCircle(c, 26, Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = green);
+    canvas.drawCircle(c, 21, Paint()..style = PaintingStyle.stroke..strokeWidth = .8..color = violet.withValues(alpha: .8));
+    for (var k = 0; k < 2; k++) {
+      final path = Path();
+      for (var i = 0; i < 3; i++) {
+        final a = k * pi / 3 + i * 2 * pi / 3 - pi / 2 + (open ? .5 : 0);
+        final p = c + Offset(cos(a), sin(a)) * 19;
+        i == 0 ? path.moveTo(p.dx, p.dy) : path.lineTo(p.dx, p.dy);
+      }
+      path.close();
+      canvas.drawPath(path, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.2..color = (k == 0 ? green : violet).withValues(alpha: .9));
+    }
+    _keyhole(canvas, c + const Offset(0, -5), const Color(0xFFE0FFF2), scale: .65);
+  }
+
+  // Eclipse: a black moon with a corona and a diamond ring glint.
+  void _paintMoon(Canvas canvas) {
+    const cyan = Color(0xFF9AF5FF);
+    _shackle(canvas, const Color(0xFF7FD8E8), width: 5.5, glow: const Color(0x6629D9FF));
+    const c = Offset(50, 66);
+    final ray = Paint()..strokeWidth = 1.4..strokeCap = StrokeCap.round;
+    for (var i = 0; i < 24; i++) {
+      final a = i * 2 * pi / 24;
+      final len = i.isEven ? 11.0 : 6.0;
+      ray.shader = ui.Gradient.linear(c + Offset(cos(a), sin(a)) * 24, c + Offset(cos(a), sin(a)) * (24 + len), [cyan.withValues(alpha: .8), cyan.withValues(alpha: 0)]);
+      canvas.drawLine(c + Offset(cos(a), sin(a)) * 24, c + Offset(cos(a), sin(a)) * (24 + len), ray);
+    }
+    canvas.drawCircle(c, 25, Paint()..color = const Color(0x6629D9FF)..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 4));
+    canvas.drawCircle(c, 23, Paint()..color = const Color(0xFF000206));
+    canvas.drawCircle(c, 23, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.6..color = cyan);
+    final g = c + Offset(cos(-pi * (open ? .5 : .8)), sin(-pi * (open ? .5 : .8))) * 23;
+    canvas.drawCircle(g, 9, Paint()..shader = ui.Gradient.radial(g, 9, [Colors.white.withValues(alpha: .8), cyan.withValues(alpha: .25), cyan.withValues(alpha: 0)], const [0, .35, 1]));
+    canvas.drawCircle(g, 1.8, Paint()..color = Colors.white);
+    _keyhole(canvas, c + const Offset(0, -5), cyan, scale: .7);
+  }
+
+  // Crimson: a faceted blood-ruby heart.
+  void _paintHeart(Canvas canvas) {
+    const red = Color(0xFFFF1744);
+    _shackle(canvas, const Color(0xFFE08A9A), width: 5.5);
+    final heart = Path()
+      ..moveTo(50, 92)
+      ..cubicTo(8, 66, 12, 38, 32, 40)
+      ..cubicTo(42, 41, 48, 48, 50, 54)
+      ..cubicTo(52, 48, 58, 41, 68, 40)
+      ..cubicTo(88, 38, 92, 66, 50, 92)
+      ..close();
+    canvas.drawPath(heart, Paint()..color = red.withValues(alpha: .4)..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 4));
+    canvas.drawPath(heart, Paint()..shader = const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFFFF4D6D), Color(0xFFB0102E), Color(0xFF4A0414)]).createShader(heart.getBounds()));
+    canvas.drawPath(Path()..moveTo(50, 54)..lineTo(34, 62)..lineTo(50, 92)..moveTo(50, 54)..lineTo(66, 62)..lineTo(50, 92)..moveTo(34, 62)..lineTo(24, 50)..moveTo(66, 62)..lineTo(76, 50), Paint()..style = PaintingStyle.stroke..strokeWidth = .8..color = Colors.white.withValues(alpha: .3));
+    canvas.drawPath(heart, Paint()..style = PaintingStyle.stroke..strokeWidth = 2..strokeJoin = StrokeJoin.round..color = const Color(0xFFFFB3C0));
+    canvas.drawPath(Path()..moveTo(24, 50)..quadraticBezierTo(28, 44, 36, 44), Paint()..style = PaintingStyle.stroke..strokeWidth = 2.4..strokeCap = StrokeCap.round..color = Colors.white.withValues(alpha: .6));
+    _keyhole(canvas, const Offset(50, 62), const Color(0xFF2A0610), scale: .85);
+  }
+
+  // Emerald: a hexagonal prism with a vein of gold.
+  void _paintPrism(Canvas canvas) {
+    const gold = Color(0xFFFFD54F);
+    const pale = Color(0xFFB9F6CA);
+    _shackle(canvas, gold, width: 5.5);
+    final prism = Path()..moveTo(50, 44)..lineTo(78, 58)..lineTo(78, 82)..lineTo(50, 96)..lineTo(22, 82)..lineTo(22, 58)..close();
+    canvas.drawPath(prism, Paint()..shader = const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF4EE0A0), Color(0xFF138A5E), Color(0xFF04301F)]).createShader(prism.getBounds()));
+    canvas.drawPath(Path()..moveTo(50, 44)..lineTo(50, 96)..moveTo(22, 58)..lineTo(50, 70)..lineTo(78, 58), Paint()..style = PaintingStyle.stroke..strokeWidth = .9..color = pale.withValues(alpha: .5));
+    canvas.drawPath(Path()..moveTo(50, 44)..lineTo(22, 58)..lineTo(50, 70)..close(), Paint()..color = Colors.white.withValues(alpha: .18));
+    canvas.drawPath(Path()..moveTo(26, 86)..cubicTo(36, 78, 44, 88, 54, 78)..cubicTo(62, 70, 70, 80, 76, 72), Paint()..style = PaintingStyle.stroke..strokeWidth = 1.6..strokeCap = StrokeCap.round..color = gold);
+    canvas.drawPath(prism, Paint()..style = PaintingStyle.stroke..strokeWidth = 2..strokeJoin = StrokeJoin.round..color = pale);
+    _keyhole(canvas, const Offset(50, 63), const Color(0xFF03281A), scale: .8);
   }
 
   void _paintPadlock(Canvas canvas) {
