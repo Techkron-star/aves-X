@@ -195,7 +195,19 @@ class Vaults {
     // encryption at rest (Bat-curity), if enabled
     for (final path in unlocked) {
       final name = detailsForPath(path)?.name;
-      if (name != null) unawaited(masterGuard.encryptVault(name));
+      if (name != null) unawaited(_encryptLockedVault(name));
+    }
+  }
+
+  Future<void> _encryptLockedVault(String name) async {
+    try {
+      if (!await masterGuard.encryptVault(name)) {
+        await reportService.recordError(StateError('Could not encrypt vault $name while locking'));
+        await failsafe.engageLockdown();
+      }
+    } catch (error, stack) {
+      await reportService.recordError(error, stack);
+      await failsafe.engageLockdown();
     }
   }
 
