@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:aves/model/advanced_privacy.dart';
+import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/entry/origins.dart';
 import 'package:aves/model/source/collection_source.dart';
@@ -169,21 +170,28 @@ class Vaults {
   Future<void> unlock(BuildContext context, String dirPath) async {
     if (!vaults.isVault(dirPath) || !vaults.isLocked(dirPath)) return;
 
-    // decrypt the files first (Bat-Curity). A failure never prevents opening the vault:
-    // the files that cannot be decrypted are reported, and the others stay accessible
+    // Decrypt before opening. If encryption is enabled, a missing/partial report is a hard failure:
+    // never expose a partially decrypted vault or silently continue after a crypto error.
     final vaultName = detailsForPath(dirPath)?.name;
-    if (vaultName != null) {
+    if (masterGuard.vaultEncryption) {
+      if (vaultName == null) {
+        await failsafe.engageLockdown();
+        return;
+      }
       final report = await masterGuard.decryptVault(vaultName);
-      if (report != null && !report.success && context.mounted) {
-        unawaited(
-          showWarningDialog(
-            context: context,
-            message: [context.l10n.vaultDecryptPartialWarning(report.failed), ...report.errors.take(3)].join('\n\n'),
-          ),
-        );
+      if (report == null || !report.success) {
+        // Restore at-rest encryption for files that did decrypt before the failure.
+        final restored = await masterGuard.encryptVault(vaultName);
+        if (!restored) await failsafe.engageLockdown();
+        if (context.mounted) {
+          final message = report == null
+              ? context.l10n.genericFailureFeedback
+              : [context.l10n.vaultDecryptPartialWarning(report.failed), ...report.errors.take(3)].join('\n\n');
+          unawaited(showWarningDialog(context: context, message: message));
+        }
+        return;
       }
     }
-
     // recover untracked vault items
     final source = context.read<CollectionSource>();
     final newEntries = await recoverUntrackedItems(source, dirPath);
