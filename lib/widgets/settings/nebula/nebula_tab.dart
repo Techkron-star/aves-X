@@ -73,8 +73,9 @@ class _NebulaTabState extends State<NebulaTab> with SingleTickerProviderStateMix
     if (animate) {
       _drift.repeat();
     } else {
+      // Freeze the current frame. Resetting to a hard-coded phase made the
+      // whole nebula jump when reduced-motion/performance mode was enabled.
       _drift.stop();
-      _drift.value = .35;
     }
   }
 
