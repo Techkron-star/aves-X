@@ -198,21 +198,21 @@ class SecretLock {
           builder: (context) => const PatternDialog(needConfirmation: false),
           routeSettings: const RouteSettings(name: PatternDialog.routeName),
         );
-        return pattern == null ? null : await masterGuard.matches(passKey, pattern);
+        return pattern == null ? null : await masterGuard.matchesRequired(passKey, pattern);
       case VaultLockType.pin:
         final pin = await showAvesDialog<String>(
           context: context,
           builder: (context) => const PinDialog(needConfirmation: false),
           routeSettings: const RouteSettings(name: PinDialog.routeName),
         );
-        return pin == null ? null : await masterGuard.matches(passKey, pin);
+        return pin == null ? null : await masterGuard.matchesRequired(passKey, pin);
       case VaultLockType.password:
         final password = await showAvesDialog<String>(
           context: context,
           builder: (context) => const PasswordDialog(needConfirmation: false),
           routeSettings: const RouteSettings(name: PasswordDialog.routeName),
         );
-        return password == null ? null : await masterGuard.matches(passKey, password);
+        return password == null ? null : await masterGuard.matchesRequired(passKey, password);
     }
   }
 
