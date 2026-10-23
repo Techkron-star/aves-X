@@ -13,6 +13,7 @@ import 'package:flutter/widgets.dart';
 // There is no recovery: the only way out is wiping everything.
 class MasterCode {
   static const _key = 'master_code';
+  static bool _promptOpen = false;
 
   static Future<bool> get isSet async => await securityService.readValue<String>(_key) != null;
 
@@ -38,39 +39,50 @@ class MasterCode {
   // asks for the code (creating it first if needed); `true` if the user can proceed
   static Future<bool> require(BuildContext context, {String? message, bool proposeExtraSecurity = true}) async {
     if (!await isSet) return ensure(context, proposeExtraSecurity: proposeExtraSecurity);
-    if (!context.mounted) return false;
-
-    final guard = AttemptGuard.master;
-    final remaining = await guard.remainingCooldown();
-    if (remaining != null) {
-      if (context.mounted) await showCooldownMessage(context, remaining);
-      return false;
-    }
-    if (!context.mounted) return false;
-
-    final code = await showAvesDialog<String>(
-      context: context,
-      builder: (context) => CodeDialog(needConfirmation: false, message: message ?? context.l10n.masterCodeEnterMessage),
-      routeSettings: const RouteSettings(name: CodeDialog.routeName),
-    );
-    if (code == null) return false;
-
-    final bool matches;
+    // Multiple callers must not stack Master Code prompts or race success/reset against a wrong attempt.
+    if (_promptOpen || !context.mounted) return false;
+    _promptOpen = true;
     try {
-      matches = await masterGuard.matches(_key, code);
-      if (matches) await guard.reset();
-    } catch (error, stack) {
-      // Corrupt secure storage, hash parsing errors or a failed counter reset are not a wrong code.
-      // Fail closed, report locally, and never turn an infrastructure error into a nuke trigger.
-      await reportService.recordError(error, stack);
-      if (context.mounted) {
-        await showWarningDialog(context: context, message: context.l10n.genericFailureFeedback);
-      }
-      return false;
+      return await _requireExisting(context, message: message);
+    } finally {
+      _promptOpen = false;
     }
-    if (matches) return true;
-    await handleFailure(context, guard, Nuke.nukeEverything);
-    return false;
+  }
+
+  static Future<bool> _requireExisting(BuildContext context, {String? message}) async {
+      if (!context.mounted) return false;
+  
+      final guard = AttemptGuard.master;
+      final remaining = await guard.remainingCooldown();
+      if (remaining != null) {
+        if (context.mounted) await showCooldownMessage(context, remaining);
+        return false;
+      }
+      if (!context.mounted) return false;
+  
+      final code = await showAvesDialog<String>(
+        context: context,
+        builder: (context) => CodeDialog(needConfirmation: false, message: message ?? context.l10n.masterCodeEnterMessage),
+        routeSettings: const RouteSettings(name: CodeDialog.routeName),
+      );
+      if (code == null) return false;
+  
+      final bool matches;
+      try {
+        matches = await masterGuard.matches(_key, code);
+        if (matches) await guard.reset();
+      } catch (error, stack) {
+        // Corrupt secure storage, hash parsing errors or a failed counter reset are not a wrong code.
+        // Fail closed, report locally, and never turn an infrastructure error into a nuke trigger.
+        await reportService.recordError(error, stack);
+        if (context.mounted) {
+          await showWarningDialog(context: context, message: context.l10n.genericFailureFeedback);
+        }
+        return false;
+      }
+      if (matches) return true;
+      await handleFailure(context, guard, Nuke.nukeEverything);
+      return false;
   }
 
   // asks for the current code, then for the new one
