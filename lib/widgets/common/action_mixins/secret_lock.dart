@@ -142,7 +142,19 @@ class SecretLock {
       if (!context.mounted) return false;
     }
 
-    final result = await _attempt(context, lockType, reason, passKey);
+    bool? result;
+    try {
+      result = await _attempt(context, lockType, reason, passKey);
+    } catch (error, stack) {
+      // A storage/hash/system error is not proof of a wrong secret. Fail closed without
+      // incrementing counters or reaching any configured destructive action.
+      await reportService.recordError(error, stack);
+      if (context.mounted) {
+        await showWarningDialog(context: context, message: context.l10n.genericFailureFeedback);
+      }
+      return false;
+    }
+    // Cancellation, unavailable authentication and verifier errors are not failed attempts.
     if (result == null) return false;
 
     if (result) {
