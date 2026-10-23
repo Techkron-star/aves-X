@@ -96,9 +96,17 @@ class LockedBadgeState extends State<LockedBadge> with TickerProviderStateMixin 
               alignment: Alignment.center,
               children: [
                 // the chains stay in place once locked (not in performance mode: padlock only)
-                if (!settings.performanceMode && !isUnlocking)
+                if (!settings.performanceMode)
                   Positioned.fill(
-                    child: CustomPaint(painter: _ChainsPainter(progress: chains, colors: chainColors, stroke: chainStroke, scale: scale)),
+                    child: CustomPaint(
+                      painter: _ChainsPainter(
+                        progress: chains,
+                        colors: chainColors,
+                        stroke: chainStroke,
+                        scale: scale,
+                        unlockProgress: isUnlocking ? unlockProgress : 0,
+                      ),
+                    ),
                   ),
                 Transform.translate(
                   offset: Offset(
@@ -182,41 +190,122 @@ class _Slide extends GradientTransform {
 }
 
 class _ChainsPainter extends CustomPainter {
-  final double progress, scale;
+  final double progress, scale, unlockProgress;
   final List<Color>? colors;
   final Color? stroke;
 
-  const _ChainsPainter({required this.progress, required this.colors, required this.stroke, required this.scale});
+  const _ChainsPainter({
+    required this.progress,
+    required this.colors,
+    required this.stroke,
+    required this.scale,
+    this.unlockProgress = 0,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final c = size.center(Offset.zero);
-    final reach = size.shortestSide * 0.62 * progress;
-    for (final angle in [pi / 4, -pi / 4]) {
-      final dir = Offset(cos(angle), sin(angle));
-      final linkLength = 16.0 * scale;
-      final count = (reach * 2 / linkLength).floor();
+    if (progress <= 0 || size.isEmpty) return;
+    final center = size.center(Offset.zero);
+    final reach = size.shortestSide * .62 * progress;
+    final pitch = 14.0 * scale;
+    final count = max(1, (reach * 2 / pitch).ceil());
+    final palette = colors == null || colors!.isEmpty
+        ? const [Color(0xFFE0E0E0), Color(0xFF6E6E6E)]
+        : colors!;
+    final metalA = palette.first;
+    final metalB = palette.length > 1 ? palette.last : palette.first;
+    final highlight = Color.lerp(metalA, Colors.white, .62)!;
+    final shadow = Color.lerp(metalB, Colors.black, .48)!;
+    final edgeColor = stroke ?? const Color(0xFF3A3A3A);
+    final outerWidth = pitch * 1.34;
+    final outerHeight = 10.5 * scale;
+    final innerWidth = max(1.0, outerWidth - 5.0 * scale);
+    final innerHeight = max(.8, outerHeight - 4.8 * scale);
+
+    // Hollow oval links alternate orientation, so one link visibly passes through the next.
+    for (var strand = 0; strand < 2; strand++) {
+      final angle = strand == 0 ? pi / 4 : -pi / 4;
+      final direction = Offset(cos(angle), sin(angle));
       for (var i = 0; i < count; i++) {
-        final d = -reach + (i + .5) * linkLength;
-        canvas.save();
-        canvas.translate(c.dx + dir.dx * d, c.dy + dir.dy * d);
-        canvas.rotate(angle + (i.isEven ? 0 : pi / 2));
-        final rect = RRect.fromRectAndRadius(
-          Rect.fromCenter(center: Offset.zero, width: linkLength + 4 * scale, height: (i.isEven ? 11 : 6) * scale),
-          Radius.circular(5 * scale),
+        final d = -reach + (i + .5) * (reach * 2 / count);
+        final fromCenter = (d.abs() / max(1.0, reach)).clamp(0.0, 1.0).toDouble();
+        // Unhook from the crossing outward instead of deleting both chains at once.
+        final localUnlock = ((unlockProgress - .08 - fromCenter * .22) / .62).clamp(0.0, 1.0).toDouble();
+        final release = Curves.easeInCubic.transform(localUnlock);
+        final fade = (1.0 - ((release - .32) / .68).clamp(0.0, 1.0)).clamp(0.0, 1.0).toDouble();
+        if (fade <= .005) continue;
+
+        final side = d < 0 ? -1.0 : 1.0;
+        final outward = direction * (side * size.shortestSide * .19 * release);
+        final falling = Offset(
+          strand == 0 ? -size.shortestSide * .035 * release : size.shortestSide * .035 * release,
+          size.shortestSide * .25 * release * release,
         );
-        final fill = Paint()
-          ..shader = (colors != null
-                  ? LinearGradient(colors: colors!)
-                  : const LinearGradient(colors: [Color(0xFFE0E0E0), Color(0xFF6E6E6E)]))
-              .createShader(rect.outerRect);
-        canvas.drawRRect(rect, fill);
-        canvas.drawRRect(
-          rect,
+        final twist = (i.isEven ? 1.0 : -1.0) * .24 * release;
+        final outerRect = Rect.fromCenter(center: Offset.zero, width: outerWidth, height: outerHeight);
+        final innerRect = Rect.fromCenter(center: Offset.zero, width: innerWidth, height: innerHeight);
+        final ring = Path()
+          ..fillType = PathFillType.evenOdd
+          ..addOval(outerRect)
+          ..addOval(innerRect);
+
+        canvas.save();
+        canvas.translate(
+          center.dx + direction.dx * d + outward.dx + falling.dx,
+          center.dy + direction.dy * d + outward.dy + falling.dy,
+        );
+        canvas.rotate(angle + (i.isEven ? 0 : pi / 2) + twist);
+        canvas.drawPath(
+          ring.shift(Offset(0, .8 * scale)),
+          Paint()
+            ..color = Colors.black.withValues(alpha: .58 * fade)
+            ..maskFilter = ui.MaskFilter.blur(ui.BlurStyle.normal, 1.25 * scale),
+        );
+        final metalColors = [
+          highlight.withValues(alpha: highlight.a * fade),
+          metalA.withValues(alpha: metalA.a * fade),
+          metalB.withValues(alpha: metalB.a * fade),
+          shadow.withValues(alpha: shadow.a * fade),
+        ];
+        canvas.drawPath(
+          ring,
+          Paint()
+            ..shader = LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: metalColors,
+              stops: const [0, .28, .72, 1],
+            ).createShader(outerRect),
+        );
+        canvas.drawPath(
+          ring,
           Paint()
             ..style = PaintingStyle.stroke
-            ..strokeWidth = 1.4 * scale
-            ..color = stroke ?? const Color(0xFF3A3A3A),
+            ..strokeWidth = 1.0 * scale
+            ..strokeJoin = StrokeJoin.round
+            ..color = edgeColor.withValues(alpha: edgeColor.a * fade),
+        );
+        canvas.drawArc(
+          outerRect,
+          pi + .18,
+          pi * .62,
+          false,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = .85 * scale
+            ..strokeCap = StrokeCap.round
+            ..color = highlight.withValues(alpha: .88 * fade),
+        );
+        canvas.drawArc(
+          innerRect,
+          pi + .14,
+          pi * .66,
+          false,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = .9 * scale
+            ..strokeCap = StrokeCap.round
+            ..color = shadow.withValues(alpha: .84 * fade),
         );
         canvas.restore();
       }
@@ -224,7 +313,8 @@ class _ChainsPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _ChainsPainter old) => old.progress != progress || old.colors != colors || old.stroke != stroke || old.scale != scale;
+  bool shouldRepaint(covariant _ChainsPainter old) =>
+      old.progress != progress || old.unlockProgress != unlockProgress || old.colors != colors || old.stroke != stroke || old.scale != scale;
 }
 
 class _PadlockPainter extends CustomPainter {
