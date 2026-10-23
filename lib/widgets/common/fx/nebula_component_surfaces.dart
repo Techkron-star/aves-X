@@ -11,6 +11,9 @@ enum NebulaComponentSurfaceRole {
   searchBar,
   appLockBackdrop,
   lockdownBackdrop,
+  itemLockBackdrop,
+  itemLockCard,
+  itemLockBadge,
   appLockCard,
   lockdownCard,
   securityInput,
@@ -76,6 +79,9 @@ class _NebulaComponentSurfaceAccentState extends State<NebulaComponentSurfaceAcc
         NebulaComponentSurfaceRole.searchBar => const Duration(seconds: 8),
         NebulaComponentSurfaceRole.appLockBackdrop => const Duration(seconds: 20),
         NebulaComponentSurfaceRole.lockdownBackdrop => const Duration(milliseconds: 3800),
+        NebulaComponentSurfaceRole.itemLockBackdrop => const Duration(seconds: 24),
+        NebulaComponentSurfaceRole.itemLockCard => const Duration(seconds: 18),
+        NebulaComponentSurfaceRole.itemLockBadge => const Duration(seconds: 11),
         NebulaComponentSurfaceRole.appLockCard => const Duration(seconds: 16),
         NebulaComponentSurfaceRole.lockdownCard => const Duration(milliseconds: 3200),
         NebulaComponentSurfaceRole.securityInput => const Duration(milliseconds: 4200),
@@ -216,6 +222,12 @@ class _NebulaComponentSurfacePainter extends CustomPainter {
         _paintAppLockBackdrop(canvas, size);
       case NebulaComponentSurfaceRole.lockdownBackdrop:
         _paintLockdownBackdrop(canvas, size);
+      case NebulaComponentSurfaceRole.itemLockBackdrop:
+        _paintItemLockBackdrop(canvas, size);
+      case NebulaComponentSurfaceRole.itemLockCard:
+        _paintItemLockCard(canvas, size);
+      case NebulaComponentSurfaceRole.itemLockBadge:
+        _paintItemLockBadge(canvas, size);
       case NebulaComponentSurfaceRole.appLockCard:
         _paintLockCard(canvas, size);
       case NebulaComponentSurfaceRole.lockdownCard:
@@ -449,6 +461,113 @@ class _NebulaComponentSurfacePainter extends CustomPainter {
       _dot(canvas, Offset(w * .89, y),
           _light, 1.0 + pulse * (_urgent ? 1.1 : .35),
           glow: _urgent ? 2.5 + pulse * 3.0 : 1.0 + pulse);
+    }
+  }
+
+  void _paintItemLockBackdrop(Canvas canvas, Size size) {
+    final w = size.width, h = size.height, m = math.min(size.width, size.height);
+    final pulse = .5 + .5 * math.sin(progress * math.pi * 2);
+    if (_eclipse) {
+      // The item-lock screen evokes an eclipse in deep space: an oblique orbital
+      // sweep sits off-centre so the card owns the foreground.
+      final center = Offset(w * .16, h * .74);
+      for (var i = 0; i < 3; i++) {
+        final r = m * (.11 + i * .055);
+        final rect = Rect.fromCenter(center: center, width: r * 2.7, height: r * 1.15);
+        _arc(canvas, rect, math.pi * (.12 + i * .18) + progress * .035,
+            math.pi * (1.05 + i * .12), _accent, .12 + pulse * .08, .8 + i * .15,
+            glow: i == 1 ? 3.5 : 0);
+      }
+      final a = math.pi * .12 + progress * math.pi * 1.05;
+      final r = m * .165;
+      _dot(canvas, center + Offset(math.cos(a) * r * 1.35, math.sin(a) * r * .58),
+          _light, 1.1 + pulse * .5, glow: 2 + pulse * 2.2);
+      _line(canvas, Offset(w * .72, h * .12), Offset(w * .92, h * .12),
+          _light, .14 + pulse * .1, .8);
+    } else {
+      // Hermetic uses a field diagram around the edge: measured rails and an
+      // off-centre orbit, leaving the lock emblem and copy unobscured.
+      final x = w * .91;
+      _line(canvas, Offset(x, h * .11), Offset(x, h * .34),
+          _accent, .18 + pulse * .08, .8);
+      for (var i = 0; i < 4; i++) {
+        final y = h * (.15 + i * .055);
+        _line(canvas, Offset(x - m * .055, y), Offset(x, y),
+            _light, .2 + pulse * (i == 2 ? .32 : .08), i == 2 ? 1.1 : .7,
+            glow: i == 2 ? 2 + pulse * 2 : 0);
+      }
+      final center = Offset(w * .09, h * .86);
+      for (var i = 0; i < 3; i++) {
+        final r = m * (.025 + i * .014);
+        _arc(canvas, Rect.fromCenter(center: center, width: r * 2.2, height: r * 1.5),
+            progress * .11 + i * .8, math.pi * 1.28,
+            i == 1 ? _light : _accent, .13 + pulse * .08, .8);
+      }
+    }
+  }
+
+  void _paintItemLockCard(Canvas canvas, Size size) {
+    final w = size.width, h = size.height, m = math.min(size.width, size.height);
+    final pulse = .5 + .5 * math.sin(progress * math.pi * 2);
+    if (_eclipse) {
+      final r = m * .14;
+      final center = Offset(w * .87, h * .1);
+      _arc(canvas, Rect.fromCircle(center: center, radius: r),
+          -math.pi * .78 + progress * .09, math.pi * 1.28,
+          _light, .22 + pulse * .15, 1.1, glow: 2 + pulse * 2);
+      final lower = Path()
+        ..moveTo(w * .07, h * .82)
+        ..quadraticBezierTo(w * .28, h * .9, w * .47, h * .84)
+        ..quadraticBezierTo(w * .68, h * .77, w * .9, h * .83);
+      _path(canvas, lower, _accent, .15 + pulse * .08, .7);
+      _dot(canvas, center + Offset(math.cos(progress * math.pi * 1.28 - math.pi * .78) * r,
+          math.sin(progress * math.pi * 1.28 - math.pi * .78) * r),
+          _light, 1.2 + pulse * .4, glow: 2 + pulse * 2);
+    } else {
+      // Bevelled registration marks rather than an ornamental border around the card.
+      final cut = m * .06;
+      final frame = Path()
+        ..moveTo(0, cut)..lineTo(0, 0)..lineTo(cut, 0)
+        ..moveTo(w - cut, 0)..lineTo(w, 0)..lineTo(w, cut)
+        ..moveTo(0, h - cut)..lineTo(0, h)..lineTo(cut, h)
+        ..moveTo(w - cut, h)..lineTo(w, h)..lineTo(w, h - cut);
+      _path(canvas, frame, _light, .32 + pulse * .22, .9);
+      final x = w * .92, y = h * .5, r = m * .035;
+      _line(canvas, Offset(x, y - r), Offset(x, y + r), _accent, .24 + pulse * .16, .8);
+      _line(canvas, Offset(x - r, y), Offset(x + r, y), _accent, .24 + pulse * .16, .8);
+      _dot(canvas, Offset(x, y), _light, .8 + pulse * .5, glow: 1.2 + pulse * 2);
+    }
+  }
+
+  void _paintItemLockBadge(Canvas canvas, Size size) {
+    final center = Offset(size.width * .5, size.height * .5);
+    final m = math.min(size.width, size.height);
+    final pulse = .5 + .5 * math.sin(progress * math.pi * 2);
+    if (_eclipse) {
+      final r = m * .39;
+      _arc(canvas, Rect.fromCircle(center: center, radius: r),
+          -math.pi * .72 + progress * .12, math.pi * 1.14,
+          _light, .34 + pulse * .32, 1.1, glow: 2.5 + pulse * 2.5);
+      final a = -math.pi * .72 + progress * math.pi * 1.14;
+      _dot(canvas, center + Offset(math.cos(a) * r, math.sin(a) * r),
+          _light, 1.4 + pulse * .4, glow: 3.5 + pulse * 2);
+    } else {
+      final r = m * .37;
+      for (var i = 0; i < 12; i++) {
+        final a = i * math.pi / 6;
+        final major = i % 3 == 0;
+        final inner = r * (major ? .82 : .9);
+        final outer = r * (major ? 1.08 : 1.0);
+        final active = i == (progress * 12).floor() % 12;
+        _line(canvas,
+            center + Offset(math.cos(a) * inner, math.sin(a) * inner),
+            center + Offset(math.cos(a) * outer, math.sin(a) * outer),
+            _light, active ? .8 : .16 + pulse * .12,
+            active ? 1.2 : (major ? .9 : .6),
+            glow: active ? 2.5 + pulse * 2 : 0);
+      }
+      _arc(canvas, Rect.fromCircle(center: center, radius: r * (.48 + pulse * .025)),
+          progress * math.pi * .1, math.pi * 1.35, _accent, .2 + pulse * .12, .8);
     }
   }
 
