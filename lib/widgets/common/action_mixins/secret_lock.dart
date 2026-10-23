@@ -76,8 +76,11 @@ class SecretLock {
     if (lockType == null) return true;
     if (!context.mounted) return false;
 
+    // Migrate legacy storage once, then keep each authentication type in its own slot so a
+    // failed type change can never overwrite the credential that currently protects the resource.
+    final passKey = await resolvePassKey(_passKey, lockType, legacyType: lockType);
     // wrong attempts are counted, with a cooldown that grows with each failure
-    return challenge(context, lockType, authReason(context), _passKey, guard: AttemptGuard.named(id));
+    return challenge(context, lockType, authReason(context), passKey, guard: AttemptGuard.named(id));
   }
 
   // let the user choose the lock type, and set the secret if needed
@@ -106,16 +109,19 @@ class SecretLock {
     if (choice == null || !context.mounted) return;
 
     if (choice == _offOption) {
-      await securityService.writeValue<String>(_typeKey, null);
-      await securityService.writeValue<String>(_passKey, null);
+      if (!await securityService.writeValue<String>(_typeKey, null)) return;
+      await _clearPasses(_passKey);
       return;
     }
 
     final lockType = VaultLockType.values.safeByName(choice);
     if (lockType == null) return;
 
-    if (!await setPass(context, lockType, _passKey, configReason(context))) return;
-    await securityService.writeValue<String>(_typeKey, lockType.name);
+    final nextPassKey = keyForType(_passKey, lockType);
+    if (!await setPass(context, lockType, nextPassKey, configReason(context))) return;
+    if (!await securityService.writeValue<String>(_typeKey, lockType.name)) return;
+    // The new type and its secret are now committed; remove credentials that no longer apply.
+    await _clearPasses(_passKey, except: lockType);
   }
 
   // lock types available on this device, by name
@@ -124,6 +130,35 @@ class SecretLock {
       for (final type in VaultLockType.values)
         if (!exclude.contains(type) && (type != VaultLockType.system || device.canAuthenticateUser)) type.name: type.getText(context),
     };
+  }
+
+  static String keyForType(String baseKey, VaultLockType type) => '${baseKey}_${type.name}';
+
+  static Future<String> resolvePassKey(String baseKey, VaultLockType type, {VaultLockType? legacyType}) async {
+    final typedKey = keyForType(baseKey, type);
+    final typed = await securityService.readValueStrict<String>(typedKey);
+    if (typed != null) return typedKey;
+    if (legacyType == type) {
+      final legacy = await securityService.readValueStrict<String>(baseKey);
+      if (legacy != null) {
+        if (!await securityService.writeValue<String>(typedKey, legacy)) {
+          throw StateError('Could not migrate protected credential for $baseKey');
+        }
+        return typedKey;
+      }
+    }
+    return typedKey;
+  }
+
+  static Future<void> _clearPasses(String baseKey, {VaultLockType? except}) async {
+    final writes = <Future<bool>>[
+      securityService.writeValue<String>(baseKey, null),
+      for (final type in VaultLockType.values)
+        if (type != except) securityService.writeValue<String>(keyForType(baseKey, type), null),
+    ];
+    if ((await Future.wait(writes)).any((ok) => !ok)) {
+      throw StateError('Could not clear stale protected credentials for $baseKey');
+    }
   }
 
   // `guard` counts the failed attempts (and handles cooldown and nuke);
