@@ -211,12 +211,26 @@ const Map<NebulaTheme, NebulaMaterialStyle> _legacyNebulaMaterials = {
     surface: Color(0xFF12001F),
     dialogSurface: Color(0xCC0B0314),
     feedbackSurface: Color(0xCC07010E),
+    // Obsidian reads as layered volcanic glass: a cold rim, violet refraction,
+    // a bruised-purple midtone, then an almost light-eating core.
     highlight: LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
-      colors: [Color(0x449B5DE5), Color(0x14080010)],
+      colors: [
+        Color(0x669B5DE5),
+        Color(0x3A6E36A8),
+        Color(0x221C0D2D),
+        Color(0x383A1A55),
+        Color(0x10030008),
+      ],
+      stops: [0, .18, .46, .72, 1],
     ),
-    lens: [Color(0x559B5DE5), Color(0x146A1B9A)],
+    lens: [
+      Color(0x669B5DE5),
+      Color(0x335A2C85),
+      Color(0x226A1B9A),
+      Color(0x1205000B),
+    ],
     lensBorder: Color(0x99B388FF),
     liquidHighlight: Color(0xFFD9B8FF),
     liquidDeep: Color(0xFF6A1B9A),
@@ -236,12 +250,26 @@ const Map<NebulaTheme, NebulaMaterialStyle> _legacyNebulaMaterials = {
     surface: Color(0xFF221B0D),
     dialogSurface: Color(0xCC221A0A),
     feedbackSurface: Color(0xCC1A1407),
+    // Aureate uses the layered reflection of aged gilding, not flat yellow glass:
+    // champagne glint, antique brass, a deep umber recess, and a final gold edge.
     highlight: LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
-      colors: [Color(0x55F5C542), Color(0x14402C00)],
+      colors: [
+        Color(0x77FFF2C0),
+        Color(0x55F5C542),
+        Color(0x332F2108),
+        Color(0x44B8860B),
+        Color(0x18FFF0B3),
+      ],
+      stops: [0, .16, .43, .72, 1],
     ),
-    lens: [Color(0x55FFE08A), Color(0x14B8860B)],
+    lens: [
+      Color(0x66FFF2C0),
+      Color(0x55D4AF37),
+      Color(0x33B8860B),
+      Color(0x18402C00),
+    ],
     lensBorder: Color(0x99FFE08A),
     liquidHighlight: Color(0xFFFFF2C0),
     liquidDeep: Color(0xFFD4AF37),
