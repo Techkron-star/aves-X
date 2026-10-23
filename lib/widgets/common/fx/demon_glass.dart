@@ -60,13 +60,15 @@ class _DemonGlassPainter extends BoxPainter {
   void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
     final size = configuration.size;
     if (size == null || size.isEmpty) return;
-    if (_art.length > 8) {
-      for (final art in _art.values) {
-        art.dispose();
-      }
-      _art.clear();
+    final key = (size, opacity);
+    final cached = _art.remove(key);
+    final art = cached ?? _DemonArt(_recordGlass(size, opacity), _recordCracks(size, opacity));
+    _art[key] = art;
+    // Each entry owns two ui.Pictures, so the cache stays smaller than the
+    // ruby cache and disposes both recordings as soon as an entry is evicted.
+    while (_art.length > 8) {
+      _art.remove(_art.keys.first)?.dispose();
     }
-    final art = _art[(size, opacity)] ??= _DemonArt(_recordGlass(size, opacity), _recordCracks(size, opacity));
 
     canvas.save();
     canvas.clipRect(offset & size);
