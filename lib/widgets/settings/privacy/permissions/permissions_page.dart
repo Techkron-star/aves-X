@@ -1,4 +1,3 @@
-import 'package:aves/app_flavor.dart';
 import 'package:aves/model/device.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/icons.dart';
@@ -9,7 +8,6 @@ import 'package:aves/widgets/settings/privacy/permissions/manage_media.dart';
 import 'package:aves/widgets/settings/privacy/permissions/notification.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:provider/provider.dart';
 
 class const PermissionsPage({super.key}) extends StatelessWidget {
   static const routeName = '/settings/privacy/permissions';
