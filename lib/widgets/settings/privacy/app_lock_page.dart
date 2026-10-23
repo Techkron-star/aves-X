@@ -3,6 +3,9 @@ import 'package:aves/widgets/dialogs/danger_confirmation.dart';
 import 'package:aves/model/device.dart';
 import 'package:aves/model/security/app_lock.dart';
 import 'package:aves/model/security/master_code.dart';
+import 'package:aves/widgets/common/action_mixins/secret_lock.dart';
+import 'package:aves_model/aves_model.dart';
+import 'package:aves_utils/aves_utils.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/widgets/common/basic/scaffold.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
@@ -32,14 +35,15 @@ class AppLockPage extends StatelessWidget {
               children: [
                 SwitchListTile(
                   value: appLock.enabled,
-                  onChanged: (v) => v ? _setPin(context) : _disable(context),
+                  onChanged: (v) => v ? _configureLock(context) : _disable(context),
                   title: Text(l10n.settingsAppLock),
                   subtitle: Text(l10n.settingsAppLockSubtitle),
                 ),
                 if (appLock.enabled) ...[
                   ListTile(
-                    title: Text(l10n.appLockChangePin),
-                    onTap: () => _setPin(context),
+                    title: Text(l10n.vaultDialogLockTypeLabel),
+                    subtitle: Text(_lockTypeLabel(context, appLock.lockTypeName)),
+                    onTap: () => _configureLock(context),
                   ),
                   if (device.canAuthenticateUser)
                     SwitchListTile(
@@ -54,7 +58,7 @@ class AppLockPage extends StatelessWidget {
                     subtitle: Text(_delayLabel(l10n, appLock.relockDelay)),
                     onTap: () => _pickRelockDelay(context),
                   ),
-                  SwitchListTile(
+                  if (appLock.lockTypeName == 'code') SwitchListTile(
                     value: appLock.hasPanicPin,
                     onChanged: (v) => v ? _setPanic(context) : _removePanic(context),
                     title: Text(l10n.appLockPanicPin),
@@ -67,6 +71,11 @@ class AppLockPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _lockTypeLabel(BuildContext context, String type) {
+    if (type == 'code') return context.l10n.appLockChangePin;
+    return VaultLockType.values.safeByName(type)?.getText(context) ?? context.l10n.genericFailureFeedback;
   }
 
   String _delayLabel(AppLocalizations l10n, Duration delay) {
@@ -104,12 +113,35 @@ class AppLockPage extends StatelessWidget {
     );
   }
 
-  Future<void> _setPin(BuildContext context) async {
-    // the Master Code is created first if needed, and required to change an existing PIN
+  Future<void> _configureLock(BuildContext context) async {
     if (!appLock.enabled && !await showRiskWarning(context, context.l10n.appLockEnableWarning)) return;
     if (!context.mounted || !await MasterCode.require(context) || !context.mounted) return;
-    final code = await _newCode(context);
-    if (code != null) await appLock.setPin(code);
+
+    final options = <String, String>{
+      'code': context.l10n.appLockChangePin,
+      ...SecretLock.lockTypeOptions(context).map((key, value) => MapEntry(key.name, value)),
+    };
+    final choice = await showAvesDialog<String>(
+      context: context,
+      builder: (context) => AvesSingleSelectionDialog<String>(
+        initialValue: appLock.lockTypeName,
+        options: options,
+        title: context.l10n.vaultDialogLockTypeLabel,
+      ),
+      routeSettings: const RouteSettings(name: AvesSingleSelectionDialog.routeName),
+    );
+    if (choice == null || !context.mounted) return;
+
+    if (choice == 'code') {
+      final code = await _newCode(context);
+      if (code != null) await appLock.setPin(code);
+      return;
+    }
+
+    final type = VaultLockType.values.safeByName(choice);
+    if (type == null) return;
+    if (!await SecretLock.setPass(context, type, AppLock.alternativeSecretKey, context.l10n.authenticateToConfigureVault)) return;
+    await appLock.setLockType(type.name);
   }
 
   Future<void> _disable(BuildContext context) async {
