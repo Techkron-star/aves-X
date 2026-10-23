@@ -643,6 +643,12 @@ class _PadlockPainter extends CustomPainter {
         canvas.drawLine(const Offset(50, 18), const Offset(50, 65), spine);
         for (final point in const [Offset(25, 22), Offset(75, 22), Offset(50, 70)]) { dot(point, 2.2, light); }
         break;
+      case NebulaMaterial.noxTerroris:
+        stroke(polygon(const [Offset(50, 5), Offset(78, 24), Offset(82, 51), Offset(64, 75), Offset(50, 84), Offset(36, 75), Offset(18, 51), Offset(22, 24)]), width: 2.4, color: light);
+        stroke(Path()..moveTo(27, 42)..quadraticBezierTo(38, 34, 47, 43)..quadraticBezierTo(38, 51, 27, 42), width: 1.6, color: accent);
+        stroke(Path()..moveTo(53, 43)..quadraticBezierTo(64, 35, 73, 43)..quadraticBezierTo(64, 51, 53, 43), width: 1.4, color: light);
+        stroke(Path()..moveTo(50, 42)..lineTo(50, 61), width: 2.0, color: accent);
+        break;
       case NebulaMaterial.ruby:
       case NebulaMaterial.nightDemon:
       case NebulaMaterial.godly:
