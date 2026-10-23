@@ -357,7 +357,7 @@ class _NebulaMaterialPainter extends BoxPainter {
         }
         canvas.drawCircle(const Offset(69, 27), 17, Paint()..shader = RadialGradient(
           center: const Alignment(-.35, -.45),
-          colors: [Colors.white.withValues(alpha: opacity * .65), style.crystalBody[1].withValues(alpha: opacity * .55), style.crystalBody.last.withValues(alpha: opacity * .2)],
+          colors: [Colors.white.withValues(alpha: opacity * .65), bright.withValues(alpha: opacity * .55), deep.withValues(alpha: opacity * .2)],
         ).createShader(const Rect.fromLTWH(52, 10, 34, 34)));
         canvas.drawCircle(const Offset(69, 27), 17, Paint()..style = PaintingStyle.stroke..strokeWidth = .7..color = bright.withValues(alpha: opacity * .7));
         break;
