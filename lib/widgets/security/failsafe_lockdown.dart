@@ -357,7 +357,6 @@ class _LockdownScreenState extends State<_LockdownBody> {
             ),
           ),
         ),
-      ),
     );
   }
 }
