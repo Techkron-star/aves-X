@@ -13,6 +13,8 @@ import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:aves/widgets/common/fx/app_mark.dart';
+import 'package:aves/widgets/security/security_screen_background.dart';
 
 // Covers the app with an opaque lock screen while the app is locked.
 // The content below is kept (so the state is preserved when locking again) but cannot be seen or used.
@@ -200,56 +202,137 @@ class _LockScreenState extends State<_LockBody> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final scheme = Theme.of(context).colorScheme;
-    return Material(
-      color: scheme.surface,
+    final nebula = Theme.of(context).nebula;
+    final textTheme = Theme.of(context).textTheme;
+    return SecurityScreenBackground(
       child: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.lock_outline, size: 48, color: scheme.primary),
-                const SizedBox(height: 16),
-                Text(_fake ? l10n.appLockWrongPin : l10n.appLockTitle, style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: 24),
-                if (!_fake && !_blocked)
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: SizedBox(
-                    width: CodeDialog.fieldWidth,
-                    child: MaterialPinField(
-                      length: CodeDialog.length,
-                      pinController: _controller,
-                      keyboardType: TextInputType.number,
-                      autoFocus: true,
-                      obscureText: true,
-                      onChanged: (v) {},
-                      onCompleted: _onCode,
+            padding: const EdgeInsets.all(22),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 440),
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(26, 30, 26, 26),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      nebula.securitySurface.withValues(alpha: .96),
+                      nebula.securityInputFieldBg.withValues(alpha: .94),
+                      nebula.securitySurface.withValues(alpha: .99),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: nebula.securityCrystalEdge.withValues(alpha: .72), width: 1.2),
+                  boxShadow: [
+                    BoxShadow(color: nebula.securityBubbleGlow.withValues(alpha: .24), blurRadius: 36, spreadRadius: -8),
+                    BoxShadow(color: Colors.black.withValues(alpha: .32), blurRadius: 24, offset: const Offset(0, 12)),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 100, height: 100,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          center: const Alignment(-.35, -.45),
+                          colors: [
+                            nebula.securityBubbleGlow.withValues(alpha: .48),
+                            nebula.securitySurface.withValues(alpha: .92),
+                            nebula.securityScrim.withValues(alpha: .7),
+                          ],
+                          stops: const [0, .6, 1],
+                        ),
+                        border: Border.all(color: nebula.securityCrystalEdge.withValues(alpha: .78), width: 1.2),
+                        boxShadow: [BoxShadow(color: nebula.securityBubbleGlow.withValues(alpha: .24), blurRadius: 24, spreadRadius: -4)],
+                      ),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          const AppMark(size: 46),
+                          Positioned(
+                            right: 12, bottom: 12,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: nebula.securitySurface, shape: BoxShape.circle,
+                                border: Border.all(color: nebula.securityAccent, width: 1.2),
+                              ),
+                              child: Icon(Icons.lock_rounded, size: 15, color: nebula.securityAccent),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    ),
-                  ),
-                if (_fails > 0 && !_fake)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: FailsafeBuddy(fails: _fails),
-                  ),
-                if (_message != null && !_fake)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: Text(_message!, textAlign: TextAlign.center, style: TextStyle(color: scheme.error)),
-                  ),
-                if (_showBiometric && !_fake)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: TextButton.icon(
-                      onPressed: _onBiometric,
-                      icon: const Icon(Icons.fingerprint),
-                      label: Text(l10n.appLockUseBiometric),
-                    ),
-                  ),
-              ],
+                    const SizedBox(height: 22),
+                    Text(_fake ? l10n.appLockWrongPin : l10n.appLockTitle,
+                      style: textTheme.headlineSmall?.copyWith(
+                        color: nebula.securityOnSurface, fontWeight: FontWeight.w800, letterSpacing: .2),
+                      textAlign: TextAlign.center),
+                    const SizedBox(height: 10),
+                    if (!_fake)
+                      Text(l10n.settingsAppLockSubtitle,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: nebula.securityOnSurface.withValues(alpha: .68), height: 1.4),
+                        textAlign: TextAlign.center),
+                    const SizedBox(height: 26),
+                    if (!_fake && !_blocked)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: nebula.securityInputFieldBg.withValues(alpha: .68),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(color: nebula.securityInputFieldBorder.withValues(alpha: .72)),
+                        ),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: SizedBox(
+                            width: CodeDialog.fieldWidth,
+                            child: MaterialPinField(
+                              length: CodeDialog.length, pinController: _controller,
+                              keyboardType: TextInputType.number, autoFocus: true, obscureText: true,
+                              onChanged: (v) {}, onCompleted: _onCode,
+                            ),
+                          ),
+                        ),
+                      ),
+                    if (_fails > 0 && !_fake)
+                      Padding(padding: const EdgeInsets.only(top: 20), child: FailsafeBuddy(fails: _fails)),
+                    if (_message != null && !_fake)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                          decoration: BoxDecoration(
+                            color: nebula.securityAlert.withValues(alpha: .10),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: nebula.securityAlert.withValues(alpha: .4)),
+                          ),
+                          child: Text(_message!, textAlign: TextAlign.center,
+                            style: TextStyle(color: nebula.securityAlert, height: 1.35)),
+                        ),
+                      ),
+                    if (_showBiometric && !_fake)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 18),
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: nebula.securityAccent,
+                            side: BorderSide(color: nebula.securityCrystalEdge.withValues(alpha: .82)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                          ),
+                          onPressed: _onBiometric,
+                          icon: const Icon(Icons.fingerprint),
+                          label: Text(l10n.appLockUseBiometric),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
