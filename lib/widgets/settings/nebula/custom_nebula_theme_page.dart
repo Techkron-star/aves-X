@@ -6,7 +6,6 @@ import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/settings/nebula/custom_nebula_theme_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/localizations.dart';
 
 class CustomNebulaThemePage extends StatefulWidget {
   static const routeName = '/settings/nebula/custom_themes';
@@ -210,7 +209,7 @@ class _EmptyState extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               OutlinedButton.icon(
-                onPressed: onImport,
+                onPressed: () => _showImportDialog(context, l10n, _import),
                 icon: const Icon(Icons.import_export),
                 label: Text(l10n.settingsCustomNebulaThemeImport),
               ),
