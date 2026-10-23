@@ -184,6 +184,7 @@ class _LockdownScreenState extends State<_LockdownBody> {
     final scheme = Theme.of(context).colorScheme;
     final nebula = Theme.of(context).nebula;
     return SecurityScreenBackground(
+      role: NebulaComponentSurfaceRole.lockdownBackdrop,
       child: SafeArea(
         child: Center(
           child: SingleChildScrollView(
