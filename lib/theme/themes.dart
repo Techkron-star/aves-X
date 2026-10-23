@@ -363,7 +363,7 @@ class Themes {
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
             backgroundColor: buttonBackground,
-            foregroundColor: Colors.white,
+            foregroundColor: palette.brightness == Brightness.light ? const Color(0xFF29251D) : Colors.white,
             side: buttonBorder != null ? BorderSide(color: buttonBorder) : null,
           ),
         ),
