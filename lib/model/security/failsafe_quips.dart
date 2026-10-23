@@ -377,4 +377,69 @@ class FailsafeQuips {
       "Your access is denied, but your commitment to the wrong answer is undeniable.",
     ],
   ];
+
+  // Master-Code failures get their own passive-aggressive pool, separate from ordinary PIN attempts.
+  static String pickMaster(String languageCode, int fails) {
+    if (fails <= 0) return pick(languageCode, 0);
+    final lines = languageCode == 'es' ? _masterEs : _masterEn;
+    return lines[_random.nextInt(lines.length)];
+  }
+
+  static const _masterEs = <String>[
+    "Vaya… el Master Code. La última puerta y tampoco era esa llave.",
+    "Tranquilo, no hay prisa. Bueno, el contador opina distinto.",
+    "Debe de ser incómodo no recordar el código que se supone que solo tú conoces.",
+    "Una respuesta incorrecta. La confianza, sin embargo, sigue intacta.",
+    "Si era una suposición, acabamos de confirmar que era una mala.",
+    "El código maestro no se adivina por fuerza de voluntad. Ya lo estamos comprobando.",
+    "Qué curioso: tanta autoridad y ninguna de las seis cifras correctas.",
+    "Te daría una pista, pero la idea era que la supieras tú.",
+    "El Master Code está protegido. Tu estrategia, aparentemente, no.",
+    "Quizá deberías respirar y consultar esa nota que prudentemente guardaste.",
+    "Me encanta tu seguridad. Es una pena que no autentique nada.",
+    "Otro intento fallido. La cerradura empieza a conocerte mejor que tú a ella.",
+    "Hay una diferencia entre ser persistente y estar negociando con seis dígitos.",
+    "Lo siento. «Porque estoy seguro» no es un método de autenticación.",
+    "El código maestro ha dicho que no. Con bastante claridad, de hecho.",
+    "Si tu memoria necesita vacaciones, la seguridad no tiene por qué acompañarla.",
+    "Todo bajo control. Excepto, por ahora, el código que necesitas.",
+    "Lo bueno es que no has perdido la determinación. Lo malo es que tampoco has acertado.",
+    "Tu insistencia está verificada. Tu identidad, todavía no.",
+    "Otro número incorrecto; la humildad sigue siendo opcional, al parecer.",
+    "El acceso requiere el Master Code, no una actuación convincente.",
+    "Te concedo el beneficio de la duda. El sistema te concede una espera.",
+    "Hay seis cifras y muchas posibilidades. Has elegido una de las incorrectas.",
+    "Qué momento tan oportuno para recordar dónde apuntaste el código.",
+    "Esto sería menos incómodo si el código reconociera tu entusiasmo.",
+  ];
+
+  static const _masterEn = <String>[
+    "Well… the Master Code. The final door, and still the wrong key.",
+    "No rush. Well, the counter has a different opinion.",
+    "It must be awkward not to remember the code only you are supposed to know.",
+    "Incorrect answer. The confidence, however, remains untouched.",
+    "If that was a guess, we have confirmed it was a poor one.",
+    "The Master Code cannot be unlocked with sheer determination. We are testing that now.",
+    "How curious: so much authority, none of the six correct digits.",
+    "I would give you a hint, but you were supposed to know this one.",
+    "The Master Code is protected. Your strategy, apparently, is not.",
+    "Perhaps take a breath and check that note you wisely saved.",
+    "I love your confidence. Shame it does not authenticate anything.",
+    "Another failed attempt. The lock is starting to know you better than you know it.",
+    "There is a difference between persistence and negotiating with six digits.",
+    "Sorry. 'I'm pretty sure' is not an authentication method.",
+    "The Master Code said no. Quite clearly, actually.",
+    "If your memory needs a vacation, security does not have to join it.",
+    "Everything is under control. Except, for now, the code you need.",
+    "The good news is you have not lost your determination. The bad news is you are still wrong.",
+    "Your persistence is verified. Your identity is not.",
+    "Another wrong number; humility remains optional, apparently.",
+    "Access requires the Master Code, not a convincing performance.",
+    "I will give you the benefit of the doubt. The system will give you a cooldown.",
+    "There are six digits and many possibilities. You picked one of the wrong ones.",
+    "What a perfect time to remember where you wrote the code down.",
+    "This would be less awkward if the code appreciated your enthusiasm.",
+    "Secure system, un-secure memory. A difficult combination.",
+  ];
+
 }
