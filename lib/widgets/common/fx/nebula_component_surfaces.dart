@@ -293,6 +293,7 @@ class _NebulaComponentSurfacePainter extends CustomPainter {
       _line(canvas, Offset(w * .71, h * .06), Offset(w * .96, h * .06), _light, .25, .7);
     } else {
       final center = Offset(w * .88, h * .29);
+      final pulse = .5 + .5 * math.sin(progress * math.pi * 2);
       for (var i = 0; i < 3; i++) {
         final r2 = r * (.35 + i * .23);
         final path = Path()
@@ -300,12 +301,18 @@ class _NebulaComponentSurfacePainter extends CustomPainter {
           ..lineTo(center.dx + r2 * .78, center.dy + r2 * .48)
           ..lineTo(center.dx - r2 * .78, center.dy + r2 * .48)
           ..close();
-        _path(canvas, path, i == 1 ? _light : ink, i == 1 ? .48 : .22, .8);
+        final strength = i == 1 ? .3 + pulse * .3 : .14 + pulse * .1;
+        _path(canvas, path, i == 1 ? _light : ink, strength, .8 + (i == 1 ? pulse * .25 : 0));
       }
       for (var i = 0; i < 5; i++) {
         final x = w * .72 + i * w * .045;
-        _line(canvas, Offset(x, h * .8), Offset(x, h * (.8 - (i.isEven ? .08 : .04))), _light, .3, .7);
+        final active = i == (progress * 5).floor().clamp(0, 4);
+        _line(canvas, Offset(x, h * .8), Offset(x, h * (.8 - (i.isEven ? .08 : .04))),
+            _light, active ? .78 : .2 + pulse * .12, active ? 1.1 : .7,
+            glow: active ? 3 : 0);
       }
+      _dot(canvas, Offset(center.dx, center.dy - r * .32), _light,
+          .8 + pulse * .8, glow: 1.5 + pulse * 2.0);
     }
   }
 
