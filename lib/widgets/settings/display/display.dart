@@ -39,7 +39,6 @@ class DisplaySection extends SettingsSection {
     SettingsTileDisplayPerformanceMode(),
     SettingsTileDisplayEnableBlurEffect(),
     if (!settings.useTvLayout) SettingsTileDisplayNavBarStyle(),
-    if (!settings.useTvLayout) SettingsTileDisplayNavLens(),
     if (!settings.useTvLayout) SettingsTileDisplaySwipeTabs(),
     if (!settings.useTvLayout) SettingsTileDisplayMaxBrightness(),
     if (!settings.useTvLayout) SettingsTileDisplayRefreshRateMode(),
@@ -267,30 +266,6 @@ class SettingsTileDisplayPerformanceMode extends SettingsTile {
     onChanged: (v) => settings.performanceMode = v,
     title: title,
     subtitle: (context) => context.l10n.settingsPerformanceModeSubtitle,
-    sticker: const FeatureSticker(kind: StickerKind.newFeature),
-  );
-}
-
-class SettingsTileDisplayNavLens extends SettingsTile {
-  @override
-  List<String> get settingKeys => [SettingKeys.navLensKey];
-
-  @override
-  String title(BuildContext context) => context.l10n.settingsNavLens;
-
-  @override
-  Widget build(BuildContext context) => SettingsSwitchListTile(
-    selector: (context, s) => s.navLens,
-    onChanged: (v) {
-      // the lens is drawn over the rounded, floating and rectangular bars only
-      if (v && settings.navBarStyle == NavBarStyle.classic) {
-        ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(context.l10n.settingsNavLensClassicUnavailable)));
-        return;
-      }
-      settings.navLens = v;
-    },
-    title: title,
-    subtitle: (context) => context.l10n.settingsNavLensSubtitle,
     sticker: const FeatureSticker(kind: StickerKind.newFeature),
   );
 }
