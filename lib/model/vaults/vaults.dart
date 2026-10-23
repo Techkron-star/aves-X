@@ -71,8 +71,10 @@ class Vaults {
 
     await localMediaDb.removeVaults(details);
 
-    await Future.forEach(details, (v) => securityService.writeValue(v.passKey, null));
-    await Future.forEach(details, (v) => advancedPrivacy.remove(v.name));
+    await Future.forEach(details, (v) async {
+      await _clearVaultPasses(v);
+      await advancedPrivacy.remove(v.name);
+    });
 
     _rows.removeAll(details);
     _vaultDirPaths = null;
@@ -100,8 +102,7 @@ class Vaults {
       }
     }
     await advancedPrivacy.rename(oldDetails.name, newName);
-    await securityService.writeValue<String>(oldTypedKey, null);
-    await securityService.writeValue<String>(oldDetails.passKey, null);
+    await _clearVaultPasses(oldDetails);
 
     _rows
       ..remove(oldDetails)
@@ -121,12 +122,29 @@ class Vaults {
     if (oldDetails == null) return;
 
     await localMediaDb.updateVault(newDetails.name, newDetails);
+    // The active type has already been configured in its own key slot. Remove obsolete secrets only
+    // after the database has committed the new lock type.
+    await _clearVaultPasses(oldDetails, keepKey: newDetails.passKeyFor(newDetails.lockType));
 
     _rows
       ..remove(oldDetails)
       ..add(newDetails);
 
     _onContentChanged();
+  }
+
+  Future<void> _clearVaultPasses(VaultDetails details, {String? keepKey}) async {
+    final keys = <String>{
+      details.passKey,
+      for (final type in ['system', 'pattern', 'pin', 'password']) '${details.passKey}_${type}',
+    };
+    final writes = <Future<bool>>[
+      for (final key in keys)
+        if (key != keepKey) securityService.writeValue<String>(key, null),
+    ];
+    if ((await Future.wait(writes)).any((ok) => !ok)) {
+      throw StateError('Could not clear stale credentials for vault ${details.name}');
+    }
   }
 
   Future<void> clear() async {
