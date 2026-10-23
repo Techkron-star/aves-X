@@ -13,11 +13,14 @@ class FailsafeQuips {
     return list[_random.nextInt(list.length)];
   }
 
-  // A separate voice for failed Master Code entries during Fail-Safe lockdown.
+  // Master Code failures use graduated tiers; harsher lines join the pool after repeated failures.
   static String pickMaster(String languageCode, int fails) {
+    if (fails <= 0) return pick(languageCode, 0);
     final tiers = languageCode == 'es' ? _masterEs : _masterEn;
-    final list = tiers[fails.clamp(0, 4)];
-    return list[_random.nextInt(list.length)];
+    final tier = tiers[fails.clamp(1, 4)];
+    final extras = languageCode == 'es' ? _masterExtraEs : _masterExtraEn;
+    final lines = fails >= 3 ? <String>[...tier, ...extras] : tier;
+    return lines[_random.nextInt(lines.length)];
   }
 
   static const _masterEs = <List<String>>[
@@ -378,14 +381,7 @@ class FailsafeQuips {
     ],
   ];
 
-  // Master-Code failures get their own passive-aggressive pool, separate from ordinary PIN attempts.
-  static String pickMaster(String languageCode, int fails) {
-    if (fails <= 0) return pick(languageCode, 0);
-    final lines = languageCode == 'es' ? _masterEs : _masterEn;
-    return lines[_random.nextInt(lines.length)];
-  }
-
-  static const _masterEs = <String>[
+  static const _masterExtraEs = <String>[
     "Vaya… el Master Code. La última puerta y tampoco era esa llave.",
     "Tranquilo, no hay prisa. Bueno, el contador opina distinto.",
     "Debe de ser incómodo no recordar el código que se supone que solo tú conoces.",
@@ -413,7 +409,7 @@ class FailsafeQuips {
     "Esto sería menos incómodo si el código reconociera tu entusiasmo.",
   ];
 
-  static const _masterEn = <String>[
+  static const _masterExtraEn = <String>[
     "Well… the Master Code. The final door, and still the wrong key.",
     "No rush. Well, the counter has a different opinion.",
     "It must be awkward not to remember the code only you are supposed to know.",
