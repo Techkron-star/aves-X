@@ -44,6 +44,8 @@ enum NebulaTheme {
   abyssalGlass,
   // Sakura Glass: ink black, cherry blossom petals and red lacquer
   sakuraGlass,
+  // Nox Terroris: a watching void, ossuary bone and sickly green eye-light.
+  noxTerroris,
 }
 
 extension NebulaThemeInfo on NebulaTheme {
@@ -70,12 +72,13 @@ extension NebulaThemeInfo on NebulaTheme {
     .imperialGlass => 'imperial_glass',
     .abyssalGlass => 'abyssal_glass',
     .sakuraGlass => 'sakura_glass',
+    .noxTerroris => 'nox_terroris',
   };
 
   // 1: foundational palette/material themes. 2: dedicated visual-effect themes.
   int get phase => switch (this) {
     .aves || .nosferatuGlass => 1,
-    .obsidianGlass || .aureateGlass || .forgeGlass || .hermeticGlass || .eclipseGlass || .solarFlareGlass || .voidGlass || .crimsonGlass || .neonGlass || .emeraldGlass || .auroraGlass || .sapphireGlass || .amberGlass || .onyxGlass || .pearlGlass || .ivoryGlass || .imperialGlass || .abyssalGlass || .sakuraGlass => 2,
+    .obsidianGlass || .aureateGlass || .forgeGlass || .hermeticGlass || .eclipseGlass || .solarFlareGlass || .voidGlass || .crimsonGlass || .neonGlass || .emeraldGlass || .auroraGlass || .sapphireGlass || .amberGlass || .onyxGlass || .pearlGlass || .ivoryGlass || .imperialGlass || .abyssalGlass || .sakuraGlass || .noxTerroris => 2,
   };
 
   // Retained as the phase label used by selector stickers; it no longer controls availability.
