@@ -16,11 +16,9 @@ import 'package:material_ui/material_ui.dart';
 
 // Settings split in two tabs.
 //
-// General: everything inherited from upstream Aves (navigation, thumbnails,
-// viewer, video, language, privacy, security, fail-safe, accessibility and display).
-//
-// Special (Especiales): only settings that are unique to Aves-X, i.e. the
-// Nebula Engine and controls unique to Aves-X stay here.
+// General: the inherited gallery settings from upstream Aves.
+// The Aves-X tab groups fork-specific privacy, security, Fail-Safe and Nebula
+// systems together instead of scattering them among standard gallery controls.
 class SettingsTabbedPage extends StatelessWidget {
   const SettingsTabbedPage({super.key});
 
@@ -30,14 +28,14 @@ class SettingsTabbedPage extends StatelessWidget {
     ViewerSection(),
     VideoSection(),
     LanguageSection(),
-    PrivacySection(),
-    SecuritySection(),
-    FailsafeSection(),
     AccessibilitySection(),
     DisplaySection(),
   ];
 
   static final List<SettingsSection> specialSections = [
+    PrivacySection(),
+    SecuritySection(),
+    FailsafeSection(),
     NebulaSection(),
     AvesXSection(),
   ];
