@@ -64,11 +64,10 @@ class NebulaComponentSurfaceAccent extends StatefulWidget {
 
 class _NebulaComponentSurfaceAccentState extends State<NebulaComponentSurfaceAccent>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: _duration(widget.role, widget.style?.material),
-    value: .28,
-  );
+  AnimationController? _controller;
+
+  double get _restingProgress =>
+      widget.state == NebulaComponentSurfaceState.warning ? .5 : .28;
 
   static Duration _duration(NebulaComponentSurfaceRole role, NebulaMaterial? material) {
     // Eclipse follows orbital light; Hermetic moves more like a slow measuring
@@ -121,9 +120,12 @@ class _NebulaComponentSurfaceAccentState extends State<NebulaComponentSurfaceAcc
     super.didUpdateWidget(oldWidget);
     final materialChanged = oldWidget.style?.material != widget.style?.material;
     if (oldWidget.role != widget.role || materialChanged) {
-      _controller.stop();
-      _controller.duration = _duration(widget.role, widget.style?.material);
-      _controller.value = .28;
+      final controller = _controller;
+      if (controller != null) {
+        controller.stop();
+        controller.duration = _duration(widget.role, widget.style?.material);
+        controller.value = _restingProgress;
+      }
     }
     _syncAnimation();
   }
@@ -132,49 +134,63 @@ class _NebulaComponentSurfaceAccentState extends State<NebulaComponentSurfaceAcc
     final shouldAnimate = _supported &&
         widget.animate &&
         widget.state != NebulaComponentSurfaceState.disabled;
-    if (shouldAnimate && !_controller.isAnimating) {
-      _controller.repeat();
-    } else if (!shouldAnimate && _controller.isAnimating) {
-      _controller.stop();
-      _controller.value = widget.state == NebulaComponentSurfaceState.warning ? .5 : .28;
+    final current = _controller;
+
+    if (!shouldAnimate) {
+      if (current != null && current.isAnimating) {
+        current.stop();
+        current.value = _restingProgress;
+      }
+      return;
     }
+
+    final controller = current ??= AnimationController(
+      vsync: this,
+      duration: _duration(widget.role, widget.style?.material),
+      value: _restingProgress,
+    );
+    _controller = controller;
+    if (!controller.isAnimating) controller.repeat();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Avoid extra tickers and layers for themes whose specialized art is not part
-    // of this migration slice.
+    // Non-target themes and idle components with motion disabled do not allocate
+    // a ticker. Their vector treatment still renders at a stable resting phase.
     if (!_supported) return widget.child;
+
+    CustomPaint paintAt(double progress) => CustomPaint(
+      painter: _NebulaComponentSurfacePainter(
+        style: widget.style!,
+        role: widget.role,
+        state: widget.state,
+        progress: progress,
+        alertColor: widget.alertColor,
+        focalPosition: (widget.focalPosition ?? .5).clamp(0.0, 1.0).toDouble(),
+        borderRadius: widget.borderRadius,
+      ),
+    );
+
+    final controller = _controller;
+    final paintLayer = controller == null
+        ? paintAt(_restingProgress)
+        : AnimatedBuilder(
+            animation: controller,
+            builder: (context, _) => paintAt(controller.value),
+          );
 
     return Stack(
       clipBehavior: Clip.none,
       children: [
         widget.child,
         Positioned.fill(
-          child: IgnorePointer(
-            child: RepaintBoundary(
-              child: AnimatedBuilder(
-                animation: _controller,
-                builder: (context, _) => CustomPaint(
-                  painter: _NebulaComponentSurfacePainter(
-                    style: widget.style!,
-                    role: widget.role,
-                    state: widget.state,
-                    progress: _controller.value,
-                    alertColor: widget.alertColor,
-                    focalPosition: (widget.focalPosition ?? .5).clamp(0.0, 1.0).toDouble(),
-                    borderRadius: widget.borderRadius,
-                  ),
-                ),
-              ),
-            ),
-          ),
+          child: IgnorePointer(child: RepaintBoundary(child: paintLayer)),
         ),
       ],
     );
