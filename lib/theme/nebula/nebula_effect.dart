@@ -369,7 +369,6 @@ class _HermeticPainter extends NebulaEffectPainter {
 
     // The hermetic seal is a layered alchemical instrument, not a generic neon ring.
     // Draw a soft emerald aura and a restrained violet counter-glow behind the geometry.
-    final auraRect = Rect.fromCircle(center: center, radius: r * 1.72);
     c.drawCircle(
       center,
       r * 1.5,
