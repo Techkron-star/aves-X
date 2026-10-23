@@ -163,8 +163,12 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
     );
 
     final animate = context.select<Settings, bool>((v) => v.animate);
-    if (animate) {
-      child = Hero(
+    // Keep Hero in the tree even when transitions are disabled. Swapping
+    // Hero <-> FloatingNavBar used to dispose the entire nav subtree and restart
+    // every stateful icon effect whenever the motion preference changed.
+    return HeroMode(
+      enabled: animate,
+      child: Hero(
         tag: 'nav-bar',
         flightShuttleBuilder: (flightContext, animation, flightDirection, fromHeroContext, toHeroContext) {
           return MediaQuery.removeViewInsets(
@@ -174,10 +178,8 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
           );
         },
         child: child,
-      );
-    }
-
-    return child;
+      ),
+    );
   }
 
   void _onCollectionFilterChanged() => setState(() {});
