@@ -19,11 +19,14 @@ class AttemptGuard {
 
   static final app = AttemptGuard._('app');
   static final master = AttemptGuard._('master');
+  static final Map<String, AttemptGuard> _scopedInstances = {};
 
-  static AttemptGuard vault(String name) => AttemptGuard._('vault_$name');
+  // Reuse one guard per vault/lock. A new instance per prompt would defeat the in-memory queue
+  // and let concurrent dialogs race the same persistent counter.
+  static AttemptGuard vault(String name) => _scopedInstances.putIfAbsent('vault_$name', () => AttemptGuard._('vault_$name'));
 
   // other locks (bin, hidden items reveal, locked items)
-  static AttemptGuard named(String name) => AttemptGuard._('lock_$name');
+  static AttemptGuard named(String name) => _scopedInstances.putIfAbsent('lock_$name', () => AttemptGuard._('lock_$name'));
 
   final String id;
   // Serialize updates so concurrent completions cannot overwrite the persistent counter with a stale value.
@@ -103,7 +106,10 @@ class AttemptGuard {
     final count = await failures() + 1;
     await securityService.writeValue<String>(_failsKey, count.toString());
     final nukeEnabled = await FailsafeConfig.nukeOnFailures;
-    if (nukeEnabled && count >= nukeFailures) {
+    // Global nuke is only valid for the app lock and Master Code. Vaults have their own
+    // targeted nuke callback; auxiliary locks (bin/reveal/items) must never wipe app data.
+    final supportsNuke = id == 'app' || id == 'master' || id.startsWith('vault_');
+    if (nukeEnabled && supportsNuke && count >= nukeFailures) {
       return AttemptOutcome.nuke;
     }
     if (count >= cooldownFailures) {
@@ -139,9 +145,18 @@ class AttemptGuard {
   // biometric failures add to the same counter, but after 3 of them the PIN is mandatory
   Future<int> biometricFailures() async => int.tryParse(await securityService.readValue<String>('att_${id}_bio') ?? '') ?? 0;
 
-  Future<AttemptOutcome> registerBiometricFailure() async {
-    final count = await biometricFailures() + 1;
-    await securityService.writeValue<String>('att_${id}_bio', count.toString());
-    return registerFailure();
+  Future<AttemptOutcome> registerBiometricFailure() {
+    final completer = Completer<AttemptOutcome>();
+    // Keep the biometric counter and shared failure counter in the same serialized operation.
+    _failureQueue = _failureQueue.then((_) async {
+      try {
+        final count = await biometricFailures() + 1;
+        await securityService.writeValue<String>('att_${id}_bio', count.toString());
+        completer.complete(await _registerFailure());
+      } catch (error, stack) {
+        completer.completeError(error, stack);
+      }
+    });
+    return completer.future;
   }
 }
