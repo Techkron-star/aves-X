@@ -110,6 +110,10 @@ class AppLock extends ChangeNotifier {
         if (otherType != type) securityService.writeValue<String>(alternativeSecretKeyFor(otherType), null),
     ]);
     await securityService.writeValue<String>(_panicKey, null);
+    if (type == 'system') {
+      await securityService.writeValue<String>(_biometricKey, null);
+      _biometric = false;
+    }
     _lockTypeName = type;
     _enabled = true;
     _hasPanic = false;
