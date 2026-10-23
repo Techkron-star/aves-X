@@ -132,7 +132,9 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
                     role: NebulaComponentSurfaceRole.navigationBar,
                     state: NebulaComponentSurfaceState.selected,
                     animate: settings.animate,
-                    focalPosition: _getCurrentIndex(context, items) / (items.length - 1),
+                    focalPosition: isRtl
+                        ? 1 - _getCurrentIndex(context, items) / (items.length - 1)
+                        : _getCurrentIndex(context, items) / (items.length - 1),
                     borderRadius: navBarStyle.borderRadius,
                     child: _withLens(
                     context,
