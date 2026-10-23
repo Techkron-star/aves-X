@@ -10,15 +10,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 
-// only the safe-mode banner still uses a fixed alert red (tokenized in the lockdown phase)
 const _alert = Color(0xFFFF3B3B);
 
-// "Failsafe: online" indicator with a radar pulse. Tap to see the diagnosis.
 class FailsafeBadge extends StatefulWidget {
   const FailsafeBadge({super.key, this.forceAlert = false, this.interactive = true});
 
   final bool forceAlert;
-  // false: no tap to open the report (welcome screens)
   final bool interactive;
 
   @override
@@ -27,27 +24,23 @@ class FailsafeBadge extends StatefulWidget {
 
 class _FailsafeBadgeState extends State<FailsafeBadge> with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 2600));
-  // irrelevant when the pulse is disabled: the radar stays still
   bool _animating = false;
 
   @override
   void initState() {
     super.initState();
     _syncAnimation();
-    // accessibility change ('animate') or performance mode can be toggled while the badge is alive
     settings.addListener(_onSettingsChanged);
   }
 
   void _onSettingsChanged() {
     if (settings.animate == _animating) return;
-    // settings can notify during a build: start/stop the ticker after the frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _syncAnimation();
     });
   }
 
   void _syncAnimation() {
-    // settings.animate already includes !performanceMode
     _animating = settings.animate;
     if (_animating) {
       if (!_controller.isAnimating) _controller.repeat();
@@ -72,57 +65,68 @@ class _FailsafeBadgeState extends State<FailsafeBadge> with SingleTickerProvider
         final safe = safeMode || widget.forceAlert;
         final nebula = Theme.of(context).nebula;
         final color = safe ? nebula.securityAlert : nebula.securityOk;
+        final title = widget.forceAlert
+            ? context.l10n.failsafeLockdownActive
+            : (safe ? context.l10n.failsafeSafeMode : context.l10n.failsafeOnline);
         return InkWell(
           onTap: (widget.forceAlert || !widget.interactive) ? null : () => showFailsafeReport(context),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 36,
-                  height: 36,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      // the pulse repaints a few dozen pixels, keep it away from the tile/parent
-                      RepaintBoundary(
-                        child: AnimatedBuilder(
-                          animation: _controller,
-                          builder: (context, _) => CustomPaint(
-                            size: const Size.square(36),
-                            painter: _RadarPainter(_controller.value, color, safe),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            child: Align(
+              alignment: Alignment.center,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                decoration: BoxDecoration(
+                  color: nebula.securityBubbleSurface.withValues(alpha: .12),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: color.withValues(alpha: .28)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          RepaintBoundary(
+                            child: AnimatedBuilder(
+                              animation: _controller,
+                              builder: (context, _) => CustomPaint(
+                                size: const Size.square(30),
+                                painter: _RadarPainter(_controller.value, color, safe),
+                              ),
+                            ),
                           ),
-                        ),
+                          FailsafeSprite(
+                            size: 20,
+                            mood: widget.forceAlert
+                                ? FailsafeSpriteMood.lockdown
+                                : safeMode
+                                    ? FailsafeSpriteMood.alert
+                                    : FailsafeSpriteMood.idle,
+                          ),
+                        ],
                       ),
-                      FailsafeSprite(
-                        size: 23,
-                        mood: widget.forceAlert
-                            ? FailsafeSpriteMood.lockdown
-                            : safeMode
-                                ? FailsafeSpriteMood.alert
-                                : FailsafeSpriteMood.idle,
+                    ),
+                    const SizedBox(width: 9),
+                    Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: color,
+                        fontSize: 13,
+                        height: 1.15,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: .35,
+                        decoration: TextDecoration.none,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.forceAlert ? context.l10n.failsafeLockdownActive : (safe ? context.l10n.failsafeSafeMode : context.l10n.failsafeOnline),
-                        style: TextStyle(color: color, fontWeight: FontWeight.w600, letterSpacing: .6),
-                      ),
-                      if (!widget.forceAlert)
-                        Text(
-                          context.l10n.failsafeTapForReport,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                    ],
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         );
@@ -142,7 +146,6 @@ class _RadarPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final c = size.center(Offset.zero);
     final r = size.width / 2;
-    // Leave an inset around the icon so both stroke and blur remain fully visible.
     canvas.drawCircle(
       c,
       r * .35,
@@ -154,7 +157,6 @@ class _RadarPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1
       ..color = color.withValues(alpha: .38));
-    // two expanding rings, the alert state pulses faster
     for (final phase in [0.0, .5]) {
       final p = ((t * (alert ? 2 : 1)) + phase) % 1.0;
       final fade = math.pow(1 - p, 1.35).toDouble();
@@ -168,7 +170,6 @@ class _RadarPainter extends CustomPainter {
           ..maskFilter = const MaskFilter.blur(BlurStyle.normal, .4),
       );
     }
-    // rotating sweep
     final angle = t * 2 * math.pi;
     final rect = Rect.fromCircle(center: c, radius: r - 4);
     canvas.drawArc(
@@ -190,7 +191,6 @@ class _RadarPainter extends CustomPainter {
   bool shouldRepaint(_RadarPainter old) => old.t != t || old.color != color;
 }
 
-// top strip shown over everything while in safe mode
 class SafeModeBanner extends StatelessWidget {
   const SafeModeBanner({super.key, required this.child});
 
