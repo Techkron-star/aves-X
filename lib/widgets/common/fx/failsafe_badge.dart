@@ -135,25 +135,35 @@ class _RadarPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final c = size.center(Offset.zero);
     final r = size.width / 2;
-    canvas.drawCircle(c, r - 1, Paint()
+    // Leave an inset around the icon so both stroke and blur remain fully visible.
+    canvas.drawCircle(
+      c,
+      r * .68,
+      Paint()
+        ..color = color.withValues(alpha: .07)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+    );
+    canvas.drawCircle(c, r - 3, Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1
-      ..color = color.withValues(alpha: .35));
+      ..color = color.withValues(alpha: .38));
     // two expanding rings, the alert state pulses faster
     for (final phase in [0.0, .5]) {
       final p = ((t * (alert ? 2 : 1)) + phase) % 1.0;
+      final fade = math.pow(1 - p, 1.35).toDouble();
       canvas.drawCircle(
         c,
-        r * (.3 + .7 * p),
+        r * (.24 + .58 * p),
         Paint()
           ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.6
-          ..color = color.withValues(alpha: (1 - p) * .7),
+          ..strokeWidth = 1.35
+          ..color = color.withValues(alpha: fade * .66)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, .7),
       );
     }
     // rotating sweep
     final angle = t * 2 * math.pi;
-    final rect = Rect.fromCircle(center: c, radius: r - 2);
+    final rect = Rect.fromCircle(center: c, radius: r - 4);
     canvas.drawArc(
       rect,
       angle - .9,
