@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:aves/widgets/security/failsafe_lockdown.dart';
 
 import 'package:aves/model/security/app_lock.dart';
+import 'package:aves/model/settings/settings.dart';
 import 'package:aves/widgets/common/action_mixins/secret_lock.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:aves_utils/aves_utils.dart';
@@ -12,6 +13,7 @@ import 'package:aves/services/common/services.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/dialogs/filter_editors/code_dialog.dart';
 import 'package:aves/theme/nebula/nebula_tokens.dart';
+import 'package:aves/widgets/common/fx/nebula_component_surfaces.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:material_ui/material_ui.dart';
@@ -254,7 +256,16 @@ class _LockScreenState extends State<_LockBody> {
             padding: const EdgeInsets.all(22),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 440),
-              child: Container(
+              child: NebulaComponentSurfaceAccent(
+                style: settings.materialStyle,
+                role: NebulaComponentSurfaceRole.appLockCard,
+                state: _fake || _blocked || _message != null
+                    ? NebulaComponentSurfaceState.warning
+                    : NebulaComponentSurfaceState.idle,
+                animate: settings.animate,
+                alertColor: nebula.securityAlert,
+                borderRadius: const BorderRadius.all(Radius.circular(30)),
+                child: Container(
                 padding: const EdgeInsets.fromLTRB(26, 30, 26, 26),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -323,7 +334,16 @@ class _LockScreenState extends State<_LockBody> {
                         textAlign: TextAlign.center),
                     const SizedBox(height: 26),
                     if (!_fake && !_blocked && appLock.lockTypeName == 'code')
-                      Container(
+                      NebulaComponentSurfaceAccent(
+                        style: settings.materialStyle,
+                        role: NebulaComponentSurfaceRole.securityInput,
+                        state: _message != null
+                            ? NebulaComponentSurfaceState.warning
+                            : NebulaComponentSurfaceState.focused,
+                        animate: settings.animate,
+                        alertColor: nebula.securityAlert,
+                        borderRadius: BorderRadius.circular(18),
+                        child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                         decoration: BoxDecoration(
                           color: nebula.securityInputFieldBg.withValues(alpha: .68),
@@ -341,6 +361,7 @@ class _LockScreenState extends State<_LockBody> {
                             ),
                           ),
                         ),
+                      ),
                       ),
                     if (!_fake && !_blocked && appLock.lockTypeName != 'code')
                       Padding(
@@ -408,6 +429,8 @@ class _LockScreenState extends State<_LockBody> {
                       ),
                   ],
                 ),
+                ),
+              ),
               ),
             ),
           ),
