@@ -74,6 +74,251 @@ class _SoulEffect extends NebulaEffect {
   @override CustomPainter painter(double t) => builder(t);
 }
 
+class _ObsidianPainter extends NebulaEffectPainter {
+  const _ObsidianPainter(super.t);
+
+  @override
+  void paint(Canvas c, Size s) {
+    final w = s.width, h = s.height, m = s.shortestSide;
+    final center = Offset(w * .52, h * .46);
+    final r = m * .31;
+    final pulse = .5 + .5 * math.sin(t * math.pi * 2);
+
+    c.drawRect(
+      Offset.zero & s,
+      Paint()
+        ..shader = RadialGradient(
+          center: const Alignment(.08, -.18),
+          radius: 1.05,
+          colors: const [
+            Color(0x332D1252),
+            Color(0x18150825),
+            Colors.transparent,
+          ],
+          stops: const [0, .48, 1],
+        ).createShader(Offset.zero & s),
+    );
+
+    // A fractured volcanic-glass monolith: broad facets first, razor edges last.
+    final silhouette = Path()
+      ..moveTo(center.dx - r * .28, center.dy - r)
+      ..lineTo(center.dx + r * .54, center.dy - r * .72)
+      ..lineTo(center.dx + r, center.dy - r * .06)
+      ..lineTo(center.dx + r * .62, center.dy + r * .78)
+      ..lineTo(center.dx - r * .12, center.dy + r)
+      ..lineTo(center.dx - r, center.dy + r * .22)
+      ..lineTo(center.dx - r * .76, center.dy - r * .55)
+      ..close();
+    c.drawPath(
+      silhouette,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF392052),
+            Color(0xFF100B1A),
+            Color(0xFF25103B),
+            Color(0xFF050308),
+          ],
+          stops: [0, .34, .7, 1],
+        ).createShader(Rect.fromCircle(center: center, radius: r * 1.5)),
+    );
+
+    final facets = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeJoin = StrokeJoin.bevel
+      ..strokeWidth = 1.1
+      ..color = const Color(0x887F51B4);
+    final facetPaths = <Path>[
+      Path()..moveTo(center.dx - r * .28, center.dy - r)..lineTo(center.dx - r * .08, center.dy + r * .05)..lineTo(center.dx - r, center.dy + r * .22),
+      Path()..moveTo(center.dx - r * .08, center.dy + r * .05)..lineTo(center.dx + r * .54, center.dy - r * .72)..lineTo(center.dx + r * .28, center.dy + r * .14)..close(),
+      Path()..moveTo(center.dx + r * .28, center.dy + r * .14)..lineTo(center.dx + r, center.dy - r * .06)..lineTo(center.dx + r * .62, center.dy + r * .78),
+      Path()..moveTo(center.dx - r * .08, center.dy + r * .05)..lineTo(center.dx + r * .62, center.dy + r * .78)..lineTo(center.dx - r * .12, center.dy + r),
+    ];
+    for (final path in facetPaths) {
+      c.drawPath(path, facets);
+    }
+
+    final crackGlow = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..strokeWidth = 5
+      ..color = Color(0x449B5DE5).withValues(alpha: .18 + pulse * .13)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 7);
+    final crack = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..strokeWidth = 1.35
+      ..color = Color(0xFFBE91FF).withValues(alpha: .65 + pulse * .28);
+    final fissures = <Path>[
+      Path()..moveTo(center.dx - r * .08, center.dy + r * .05)..lineTo(center.dx + r * .02, center.dy - r * .18)..lineTo(center.dx - r * .1, center.dy - r * .34),
+      Path()..moveTo(center.dx + r * .02, center.dy - r * .18)..lineTo(center.dx + r * .29, center.dy - r * .1)..lineTo(center.dx + r * .45, center.dy - r * .27),
+      Path()..moveTo(center.dx + r * .02, center.dy - r * .18)..lineTo(center.dx + r * .15, center.dy + r * .26)..lineTo(center.dx + r * .42, center.dy + r * .42),
+      Path()..moveTo(center.dx + r * .15, center.dy + r * .26)..lineTo(center.dx - r * .04, center.dy + r * .45),
+      Path()..moveTo(center.dx - r * .1, center.dy - r * .34)..lineTo(center.dx - r * .31, center.dy - r * .47),
+    ];
+    for (final path in fissures) {
+      c.drawPath(path, crackGlow);
+      c.drawPath(path, crack);
+    }
+
+    // A sparse orbit of cold motes; positions are deterministic and motion is slow.
+    for (var i = 0; i < 11; i++) {
+      final a = t * math.pi * 2 + i * 2.399963;
+      final orbit = r * (.98 + (i % 3) * .22);
+      final p = Offset(
+        center.dx + math.cos(a) * orbit,
+        center.dy + math.sin(a * .82) * orbit * .78,
+      );
+      final alpha = .3 + .55 * (.5 + .5 * math.sin(a * 1.7));
+      c.drawCircle(p, i % 4 == 0 ? 2.0 : 1.1, Paint()..color = const Color(0xFFCAA5FF).withValues(alpha: alpha));
+    }
+  }
+}
+
+class _AureatePainter extends NebulaEffectPainter {
+  const _AureatePainter(super.t);
+
+  @override
+  void paint(Canvas c, Size s) {
+    final w = s.width, h = s.height, m = s.shortestSide;
+    final center = Offset(w * .5, h * .45);
+    final r = m * .27;
+    final angle = t * math.pi * 2;
+    final pulse = .5 + .5 * math.sin(angle);
+
+    c.drawRect(
+      Offset.zero & s,
+      Paint()
+        ..shader = RadialGradient(
+          center: const Alignment(0, -.12),
+          radius: 1.12,
+          colors: const [
+            Color(0x33B8860B),
+            Color(0x1C5B3A08),
+            Colors.transparent,
+          ],
+          stops: const [0, .52, 1],
+        ).createShader(Offset.zero & s),
+    );
+
+    // Antique-gold astrolabe / reliquary: engraved rings, sun rays and a raised seal.
+    final rayPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.square
+      ..strokeWidth = 1.2
+      ..color = const Color(0x55F5D77E);
+    for (var i = 0; i < 24; i++) {
+      final a = i * math.pi / 12 + angle * .025;
+      final inner = i.isEven ? r * 1.12 : r * 1.2;
+      final outer = r * (i.isEven ? 1.43 : 1.32);
+      c.drawLine(
+        center + Offset(math.cos(a) * inner, math.sin(a) * inner),
+        center + Offset(math.cos(a) * outer, math.sin(a) * outer),
+        rayPaint,
+      );
+    }
+
+    final outerRect = Rect.fromCircle(center: center, radius: r * 1.08);
+    c.drawCircle(center, r * 1.08, Paint()..color = const Color(0x443D2808));
+    c.drawCircle(
+      center,
+      r * 1.08,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3
+        ..color = const Color(0x99C69A35),
+    );
+    c.drawCircle(
+      center,
+      r * .94,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..color = const Color(0x88FFE8A0),
+    );
+    c.drawArc(
+      outerRect,
+      angle * .18,
+      math.pi * 1.18,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.2
+        ..strokeCap = StrokeCap.round
+        ..color = Color(0xFFFFE8A0).withValues(alpha: .55 + pulse * .35),
+    );
+    c.drawArc(
+      outerRect,
+      math.pi + angle * .18,
+      math.pi * .42,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.4
+        ..color = const Color(0xFFD4AF37),
+    );
+
+    final seal = Path()
+      ..moveTo(center.dx, center.dy - r * .72)
+      ..lineTo(center.dx + r * .58, center.dy - r * .34)
+      ..lineTo(center.dx + r * .48, center.dy + r * .38)
+      ..lineTo(center.dx, center.dy + r * .72)
+      ..lineTo(center.dx - r * .48, center.dy + r * .38)
+      ..lineTo(center.dx - r * .58, center.dy - r * .34)
+      ..close();
+    c.drawPath(
+      seal,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFFFE9A3),
+            Color(0xFF9B6A12),
+            Color(0xFF2A1A06),
+            Color(0xFFD5A52B),
+          ],
+          stops: [0, .3, .68, 1],
+        ).createShader(Rect.fromCircle(center: center, radius: r)),
+    );
+    c.drawPath(
+      seal,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5
+        ..color = const Color(0xFFFFE9A3),
+    );
+
+    final engraving = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.1
+      ..strokeCap = StrokeCap.round
+      ..color = const Color(0xCCFFF0BD);
+    c.drawLine(center + Offset(0, -r * .47), center + Offset(0, r * .47), engraving);
+    c.drawLine(center + Offset(-r * .36, -r * .05), center + Offset(r * .36, -r * .05), engraving);
+    c.drawCircle(center, r * .16, Paint()..color = const Color(0xFFFFE9A3));
+    c.drawCircle(
+      center,
+      r * (.17 + pulse * .025),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.1
+        ..color = const Color(0x99FFF2C0),
+    );
+
+    // Tiny brass inlays around the medallion, not a constant particle storm.
+    for (var i = 0; i < 12; i++) {
+      final a = i * math.pi / 6 - angle * .035;
+      final p = center + Offset(math.cos(a) * r * 1.52, math.sin(a) * r * 1.52);
+      c.drawCircle(p, i.isEven ? 1.8 : 1.1, Paint()..color = const Color(0xCCF5D77E));
+    }
+  }
+}
+
 class _ForgePainter extends NebulaEffectPainter {
   const _ForgePainter(super.t);
   @override void paint(Canvas c, Size s) {
@@ -227,14 +472,15 @@ class _SakuraPainter extends NebulaEffectPainter {
 
 NebulaEffect? nebulaEffectFor(NebulaTheme theme, {required bool animate}) {
   switch(theme){
-    // These are the established/legacy identities. They deliberately do not
-    // receive a replacement soul painter here: their visual language lives in
-    // the canonical material/legacy rendering and must not be overwritten.
+    // Keep the Aves default and the established Nosferatu Glass treatment intact.
+    // Obsidian and Aureate now have their own richer, deterministic material studies.
     case NebulaTheme.aves:
     case NebulaTheme.nosferatuGlass:
-    case NebulaTheme.obsidianGlass:
-    case NebulaTheme.aureateGlass:
       return null;
+    case NebulaTheme.obsidianGlass:
+      return _SoulEffect(animate: animate, cycle: const Duration(seconds: 28), builder: (t) => _ObsidianPainter(t), pingPong: true);
+    case NebulaTheme.aureateGlass:
+      return _SoulEffect(animate: animate, cycle: const Duration(seconds: 32), builder: (t) => _AureatePainter(t), pingPong: true);
     case NebulaTheme.forgeGlass:
       return _SoulEffect(animate:animate,cycle:const Duration(seconds:12),builder:(t)=>_ForgePainter(t),pingPong:true);
     case NebulaTheme.hermeticGlass:
