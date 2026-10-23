@@ -80,11 +80,13 @@ class AdvancedVaultSecurityPage extends StatelessWidget {
     // changing these options requires the Master Code, then every lock of the vault
     if (!await MasterCode.require(context) || !context.mounted) return;
     final reason = l10n.authenticateToConfigureVault;
-    if (!await SecretLock.challenge(context, details.lockType, reason, details.passKey, resetOnSuccess: false)) return;
+    final primaryPassKey = await SecretLock.resolvePassKey(details.passKey, details.lockType, legacyType: details.lockType);
+    if (!await SecretLock.challenge(context, details.lockType, reason, primaryPassKey, resetOnSuccess: false)) return;
     final currentSecondLock = advancedPrivacy.secondLockType(name);
     if (currentSecondLock != null) {
       if (!context.mounted) return;
-      if (!await SecretLock.challenge(context, currentSecondLock, reason, AdvancedPrivacy.secondPassKey(name))) return;
+      final secondPassKey = await SecretLock.resolvePassKey(AdvancedPrivacy.secondPassKey(name), currentSecondLock, legacyType: currentSecondLock);
+      if (!await SecretLock.challenge(context, currentSecondLock, reason, secondPassKey)) return;
     }
     if (!context.mounted) return;
 
@@ -111,7 +113,7 @@ class AdvancedVaultSecurityPage extends StatelessWidget {
       await advancedPrivacy.setSecondLock(name, null);
     } else if (secondLockChoice != currentSecondLock?.name) {
       final type = VaultLockType.values.safeByName(secondLockChoice);
-      if (type != null && await SecretLock.setPass(context, type, AdvancedPrivacy.secondPassKey(name), l10n.authenticateToConfigureVault)) {
+      if (type != null && await SecretLock.setPass(context, type, SecretLock.keyForType(AdvancedPrivacy.secondPassKey(name), type), l10n.authenticateToConfigureVault)) {
         await advancedPrivacy.setSecondLock(name, type);
       }
     }
