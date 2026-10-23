@@ -71,8 +71,17 @@ class MasterGuard extends ChangeNotifier {
 
   // nothing is open when the app starts, so everything has to be encrypted
   Future<void> encryptAllAtStartup() async {
-    // may run before `init`
-    if (await securityService.readValueStrict<String>(_vaultEncKey) != '1') return;
+    // May run before init. If the setting cannot be read, assume encryption was enabled and lock down.
+    final bool enabled;
+    try {
+      enabled = await securityService.readValueStrict<String>(_vaultEncKey) == '1';
+    } catch (error, stack) {
+      _vaultEncryption = true;
+      await reportService.recordError(error, stack);
+      await failsafe.engageLockdown();
+      return;
+    }
+    if (!enabled) return;
     _vaultEncryption = true;
     if (await securityService.cryptSelfTest() != null) {
       await failsafe.engageLockdown();
@@ -139,8 +148,16 @@ class MasterGuard extends ChangeNotifier {
   }
 
   Future<void> init() async {
-    _enabled = await securityService.readValueStrict<String>(_enabledKey) == '1';
-    _vaultEncryption = await securityService.readValueStrict<String>(_vaultEncKey) == '1';
+    try {
+      _enabled = await securityService.readValueStrict<String>(_enabledKey) == '1';
+      _vaultEncryption = await securityService.readValueStrict<String>(_vaultEncKey) == '1';
+    } catch (error, stack) {
+      // Do not silently turn off hashing or at-rest encryption when encrypted preferences fail to load.
+      _enabled = true;
+      _vaultEncryption = true;
+      await reportService.recordError(error, stack);
+      await failsafe.engageLockdown();
+    }
     notifyListeners();
   }
 
