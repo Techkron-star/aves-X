@@ -172,6 +172,13 @@ class SecretLock {
         await MasterCode.handleFailure(context, guard, onNuke ?? () async {});
       }
       return false;
+    } catch (error, stack) {
+      // Lockout-state storage failures are also fail-closed and never count as a bad secret.
+      await reportService.recordError(error, stack);
+      if (context.mounted) {
+        await showWarningDialog(context: context, message: context.l10n.genericFailureFeedback);
+      }
+      return false;
     } finally {
       if (challengeKey != null) _activeChallenges.remove(challengeKey);
     }
