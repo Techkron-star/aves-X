@@ -137,30 +137,30 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
                         : _getCurrentIndex(context, items) / (items.length - 1),
                     borderRadius: navBarStyle.borderRadius,
                     child: _withLens(
-                    context,
-                    navBarStyle,
-                    items.length,
-                    _getCurrentIndex(context, items),
-                    isRtl,
-                    BottomNavigationBar(
-                    items: items.map((item) {
-                      final label = item.getText(context);
-                      return BottomNavigationBarItem(
-                        icon: _navIcon(context, item),
-                        // without the lens, the current tab glows so that it can be told apart
-                        activeIcon: settings.navLens ? null : _glow(context, _navIcon(context, item)),
-                        label: label,
-                        tooltip: label,
-                      );
-                    }).toList(),
-                    onTap: (index) => _goTo(context, items, index),
-                    currentIndex: _getCurrentIndex(context, items),
-                    type: BottomNavigationBarType.fixed,
-                    backgroundColor: backgroundColor,
-                    showSelectedLabels: false,
-                    showUnselectedLabels: false,
+                      context,
+                      navBarStyle,
+                      items.length,
+                      _getCurrentIndex(context, items),
+                      isRtl,
+                      BottomNavigationBar(
+                        items: items.map((item) {
+                          final label = item.getText(context);
+                          return BottomNavigationBarItem(
+                            icon: _navIcon(context, item),
+                            // Without the lens, the current tab glows so it can be distinguished.
+                            activeIcon: settings.navLens ? null : _glow(context, _navIcon(context, item)),
+                            label: label,
+                            tooltip: label,
+                          );
+                        }).toList(),
+                        onTap: (index) => _goTo(context, items, index),
+                        currentIndex: _getCurrentIndex(context, items),
+                        type: BottomNavigationBarType.fixed,
+                        backgroundColor: backgroundColor,
+                        showSelectedLabels: false,
+                        showUnselectedLabels: false,
+                      ),
                     ),
-                  ),
                   ),
                 );
               },
