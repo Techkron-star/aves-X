@@ -23,6 +23,10 @@ class MasterCode {
     _promptOpen = true;
     try {
       return await _ensure(context, proposeExtraSecurity: proposeExtraSecurity);
+    } catch (error, stack) {
+      await reportService.recordError(error, stack);
+      if (context.mounted) await showWarningDialog(context: context, message: context.l10n.genericFailureFeedback);
+      return false;
     } finally {
       _promptOpen = false;
     }
@@ -68,6 +72,10 @@ class MasterCode {
     _promptOpen = true;
     try {
       return await _requireExisting(context, message: message);
+    } catch (error, stack) {
+      await reportService.recordError(error, stack);
+      if (context.mounted) await showWarningDialog(context: context, message: context.l10n.genericFailureFeedback);
+      return false;
     } finally {
       _promptOpen = false;
     }
