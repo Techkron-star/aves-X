@@ -13,6 +13,93 @@ class FailsafeQuips {
     return list[_random.nextInt(list.length)];
   }
 
+  // A separate voice for failed Master Code entries during Fail-Safe lockdown.
+  static String pickMaster(String languageCode, int fails) {
+    final tiers = languageCode == 'es' ? _masterEs : _masterEn;
+    final list = tiers[fails.clamp(0, 4)];
+    return list[_random.nextInt(list.length)];
+  }
+
+  static const _masterEs = <List<String>>[
+    [
+      'El código maestro está a salvo. Tu memoria, al parecer, no tanto.',
+      'Aquí solo hace falta una cosa: el código correcto. Sin prisa… bueno, con bloqueo.',
+      'Todo bajo control. Incluida esta pequeña pausa en tu acceso.',
+      'El código maestro no se adivina por telepatía. Ya lo comprobamos.',
+    ],
+    [
+      'Un primer intento. Seguro que lo tenías clarísimo hace un segundo.',
+      'No pasa nada; hasta las personas autorizadas pueden tener un momento… interesante.',
+      'Qué seguridad al introducirlo. Lástima que el resultado no la acompañe.',
+      'Quizá el código correcto esté en el mismo sitio donde dejaste esa confianza.',
+      'Una pequeña confusión. Vamos a llamarlo así por ahora.',
+    ],
+    [
+      'Dos intentos. La memoria está ofreciendo una actuación bastante experimental.',
+      'El código maestro sigue siendo maestro. La respuesta, no tanto.',
+      'Tal vez convenga dejar de negociar con los números y recordar la combinación.',
+      'Tu insistencia es conmovedora. El teclado sigue sin estar convencido.',
+      'No quiero presionarte, pero el código tampoco va a aparecer por vergüenza.',
+    ],
+    [
+      'Tres errores. Empiezo a pensar que el código te reconoce menos que yo.',
+      'Admiro tu calma. Yo también estaría tranquilo si no fuera mi propio acceso.',
+      'Una estrategia audaz: probar otra vez exactamente sin éxito.',
+      'Quizá este sea un buen momento para respirar y consultar tu nota segura.',
+      'No es por criticar, pero el código maestro debería resultarte familiar.',
+    ],
+    [
+      'Vaya… el dueño de la llave sigue buscando la llave.',
+      'Has conseguido que hasta el código maestro necesite distancia emocional.',
+      'La seguridad está funcionando. La memoria está en mantenimiento.',
+      'No te preocupes: no voy a juzgarte en voz alta. Ya lo estoy haciendo.',
+      'Tu persistencia merece reconocimiento. El acceso, por ahora, no.',
+      'El sistema no puede recordar el código por ti. Créeme, ya lo habría intentado.',
+      'Es tu código maestro. La relación parece complicada.',
+      'Al menos nadie ha entrado. Tú tampoco, pero hay que ver el lado positivo.',
+    ],
+  ];
+
+  static const _masterEn = <List<String>>[
+    [
+      'The Master Code is safe. Your memory, apparently, is not.',
+      'Only one thing is needed: the right code. Take your time… well, mind the lockdown.',
+      'Everything is under control, including this little pause in your access.',
+      'The Master Code cannot be guessed telepathically. We have checked.',
+    ],
+    [
+      'First try. I am sure you were absolutely certain a second ago.',
+      'No worries; even authorized people can have an… interesting moment.',
+      'Such confidence while typing. Shame the result did not come along.',
+      'Perhaps the right code is where you left that confidence.',
+      'A tiny mix-up. Let us call it that for now.',
+    ],
+    [
+      'Two attempts. Your memory is giving a rather experimental performance.',
+      'The Master Code remains masterful. The answer, not so much.',
+      'Maybe stop negotiating with the digits and remember the combination.',
+      'Your persistence is touching. The keypad remains unconvinced.',
+      'No pressure, but the code will not appear out of embarrassment.',
+    ],
+    [
+      'Three failures. I am starting to think the code recognizes you less than I do.',
+      'I admire your calm. I would be calm too if this were not my own access.',
+      'A bold strategy: trying again with the same lack of success.',
+      'Perhaps now is a good time to breathe and check your secure note.',
+      'Not to be critical, but the Master Code should look familiar.',
+    ],
+    [
+      'Well… the owner of the key is still looking for the key.',
+      'You have made the Master Code need some emotional distance.',
+      'Security is working. Memory is under maintenance.',
+      'Do not worry; I will not judge you out loud. I already am.',
+      'Your persistence deserves recognition. Access, for now, does not.',
+      'The system cannot remember your code for you. Believe me, I would have tried.',
+      'It is your Master Code. The relationship seems complicated.',
+      'At least nobody got in. Neither did you, but let us focus on the positives.',
+    ],
+  ];
+
   static const _es = <List<String>>[
     [
       'Estoy vigilando. Tranquilo.',
