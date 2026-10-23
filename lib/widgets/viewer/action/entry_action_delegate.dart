@@ -2,7 +2,6 @@ import 'package:aves/model/captions.dart';
 import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/model/item_locks.dart';
 import 'package:aves/model/security/gargantua.dart';
-import 'package:aves/model/security/privacy_options.dart';
 import 'package:aves/widgets/dialogs/danger_confirmation.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -33,7 +32,6 @@ import 'package:aves/widgets/common/action_mixins/size_aware.dart';
 import 'package:aves/widgets/common/action_mixins/vault_aware.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/dialogs/add_shortcut_dialog.dart';
-import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/dialogs/aves_dialog.dart';
 import 'package:aves/widgets/dialogs/convert_entry_dialog.dart';
 import 'package:aves/widgets/dialogs/entry_editors/rename_entry_dialog.dart';
@@ -427,7 +425,7 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
 
   void quickRate(BuildContext context, int rating) {
     final targetEntry = _getTargetEntry(context, EntryAction.editRating);
-    _metadataActionDelegate.quickRate(context, targetEntry, rating);
+    unawaited(_metadataActionDelegate.quickRate(context, targetEntry, rating));
   }
 
   void quickTag(BuildContext context, CollectionFilter filter) {
