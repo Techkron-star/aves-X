@@ -12,6 +12,8 @@ enum NebulaComponentSurfaceRole {
   searchBar,
   appLockBackdrop,
   lockdownBackdrop,
+  appLockEmblem,
+  lockdownStatusBadge,
   itemLockBackdrop,
   itemLockCard,
   itemLockBadge,
@@ -80,6 +82,8 @@ class _NebulaComponentSurfaceAccentState extends State<NebulaComponentSurfaceAcc
         NebulaComponentSurfaceRole.searchBar => const Duration(seconds: 8),
         NebulaComponentSurfaceRole.appLockBackdrop => const Duration(seconds: 20),
         NebulaComponentSurfaceRole.lockdownBackdrop => const Duration(milliseconds: 3800),
+        NebulaComponentSurfaceRole.appLockEmblem => const Duration(seconds: 7),
+        NebulaComponentSurfaceRole.lockdownStatusBadge => const Duration(milliseconds: 2800),
         NebulaComponentSurfaceRole.itemLockBackdrop => const Duration(seconds: 24),
         NebulaComponentSurfaceRole.itemLockCard => const Duration(seconds: 18),
         NebulaComponentSurfaceRole.itemLockBadge => const Duration(seconds: 11),
@@ -95,6 +99,8 @@ class _NebulaComponentSurfaceAccentState extends State<NebulaComponentSurfaceAcc
       NebulaComponentSurfaceRole.searchBar => const Duration(seconds: 5),
       NebulaComponentSurfaceRole.appLockBackdrop => const Duration(seconds: 12),
       NebulaComponentSurfaceRole.lockdownBackdrop => const Duration(seconds: 5),
+      NebulaComponentSurfaceRole.appLockEmblem => const Duration(seconds: 4),
+      NebulaComponentSurfaceRole.lockdownStatusBadge => const Duration(seconds: 2200),
       NebulaComponentSurfaceRole.itemLockBackdrop => const Duration(seconds: 15),
       NebulaComponentSurfaceRole.itemLockCard => const Duration(seconds: 8),
       NebulaComponentSurfaceRole.itemLockBadge => const Duration(seconds: 6),
@@ -255,6 +261,10 @@ class _NebulaComponentSurfacePainter extends CustomPainter {
         _paintAppLockBackdrop(canvas, size);
       case NebulaComponentSurfaceRole.lockdownBackdrop:
         _paintLockdownBackdrop(canvas, size);
+      case NebulaComponentSurfaceRole.appLockEmblem:
+        _paintAppLockEmblem(canvas, size);
+      case NebulaComponentSurfaceRole.lockdownStatusBadge:
+        _paintLockdownStatusBadge(canvas, size);
       case NebulaComponentSurfaceRole.itemLockBackdrop:
         _paintItemLockBackdrop(canvas, size);
       case NebulaComponentSurfaceRole.itemLockCard:
@@ -540,6 +550,76 @@ class _NebulaComponentSurfacePainter extends CustomPainter {
       _dot(canvas, Offset(w * .89, y),
           _light, 1.0 + pulse * (_urgent ? 1.1 : .35),
           glow: _urgent ? 2.5 + pulse * 3.0 : 1.0 + pulse);
+    }
+  }
+
+  void _paintAppLockEmblem(Canvas canvas, Size size) {
+    final center = Offset(size.width * .5, size.height * .5);
+    final m = math.min(size.width, size.height);
+    final pulse = .5 + .5 * math.sin(progress * math.pi * 2);
+    if (_eclipse) {
+      // Thin crescent glances around the app mark; the core remains unobstructed.
+      final r = m * .44;
+      _arc(canvas, Rect.fromCircle(center: center, radius: r),
+          -math.pi * .78 + progress * .035, math.pi * 1.12,
+          _light, .24 + pulse * .2, .9, glow: 2 + pulse * 2.5);
+      _arc(canvas, Rect.fromCircle(center: center, radius: r * .91),
+          math.pi * .28, math.pi * .24,
+          _accent, .12 + pulse * .12, .7);
+      final a = -math.pi * .78 + progress * math.pi * 1.12;
+      _dot(canvas, center + Offset(math.cos(a) * r, math.sin(a) * r),
+          _light, 1.2 + pulse * .3, glow: 2.5 + pulse * 2);
+    } else {
+      // Hermetic is a calibrator around the mark, not another crystal halo.
+      final r = m * .43;
+      for (var i = 0; i < 12; i++) {
+        final a = -math.pi / 2 + i * math.pi / 6;
+        final major = i % 3 == 0;
+        final active = i == (progress * 12).floor() % 12;
+        final inner = r * (major ? .84 : .91);
+        final outer = r * (major ? 1 : .96);
+        _line(canvas,
+            center + Offset(math.cos(a) * inner, math.sin(a) * inner),
+            center + Offset(math.cos(a) * outer, math.sin(a) * outer),
+            _light, active ? .62 + pulse * .28 : .12 + pulse * .07,
+            active ? 1.0 : .65,
+            glow: active ? 2 + pulse * 2 : 0);
+      }
+      _arc(canvas, Rect.fromCircle(center: center, radius: r * (.75 + pulse * .015)),
+          progress * .08, math.pi * 1.18, _accent, .11 + pulse * .1, .65);
+    }
+  }
+
+  void _paintLockdownStatusBadge(Canvas canvas, Size size) {
+    final w = size.width, h = size.height;
+    final pulse = .5 + .5 * math.sin(progress * math.pi * 2);
+    final alpha = _urgent ? .36 + pulse * .32 : .14 + pulse * .1;
+    if (_eclipse) {
+      // Broken, opposing crescents at each end of the status pill.
+      final r = (h * .28).clamp(4.0, 9.0).toDouble();
+      final left = Rect.fromCircle(center: Offset(h * .48, h * .5), radius: r);
+      final right = Rect.fromCircle(center: Offset(w - h * .48, h * .5), radius: r);
+      _arc(canvas, left, -math.pi * .28 + progress * .035, math.pi * .62,
+          _light, alpha, .8, glow: _urgent ? 2.5 : 0);
+      _arc(canvas, right, math.pi * .72 + progress * .035, math.pi * .62,
+          _light, alpha, .8, glow: _urgent ? 2.5 : 0);
+      final a = -math.pi * .28 + progress * math.pi * .62;
+      _dot(canvas, Offset(h * .48 + math.cos(a) * r, h * .5 + math.sin(a) * r),
+          _light, .8 + pulse * .4, glow: _urgent ? 2.5 : 0);
+    } else {
+      // Hermetic's status marker is an ordered triplet whose center tick responds
+      // to warning intensity. It is intentionally static in position, not swept.
+      final x0 = h * .4;
+      for (var i = 0; i < 3; i++) {
+        final x = x0 + i * h * .2;
+        final major = i == 1;
+        final extent = h * (major ? .24 : .13) * (1 + pulse * (major ? .2 : .05));
+        _line(canvas, Offset(x, h * .5 - extent), Offset(x, h * .5 + extent),
+            _light, alpha * (major ? 1 : .62), major ? 1.0 : .65,
+            glow: major && _urgent ? 2 + pulse * 2 : 0);
+      }
+      _line(canvas, Offset(w - h * .4, h * .5), Offset(w - h * .18, h * .5),
+          _accent, alpha * .7, .65);
     }
   }
 
