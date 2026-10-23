@@ -109,12 +109,16 @@ class AppLock extends ChangeNotifier {
   }
 
   Future<void> disable() async {
-    await securityService.writeValue<String>(_pinKey, null);
-    await securityService.writeValue<String>(_altKey, null);
-    await securityService.writeValue<String>(_biometricKey, null);
-    await securityService.writeValue<String>(_panicKey, null);
-    await securityService.writeValue<String>(_typeKey, null);
-    await securityService.writeValue<String>(_delayKey, null);
+    final writes = await Future.wait([
+      securityService.writeValue<String>(_pinKey, null),
+      securityService.writeValue<String>(_altKey, null),
+      securityService.writeValue<String>(_biometricKey, null),
+      securityService.writeValue<String>(_panicKey, null),
+      securityService.writeValue<String>(_typeKey, null),
+      securityService.writeValue<String>(_delayKey, null),
+    ]);
+    // Never report the lock as disabled if secure storage did not confirm every removal.
+    if (writes.any((ok) => !ok)) throw StateError('Could not persist app-lock disable operation');
     await AttemptGuard.app.reset();
     _enabled = false;
     _biometric = false;
@@ -126,13 +130,17 @@ class AppLock extends ChangeNotifier {
   }
 
   Future<void> setRelockDelay(Duration delay) async {
-    await securityService.writeValue<String>(_delayKey, delay.inSeconds.toString());
+    if (!await securityService.writeValue<String>(_delayKey, delay.inSeconds.toString())) {
+      throw StateError('Could not persist app-lock relock delay');
+    }
     _relockDelay = delay;
     notifyListeners();
   }
 
   Future<void> setBiometric(bool value) async {
-    await securityService.writeValue<String>(_biometricKey, value ? '1' : null);
+    if (!await securityService.writeValue<String>(_biometricKey, value ? '1' : null)) {
+      throw StateError('Could not persist app-lock biometric setting');
+    }
     _biometric = value;
     notifyListeners();
   }
