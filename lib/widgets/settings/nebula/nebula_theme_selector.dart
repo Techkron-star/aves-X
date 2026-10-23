@@ -7,9 +7,8 @@ import 'package:provider/provider.dart';
 
 // Selector del tema Nebula.
 //
-// Muestra una "pill" por tema: las de Fase 1 (Aves, Nosferatu Glass, Obsidian Glass, Aureate Glass)
-// están habilitadas, las de Fase 2 (Forge Glass, Hermetic Glass) están deshabilitadas con un tooltip
-// "Próximamente: Fase 2".
+// Muestra una "pill" por tema. Las 19 opciones están disponibles; las de Fase 2
+// conservan la pegatina experimental, pero ya no están bloqueadas en el selector.
 // Cada pill lleva su pegatina de función (newFeature para Fase 1, experimental para Fase 2),
 // el nombre y una descripción corta.
 //
@@ -31,15 +30,15 @@ class NebulaThemeSelector extends StatelessWidget {
           NebulaThemePill(
             theme: t,
             selected: theme == t,
-            enabled: t.isPhase1,
-            onSelected: t.isPhase1 ? () => settings.nebulaTheme = t : null,
+            enabled: true,
+            onSelected: () => settings.nebulaTheme = t,
           ),
       ],
     ),
   );
 }
 
-/// Una opción de tema: nombre, descripción corta, pegatina de función y estado (habilitado / Fase 2).
+/// Una opción de tema: nombre, descripción corta y pegatina de función.
 class NebulaThemePill extends StatelessWidget {
   final NebulaTheme theme;
   final bool selected;
@@ -117,7 +116,7 @@ class NebulaThemePill extends StatelessWidget {
 
     // Never build a `Tooltip` without a message: `TooltipState` evaluates `richMessage!`
     // when `message` is null, which throws in release and renders a gray `ErrorWidget`.
-    // Only Phase 2 pills need a tooltip, so enabled pills skip it entirely.
+    // The tooltip remains available if a theme is deliberately disabled in a future release.
     return Opacity(
       opacity: enabled ? 1 : .5,
       child: enabled ? content : Tooltip(message: l10n.nebulaComingSoonPhase2, child: content),
