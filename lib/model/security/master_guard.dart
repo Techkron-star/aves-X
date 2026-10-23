@@ -83,13 +83,18 @@ class MasterGuard extends ChangeNotifier {
     }
     if (!enabled) return;
     _vaultEncryption = true;
-    if (await securityService.cryptSelfTest() != null) {
-      await failsafe.engageLockdown();
-      return;
-    }
-    final report = await _enqueue(() => securityService.cryptAllVaults(encrypt: true));
-    if (report == null || !report.success) {
-      // A vault must not be treated as protected when encryption did not complete.
+    try {
+      if (await securityService.cryptSelfTest() != null) {
+        await failsafe.engageLockdown();
+        return;
+      }
+      final report = await _enqueue(() => securityService.cryptAllVaults(encrypt: true));
+      if (report == null || !report.success) {
+        // A vault must not be treated as protected when encryption did not complete.
+        await failsafe.engageLockdown();
+      }
+    } catch (error, stack) {
+      await reportService.recordError(error, stack);
       await failsafe.engageLockdown();
     }
   }
@@ -117,31 +122,53 @@ class MasterGuard extends ChangeNotifier {
     if (!await MasterCode.require(context)) return false;
 
     if (value) {
-      // the key must work before anything is encrypted
-      final error = await securityService.cryptSelfTest();
-      if (error != null) {
-        if (context.mounted) await showWarningDialog(context: context, message: context.l10n.batCurityVaultEncSelfTestFailed(error));
-        return false;
-      }
-      if (!await securityService.writeValue<String>(_vaultEncKey, '1')) return false;
-      _vaultEncryption = true;
-      var allEncrypted = true;
-      for (final details in vaults.all.where((v) => vaults.isLocked(v.path))) {
-        if (!await encryptVault(details.name)) allEncrypted = false;
-      }
-      if (!allEncrypted) {
+      try {
+        // The key must work before anything is encrypted.
+        final error = await securityService.cryptSelfTest();
+        if (error != null) {
+          if (context.mounted) await showWarningDialog(context: context, message: context.l10n.batCurityVaultEncSelfTestFailed(error));
+          return false;
+        }
+        if (!await securityService.writeValue<String>(_vaultEncKey, '1')) return false;
+        _vaultEncryption = true;
+        var allEncrypted = true;
+        for (final details in vaults.all.where((v) => vaults.isLocked(v.path))) {
+          if (!await encryptVault(details.name)) allEncrypted = false;
+        }
+        if (!allEncrypted) {
+          await failsafe.engageLockdown();
+          notifyListeners();
+          return false;
+        }
+      } catch (error, stack) {
+        await reportService.recordError(error, stack);
+        _vaultEncryption = true;
         await failsafe.engageLockdown();
         notifyListeners();
         return false;
       }
     } else {
-      final report = await _enqueue(() => securityService.cryptAllVaults(encrypt: false));
-      if (report == null || !report.success) {
+      try {
+        final report = await _enqueue(() => securityService.cryptAllVaults(encrypt: false));
+        if (report == null || !report.success) {
+          // Roll back partial decryption so the enabled setting continues to match the files on disk.
+          final restored = await _enqueue(() => securityService.cryptAllVaults(encrypt: true));
+          if (restored == null || !restored.success) await failsafe.engageLockdown();
+          notifyListeners();
+          return false;
+        }
+        if (!await securityService.writeValue<String>(_vaultEncKey, null)) {
+          final restored = await _enqueue(() => securityService.cryptAllVaults(encrypt: true));
+          if (restored == null || !restored.success) await failsafe.engageLockdown();
+          return false;
+        }
+        _vaultEncryption = false;
+      } catch (error, stack) {
+        await reportService.recordError(error, stack);
+        await failsafe.engageLockdown();
         notifyListeners();
         return false;
       }
-      if (!await securityService.writeValue<String>(_vaultEncKey, null)) return false;
-      _vaultEncryption = false;
     }
     notifyListeners();
     return true;
