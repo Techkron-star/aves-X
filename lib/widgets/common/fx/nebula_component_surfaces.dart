@@ -258,8 +258,20 @@ class _NebulaComponentSurfacePainter extends CustomPainter {
         ..close();
       _path(canvas, diamond, _light, _active ? .78 : .38, 1, glow: _active ? 3.5 : 0);
     }
-    final travelX = w * (.06 + .88 * progress);
-    _dot(canvas, Offset(travelX, h * .94), _light, _active ? 1.5 : .9, glow: _active ? 3 : 0);
+    // Motion stays anchored to the selected destination: Eclipse breathes at the
+    // terminator, while Hermetic raises and lowers a calibrated index. No global
+    // left-to-right light sweep is shared between components.
+    final lowerY = h * .94;
+    final pulse = .5 + .5 * math.sin(progress * math.pi * 2);
+    if (_eclipse) {
+      _dot(canvas, Offset(x, lowerY), _light, 1.0 + pulse * .55,
+          glow: 2.0 + pulse * 2.0);
+    } else {
+      _line(canvas, Offset(x - r * .62, lowerY), Offset(x + r * .62, lowerY),
+          _light, .2 + pulse * .48, .8, glow: pulse * 2.2);
+      _dot(canvas, Offset(x, lowerY), _light, .8 + pulse * .55,
+          glow: 1.0 + pulse * 2.0);
+    }
   }
 
   void _paintDrawerHeader(Canvas canvas, Size size) {
@@ -302,33 +314,46 @@ class _NebulaComponentSurfacePainter extends CustomPainter {
     final emphasis = _active ? .72 + .2 * _pulse : .3;
     _line(canvas, Offset(w * .035, h * .08), Offset(w * .965, h * .08), _accent, .2, .7);
     _line(canvas, Offset(w * .08, h * .94), Offset(w * .92, h * .94), _accent, _active ? .34 : .16, .8);
-    final scanX = w * (.08 + .84 * progress);
-    _line(canvas, Offset(scanX - w * .045, h * .1), Offset(scanX + w * .045, h * .1),
-        _light, emphasis, 1.4, glow: _active ? 4.5 : 2);
-    _dot(canvas, Offset(scanX, h * .1), _light, _active ? 1.8 : 1.1, glow: _active ? 5 : 2);
-
     if (_eclipse) {
+      // Search gets its own scan at the upper edge plus an orbiting terminator;
+      // this cadence is intentionally different from the navigation indicator.
+      final scanX = w * (.08 + .84 * progress);
+      _line(canvas, Offset(scanX - w * .045, h * .1), Offset(scanX + w * .045, h * .1),
+          _light, emphasis, 1.4, glow: _active ? 4.5 : 2);
+      _dot(canvas, Offset(scanX, h * .1), _light, _active ? 1.8 : 1.1,
+          glow: _active ? 5 : 2);
       final center = Offset(w * .94, h * .49);
       final r = (h * .25).clamp(5.0, 14.0).toDouble();
       _arc(canvas, Rect.fromCircle(center: center, radius: r),
           -math.pi * .78, math.pi * 1.38, _light, _active ? .86 : .42, 1.1,
           glow: _active ? 4 : 0);
-      _dot(canvas, center + Offset(math.cos(progress * math.pi * 1.38) * r,
-          math.sin(progress * math.pi * 1.38) * r), _light, 1.3, glow: 3);
+      final angle = -math.pi * .78 + progress * math.pi * 1.38;
+      _dot(canvas, center + Offset(math.cos(angle) * r, math.sin(angle) * r),
+          _light, 1.3, glow: 3);
     } else {
+      // Hermetic is a calibrated instrument: its index breathes vertically and
+      // the diamond has a rotating elliptical reticle, not a horizontal sweep.
       final x0 = w * .055;
+      final pulse = .5 + .5 * math.sin(progress * math.pi * 2);
       for (var i = 0; i < 4; i++) {
         final x = x0 + i * 5.0;
         _line(canvas, Offset(x, h * .36), Offset(x, h * .63), _light,
-            .26 + (i == 3 ? .25 : 0), .75);
+            .18 + pulse * (i == 3 ? .42 : .2), .75);
       }
       final x = w * .94;
-      final y = h * .5;
+      final y = h * (.5 + math.sin(progress * math.pi * 2) * .035);
+      final reticle = Rect.fromCenter(
+        center: Offset(x, y),
+        width: 8 + pulse * 5,
+        height: 6 + pulse * 3,
+      );
+      _arc(canvas, reticle, progress * math.pi * .22, math.pi * 1.42,
+          _light, (_active ? .58 : .28) + pulse * .25, .8, glow: 1.2 + pulse * 2);
       final diamond = Path()
-        ..moveTo(x, y - 4)
-        ..lineTo(x + 4, y)
-        ..lineTo(x, y + 4)
-        ..lineTo(x - 4, y)
+        ..moveTo(x, y - 4 - pulse * 1.2)
+        ..lineTo(x + 4 + pulse, y)
+        ..lineTo(x, y + 4 + pulse * 1.2)
+        ..lineTo(x - 4 - pulse, y)
         ..close();
       _path(canvas, diamond, _light, _active ? .85 : .5, 1, glow: _active ? 3 : 0);
     }
@@ -406,8 +431,18 @@ class _NebulaComponentSurfacePainter extends CustomPainter {
       _line(canvas, Offset(w * .11, h * .88), Offset(w * .16, h * .83), _light, alpha * 1.4, .9);
       _line(canvas, Offset(w * .16, h * .88), Offset(w * .21, h * .83), _accent, alpha, .9);
     }
-    final movingX = w * (.08 + .84 * progress);
-    _dot(canvas, Offset(movingX, inset), _light, _urgent ? 1.8 : 1.1, glow: _urgent ? 5 : 1.5);
+    if (_eclipse) {
+      // The lockdown marker follows the upper-left interrupted arc, not the full frame.
+      final a = -math.pi * .25 + progress * math.pi * .56;
+      final p = Offset(w * .12, h * .13) + Offset(math.cos(a) * (m * .065), math.sin(a) * (m * .065));
+      _dot(canvas, p, _light, _urgent ? 1.7 : 1.0, glow: _urgent ? 5 : 1.5);
+    } else {
+      // Hermetic's warning energy breathes at the calibration origin.
+      final y = h * .13;
+      _dot(canvas, Offset(w * .89, y),
+          _light, 1.0 + pulse * (_urgent ? 1.1 : .35),
+          glow: _urgent ? 2.5 + pulse * 3.0 : 1.0 + pulse);
+    }
   }
 
   void _paintLockCard(Canvas canvas, Size size) {
@@ -481,8 +516,19 @@ class _NebulaComponentSurfacePainter extends CustomPainter {
       _line(canvas, Offset(w * .13, h * .87), Offset(w * .23, h * .77),
           _light, alertStrength, 1, glow: _urgent ? 3 : 0);
     }
-    final movingX = w * (.16 + .68 * progress);
-    _dot(canvas, Offset(movingX, inset), _light, _urgent ? 1.8 : 1.1, glow: _urgent ? 5 : 1.5);
+    if (_eclipse) {
+      final a = -math.pi * .2 + progress * math.pi * .62;
+      final r = (math.min(w, h) * .035).clamp(9.0, 18.0).toDouble();
+      _dot(canvas, Offset(w * .13, h * .12) + Offset(math.cos(a) * r, math.sin(a) * r),
+          _light, _urgent ? 1.8 : 1.1, glow: _urgent ? 5 : 1.5);
+    } else {
+      final breath = .5 + .5 * math.sin(progress * math.pi * 2);
+      final x = w * .87, y = h * .13;
+      _line(canvas, Offset(x, y - 4 - breath * 2),
+          Offset(x, y + 4 + breath * 2), _light,
+          _urgent ? .62 + breath * .3 : .26 + breath * .22,
+          _urgent ? 1.2 : .8, glow: _urgent ? 3 + breath * 2 : 0);
+    }
   }
 
   void _paintSecurityInput(Canvas canvas, Size size) {
@@ -503,19 +549,30 @@ class _NebulaComponentSurfacePainter extends CustomPainter {
       ..moveTo(inset, h - inset - len)..lineTo(inset, h - inset)..lineTo(inset + len, h - inset)
       ..moveTo(w - inset - len, h - inset)..lineTo(w - inset, h - inset)..lineTo(w - inset, h - inset - len);
     _path(canvas, corners, _light, emphasis, 1, glow: _active ? 4 : 0);
-    final x = w * (.1 + .8 * progress);
-    _line(canvas, Offset(x - 9, inset + .5), Offset(x + 9, inset + .5),
-        _light, emphasis, 1.25, glow: _active ? 4 : 1.5);
+    final pulse = .5 + .5 * math.sin(progress * math.pi * 2);
     if (_hermetic) {
+      // Mechanical field-lock: paired end stops tighten/relax in place, with
+      // different intensity at each side so this never reads as a swept streak.
       for (var i = 0; i < 3; i++) {
-        final tickH = h * (.12 + i * .025);
+        final tickH = h * (.12 + i * .025 + pulse * .025);
+        final a = emphasis * (.42 + pulse * .5) * (i == 1 ? 1 : .72);
         _line(canvas, Offset(w * .045 + i * 4, h * .5 - tickH / 2),
-            Offset(w * .045 + i * 4, h * .5 + tickH / 2), _accent, emphasis * .7, .8);
+            Offset(w * .045 + i * 4, h * .5 + tickH / 2), _accent, a, .8);
+        _line(canvas, Offset(w * (.955 - i * .012), h * .5 - tickH / 2),
+            Offset(w * (.955 - i * .012), h * .5 + tickH / 2), _light, a, .8);
       }
+      _line(canvas, Offset(w * .25, inset + .5), Offset(w * .38, inset + .5),
+          _light, emphasis * (.25 + pulse * .65), .9, glow: _active ? 2 + pulse * 2 : 0);
     } else {
+      // Eclipse's short reflection travels along a curved edge, rather than across
+      // the field. The incomplete arc doubles as the component's lock indicator.
       final r = (h * .16).clamp(3.0, 8.0).toDouble();
-      _arc(canvas, Rect.fromCircle(center: Offset(w * .96, h * .5), radius: r),
+      final center = Offset(w * .96, h * .5);
+      _arc(canvas, Rect.fromCircle(center: center, radius: r),
           -math.pi * .5 + progress * math.pi, math.pi, _light, emphasis, .9);
+      final a = -math.pi * .5 + progress * math.pi;
+      _dot(canvas, center + Offset(math.cos(a) * r, math.sin(a) * r),
+          _light, .8 + pulse * .6, glow: _active ? 2 + pulse * 2 : 0);
     }
   }
 
