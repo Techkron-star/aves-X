@@ -8,8 +8,10 @@ import 'package:aves/theme/icons.dart';
 import 'package:aves/widgets/collection/collection_page.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
 import 'package:aves/widgets/common/action_mixins/vault_aware.dart';
+import 'package:aves/model/settings/settings.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/navigation/drawer/tile.dart';
+import 'package:aves/widgets/common/fx/nebula_component_surfaces.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 
@@ -23,28 +25,36 @@ class const CollectionNavTile({
 }) extends StatelessWidget with FeedbackMixin, VaultAwareMixin {
   @override
   Widget build(BuildContext context) {
+    final selected = context.currentRouteName == CollectionPage.routeName && isSelected();
     return SafeArea(
       top: false,
       bottom: false,
-      child: ListTile(
-        leading: leading,
-        title: title,
-        trailing: trailing != null
-            ? Builder(
-                builder: (context) {
-                  final trailingColor = IconTheme.of(context).color!.withValues(alpha: .6);
-                  return IconTheme.merge(
-                    data: IconThemeData(color: trailingColor),
-                    child: DefaultTextStyle.merge(
-                      style: TextStyle(color: trailingColor),
-                      child: trailing!,
-                    ),
-                  );
-                },
-              )
-            : null,
-        onTap: () => _goToCollection(context),
-        selected: context.currentRouteName == CollectionPage.routeName && isSelected(),
+      child: NebulaComponentSurfaceAccent(
+        style: settings.materialStyle,
+        role: NebulaComponentSurfaceRole.drawerItem,
+        state: selected ? NebulaComponentSurfaceState.selected : NebulaComponentSurfaceState.idle,
+        animate: settings.animate,
+        borderRadius: BorderRadius.circular(10),
+        child: ListTile(
+          leading: leading,
+          title: title,
+          trailing: trailing != null
+              ? Builder(
+                  builder: (context) {
+                    final trailingColor = IconTheme.of(context).color!.withValues(alpha: .6);
+                    return IconTheme.merge(
+                      data: IconThemeData(color: trailingColor),
+                      child: DefaultTextStyle.merge(
+                        style: TextStyle(color: trailingColor),
+                        child: trailing!,
+                      ),
+                    );
+                  },
+                )
+              : null,
+          onTap: () => _goToCollection(context),
+          selected: selected,
+        ),
       ),
     );
   }
