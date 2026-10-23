@@ -25,7 +25,7 @@ class SecurityScreenBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<Settings, (bool, bool, bool)>(
+    return Selector<Settings, (bool, bool, bool, NebulaMaterial?)>(
       selector: (context, s) => (s.materialStyle != null, s.glassEverywhere, s.animate, s.materialStyle?.material),
       builder: (context, state, _) {
         final (nebulaGlass, glassEverywhere, animate, selectedMaterial) = state;
