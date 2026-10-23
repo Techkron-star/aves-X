@@ -269,6 +269,7 @@ void main() {
       for (final theme in glassThemes) {
         final material = nebulaMaterials[theme]!;
         final palette = nebulaPalettes[theme]!;
+        expect(nebulaMaterialStylesByMaterial[material.material], same(material), reason: '${theme.id} must resolve through the direct material registry');
         expect(material.accent, palette.accent, reason: '${theme.id} must use its canonical palette accent');
         expect(material.chain, hasLength(2), reason: '${theme.id} must define a chain treatment');
         expect(material.highlight, isA<LinearGradient>(), reason: '${theme.id} must define surface reflections');
