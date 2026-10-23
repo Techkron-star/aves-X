@@ -62,20 +62,36 @@ class _NebulaComponentSurfaceAccentState extends State<NebulaComponentSurfaceAcc
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: _duration(widget.role),
+    duration: _duration(widget.role, widget.style?.material),
     value: .28,
   );
 
-  static Duration _duration(NebulaComponentSurfaceRole role) => switch (role) {
-        NebulaComponentSurfaceRole.navigationBar => const Duration(seconds: 9),
-        NebulaComponentSurfaceRole.drawerHeader => const Duration(seconds: 13),
-        NebulaComponentSurfaceRole.searchBar => const Duration(seconds: 5),
-        NebulaComponentSurfaceRole.appLockBackdrop => const Duration(seconds: 12),
-        NebulaComponentSurfaceRole.lockdownBackdrop => const Duration(seconds: 5),
-        NebulaComponentSurfaceRole.appLockCard => const Duration(seconds: 9),
-        NebulaComponentSurfaceRole.lockdownCard => const Duration(seconds: 4),
-        NebulaComponentSurfaceRole.securityInput => const Duration(seconds: 3),
+  static Duration _duration(NebulaComponentSurfaceRole role, NebulaMaterial? material) {
+    // Eclipse follows orbital light; Hermetic moves more like a slow measuring
+    // instrument, except for the sharper warning cadence during lockdown.
+    if (material == NebulaMaterial.hermetic) {
+      return switch (role) {
+        NebulaComponentSurfaceRole.navigationBar => const Duration(seconds: 14),
+        NebulaComponentSurfaceRole.drawerHeader => const Duration(seconds: 17),
+        NebulaComponentSurfaceRole.searchBar => const Duration(seconds: 8),
+        NebulaComponentSurfaceRole.appLockBackdrop => const Duration(seconds: 20),
+        NebulaComponentSurfaceRole.lockdownBackdrop => const Duration(milliseconds: 3800),
+        NebulaComponentSurfaceRole.appLockCard => const Duration(seconds: 16),
+        NebulaComponentSurfaceRole.lockdownCard => const Duration(milliseconds: 3200),
+        NebulaComponentSurfaceRole.securityInput => const Duration(milliseconds: 4200),
       };
+    }
+    return switch (role) {
+      NebulaComponentSurfaceRole.navigationBar => const Duration(seconds: 9),
+      NebulaComponentSurfaceRole.drawerHeader => const Duration(seconds: 13),
+      NebulaComponentSurfaceRole.searchBar => const Duration(seconds: 5),
+      NebulaComponentSurfaceRole.appLockBackdrop => const Duration(seconds: 12),
+      NebulaComponentSurfaceRole.lockdownBackdrop => const Duration(seconds: 5),
+      NebulaComponentSurfaceRole.appLockCard => const Duration(seconds: 9),
+      NebulaComponentSurfaceRole.lockdownCard => const Duration(seconds: 4),
+      NebulaComponentSurfaceRole.securityInput => const Duration(seconds: 3),
+    };
+  }
 
   bool get _supported {
     final material = widget.style?.material;
@@ -91,8 +107,10 @@ class _NebulaComponentSurfaceAccentState extends State<NebulaComponentSurfaceAcc
   @override
   void didUpdateWidget(covariant NebulaComponentSurfaceAccent oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.role != widget.role) {
-      _controller.duration = _duration(widget.role);
+    final materialChanged = oldWidget.style?.material != widget.style?.material;
+    if (oldWidget.role != widget.role || materialChanged) {
+      _controller.stop();
+      _controller.duration = _duration(widget.role, widget.style?.material);
       _controller.value = .28;
     }
     _syncAnimation();
