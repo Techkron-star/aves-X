@@ -15,6 +15,7 @@ class const PatternDialog({
 
 class _PatternDialogState extends State<PatternDialog> {
   bool _confirming = false;
+  bool _submitting = false;
   String? _firstPattern;
 
   @override
@@ -45,6 +46,8 @@ class _PatternDialogState extends State<PatternDialog> {
   }
 
   void _submit(String pattern) {
+    if (_submitting) return;
+    _submitting = true;
     if (widget.needConfirmation) {
       if (_confirming) {
         final match = _firstPattern == pattern;
@@ -58,6 +61,10 @@ class _PatternDialogState extends State<PatternDialog> {
       } else {
         _firstPattern = pattern;
         setState(() => _confirming = true);
+        // Ignore duplicate completion callbacks from the same gesture, then allow the confirmation gesture.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _submitting = false;
+        });
       }
     } else {
       Navigator.maybeOf(context)?.pop<String>(pattern);
