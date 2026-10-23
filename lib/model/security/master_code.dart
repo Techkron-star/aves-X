@@ -55,10 +55,20 @@ class MasterCode {
     );
     if (code == null) return false;
 
-    if (await masterGuard.matches(_key, code)) {
-      await guard.reset();
-      return true;
+    final bool matches;
+    try {
+      matches = await masterGuard.matches(_key, code);
+      if (matches) await guard.reset();
+    } catch (error, stack) {
+      // Corrupt secure storage, hash parsing errors or a failed counter reset are not a wrong code.
+      // Fail closed, report locally, and never turn an infrastructure error into a nuke trigger.
+      await reportService.recordError(error, stack);
+      if (context.mounted) {
+        await showWarningDialog(context: context, message: context.l10n.genericFailureFeedback);
+      }
+      return false;
     }
+    if (matches) return true;
     await handleFailure(context, guard, Nuke.nukeEverything);
     return false;
   }
@@ -87,7 +97,17 @@ class MasterCode {
 
   // registers a failed attempt, and reacts to the outcome
   static Future<void> handleFailure(BuildContext context, AttemptGuard guard, Future<void> Function() onNuke) async {
-    final outcome = await guard.registerFailure();
+    final AttemptOutcome outcome;
+    try {
+      outcome = await guard.registerFailure();
+    } catch (error, stack) {
+      // If the secure store cannot persist a counter, do not guess the outcome and never nuke.
+      await reportService.recordError(error, stack);
+      if (context.mounted) {
+        await showWarningDialog(context: context, message: context.l10n.genericFailureFeedback);
+      }
+      return;
+    }
     switch (outcome) {
       case AttemptOutcome.nuke:
         await onNuke();
