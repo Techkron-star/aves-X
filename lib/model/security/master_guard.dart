@@ -201,6 +201,11 @@ class MasterGuard extends ChangeNotifier {
       await _migrateSecrets();
     }
     if (!await securityService.writeValue<String>(_enabledKey, value ? '1' : null)) {
+      if (value) {
+        // Migration may already have hashed some credentials. Do not continue storing new secrets as plaintext.
+        _enabled = true;
+        await failsafe.engageLockdown();
+      }
       throw StateError('Could not persist Bat-Curity credential hashing setting');
     }
     _enabled = value;
