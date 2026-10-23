@@ -1310,7 +1310,7 @@ class _ImperialGlassPainter extends NebulaEffectPainter {
         path.lineTo(x0 + dx, h - u * h * (.5 + .1 * i));
       }
       smoke
-        ..strokeWidth = 7 + 4 * i
+        ..strokeWidth = 7.0 + 4.0 * i
         ..color = _bone.withValues(alpha: .07);
       canvas.drawPath(path, smoke);
     }
