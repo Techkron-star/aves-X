@@ -217,6 +217,7 @@ class Vaults {
     // Decrypt before opening. If encryption is enabled, a missing/partial report is a hard failure:
     // never expose a partially decrypted vault or silently continue after a crypto error.
     final vaultName = detailsForPath(dirPath)?.name;
+    var decryptedForUnlock = false;
     if (masterGuard.vaultEncryption) {
       if (vaultName == null) {
         await failsafe.engageLockdown();
@@ -235,18 +236,37 @@ class Vaults {
         }
         return;
       }
-    }
-    // recover untracked vault items
-    final source = context.read<CollectionSource>();
-    final newEntries = await recoverUntrackedItems(source, dirPath);
-    if (newEntries.isNotEmpty) {
-      source.addEntries(newEntries);
-      await localMediaDb.insertEntries(newEntries);
-      unawaited(source.analyze(null, entries: newEntries));
+      decryptedForUnlock = true;
     }
 
-    _unlockedDirPaths.add(dirPath);
-    _onLockStateChanged();
+    try {
+      // Recover untracked vault items before exposing the unlocked collection.
+      final source = context.read<CollectionSource>();
+      final newEntries = await recoverUntrackedItems(source, dirPath);
+      if (newEntries.isNotEmpty) {
+        source.addEntries(newEntries);
+        await localMediaDb.insertEntries(newEntries);
+        unawaited(source.analyze(null, entries: newEntries));
+      }
+
+      _unlockedDirPaths.add(dirPath);
+      _onLockStateChanged();
+    } catch (error, stack) {
+      _unlockedDirPaths.remove(dirPath);
+      _onLockStateChanged();
+      await reportService.recordError(error, stack);
+      if (decryptedForUnlock && vaultName != null) {
+        try {
+          if (!await masterGuard.encryptVault(vaultName)) await failsafe.engageLockdown();
+        } catch (cryptoError, cryptoStack) {
+          await reportService.recordError(cryptoError, cryptoStack);
+          await failsafe.engageLockdown();
+        }
+      }
+      if (context.mounted) {
+        await showWarningDialog(context: context, message: context.l10n.genericFailureFeedback);
+      }
+    }
   }
 
   Future<Set<AvesEntry>> recoverUntrackedItems(CollectionSource source, String dirPath) async {
