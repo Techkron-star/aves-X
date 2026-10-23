@@ -174,6 +174,9 @@ class _LockdownScreenState extends State<_LockdownBody> {
       } else {
         setState(() => _message = context.l10n.appLockWrongPin);
       }
+    } catch (e, stack) {
+      await reportService.recordError(e, stack);
+      if (mounted) setState(() => _message = context.l10n.genericFailureFeedback);
     } finally {
       _checking = false;
     }
