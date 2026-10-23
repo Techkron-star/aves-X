@@ -50,9 +50,13 @@ class FailsafeConfig {
 
   static Future<void> setMaxMinutes(int minutes) => securityService.writeValue<String>(_maxKey, '$minutes');
 
-  static Future<bool> get lockdownActive async => await securityService.readValue<String>(_activeKey) == '1';
+  static Future<bool> get lockdownActive async => await securityService.readValueStrict<String>(_activeKey) == '1';
 
-  static Future<void> setLockdownActive(bool value) => securityService.writeValue<String>(_activeKey, value ? '1' : null);
+  static Future<void> setLockdownActive(bool value) async {
+    if (!await securityService.writeValue<String>(_activeKey, value ? '1' : null)) {
+      throw StateError('Could not persist Fail-Safe lockdown state');
+    }
+  }
 
   // 15 s at the 3rd failure, doubling at each next failure, never above the configured maximum
   static Future<Duration> cooldownFor(int failures) async {
