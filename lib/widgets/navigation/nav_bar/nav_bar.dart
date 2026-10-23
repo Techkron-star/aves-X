@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:aves/widgets/common/fx/liquid.dart';
+import 'package:aves/widgets/common/fx/nebula_component_surfaces.dart';
 import 'package:aves/widgets/common/fx/black_hole.dart';
 import 'package:aves/model/settings/enums/nav_bar_style.dart';
 import 'package:aves/model/security/failsafe_config.dart';
@@ -125,7 +126,14 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
                   onPointerMove: _onPointerMove,
                   onPointerUp: (_) => _cancelHold(),
                   onPointerCancel: (_) => _cancelHold(),
-                  child: _withLens(
+                  child: NebulaComponentSurfaceAccent(
+                    style: settings.materialStyle,
+                    role: NebulaComponentSurfaceRole.navigationBar,
+                    state: NebulaComponentSurfaceState.selected,
+                    animate: settings.animate,
+                    focalPosition: _getCurrentIndex(context, items) / (items.length - 1),
+                    borderRadius: navBarStyle.borderRadius,
+                    child: _withLens(
                     context,
                     navBarStyle,
                     items.length,
