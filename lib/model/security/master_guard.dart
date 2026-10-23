@@ -72,7 +72,7 @@ class MasterGuard extends ChangeNotifier {
   // nothing is open when the app starts, so everything has to be encrypted
   Future<void> encryptAllAtStartup() async {
     // may run before `init`
-    if (await securityService.readValue<String>(_vaultEncKey) != '1') return;
+    if (await securityService.readValueStrict<String>(_vaultEncKey) != '1') return;
     _vaultEncryption = true;
     if (await securityService.cryptSelfTest() != null) {
       await failsafe.engageLockdown();
@@ -139,8 +139,8 @@ class MasterGuard extends ChangeNotifier {
   }
 
   Future<void> init() async {
-    _enabled = await securityService.readValue<String>(_enabledKey) == '1';
-    _vaultEncryption = await securityService.readValue<String>(_vaultEncKey) == '1';
+    _enabled = await securityService.readValueStrict<String>(_enabledKey) == '1';
+    _vaultEncryption = await securityService.readValueStrict<String>(_vaultEncKey) == '1';
     notifyListeners();
   }
 
