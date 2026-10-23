@@ -1,5 +1,6 @@
 import 'package:aves/widgets/common/fx/failsafe_badge.dart';
 import 'package:aves/widgets/common/fx/diamond.dart';
+import 'package:aves/widgets/common/fx/nebula_component_surfaces.dart';
 import 'package:aves/model/security/failsafe_config.dart';
 import 'package:aves/widgets/common/fx/black_hole.dart';
 import 'dart:ui';
@@ -292,7 +293,14 @@ class _AppDrawerState extends State<AppDrawer> with WidgetsBindingObserver {
         ),
       ),
     );
-    return material != null ? AnimatedCrystal(animate: settings.animate, material: material.material, child: header) : header;
+    if (material == null) return header;
+    return NebulaComponentSurfaceAccent(
+      style: material,
+      role: NebulaComponentSurfaceRole.drawerHeader,
+      state: NebulaComponentSurfaceState.idle,
+      animate: settings.animate,
+      child: AnimatedCrystal(animate: settings.animate, material: material.material, child: header),
+    );
   }
 
   Widget _buildHomeLink() {
