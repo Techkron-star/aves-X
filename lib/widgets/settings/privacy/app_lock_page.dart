@@ -50,7 +50,13 @@ class AppLockPage extends StatelessWidget {
                     SwitchListTile(
                       value: appLock.biometricEnabled,
                       onChanged: (v) async {
-                        if (await MasterCode.require(context)) await appLock.setBiometric(v);
+                        if (await MasterCode.require(context)) {
+                          try {
+                            await appLock.setBiometric(v);
+                          } catch (_) {
+                            if (context.mounted) await showWarningDialog(context: context, message: context.l10n.genericFailureFeedback);
+                          }
+                        }
                       },
                       title: Text(l10n.appLockUseBiometric),
                     ),
@@ -135,18 +141,37 @@ class AppLockPage extends StatelessWidget {
 
     if (choice == 'code') {
       final code = await _newCode(context);
-      if (code != null) await appLock.setPin(code);
+      if (code != null) {
+        try {
+          if (!await appLock.setPin(code) && context.mounted) {
+            await showWarningDialog(context: context, message: context.l10n.genericFailureFeedback);
+          }
+        } catch (_) {
+          if (context.mounted) await showWarningDialog(context: context, message: context.l10n.genericFailureFeedback);
+        }
+      }
       return;
     }
 
     final type = VaultLockType.values.safeByName(choice);
     if (type == null) return;
     if (!await SecretLock.setPass(context, type, AppLock.alternativeSecretKeyFor(type.name), context.l10n.authenticateToConfigureVault)) return;
-    await appLock.setLockType(type.name);
+    try {
+      if (!await appLock.setLockType(type.name) && context.mounted) {
+        await showWarningDialog(context: context, message: context.l10n.genericFailureFeedback);
+      }
+    } catch (_) {
+      if (context.mounted) await showWarningDialog(context: context, message: context.l10n.genericFailureFeedback);
+    }
   }
 
   Future<void> _disable(BuildContext context) async {
-    if (await MasterCode.require(context)) await appLock.disable();
+    if (!await MasterCode.require(context)) return;
+    try {
+      await appLock.disable();
+    } catch (_) {
+      if (context.mounted) await showWarningDialog(context: context, message: context.l10n.genericFailureFeedback);
+    }
   }
 
   Future<void> _setPanic(BuildContext context) async {
