@@ -183,7 +183,7 @@ class _CustomNebulaThemePageState extends State<CustomNebulaThemePage> {
 class _EmptyState extends StatelessWidget {
   final Future<void> Function(String) onImport;
   final VoidCallback onNew;
-  final void Function(BuildContext, AppLocalizations, Future<void> Function(String)) showImportDialog;
+  final void Function(BuildContext, dynamic, Future<void> Function(String)) showImportDialog;
 
   const _EmptyState({
     required this.onImport,
