@@ -103,8 +103,10 @@ class Vaults {
         throw StateError('Could not migrate vault credential during rename');
       }
     }
-    await localMediaDb.updateVault(oldDetails.name, newDetails);
+    // Copy advanced privacy policy first, then commit the database rename, then remove old keys.
     await advancedPrivacy.rename(oldDetails.name, newName);
+    await localMediaDb.updateVault(oldDetails.name, newDetails);
+    await advancedPrivacy.remove(oldDetails.name);
     await _clearVaultPasses(oldDetails);
 
     _rows
@@ -125,9 +127,13 @@ class Vaults {
     if (oldDetails == null) return;
 
     await localMediaDb.updateVault(newDetails.name, newDetails);
-    // The active type has already been configured in its own key slot. Remove obsolete secrets only
-    // after the database has committed the new lock type.
-    await _clearVaultPasses(oldDetails, keepKey: newDetails.lockType == .system ? null : newDetails.passKeyFor(newDetails.lockType));
+    // The active type has already been configured in its own key slot. Cleanup errors must not leave
+    // the in-memory vault using the previous lock type after the database has committed the new one.
+    try {
+      await _clearVaultPasses(oldDetails, keepKey: newDetails.lockType == .system ? null : newDetails.passKeyFor(newDetails.lockType));
+    } catch (error, stack) {
+      await reportService.recordError(error, stack);
+    }
 
     _rows
       ..remove(oldDetails)
