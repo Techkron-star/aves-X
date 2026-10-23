@@ -18,7 +18,7 @@ class PrivacyOptions extends ChangeNotifier {
 
   Future<void> init() async {
     for (final key in const [strictDeleteKey, itemLocksKey, revealGestureKey]) {
-      final raw = await securityService.readValue<String>(key);
+      final raw = await securityService.readValueStrict<String>(key);
       // all the features are opt-in (disabled by default)
       _values[key] = raw == '1';
     }
@@ -37,7 +37,9 @@ class PrivacyOptions extends ChangeNotifier {
   bool get revealGesture => _get(revealGestureKey);
 
   Future<void> _set(String key, bool value) async {
-    await securityService.writeValue<String>(key, value ? '1' : null);
+    if (!await securityService.writeValue<String>(key, value ? '1' : null)) {
+      throw StateError('Could not persist privacy option: $key');
+    }
     _values[key] = value;
     notifyListeners();
   }
