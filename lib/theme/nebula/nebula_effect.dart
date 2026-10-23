@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui' show BlurStyle, MaskFilter, Path, StrokeCap;
 import 'package:flutter/material.dart';
+import 'package:aves/theme/nebula/nebula_signature_effects.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
 
 // Nebula Engine — visual soul layer.
@@ -232,25 +233,27 @@ NebulaEffect? nebulaEffectFor(NebulaTheme theme, {required bool animate}) {
     // the canonical material/legacy rendering and must not be overwritten.
     case NebulaTheme.aves:
     case NebulaTheme.nosferatuGlass:
-    case NebulaTheme.obsidianGlass:
-    case NebulaTheme.aureateGlass:
       return null;
+    case NebulaTheme.obsidianGlass:
+      return NightDemonEffect(animate: animate);
+    case NebulaTheme.aureateGlass:
+      return GodlyEffect(animate: animate);
     case NebulaTheme.forgeGlass:
-      return _SoulEffect(animate:animate,cycle:const Duration(seconds:12),builder:(t)=>_ForgePainter(t),pingPong:true);
+      return ForgeGlassEffect(animate: animate);
     case NebulaTheme.hermeticGlass:
-      return _SoulEffect(animate:animate,cycle:const Duration(seconds:18),builder:(t)=>_HermeticPainter(t));
+      return HermeticGlassEffect(animate: animate);
     case NebulaTheme.eclipseGlass:
-      return _SoulEffect(animate:animate,cycle:const Duration(seconds:22),builder:(t)=>_EclipsePainter(t));
+      return EclipseGlassEffect(animate: animate);
     case NebulaTheme.solarFlareGlass:
-      return _SoulEffect(animate:animate,cycle:const Duration(seconds:14),builder:(t)=>_SolarPainter(t));
+      return SolarFlareGlassEffect(animate: animate);
     case NebulaTheme.voidGlass:
       return _SoulEffect(animate:animate,cycle:const Duration(seconds:20),builder:(t)=>_VoidPainter(t));
     case NebulaTheme.crimsonGlass:
-      return _SoulEffect(animate:animate,cycle:const Duration(seconds:16),builder:(t)=>_CrimsonPainter(t),pingPong:true);
+      return CrimsonGlassEffect(animate: animate);
     case NebulaTheme.neonGlass:
       return _SoulEffect(animate:animate,cycle:const Duration(seconds:11),builder:(t)=>_NeonPainter(t));
     case NebulaTheme.emeraldGlass:
-      return _SoulEffect(animate:animate,cycle:const Duration(seconds:19),builder:(t)=>_EmeraldPainter(t));
+      return EmeraldGlassEffect(animate: animate);
     case NebulaTheme.auroraGlass:
       return _SoulEffect(animate:animate,cycle:const Duration(seconds:24),builder:(t)=>_AuroraPainter(t),pingPong:true);
     case NebulaTheme.sapphireGlass:
@@ -264,7 +267,7 @@ NebulaEffect? nebulaEffectFor(NebulaTheme theme, {required bool animate}) {
     case NebulaTheme.ivoryGlass:
       return _SoulEffect(animate:animate,cycle:const Duration(seconds:25),builder:(t)=>_IvoryPainter(t));
     case NebulaTheme.imperialGlass:
-      return _SoulEffect(animate:animate,cycle:const Duration(seconds:18),builder:(t)=>_ImperialPainter(t));
+      return ImperialGlassEffect(animate: animate);
     case NebulaTheme.abyssalGlass:
       return _SoulEffect(animate:animate,cycle:const Duration(seconds:20),builder:(t)=>_AbyssPainter(t));
     case NebulaTheme.sakuraGlass:
