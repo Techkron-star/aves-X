@@ -9,6 +9,8 @@ enum NebulaComponentSurfaceRole {
   navigationBar,
   drawerHeader,
   searchBar,
+  appLockBackdrop,
+  lockdownBackdrop,
   appLockCard,
   lockdownCard,
   securityInput,
@@ -68,6 +70,8 @@ class _NebulaComponentSurfaceAccentState extends State<NebulaComponentSurfaceAcc
         NebulaComponentSurfaceRole.navigationBar => const Duration(seconds: 9),
         NebulaComponentSurfaceRole.drawerHeader => const Duration(seconds: 13),
         NebulaComponentSurfaceRole.searchBar => const Duration(seconds: 5),
+        NebulaComponentSurfaceRole.appLockBackdrop => const Duration(seconds: 12),
+        NebulaComponentSurfaceRole.lockdownBackdrop => const Duration(seconds: 5),
         NebulaComponentSurfaceRole.appLockCard => const Duration(seconds: 9),
         NebulaComponentSurfaceRole.lockdownCard => const Duration(seconds: 4),
         NebulaComponentSurfaceRole.securityInput => const Duration(seconds: 3),
@@ -190,6 +194,10 @@ class _NebulaComponentSurfacePainter extends CustomPainter {
         _paintDrawerHeader(canvas, size);
       case NebulaComponentSurfaceRole.searchBar:
         _paintSearchBar(canvas, size);
+      case NebulaComponentSurfaceRole.appLockBackdrop:
+        _paintAppLockBackdrop(canvas, size);
+      case NebulaComponentSurfaceRole.lockdownBackdrop:
+        _paintLockdownBackdrop(canvas, size);
       case NebulaComponentSurfaceRole.appLockCard:
         _paintLockCard(canvas, size);
       case NebulaComponentSurfaceRole.lockdownCard:
@@ -306,6 +314,82 @@ class _NebulaComponentSurfacePainter extends CustomPainter {
         ..close();
       _path(canvas, diamond, _light, _active ? .85 : .5, 1, glow: _active ? 3 : 0);
     }
+  }
+
+  void _paintAppLockBackdrop(Canvas canvas, Size size) {
+    final w = size.width, h = size.height;
+    final m = math.min(w, h);
+    final pulse = .5 + .5 * math.sin(progress * math.pi * 2);
+    // Wide, quiet orbital cuts live at the perimeter; the central lock card stays clear.
+    _line(canvas, Offset(w * .025, h * .12), Offset(w * .18, h * .12),
+        _accent, .12 + pulse * .05, .8);
+    _line(canvas, Offset(w * .82, h * .88), Offset(w * .975, h * .88),
+        _accent, .12 + pulse * .05, .8);
+    if (_eclipse) {
+      final topCenter = Offset(w * .13, h * .16);
+      final topRadius = m * .095;
+      _arc(canvas, Rect.fromCircle(center: topCenter, radius: topRadius),
+          -math.pi * .15 + progress * .04, math.pi * 1.05,
+          _light, .2 + pulse * .1, 1.05, glow: 5);
+      final lowerCenter = Offset(w * .88, h * .83);
+      final lowerRadius = m * .13;
+      _arc(canvas, Rect.fromCircle(center: lowerCenter, radius: lowerRadius),
+          math.pi * .12, math.pi * .66, _accent, .14 + pulse * .06, .9);
+      final a = -math.pi * .15 + progress * .04 + math.pi * 1.05;
+      _dot(canvas, topCenter + Offset(math.cos(a) * topRadius, math.sin(a) * topRadius),
+          _light, 1.5, glow: 4);
+    } else {
+      // Hermetic uses a measured vertical axis and off-centre orbital ellipses,
+      // rather than putting the full alchemical seal behind every security screen.
+      final x = w * .91;
+      _line(canvas, Offset(x, h * .12), Offset(x, h * .29), _light, .25 + pulse * .1, .8);
+      _line(canvas, Offset(x - m * .035, h * .2), Offset(x + m * .035, h * .2), _light, .28, .8);
+      for (var i = 0; i < 3; i++) {
+        final r = m * (.035 + i * .017);
+        final rect = Rect.fromCenter(center: Offset(w * .08, h * .84), width: r * 2, height: r * 1.5);
+        _arc(canvas, rect, math.pi * .15 + progress * .025, math.pi * 1.25,
+            i == 1 ? _light : _accent, .18 + pulse * .07, .8);
+      }
+    }
+  }
+
+  void _paintLockdownBackdrop(Canvas canvas, Size size) {
+    final w = size.width, h = size.height;
+    final m = math.min(w, h);
+    final pulse = .5 + .5 * math.sin(progress * math.pi * 2);
+    final inset = m * .018;
+    final length = m * .06;
+    final alpha = _urgent ? .18 + pulse * .16 : .12;
+    final frame = Path()
+      ..moveTo(inset, inset + length)..lineTo(inset, inset)..lineTo(inset + length, inset)
+      ..moveTo(w - inset - length * .45, inset)..lineTo(w - inset, inset)..lineTo(w - inset, inset + length)
+      ..moveTo(inset, h - inset - length * .4)..lineTo(inset, h - inset)..lineTo(inset + length * .8, h - inset)
+      ..moveTo(w - inset - length, h - inset)..lineTo(w - inset, h - inset)..lineTo(w - inset, h - inset - length * .5);
+    _path(canvas, frame, _accent, alpha, 1.1, glow: _urgent ? 5 : 1.5);
+    _line(canvas, Offset(w * .08, h * .045), Offset(w * .29, h * .045),
+        _light, alpha * 1.5, 1, glow: _urgent ? 4 : 0);
+    _line(canvas, Offset(w * .71, h * .955), Offset(w * .92, h * .955),
+        _accent, alpha, .8);
+
+    if (_eclipse) {
+      // Two broken terminators oppose each other, signalling a forced interruption.
+      final r = m * .065;
+      _arc(canvas, Rect.fromCircle(center: Offset(w * .12, h * .13), radius: r),
+          -math.pi * .25, math.pi * .56, _light, alpha * 1.6, 1, glow: _urgent ? 4 : 0);
+      _arc(canvas, Rect.fromCircle(center: Offset(w * .88, h * .87), radius: r),
+          math.pi * .75, math.pi * .56, _light, alpha * 1.6, 1, glow: _urgent ? 4 : 0);
+    } else {
+      // Hermetic's lockdown becomes an asymmetric calibration frame, not a seal.
+      final x = w * .89, y = h * .13, tick = m * .018;
+      for (var i = 0; i < 4; i++) {
+        _line(canvas, Offset(x - i * tick * 1.4, y - tick),
+            Offset(x - i * tick * 1.4, y + tick), _light, alpha * (1 - i * .13), .8);
+      }
+      _line(canvas, Offset(w * .11, h * .88), Offset(w * .16, h * .83), _light, alpha * 1.4, .9);
+      _line(canvas, Offset(w * .16, h * .88), Offset(w * .21, h * .83), _accent, alpha, .9);
+    }
+    final movingX = w * (.08 + .84 * progress);
+    _dot(canvas, Offset(movingX, inset), _light, _urgent ? 1.8 : 1.1, glow: _urgent ? 5 : 1.5);
   }
 
   void _paintLockCard(Canvas canvas, Size size) {
