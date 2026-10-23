@@ -232,7 +232,14 @@ class _LockdownScreenState extends State<_LockdownBody> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(
+                      NebulaComponentSurfaceAccent(
+                        style: settings.materialStyle,
+                        role: NebulaComponentSurfaceRole.lockdownStatusBadge,
+                        state: NebulaComponentSurfaceState.warning,
+                        animate: settings.animate,
+                        alertColor: nebula.securityAlert,
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: nebula.securityBubbleSurface.withValues(alpha: .12),
@@ -259,6 +266,7 @@ class _LockdownScreenState extends State<_LockdownBody> {
                             ),
                           ],
                         ),
+                      ),
                       ),
                       const SizedBox(height: 16),
                       const FailsafeBadge(forceAlert: true),
