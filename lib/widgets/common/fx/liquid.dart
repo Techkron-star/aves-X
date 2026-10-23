@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:math';
+import 'dart:math' as math;
 
 import 'package:aves/model/settings/settings.dart';
 import 'package:material_ui/material_ui.dart';
@@ -30,7 +30,7 @@ class RandomBurst extends StatefulWidget {
 
 class _RandomBurstState extends State<RandomBurst> with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(vsync: this, duration: widget.duration);
-  final _random = Random();
+  final _random = math.Random();
   Timer? _timer;
 
   @override
@@ -47,8 +47,12 @@ class _RandomBurstState extends State<RandomBurst> with SingleTickerProviderStat
 
   void _schedule({bool first = false}) {
     _timer?.cancel();
-    final span = widget.maxPauseMillis - widget.minPauseMillis;
-    final pause = (first ? 0 : widget.minPauseMillis) + _random.nextInt(first ? widget.maxPauseMillis : span);
+    final minPause = widget.minPauseMillis < 0 ? 0 : widget.minPauseMillis;
+    final maxPause = widget.maxPauseMillis < minPause ? minPause : widget.maxPauseMillis;
+    final span = maxPause - minPause;
+    final pause = first
+        ? (maxPause == 0 ? 0 : _random.nextInt(maxPause + 1))
+        : (span == 0 ? minPause : minPause + _random.nextInt(span + 1));
     _timer = Timer(Duration(milliseconds: pause), () {
       if (mounted && widget.enabled) _controller.forward(from: 0);
     });
@@ -60,6 +64,7 @@ class _RandomBurstState extends State<RandomBurst> with SingleTickerProviderStat
     if (widget.enabled && !oldWidget.enabled) _schedule(first: true);
     if (!widget.enabled) {
       _timer?.cancel();
+      _controller.stop();
       _controller.value = 0;
     }
   }
@@ -106,18 +111,19 @@ class LiquidIcon extends StatelessWidget {
       enabled: true,
       child: child,
       builder: (context, t, child) {
-        // fade in and out, so that the effect starts and ends without a visible cut
-        final e = sin(pi * t);
-        final d = Color.lerp(base, deep, e)!;
-        final h = Color.lerp(base, highlight, e)!;
+        // Ease the shimmer in/out. The ends stay on the base colour so no tint is cut at glyph edges.
+        // A non-repeating gradient avoids a visible seam when its moving band crosses an icon.
+        final envelope = math.pow(math.sin(math.pi * t), 1.35).toDouble();
+        if (envelope < .008) return child;
+        final d = Color.lerp(base, deep, envelope * .72)!;
+        final h = Color.lerp(base, highlight, envelope)!;
         return ShaderMask(
           blendMode: BlendMode.srcIn,
           shaderCallback: (bounds) => LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [d, h, base, d],
-            stops: const [0, .35, .65, 1],
-            tileMode: TileMode.repeated,
+            colors: [base, d, h, base, d, base],
+            stops: const [0, .19, .38, .62, .82, 1],
             transform: _LiquidSlide(t),
           ).createShader(bounds),
           child: child,
@@ -134,9 +140,11 @@ class _LiquidSlide extends GradientTransform {
 
   @override
   Matrix4? transform(Rect bounds, {TextDirection? textDirection}) {
-    // slide diagonally by one full period, with a slight vertical wobble
-    final wobble = (t * 2 - 1).abs() * bounds.height * .15;
-    return Matrix4.translationValues(bounds.width * (t * 2 - 1), bounds.height * (t * 2 - 1) * .6 + wobble, 0);
+    // Move on a stable, eased diagonal. The non-repeating colour caps soften each pass.
+    final eased = Curves.easeInOutCubic.transform(t);
+    final x = bounds.width * (eased * 1.5 - .75);
+    final y = bounds.height * (eased * .6 - .3);
+    return Matrix4.translationValues(x, y, 0);
   }
 }
 
