@@ -1,4 +1,7 @@
 import 'package:aves/model/entry/entry.dart';
+import 'package:aves/model/settings/settings.dart';
+import 'package:aves/theme/nebula/nebula_material.dart';
+import 'package:aves/widgets/common/fx/nebula_component_surfaces.dart';
 import 'package:aves/model/selection.dart';
 import 'package:aves/model/source/collection_lens.dart';
 import 'package:aves/widgets/common/basic/query_bar.dart';
@@ -53,11 +56,28 @@ class _EntryQueryBarState extends State<EntryQueryBar> {
       alignment: .topCenter,
       child: Selector<Selection<AvesEntry>, bool>(
         selector: (context, selection) => !selection.isSelecting,
-        builder: (context, editable, child) => QueryBar(
-          queryNotifier: widget.queryNotifier,
-          focusNode: widget.focusNode,
-          hintText: context.l10n.collectionSearchTitlesHintText,
-          editable: editable,
+        builder: (context, editable, child) => Selector<Settings, (NebulaMaterialStyle?, bool)>(
+          selector: (context, s) => (s.materialStyle, s.animate),
+          builder: (context, themeState, _) {
+            final (materialStyle, animate) = themeState;
+            return ListenableBuilder(
+              listenable: widget.focusNode,
+              builder: (context, _) => NebulaComponentSurfaceAccent(
+                style: materialStyle,
+                role: NebulaComponentSurfaceRole.searchBar,
+                state: widget.focusNode.hasFocus
+                    ? NebulaComponentSurfaceState.focused
+                    : NebulaComponentSurfaceState.idle,
+                animate: animate,
+                child: QueryBar(
+                  queryNotifier: widget.queryNotifier,
+                  focusNode: widget.focusNode,
+                  hintText: context.l10n.collectionSearchTitlesHintText,
+                  editable: editable,
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

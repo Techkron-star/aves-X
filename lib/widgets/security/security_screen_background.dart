@@ -84,7 +84,7 @@ class SecurityScreenBackground extends StatelessWidget {
                   child: Stack(
                     children: [
                       // 3. brillo suave de la burbuja (solo con animaciones)
-                      if (animate)
+                      if (animate && !componentDriven)
                         Positioned.fill(
                           child: DecoratedBox(
                             decoration: BoxDecoration(

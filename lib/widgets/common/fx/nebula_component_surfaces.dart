@@ -247,6 +247,7 @@ class _NebulaComponentSurfacePainter extends CustomPainter {
     if (size.isEmpty) return;
     canvas.save();
     canvas.clipRRect(borderRadius.toRRect(Offset.zero & size));
+    _paintSurfaceAtmosphere(canvas, size);
 
     switch (role) {
       case NebulaComponentSurfaceRole.navigationBar:
@@ -279,6 +280,95 @@ class _NebulaComponentSurfacePainter extends CustomPainter {
         _paintSecurityInput(canvas, size);
     }
     canvas.restore();
+  }
+
+
+  /// Each component receives its own localized light field before its linework.
+  /// These are procedural, size-aware washes—not a shared bitmap or a global sweep.
+  void _paintSurfaceAtmosphere(Canvas canvas, Size size) {
+    final w = size.width, h = size.height;
+    final m = math.min(w, h);
+    final pulse = _pulse;
+
+    void wash(Offset center, double rx, double ry, double strength, Color color) {
+      final bounds = Rect.fromCenter(center: center, width: rx * 2, height: ry * 2);
+      final alpha = strength.clamp(0.0, .18).toDouble();
+      canvas.drawRect(
+        Offset.zero & size,
+        Paint()
+          ..shader = RadialGradient(
+            colors: [
+              color.withValues(alpha: alpha),
+              color.withValues(alpha: alpha * .36),
+              Colors.transparent,
+            ],
+            stops: const [0, .42, 1],
+          ).createShader(bounds),
+      );
+    }
+
+    switch (role) {
+      case NebulaComponentSurfaceRole.navigationBar:
+        // Light gathers around the selected destination; it never sweeps the whole bar.
+        wash(
+          Offset(w * focalPosition, h * (.48 + math.sin(progress * math.pi * 2) * .025)),
+          math.max(h * .5, w * .06),
+          h * .72,
+          .065 + pulse * .035,
+          _light,
+        );
+      case NebulaComponentSurfaceRole.drawerHeader:
+        // Header glow lives in the upper-right insignia corner, balanced by a dim lower-left reflection.
+        wash(Offset(w * (.88 + math.sin(progress * math.pi * 2) * .012), h * .24),
+            m * .34, m * .48, .07 + pulse * .03, _light);
+        wash(Offset(w * .12, h * .9), m * .2, m * .2, .025 + pulse * .012, _accent);
+      case NebulaComponentSurfaceRole.drawerItem:
+        if (_active) {
+          wash(Offset(w * .035, h * .5), w * .19, h * .72, .095 + pulse * .04, _light);
+        } else {
+          wash(Offset(w * .012, h * .5), w * .035, h * .36, .025, _accent);
+        }
+      case NebulaComponentSurfaceRole.searchBar:
+        // A focused field lights two local anchors—the leading glyph and trailing reticle.
+        final gain = _active ? .085 + pulse * .045 : .025 + pulse * .01;
+        wash(Offset(w * .055, h * .5), m * .19, m * .36, gain, _light);
+        wash(Offset(w * .94, h * (.5 + math.sin(progress * math.pi * 2 * .7) * .018)),
+            m * .16, m * .34, gain * .82, _accent);
+      case NebulaComponentSurfaceRole.appLockBackdrop:
+        // Quiet perimeter lights leave the lock card readable and the center dark.
+        wash(Offset(w * .08, h * .13), m * .34, m * .42, .075 + pulse * .025, _light);
+        wash(Offset(w * .91, h * .87), m * .4, m * .45, .055 + pulse * .025, _accent);
+      case NebulaComponentSurfaceRole.lockdownBackdrop:
+        // Lockdown has an opposing, more urgent warning field rather than the normal lock-screen halo.
+        final urgency = _urgent ? 1.0 : .55;
+        wash(Offset(w * .07, h * .1), m * .4, m * .5, (.075 + pulse * .055) * urgency, _accent);
+        wash(Offset(w * .93, h * .9), m * .42, m * .48, (.085 + pulse * .06) * urgency, _light);
+      case NebulaComponentSurfaceRole.appLockEmblem:
+        wash(Offset(w * .5, h * .5), m * .52, m * .52, .105 + pulse * .045, _light);
+        wash(Offset(w * .57, h * .44), m * .3, m * .3, .045 + pulse * .025, _accent);
+      case NebulaComponentSurfaceRole.lockdownStatusBadge:
+        wash(Offset(w * .22, h * .5), m * .34, m * .42, .065 + pulse * .04, _light);
+        wash(Offset(w * .8, h * .5), m * .3, m * .42, .055 + pulse * .04, _accent);
+      case NebulaComponentSurfaceRole.itemLockBackdrop:
+        // Album/item locking uses a low, off-centre orbital pool, not the app-lock composition.
+        wash(Offset(w * .14, h * .78), m * .42, m * .45, .08 + pulse * .035, _accent);
+        wash(Offset(w * .91, h * .16), m * .28, m * .3, .045 + pulse * .025, _light);
+      case NebulaComponentSurfaceRole.itemLockCard:
+        wash(Offset(w * .88, h * .1), m * .32, m * .28, .08 + pulse * .04, _light);
+        wash(Offset(w * .15, h * .91), m * .3, m * .2, .035 + pulse * .02, _accent);
+      case NebulaComponentSurfaceRole.itemLockBadge:
+        wash(Offset(w * .5, h * .5), m * .48, m * .48, .09 + pulse * .055, _light);
+      case NebulaComponentSurfaceRole.appLockCard:
+        wash(Offset(w * .91, h * .11), m * .34, m * .34, .075 + pulse * .04, _light);
+        wash(Offset(w * .08, h * .88), m * .27, m * .26, .035 + pulse * .02, _accent);
+      case NebulaComponentSurfaceRole.lockdownCard:
+        wash(Offset(w * .06, h * .08), m * .34, m * .34, .09 + pulse * .06, _accent);
+        wash(Offset(w * .94, h * .92), m * .34, m * .36, .09 + pulse * .065, _light);
+      case NebulaComponentSurfaceRole.securityInput:
+        final gain = _active ? .095 + pulse * .045 : .025;
+        wash(Offset(w * .045, h * .5), m * .18, m * .3, gain, _accent);
+        wash(Offset(w * .955, h * .5), m * .18, m * .3, gain, _light);
+    }
   }
 
   void _paintNavigation(Canvas canvas, Size size) {
@@ -423,21 +513,28 @@ class _NebulaComponentSurfacePainter extends CustomPainter {
     _line(canvas, Offset(w * .035, h * .08), Offset(w * .965, h * .08), _accent, .2, .7);
     _line(canvas, Offset(w * .08, h * .94), Offset(w * .92, h * .94), _accent, _active ? .34 : .16, .8);
     if (_eclipse) {
-      // Search gets its own scan at the upper edge plus an orbiting terminator;
-      // this cadence is intentionally different from the navigation indicator.
-      final scanX = w * (.08 + .84 * progress);
-      _line(canvas, Offset(scanX - w * .045, h * .1), Offset(scanX + w * .045, h * .1),
-          _light, emphasis, 1.4, glow: _active ? 4.5 : 2);
-      _dot(canvas, Offset(scanX, h * .1), _light, _active ? 1.8 : 1.1,
-          glow: _active ? 5 : 2);
-      final center = Offset(w * .94, h * .49);
+      // The leading glyph has a small breathing orbit; the trailing terminator
+      // responds independently. Nothing travels from one end of the field to the other.
+      final phase = progress * math.pi * 2;
+      final leadingCenter = Offset(w * .055, h * .5);
+      final leadingRadius = (h * .17).clamp(3.0, 8.0).toDouble();
+      final leadingStart = -math.pi * .62 + math.sin(phase * .72) * .16;
+      _arc(canvas, Rect.fromCircle(center: leadingCenter, radius: leadingRadius),
+          leadingStart, math.pi * .78, _light, emphasis, .9,
+          glow: _active ? 3.6 : 1.2);
+      final leadingAngle = leadingStart + math.pi * .78;
+      _dot(canvas,
+          leadingCenter + Offset(math.cos(leadingAngle) * leadingRadius, math.sin(leadingAngle) * leadingRadius),
+          _light, _active ? 1.35 : .8, glow: _active ? 3.8 : 1.2);
+
+      final center = Offset(w * .94, h * (.5 + math.sin(phase * .68) * .025));
       final r = (h * .25).clamp(5.0, 14.0).toDouble();
       _arc(canvas, Rect.fromCircle(center: center, radius: r),
-          -math.pi * .78, math.pi * 1.38, _light, _active ? .86 : .42, 1.1,
-          glow: _active ? 4 : 0);
-      final angle = -math.pi * .78 + progress * math.pi * 1.38;
+          -math.pi * .78 + phase * .075, math.pi * 1.08,
+          _light, _active ? .86 : .42, 1.1, glow: _active ? 4 : 0);
+      final angle = -math.pi * .78 + phase * .075 + math.pi * 1.08;
       _dot(canvas, center + Offset(math.cos(angle) * r, math.sin(angle) * r),
-          _light, 1.3, glow: 3);
+          _light, 1.3, glow: _active ? 3.5 : 1.2);
     } else {
       // Hermetic is a calibrated instrument: its index breathes vertically and
       // the diamond has a rotating elliptical reticle, not a horizontal sweep.
