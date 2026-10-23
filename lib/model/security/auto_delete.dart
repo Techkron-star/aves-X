@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/source/collection_source.dart';
-import 'package:aves/model/source/trash.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:flutter/foundation.dart';
 
