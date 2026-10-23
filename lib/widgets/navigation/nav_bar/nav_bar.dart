@@ -132,12 +132,16 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
                     _getCurrentIndex(context, items),
                     isRtl,
                     BottomNavigationBar(
-                    items: items.map((item) {
+                    items: items.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final item = entry.value;
                       final label = item.getText(context);
+                      final isSelected = !settings.navLens && index == _getCurrentIndex(context, items);
                       return BottomNavigationBarItem(
-                        icon: _navIcon(context, item),
-                        // without the lens, the current tab glows so that it can be told apart
-                        activeIcon: settings.navLens ? null : _glow(context, _navIcon(context, item)),
+                        // One stable icon subtree serves both selected and unselected states.
+                        // Rebuilding separate icon and activeIcon trees restarted LiquidIcon
+                        // bursts whenever selection changed.
+                        icon: _navIcon(context, item, highlighted: isSelected),
                         label: label,
                         tooltip: label,
                       );
@@ -180,26 +184,29 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
 
   // The bin has its own motion; Black Hole mode replaces the ordinary icon
   // with an accretion disc while preserving the familiar trash silhouette.
-  Widget _navIcon(BuildContext context, AvesNavItem item) {
+  // Keep one icon subtree across selection changes so LiquidIcon bursts do not restart.
+  Widget _navIcon(BuildContext context, AvesNavItem item, {required bool highlighted}) {
     final icon = item.getIcon(context);
-    if (!item.opensBin) return LiquidIcon(child: icon);
     final animate = settings.animate;
-    return ValueListenableBuilder<bool>(
-      valueListenable: FailsafeConfig.rootModeActive,
-      builder: (context, blackHole, _) => blackHole
-          ? BlackHoleIcon(size: 30, animate: animate, child: icon)
-          : TrashIconMotion(animate: animate, child: LiquidIcon(child: icon)),
-    );
-  }
-
-  Widget _glow(BuildContext context, Widget icon) {
+    final Widget visual = item.opensBin
+        ? ValueListenableBuilder<bool>(
+            valueListenable: FailsafeConfig.rootModeActive,
+            builder: (context, blackHole, _) => blackHole
+                ? BlackHoleIcon(size: 30, animate: animate, child: icon)
+                : TrashIconMotion(animate: animate, child: LiquidIcon(child: icon)),
+          )
+        : LiquidIcon(child: icon);
     final color = settings.materialStyle?.accent ?? Theme.of(context).colorScheme.primary;
-    return DecoratedBox(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOutCubic,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        boxShadow: [BoxShadow(color: color.withValues(alpha: .65), blurRadius: 16, spreadRadius: 2)],
+        boxShadow: highlighted
+            ? [BoxShadow(color: color.withValues(alpha: .65), blurRadius: 16, spreadRadius: 2)]
+            : const [],
       ),
-      child: icon,
+      child: visual,
     );
   }
 
