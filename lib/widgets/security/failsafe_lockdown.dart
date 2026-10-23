@@ -210,147 +210,149 @@ class _LockdownScreenState extends State<_LockdownBody> {
                 alertColor: nebula.securityAlert,
                 borderRadius: BorderRadius.circular(cardRadius),
                 child: Container(
-                padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      nebula.securitySurface.withValues(alpha: .94),
-                      nebula.securityInputFieldBg.withValues(alpha: .96),
-                      nebula.securitySurface.withValues(alpha: .98),
+                  padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        nebula.securitySurface.withValues(alpha: .94),
+                        nebula.securityInputFieldBg.withValues(alpha: .96),
+                        nebula.securitySurface.withValues(alpha: .98),
+                      ],
+                      stops: const [0, .56, 1],
+                    ),
+                    borderRadius: BorderRadius.circular(cardRadius),
+                    border: Border.all(color: nebula.securityCrystalEdge.withValues(alpha: .72), width: 1.2),
+                    boxShadow: [
+                      BoxShadow(color: nebula.securityBubbleGlow.withValues(alpha: .24), blurRadius: 34, spreadRadius: -9),
+                      BoxShadow(color: Colors.black.withValues(alpha: .32), blurRadius: 26, offset: const Offset(0, 14)),
                     ],
-                    stops: const [0, .56, 1],
                   ),
-                  borderRadius: BorderRadius.circular(cardRadius),
-                  border: Border.all(color: nebula.securityCrystalEdge.withValues(alpha: .72), width: 1.2),
-                  boxShadow: [
-                    BoxShadow(color: nebula.securityBubbleGlow.withValues(alpha: .24), blurRadius: 34, spreadRadius: -9),
-                    BoxShadow(color: Colors.black.withValues(alpha: .32), blurRadius: 26, offset: const Offset(0, 14)),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: nebula.securityBubbleSurface.withValues(alpha: .12),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: nebula.securityCrystalEdge.withValues(alpha: .42)),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Icon(Icons.shield_outlined, size: 14, color: nebula.securityAccent),
-                          const SizedBox(width: 7),
-                          Text(
-                            l10n.failsafeLockdownTitle.toUpperCase(),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: nebula.securityAccent,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              height: 1.15,
-                              letterSpacing: 1.2,
-                              decoration: TextDecoration.none,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    const FailsafeBadge(forceAlert: true),
-                    const SizedBox(height: 10),
-                    Text(
-                      l10n.failsafeLockdownMessage,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: nebula.securityOnSurface.withValues(alpha: .82),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        height: 1.45,
-                        letterSpacing: 0,
-                        decoration: TextDecoration.none,
-                      ),
-                    ),
-                    const SizedBox(height: 22),
-                    if (!_blocked)
-                      NebulaComponentSurfaceAccent(
-                        style: settings.materialStyle,
-                        role: NebulaComponentSurfaceRole.securityInput,
-                        state: _message != null || _fails >= 3
-                            ? NebulaComponentSurfaceState.warning
-                            : NebulaComponentSurfaceState.focused,
-                        animate: settings.animate,
-                        alertColor: nebula.securityAlert,
-                        borderRadius: BorderRadius.circular(inputRadius),
-                        child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: nebula.securityInputFieldBg.withValues(alpha: .64),
-                          borderRadius: BorderRadius.circular(inputRadius),
-                          border: Border.all(color: nebula.securityInputFieldBorder.withValues(alpha: .68)),
+                          color: nebula.securityBubbleSurface.withValues(alpha: .12),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: nebula.securityCrystalEdge.withValues(alpha: .42)),
                         ),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: SizedBox(
-                            width: CodeDialog.fieldWidth,
-                            child: MaterialPinField(
-                              length: CodeDialog.length,
-                              pinController: _controller,
-                              keyboardType: TextInputType.number,
-                              autoFocus: true,
-                              obscureText: true,
-                              onChanged: (v) {},
-                              onCompleted: _onCode,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(Icons.shield_outlined, size: 14, color: nebula.securityAccent),
+                            const SizedBox(width: 7),
+                            Text(
+                              l10n.failsafeLockdownTitle.toUpperCase(),
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: nebula.securityAccent,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                height: 1.15,
+                                letterSpacing: 1.2,
+                                decoration: TextDecoration.none,
+                              ),
                             ),
-                          ),
+                          ],
                         ),
                       ),
+                      const SizedBox(height: 16),
+                      const FailsafeBadge(forceAlert: true),
+                      const SizedBox(height: 10),
+                      Text(
+                        l10n.failsafeLockdownMessage,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: nebula.securityOnSurface.withValues(alpha: .82),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          height: 1.45,
+                          letterSpacing: 0,
+                          decoration: TextDecoration.none,
+                        ),
                       ),
-                    Padding(padding: const EdgeInsets.only(top: 22), child: FailsafeBuddy(fails: _fails)),
-                    if (_message != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 16),
-                        child: Container(
-                          constraints: const BoxConstraints(maxWidth: 340),
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: scheme.error.withValues(alpha: .08),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: scheme.error.withValues(alpha: .28)),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Icon(Icons.info_outline_rounded, size: 17, color: nebula.securityAlert),
-                              const SizedBox(width: 8),
-                              Flexible(
-                                child: Text(
-                                  _message!,
-                                  textAlign: TextAlign.start,
-                                  softWrap: true,
-                                  maxLines: 3,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: nebula.securityAlert,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    height: 1.3,
-                                    letterSpacing: 0,
-                                    decoration: TextDecoration.none,
-                                  ),
+                      const SizedBox(height: 22),
+                      if (!_blocked)
+                        NebulaComponentSurfaceAccent(
+                          style: settings.materialStyle,
+                          role: NebulaComponentSurfaceRole.securityInput,
+                          state: _message != null || _fails >= 3
+                              ? NebulaComponentSurfaceState.warning
+                              : NebulaComponentSurfaceState.focused,
+                          animate: settings.animate,
+                          alertColor: nebula.securityAlert,
+                          borderRadius: BorderRadius.circular(inputRadius),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                            decoration: BoxDecoration(
+                              color: nebula.securityInputFieldBg.withValues(alpha: .64),
+                              borderRadius: BorderRadius.circular(inputRadius),
+                              border: Border.all(color: nebula.securityInputFieldBorder.withValues(alpha: .68)),
+                            ),
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: SizedBox(
+                                width: CodeDialog.fieldWidth,
+                                child: MaterialPinField(
+                                  length: CodeDialog.length,
+                                  pinController: _controller,
+                                  keyboardType: TextInputType.number,
+                                  autoFocus: true,
+                                  obscureText: true,
+                                  onChanged: (v) {},
+                                  onCompleted: _onCode,
                                 ),
                               ),
-                            ],
+                            ),
+
+                        ),
+                        ),
+                      Padding(padding: const EdgeInsets.only(top: 22), child: FailsafeBuddy(fails: _fails)),
+                      if (_message != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 16),
+                          child: Container(
+                            constraints: const BoxConstraints(maxWidth: 340),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: scheme.error.withValues(alpha: .08),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: scheme.error.withValues(alpha: .28)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(Icons.info_outline_rounded, size: 17, color: nebula.securityAlert),
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    _message!,
+                                    textAlign: TextAlign.start,
+                                    softWrap: true,
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: nebula.securityAlert,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.3,
+                                      letterSpacing: 0,
+                                      decoration: TextDecoration.none,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                  ],
-                ),
+                    ],
+                  ),
+
                 ),
               ),
               ),
