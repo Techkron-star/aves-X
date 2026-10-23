@@ -63,7 +63,7 @@ class SecretLock {
 
   // `null` when there is no lock
   Future<VaultLockType?> getLockType() async {
-    final name = await securityService.readValue<String>(_typeKey);
+    final name = await securityService.readValueStrict<String>(_typeKey);
     return VaultLockType.values.safeByName(name);
   }
 
