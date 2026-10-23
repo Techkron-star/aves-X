@@ -1,6 +1,5 @@
 import 'package:aves/model/security/failsafe.dart';
 import 'package:aves/model/item_locks.dart';
-import 'package:aves/model/security/privacy_options.dart';
 import 'package:aves/widgets/dialogs/danger_confirmation.dart';
 import 'dart:collection';
 import 'dart:io';
