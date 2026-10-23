@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Night Demon (Obsidian Glass) and Godly (Aureate Glass) get their own aesthetics instead of a recolored crystal: black volcanic glass with pulsing violet cracks, cut corners, a demon-eye emblem and rising embers; burnished gold leaf with divine rays, soft corners, a haloed winged padlock and drifting gold motes.
+- Imperial Glass (riveted gunmetal plate, gilded winged crest, gears and incense) and Solar Flare Glass (a burning star with plasma, prominences and sparks) get their own aesthetics. Two new themes: Abyssal Glass (deep-sea bioluminescence) and Sakura Glass (ink black, falling cherry blossoms, red lacquer).
 - Theme-aware NEW/Experimental feature stickers, with a glass treatment when Glass-Everywhere or Nosferatu Glass is active.
 
 ### Renombrado a nombres propios

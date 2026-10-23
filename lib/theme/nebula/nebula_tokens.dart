@@ -135,7 +135,7 @@ class NebulaTokens extends ThemeExtension<NebulaTokens> {
     NebulaSurfaceTreatment.onyxGlass ||
     NebulaSurfaceTreatment.pearlGlass ||
     NebulaSurfaceTreatment.ivoryGlass ||
-    NebulaSurfaceTreatment.flat ||
+    NebulaSurfaceTreatment.abyssalGlass || NebulaSurfaceTreatment.sakuraGlass || NebulaSurfaceTreatment.flat ||
     NebulaSurfaceTreatment.frosted => _fromScheme(palette, colors),
   };
   // Nosferatu Glass (former Bat-Glass): the current Fail-Safe look, with the palette accent/edges/body.

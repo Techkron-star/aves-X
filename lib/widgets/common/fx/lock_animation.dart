@@ -246,6 +246,14 @@ class _PadlockPainter extends CustomPainter {
       _paintDemon(canvas);
     } else if (material == NebulaMaterial.godly) {
       _paintHalo(canvas);
+    } else if (material == NebulaMaterial.imperial) {
+      _paintCrest(canvas);
+    } else if (material == NebulaMaterial.solarFlare) {
+      _paintSun(canvas);
+    } else if (material == NebulaMaterial.abyssal) {
+      _paintJelly(canvas);
+    } else if (material == NebulaMaterial.sakura) {
+      _paintBlossom(canvas);
     } else if (material != null && style != null) {
       _paintSignature(canvas, material!, style!, open);
     } else {
@@ -598,6 +606,8 @@ class _PadlockPainter extends CustomPainter {
         stroke(Path()..moveTo(18, 46)..lineTo(18, 31)..quadraticBezierTo(50, -2, 82, 31)..lineTo(82, 46), width: 2.5, color: light);
         stroke(Path()..moveTo(22, 45)..quadraticBezierTo(32, 25, 42, 39)..moveTo(78, 45)..quadraticBezierTo(68, 25, 58, 39), width: 1.8, color: accent);
         break;
+      case NebulaMaterial.abyssal:
+      case NebulaMaterial.sakura:
       case NebulaMaterial.imperial:
         stroke(polygon(const [Offset(50, 5), Offset(83, 17), Offset(78, 51), Offset(50, 78), Offset(22, 51), Offset(17, 17)]), width: 2.4, color: light);
         final spine = Paint()..color = accent;
@@ -640,6 +650,171 @@ class _PadlockPainter extends CustomPainter {
       openPaint.strokeCap = StrokeCap.round;
       canvas.drawLine(const Offset(50, 38), const Offset(50, 31), openPaint);
     }
+  }
+
+  // the shackle of the padlocks below: lifts when the item is unlocked
+  void _shackle(Canvas canvas, Color color, {double width = 7, Color? glow}) {
+    final lift = open ? -7.0 * (open ? 1.0 : 0.0) : 0.0;
+    final path = Path()
+      ..moveTo(35, 50 + lift)
+      ..lineTo(35, 34 + lift)
+      ..cubicTo(35, 10 + lift, 65, 10 + lift, 65, 34 + lift)
+      ..lineTo(65, open ? 40 + lift : 50);
+    if (glow != null) {
+      canvas.drawPath(path, Paint()..style = PaintingStyle.stroke..strokeWidth = width + 4..strokeCap = StrokeCap.round..color = glow..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 3));
+    }
+    canvas.drawPath(path, Paint()..style = PaintingStyle.stroke..strokeWidth = width..strokeCap = StrokeCap.round..color = color);
+  }
+
+  void _keyhole(Canvas canvas, Offset c, Color color, {double scale = 1}) {
+    if (!keyhole) return;
+    canvas.drawCircle(c, 4.6 * scale, Paint()..color = color);
+    canvas.drawPath(
+      Path()
+        ..moveTo(c.dx - 2.4 * scale, c.dy + 2 * scale)
+        ..lineTo(c.dx + 2.4 * scale, c.dy + 2 * scale)
+        ..lineTo(c.dx + 3.4 * scale, c.dy + 11 * scale)
+        ..lineTo(c.dx - 3.4 * scale, c.dy + 11 * scale)
+        ..close(),
+      Paint()..color = color,
+    );
+  }
+
+  // Imperial: a riveted steel padlock under a gilded pair of wings.
+  void _paintCrest(Canvas canvas) {
+    const gold = Color(0xFFD4A72A);
+    const light = Color(0xFFFFE9A3);
+    final wing = Path()
+      ..moveTo(30, 54)
+      ..quadraticBezierTo(8, 46, 2, 18)
+      ..quadraticBezierTo(14, 30, 24, 30)
+      ..quadraticBezierTo(10, 20, 10, 6)
+      ..quadraticBezierTo(24, 24, 34, 32)
+      ..quadraticBezierTo(24, 40, 36, 44)
+      ..close();
+    void drawWing() {
+      canvas.drawPath(
+        wing,
+        Paint()..shader = const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [light, gold, Color(0xFF7A5A08)]).createShader(wing.getBounds()),
+      );
+      canvas.drawPath(wing, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.1..strokeJoin = StrokeJoin.round..color = const Color(0xFF3A2A04));
+    }
+
+    canvas.save();
+    canvas.translate(0, open ? -4.0 * (open ? 1.0 : 0.0) : 0);
+    drawWing();
+    canvas.translate(100, 0);
+    canvas.scale(-1, 1);
+    drawWing();
+    canvas.restore();
+
+    _shackle(canvas, const Color(0xFFB8B8BA), width: 7);
+    final body = RRect.fromRectAndRadius(const Rect.fromLTWH(24, 48, 52, 42), const Radius.circular(5));
+    canvas.drawRRect(
+      body,
+      Paint()..shader = const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF5A5A5E), Color(0xFF2A2A2C), Color(0xFF111112)]).createShader(body.outerRect),
+    );
+    canvas.drawRRect(body, Paint()..style = PaintingStyle.stroke..strokeWidth = 2.4..color = gold);
+    canvas.drawRRect(body.deflate(4), Paint()..style = PaintingStyle.stroke..strokeWidth = .8..color = light.withValues(alpha: .5));
+    for (final p in const [Offset(30, 54), Offset(70, 54), Offset(30, 84), Offset(70, 84)]) {
+      canvas.drawCircle(p, 2.2, Paint()..color = gold);
+      canvas.drawCircle(p + const Offset(-.6, -.6), .8, Paint()..color = light);
+    }
+    canvas.drawCircle(const Offset(50, 66), 8.5, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.2..color = gold);
+    _keyhole(canvas, const Offset(50, 64), const Color(0xFF050505), scale: .9);
+  }
+
+  // Solar Flare: a star with a fiery corona and a keyhole of light.
+  void _paintSun(Canvas canvas) {
+    const core = Color(0xFFFFF3C4);
+    const hot = Color(0xFFFFB300);
+    const deep = Color(0xFFE65100);
+    const c = Offset(50, 62);
+    canvas.drawCircle(c, 44, Paint()..shader = const RadialGradient(colors: [Color(0x66FFB300), Color(0x00FFB300)]).createShader(Rect.fromCircle(center: c, radius: 44)));
+    // flare rays around the star
+    final ray = Paint()..style = PaintingStyle.stroke..strokeCap = StrokeCap.round..strokeWidth = 3.2..color = hot;
+    for (var i = 0; i < 12; i++) {
+      final a = i * pi / 6 + (open ? .26 * (open ? 1.0 : 0.0) : 0);
+      final len = i.isEven ? 11.0 : 7.0;
+      canvas.drawLine(c + Offset(cos(a), sin(a)) * 27, c + Offset(cos(a), sin(a)) * (27 + len), ray);
+    }
+    _shackle(canvas, const Color(0xFFFFD54F), width: 6, glow: const Color(0x66FFB300));
+    canvas.drawCircle(c, 26, Paint()..shader = const RadialGradient(center: Alignment(-.3, -.4), colors: [core, hot, deep, Color(0xFF5A1500)], stops: [0, .35, .75, 1]).createShader(Rect.fromCircle(center: c, radius: 26)));
+    canvas.drawCircle(c, 26, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.6..color = core.withValues(alpha: .9));
+    // a sunspot and a granule
+    canvas.drawCircle(const Offset(61, 70), 3.2, Paint()..color = const Color(0xFF3A0C00).withValues(alpha: .6));
+    canvas.drawCircle(const Offset(40, 52), 2.2, Paint()..color = core.withValues(alpha: .7));
+    _keyhole(canvas, const Offset(50, 58), const Color(0xFF2A0800), scale: .85);
+  }
+
+  // Abyssal: a glowing jellyfish bell with trailing tentacles.
+  void _paintJelly(Canvas canvas) {
+    const teal = Color(0xFF1DE9C6);
+    const pale = Color(0xFFB2FFF2);
+    // tentacles
+    final tent = Paint()..style = PaintingStyle.stroke..strokeCap = StrokeCap.round..strokeWidth = 2.2;
+    for (var i = 0; i < 5; i++) {
+      final x = 32.0 + i * 9;
+      final sway = open ? 5.0 * (open ? 1.0 : 0.0) : 0.0;
+      tent.color = teal.withValues(alpha: .35 + .1 * (i % 2));
+      canvas.drawPath(
+        Path()
+          ..moveTo(x, 78)
+          ..cubicTo(x - 6 + sway, 86, x + 6 - sway, 92, x - 2 + sway, 99),
+        tent,
+      );
+    }
+    _shackle(canvas, pale, width: 5.5, glow: const Color(0x881DE9C6));
+    final bell = Path()
+      ..moveTo(20, 80)
+      ..cubicTo(14, 40, 86, 40, 80, 80)
+      ..quadraticBezierTo(70, 74, 62, 80)
+      ..quadraticBezierTo(50, 72, 38, 80)
+      ..quadraticBezierTo(30, 74, 20, 80)
+      ..close();
+    canvas.drawPath(bell, Paint()..color = teal.withValues(alpha: .4)..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 5));
+    canvas.drawPath(
+      bell,
+      Paint()..shader = const RadialGradient(center: Alignment(-.3, -.6), radius: 1.1, colors: [Color(0xCC9BFFF0), Color(0xAA1DC9B8), Color(0xCC053A52)]).createShader(bell.getBounds()),
+    );
+    canvas.drawPath(bell, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.6..strokeJoin = StrokeJoin.round..color = pale);
+    // inner glow rings
+    canvas.drawPath(Path()..moveTo(30, 66)..quadraticBezierTo(50, 52, 70, 66), Paint()..style = PaintingStyle.stroke..strokeWidth = 1..color = pale.withValues(alpha: .6));
+    canvas.drawCircle(const Offset(36, 56), 2.2, Paint()..color = Colors.white.withValues(alpha: .7));
+    _keyhole(canvas, const Offset(50, 60), const Color(0xFF021F2A), scale: .8);
+  }
+
+  // Sakura: red lacquer padlock engraved with a cherry blossom, one petal drifting away.
+  void _paintBlossom(Canvas canvas) {
+    const pink = Color(0xFFFFC2D4);
+    _shackle(canvas, pink, width: 6);
+    final body = RRect.fromRectAndRadius(const Rect.fromLTWH(22, 46, 56, 44), const Radius.circular(14));
+    canvas.drawRRect(
+      body,
+      Paint()..shader = const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFFE35577), Color(0xFFA32346), Color(0xFF560F26)]).createShader(body.outerRect),
+    );
+    canvas.drawRRect(body, Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = pink.withValues(alpha: .9));
+    // lacquer sheen
+    canvas.drawPath(Path()..moveTo(30, 54)..quadraticBezierTo(50, 48, 70, 54), Paint()..style = PaintingStyle.stroke..strokeWidth = 2..strokeCap = StrokeCap.round..color = Colors.white.withValues(alpha: .28));
+    // blossom
+    const c = Offset(50, 69);
+    for (var i = 0; i < 5; i++) {
+      final a = i * 2 * pi / 5 - pi / 2 + (open ? .3 * (open ? 1.0 : 0.0) : 0);
+      final tip = c + Offset(cos(a), sin(a)) * 16;
+      final l = c + Offset(cos(a - .6), sin(a - .6)) * 10;
+      final r = c + Offset(cos(a + .6), sin(a + .6)) * 10;
+      canvas.drawPath(
+        Path()..moveTo(c.dx, c.dy)..quadraticBezierTo(l.dx, l.dy, tip.dx, tip.dy)..quadraticBezierTo(r.dx, r.dy, c.dx, c.dy)..close(),
+        Paint()..color = pink.withValues(alpha: .92),
+      );
+    }
+    _keyhole(canvas, c + const Offset(0, -2), const Color(0xFF3A0A1C), scale: .6);
+    // drifting petal
+    canvas.save();
+    canvas.translate(84, 22 + (open ? 10.0 * (open ? 1.0 : 0.0) : 0));
+    canvas.rotate(.7);
+    canvas.drawOval(Rect.fromCenter(center: Offset.zero, width: 10, height: 5.5), Paint()..color = pink.withValues(alpha: .85));
+    canvas.restore();
   }
 
   void _paintPadlock(Canvas canvas) {

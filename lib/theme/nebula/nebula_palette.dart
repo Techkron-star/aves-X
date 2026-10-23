@@ -44,6 +44,10 @@ enum NebulaSurfaceTreatment {
   ivoryGlass,
   // Imperial Glass: gunmetal steel with brass rivets and aquila gold (phase 2 effects)
   imperialGlass,
+  // Abyssal Glass: bioluminescent teal over abyssal navy
+  abyssalGlass,
+  // Sakura Glass: ink black with cherry blossom pink and lacquer red
+  sakuraGlass,
 }
 
 // A Nebula palette: colors and surface treatment only.

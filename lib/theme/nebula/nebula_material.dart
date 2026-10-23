@@ -13,7 +13,7 @@ import 'package:material_ui/material_ui.dart';
 //   and a haloed, winged padlock.
 enum NebulaMaterial {
   ruby, nightDemon, godly, forge, hermetic, eclipse, solarFlare, voidGlass,
-  crimson, neon, emerald, aurora, sapphire, amber, onyx, pearl, ivory, imperial,
+  crimson, neon, emerald, aurora, sapphire, amber, onyx, pearl, ivory, imperial, abyssal, sakura,
 }
 
 @immutable
@@ -90,6 +90,18 @@ class NebulaMaterialStyle {
     NebulaMaterial.onyx => RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius * .24), side: side),
     NebulaMaterial.pearl => ContinuousRectangleBorder(borderRadius: BorderRadius.circular(radius * 1.85), side: side),
     NebulaMaterial.ivory => RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius * 1.12), side: side),
+    // very round, like a bubble
+    NebulaMaterial.abyssal => RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius * 1.9), side: side),
+    // petal: opposite corners round, the others almost square
+    NebulaMaterial.sakura => RoundedRectangleBorder(
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(radius * 1.7),
+        bottomRight: Radius.circular(radius * 1.7),
+        topRight: Radius.circular(radius * .35),
+        bottomLeft: Radius.circular(radius * .35),
+      ),
+      side: side,
+    ),
     NebulaMaterial.imperial => BeveledRectangleBorder(borderRadius: BorderRadius.circular(radius * .12), side: side),
   };
 
@@ -112,6 +124,11 @@ class NebulaMaterialStyle {
     NebulaMaterial.onyx => RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * .24)), side: side),
     NebulaMaterial.pearl => ContinuousRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * 1.85)), side: side),
     NebulaMaterial.ivory => RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * 1.12)), side: side),
+    NebulaMaterial.abyssal => RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * 1.9)), side: side),
+    NebulaMaterial.sakura => RoundedRectangleBorder(
+      borderRadius: BorderRadius.only(topLeft: Radius.circular(radius * 1.7), topRight: Radius.circular(radius * .35)),
+      side: side,
+    ),
     NebulaMaterial.imperial => BeveledRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(radius * .12)), side: side),
   };
 
@@ -260,6 +277,8 @@ NebulaMaterial _materialForTheme(NebulaTheme theme) => switch (theme) {
   NebulaTheme.pearlGlass => NebulaMaterial.pearl,
   NebulaTheme.ivoryGlass => NebulaMaterial.ivory,
   NebulaTheme.imperialGlass => NebulaMaterial.imperial,
+  NebulaTheme.abyssalGlass => NebulaMaterial.abyssal,
+  NebulaTheme.sakuraGlass => NebulaMaterial.sakura,
   NebulaTheme.aves => NebulaMaterial.onyx,
 };
 
@@ -299,6 +318,8 @@ const Map<NebulaSurfaceTreatment, NebulaMaterial> _customMaterialByTreatment = {
   NebulaSurfaceTreatment.pearlGlass: NebulaMaterial.pearl,
   NebulaSurfaceTreatment.ivoryGlass: NebulaMaterial.ivory,
   NebulaSurfaceTreatment.imperialGlass: NebulaMaterial.imperial,
+  NebulaSurfaceTreatment.abyssalGlass: NebulaMaterial.abyssal,
+  NebulaSurfaceTreatment.sakuraGlass: NebulaMaterial.sakura,
 };
 
 /// Resolves a material recipe from a palette. Built-in palettes preserve their

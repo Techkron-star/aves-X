@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:aves/theme/nebula/nebula_material.dart';
 import 'package:aves/widgets/common/fx/demon_glass.dart';
 import 'package:aves/widgets/common/fx/gold_leaf.dart';
+import 'package:aves/widgets/common/fx/nebula_surfaces.dart';
 import 'package:flutter/rendering.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -18,6 +19,15 @@ Decoration nebulaMaterialDecoration(NebulaMaterial material, {double phase = -1,
       return DemonGlassDecoration(pulse: phase, opacity: opacity);
     case NebulaMaterial.godly:
       return GoldLeafDecoration(glint: phase, opacity: opacity);
+    // these materials paint a whole scene of their own
+    case NebulaMaterial.imperial:
+      return NebulaSurfaceDecoration(NebulaSurfaceArt.imperial, opacity: opacity);
+    case NebulaMaterial.solarFlare:
+      return NebulaSurfaceDecoration(NebulaSurfaceArt.solarFlare, opacity: opacity);
+    case NebulaMaterial.abyssal:
+      return NebulaSurfaceDecoration(NebulaSurfaceArt.abyssal, opacity: opacity);
+    case NebulaMaterial.sakura:
+      return NebulaSurfaceDecoration(NebulaSurfaceArt.sakura, opacity: opacity);
     default:
       final style = nebulaMaterialStylesByMaterial[material];
       if (style == null) return const BoxDecoration();
@@ -370,6 +380,8 @@ class _NebulaMaterialPainter extends BoxPainter {
           canvas.drawCircle(Offset(x, 31), 2.1, Paint()..color = bright.withValues(alpha: opacity * .82));
         }
         break;
+      case NebulaMaterial.abyssal:
+      case NebulaMaterial.sakura:
       case NebulaMaterial.imperial:
         final shield = Path()..moveTo(50, 6)..lineTo(89, 21)..lineTo(83, 59)..lineTo(50, 93)..lineTo(17, 59)..lineTo(11, 21)..close();
         canvas.drawPath(shield, Paint()..color = deep.withValues(alpha: opacity * .18));

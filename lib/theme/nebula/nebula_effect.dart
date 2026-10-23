@@ -287,15 +287,18 @@ class _EclipseGlassPainter extends NebulaEffectPainter {
 }
 
 // ============================================================================
-// Solar Flare Glass — molten orange on black with gold
+// Solar Flare Glass — a burning star
 // ============================================================================
 
+/// Solar Flare: la superficie de una estrella. Corona que respira arriba, manchas de plasma
+/// que ascienden, prominencias que se elevan y caen, y chispas incandescentes.
 class SolarFlareGlassEffect extends NebulaEffect {
   const SolarFlareGlassEffect({super.key, required super.animate});
 
   @override
-  Duration get duration => const Duration(seconds: 11);
+  Duration get duration => const Duration(seconds: 14);
 
+  // seamless loop: it must not play backwards
   @override
   bool get reverse => false;
 
@@ -306,133 +309,88 @@ class SolarFlareGlassEffect extends NebulaEffect {
 class _SolarFlareGlassPainter extends NebulaEffectPainter {
   const _SolarFlareGlassPainter(super.t);
 
+  static const _white = Color(0xFFFFF3C4);
+  static const _gold = Color(0xFFFFB300);
+  static const _orange = Color(0xFFFF6D00);
+
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    final center = Offset(size.width * .5, size.height * .43);
-    final r = size.shortestSide;
-    final sunRadius = r * .205;
-    final pulse = .5 + .5 * math.sin(t * 2 * math.pi);
-    final coronaRadius = sunRadius * (1.20 + .035 * pulse);
+    final w = size.width, h = size.height;
+    final beat = .5 + .5 * math.sin(t * 2 * math.pi);
 
-    // A deep, almost-black sky lets the eclipse corona act as the only light source.
+    // corona breathing at the top
+    final corona = Rect.fromLTWH(0, 0, w, h * .6);
     canvas.drawRect(
-      rect,
+      corona,
       Paint()
-        ..shader = RadialGradient(
-          center: Alignment.center,
-          radius: 1.02,
-          colors: const [
-            Color(0x332D0A02),
-            Color(0x16200703),
-            Color(0x00000000),
-          ],
-          stops: const [0, .48, 1],
-        ).createShader(rect),
+        ..shader = ui.Gradient.radial(
+          Offset(w * .5, -h * .05),
+          h * .6,
+          [_white.withValues(alpha: .20 + .10 * beat), _gold.withValues(alpha: .09 + .04 * beat), _gold.withValues(alpha: 0)],
+          const [0, .4, 1],
+        ),
     );
 
-    // Broad reflected corona and the fine white-hot ring.
+    // plasma clouds rising and cooling
+    final rnd = math.Random(901);
+    final blob = Paint();
+    for (var i = 0; i < 9; i++) {
+      final x0 = rnd.nextDouble();
+      final phase = rnd.nextDouble();
+      final sway = rnd.nextDouble() * 2 * math.pi;
+      final r = (math.min(w, h) * (.12 + rnd.nextDouble() * .14));
+      final p = (t + phase) % 1.0;
+      final x = x0 * w + math.sin(p * 2 * math.pi + sway) * 22;
+      final y = h * (1.15 - p * 1.3);
+      final fade = math.sin(math.pi * p);
+      blob.shader = ui.Gradient.radial(
+        Offset(x, y),
+        r,
+        [Color.lerp(_gold, _orange, p)!.withValues(alpha: .14 * fade), _orange.withValues(alpha: 0)],
+      );
+      canvas.drawCircle(Offset(x, y), r, blob);
+    }
+
+    // prominences: arcs rising from the bottom edge, looping up and back down
+    final arc = Paint()..style = PaintingStyle.stroke..strokeCap = StrokeCap.round;
     for (var i = 0; i < 3; i++) {
-      final radius = coronaRadius * (1.02 + i * .17);
-      final glowRect = Rect.fromCircle(center: center, radius: radius);
-      canvas.drawCircle(
-        center,
-        radius,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = sunRadius * (i == 0 ? .28 : .075)
-          ..shader = SweepGradient(
-            colors: const [
-              Color(0x00FF5A24),
-              Color(0x66FF6B20),
-              Color(0xAAFFE6A1),
-              Color(0xCCFF9D24),
-              Color(0x44FF4A18),
-              Color(0x00FF5A24),
-            ],
-            stops: const [0, .16, .29, .47, .76, 1],
-            transform: GradientRotation(t * 2 * math.pi + i * .42),
-          ).createShader(glowRect)
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, sunRadius * (i == 0 ? .16 : .07)),
-      );
+      final p = (t + i / 3) % 1.0;
+      final grow = math.sin(math.pi * p);
+      if (grow < .02) continue;
+      final cx = w * (.2 + .3 * i) + math.sin(i * 2.1) * 20;
+      final span = w * (.08 + .07 * grow);
+      final rise = h * (.10 + .30 * grow);
+      final path = Path()
+        ..moveTo(cx - span, h)
+        ..cubicTo(cx - span * .6, h - rise * 1.5, cx + span * .6, h - rise * 1.5, cx + span, h);
+      arc
+        ..strokeWidth = 9 * grow + 2
+        ..color = _orange.withValues(alpha: .20 * grow)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
+      canvas.drawPath(path, arc);
+      arc
+        ..strokeWidth = 1.6
+        ..color = _white.withValues(alpha: .75 * grow)
+        ..maskFilter = null;
+      canvas.drawPath(path, arc);
     }
 
-    // Uneven plasma tongues make the corona look solar, not like a perfect neon ring.
-    for (var i = 0; i < 32; i++) {
-      final angle = i * 2 * math.pi / 32;
-      final wave = .5 + .5 * math.sin(i * 2.17 + t * 2 * math.pi);
-      final inner = sunRadius * (1.17 + .06 * wave);
-      final outer = sunRadius * (1.38 + .22 * wave + (i % 5 == 0 ? .16 : 0));
-      final start = center + Offset(math.cos(angle) * inner, math.sin(angle) * inner);
-      final end = center + Offset(math.cos(angle) * outer, math.sin(angle) * outer);
-      final hot = i % 4 == 0;
-      canvas.drawLine(
-        start,
-        end,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeCap = StrokeCap.round
-          ..strokeWidth = hot ? r * .0042 : r * .0018
-          ..color = (hot ? const Color(0xFFFFE8A0) : const Color(0xFFFF6A24))
-              .withValues(alpha: (hot ? .55 : .29) + .12 * pulse),
-      );
-    }
-
-    // Sparse prominences curve away from the limb like magnetic loops.
-    for (var i = 0; i < 5; i++) {
-      final angle = -.9 + i * .47 + .035 * math.sin(t * 2 * math.pi);
-      final inner = center + Offset(math.cos(angle) * sunRadius * 1.08, math.sin(angle) * sunRadius * 1.08);
-      final peak = center + Offset(math.cos(angle + .15) * sunRadius * (1.54 + .08 * pulse), math.sin(angle + .15) * sunRadius * (1.54 + .08 * pulse));
-      final end = center + Offset(math.cos(angle + .34) * sunRadius * 1.12, math.sin(angle + .34) * sunRadius * 1.12);
-      final loop = Path()..moveTo(inner.dx, inner.dy)..quadraticBezierTo(peak.dx, peak.dy, end.dx, end.dy);
-      canvas.drawPath(loop, Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeCap = StrokeCap.round
-        ..strokeWidth = r * .0024
-        ..color = const Color(0x99FFB33C).withValues(alpha: .42 + .2 * pulse));
-    }
-
-    // Black lunar disc with subtle reflected rim and a tiny gravitationally bent highlight.
-    canvas.drawCircle(
-      center,
-      sunRadius,
-      Paint()
-        ..shader = RadialGradient(
-          center: const Alignment(-.38, -.42),
-          colors: const [Color(0xFF120704), Color(0xFF050202), Color(0xFF000000)],
-          stops: const [0, .48, 1],
-        ).createShader(Rect.fromCircle(center: center, radius: sunRadius)),
-    );
-    canvas.drawCircle(
-      center,
-      sunRadius * 1.015,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = r * .0025
-        ..color = const Color(0xCCFFE6A1).withValues(alpha: .54 + .18 * pulse),
-    );
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: sunRadius * 1.035),
-      -math.pi * .92,
-      math.pi * .64,
-      false,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = r * .005
-        ..color = const Color(0xCCFFF4C2).withValues(alpha: .78),
-    );
-
-    // Minimal star-like glints and distant ember points, placed deterministically.
-    for (var i = 0; i < 11; i++) {
-      final angle = i * 2.399963;
-      final distance = r * (.34 + .045 * (i % 4));
-      final p = center + Offset(math.cos(angle + t * .14) * distance, math.sin(angle + t * .14) * distance);
-      final twinkle = .35 + .65 * (.5 + .5 * math.sin(t * 4 * math.pi + i * 1.7));
-      final radius = r * (.0015 + .0012 * twinkle);
-      canvas.drawCircle(p, radius * 3.5, Paint()
-        ..color = const Color(0xFFFFA33A).withValues(alpha: .18 * twinkle)
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * .004));
-      canvas.drawCircle(p, radius, Paint()..color = const Color(0xFFFFE6A1).withValues(alpha: .55 * twinkle));
+    // sparks flying up; whole trips per loop, so the loop has no seam
+    final sparks = math.Random(902);
+    final dot = Paint();
+    for (var i = 0; i < 36; i++) {
+      final x0 = sparks.nextDouble();
+      final phase = sparks.nextDouble();
+      final trips = 1 + sparks.nextInt(3);
+      final radius = .6 + sparks.nextDouble() * 1.8;
+      final p = (t * trips + phase) % 1.0;
+      final fade = math.sin(math.pi * p);
+      final x = x0 * w + math.sin(p * 6 + i) * 12;
+      final y = h * (1.03 - p * 1.06);
+      dot.color = _gold.withValues(alpha: .12 * fade);
+      canvas.drawCircle(Offset(x, y), radius * 3.4, dot);
+      dot.color = Color.lerp(_white, _orange, p)!.withValues(alpha: .85 * fade);
+      canvas.drawCircle(Offset(x, y), radius, dot);
     }
   }
 }
@@ -1255,18 +1213,17 @@ class _GodlyPainter extends NebulaEffectPainter {
 }
 
 // ============================================================================
-// Imperial Glass — gunmetal steel with brass rivets and aquila gold
+// Imperial Glass — riveted gunmetal, brass and incense
 // ============================================================================
 
-/// Imperial Glass: acero pavonado, remaches de latón, pergamino y oro águila.
-/// Efecto industrial: barrido de luz sobre metal rayado, con destellos de latón.
+/// Imperial Glass: engranajes de latón que giran despacio, humo de incienso que sube,
+/// una lámpara de inspección que barre la placa y brasas doradas.
 class ImperialGlassEffect extends NebulaEffect {
   const ImperialGlassEffect({super.key, required super.animate});
 
   @override
-  Duration get duration => const Duration(seconds: 18);
+  Duration get duration => const Duration(seconds: 20);
 
-  // continuous sweep like a forge inspection lamp
   @override
   bool get reverse => false;
 
@@ -1277,88 +1234,297 @@ class ImperialGlassEffect extends NebulaEffect {
 class _ImperialGlassPainter extends NebulaEffectPainter {
   const _ImperialGlassPainter(super.t);
 
+  static const _brass = Color(0xFFD4A72A);
+  static const _bone = Color(0xFFC9B896);
+
+  Path _gear(Offset c, double outer, double inner, int teeth, double turn) {
+    final path = Path();
+    for (var i = 0; i < teeth; i++) {
+      final a = turn + i * 2 * math.pi / teeth;
+      final s = math.pi / teeth * .5;
+      final pts = [
+        c + Offset(math.cos(a - s * 1.4), math.sin(a - s * 1.4)) * inner,
+        c + Offset(math.cos(a - s * .8), math.sin(a - s * .8)) * outer,
+        c + Offset(math.cos(a + s * .8), math.sin(a + s * .8)) * outer,
+        c + Offset(math.cos(a + s * 1.4), math.sin(a + s * 1.4)) * inner,
+      ];
+      if (i == 0) {
+        path.moveTo(pts[0].dx, pts[0].dy);
+      } else {
+        path.lineTo(pts[0].dx, pts[0].dy);
+      }
+      for (final p in pts.skip(1)) {
+        path.lineTo(p.dx, p.dy);
+      }
+    }
+    return path..close();
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
-    final w = size.width;
-    final h = size.height;
-    final rect = Rect.fromLTWH(0, 0, w, h);
-    final center = size.center(Offset.zero);
-    final r = size.shortestSide;
+    final w = size.width, h = size.height;
+    final line = Paint()..style = PaintingStyle.stroke..strokeWidth = 1.2;
 
-    // gunmetal base with subtle scratches
-    canvas.drawRect(
-      rect,
+    // two meshing gears, one tooth of turn per loop (so the loop has no seam)
+    const big = 18, small = 12;
+    final bigC = Offset(w * .92, h * .86);
+    final bigR = math.min(w, h) * .42;
+    line.color = _brass.withValues(alpha: .13);
+    canvas.drawPath(_gear(bigC, bigR, bigR * .88, big, t * 2 * math.pi / big), line);
+    canvas.drawCircle(bigC, bigR * .5, line);
+    final smallR = bigR * big / small * .5 * .95;
+    final smallC = bigC + Offset(-(bigR * .88 + smallR * .88) * .86, -(bigR * .88 + smallR * .88) * .5);
+    line.color = _bone.withValues(alpha: .10);
+    canvas.drawPath(_gear(smallC, smallR, smallR * .86, small, -t * 2 * math.pi / small + math.pi / small), line);
+
+    // inspection lamp sweeping the plate
+    final env = math.sin(math.pi * t);
+    final x = -w * .3 + w * 1.6 * t;
+    final band = Path()
+      ..moveTo(x, 0)
+      ..lineTo(x + w * .28, 0)
+      ..lineTo(x + w * .28 - h * .35, h)
+      ..lineTo(x - h * .35, h)
+      ..close();
+    canvas.drawPath(
+      band,
       Paint()
-        ..shader = RadialGradient(
-          center: const Alignment(0, .1),
-          radius: 1.1,
-          colors: [
-            Color(0xFF2A2A2A),
-            Color(0xFF181818),
-            Color(0xFF0C0C0C),
-          ],
-          stops: const [0, .6, 1],
-        ).createShader(rect),
+        ..shader = ui.Gradient.linear(Offset(x, 0), Offset(x + w * .28, 0), [
+          _brass.withValues(alpha: 0),
+          _brass.withValues(alpha: .14 * env),
+          _brass.withValues(alpha: 0),
+        ], const [0, .5, 1]),
     );
 
-    // diagonal scratch texture (static noise approximation)
-    final scratchPaint = Paint()
+    // incense smoke: three columns rising from the bottom, waving with whole cycles per loop
+    final smoke = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = .5
-      ..color = Color(0x11FFFFFF);
-    for (var i = 0; i < 12; i++) {
-      final y = -h + (i * h / 6) + (t * h * .3 % (h / 6));
-      canvas.drawLine(Offset(-w, y), Offset(w * 2, y + w * .6), scratchPaint);
+      ..strokeCap = StrokeCap.round
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5);
+    for (var i = 0; i < 3; i++) {
+      final x0 = w * (.18 + i * .3);
+      final path = Path()..moveTo(x0, h);
+      for (var s = 1; s <= 24; s++) {
+        final u = s / 24;
+        final dx = math.sin(u * 7 - t * 2 * math.pi * (1 + i % 2) + i) * (6 + 30 * u);
+        path.lineTo(x0 + dx, h - u * h * (.5 + .1 * i));
+      }
+      smoke
+        ..strokeWidth = 7 + 4 * i
+        ..color = _bone.withValues(alpha: .07);
+      canvas.drawPath(path, smoke);
     }
 
-    // sweeping inspection lamp (brass gold)
-    final shift = -1.2 + 2.4 * t;
-    canvas.drawRect(
-      rect,
-      Paint()
-        ..shader = LinearGradient(
-          begin: Alignment(shift - .6, -1),
-          end: Alignment(shift + .6, 1),
-          colors: const [
-            Color(0x00D4A72A),
-            Color(0x33D4A72A),
-            Color(0x66D4A72A),
-            Color(0x33D4A72A),
-            Color(0x00D4A72A),
-          ],
-          stops: const [0, .25, .5, .75, 1],
-        ).createShader(rect),
-    );
+    // brass embers
+    final rnd = math.Random(1941);
+    final dot = Paint();
+    for (var i = 0; i < 16; i++) {
+      final x0 = rnd.nextDouble();
+      final phase = rnd.nextDouble();
+      final trips = 1 + rnd.nextInt(2);
+      final p = (t * trips + phase) % 1.0;
+      final fade = math.sin(math.pi * p);
+      final ex = x0 * w + math.sin(p * 5 + i) * 8;
+      final ey = h * (1.02 - p * 1.0);
+      dot.color = _brass.withValues(alpha: .10 * fade);
+      canvas.drawCircle(Offset(ex, ey), 5, dot);
+      dot.color = const Color(0xFFFFE9A3).withValues(alpha: .7 * fade);
+      canvas.drawCircle(Offset(ex, ey), 1.3, dot);
+    }
+  }
+}
 
-    // rivet glints at the corners
-    final rivetPaint = Paint()..color = Color(0xFFD4A72A);
-    final rivetR = w * .018;
-    for (final corner in [
-      Offset(rivetR * 3, rivetR * 3),
-      Offset(w - rivetR * 3, rivetR * 3),
-      Offset(rivetR * 3, h - rivetR * 3),
-      Offset(w - rivetR * 3, h - rivetR * 3),
-    ]) {
-      final twinkle = .5 + .5 * math.sin(t * 4 * math.pi + corner.dx * .01);
-      canvas.drawCircle(corner, rivetR * twinkle, rivetPaint);
-      canvas.drawCircle(corner, rivetR * .6, Paint()..color = Color(0xFFFFF8E7).withValues(alpha: .8 * twinkle));
+// ============================================================================
+// Abyssal Glass — deep sea bioluminescence
+// ============================================================================
+
+/// Abyssal Glass: haces de luz que se mecen, burbujas que suben, plancton que centellea
+/// y medusas que laten mientras flotan.
+class AbyssalGlassEffect extends NebulaEffect {
+  const AbyssalGlassEffect({super.key, required super.animate});
+
+  @override
+  Duration get duration => const Duration(seconds: 22);
+
+  @override
+  bool get reverse => false;
+
+  @override
+  CustomPainter painter(double t) => _AbyssalGlassPainter(t);
+}
+
+class _AbyssalGlassPainter extends NebulaEffectPainter {
+  const _AbyssalGlassPainter(super.t);
+
+  static const _teal = Color(0xFF1DE9C6);
+  static const _pale = Color(0xFFB2FFF2);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width, h = size.height;
+    final tau = 2 * math.pi;
+
+    // light shafts swaying
+    for (var i = 0; i < 4; i++) {
+      final x = w * (.1 + i * .27);
+      final lean = h * .3 * math.sin(t * tau + i * 1.7);
+      final width = w * (.08 + .02 * math.sin(t * tau * 2 + i));
+      final path = Path()
+        ..moveTo(x, 0)
+        ..lineTo(x + width, 0)
+        ..lineTo(x + width * 2.2 + lean, h * .9)
+        ..lineTo(x + lean, h * .9)
+        ..close();
+      canvas.drawPath(
+        path,
+        Paint()
+          ..shader = ui.Gradient.linear(Offset(x, 0), Offset(x + lean, h * .9), [
+            _pale.withValues(alpha: .07 + .03 * math.sin(t * tau + i)),
+            _pale.withValues(alpha: 0),
+          ]),
+      );
     }
 
-    // central aquila pulse (very subtle)
-    final aquilaPulse = .5 + .5 * math.sin(t * 2 * math.pi);
+    // jellyfish drifting
+    for (var j = 0; j < 2; j++) {
+      final cx = w * (.28 + .44 * j) + math.sin(t * tau + j * 2.4) * 22;
+      final cy = h * (.5 + .12 * j) + math.cos(t * tau * 1 + j) * 34;
+      final pulse = .5 + .5 * math.sin(t * tau * 3 + j * 1.3);
+      final r = math.min(w, h) * (.05 + .01 * j) * (1 + .12 * pulse);
+      final bell = Path()
+        ..moveTo(cx - r, cy)
+        ..cubicTo(cx - r, cy - r * 1.7, cx + r, cy - r * 1.7, cx + r, cy)
+        ..quadraticBezierTo(cx + r * .5, cy - r * .25, cx, cy)
+        ..quadraticBezierTo(cx - r * .5, cy - r * .25, cx - r, cy)
+        ..close();
+      canvas.drawPath(bell, Paint()..color = _teal.withValues(alpha: .22)..maskFilter = MaskFilter.blur(BlurStyle.normal, r * .6));
+      canvas.drawPath(bell, Paint()..color = _pale.withValues(alpha: .10 + .06 * pulse));
+      canvas.drawPath(bell, Paint()..style = PaintingStyle.stroke..strokeWidth = .9..color = _pale.withValues(alpha: .35));
+      final tent = Paint()..style = PaintingStyle.stroke..strokeCap = StrokeCap.round..strokeWidth = 1.1..color = _teal.withValues(alpha: .30);
+      for (var k = -2; k <= 2; k++) {
+        final tx = cx + k * r * .38;
+        final sway = math.sin(t * tau * 2 + k + j) * r * .5;
+        canvas.drawPath(
+          Path()
+            ..moveTo(tx, cy)
+            ..cubicTo(tx + sway, cy + r * 1.1, tx - sway, cy + r * 2.0, tx + sway * .6, cy + r * 3.0),
+          tent,
+        );
+      }
+    }
+
+    // bubbles rising, whole trips per loop
+    final rnd = math.Random(2020);
+    final b = Paint()..style = PaintingStyle.stroke..strokeWidth = .9;
+    for (var i = 0; i < 24; i++) {
+      final x0 = rnd.nextDouble();
+      final phase = rnd.nextDouble();
+      final trips = 1 + rnd.nextInt(3);
+      final r = 1.4 + rnd.nextDouble() * 4.2;
+      final p = (t * trips + phase) % 1.0;
+      final fade = math.min(1.0, math.sin(math.pi * p) * 2.2);
+      final bx = x0 * w + math.sin(p * tau * 2 + i) * 9;
+      final by = h * (1.05 - p * 1.1);
+      b.color = _pale.withValues(alpha: .40 * fade);
+      canvas.drawCircle(Offset(bx, by), r, b);
+      canvas.drawCircle(Offset(bx - r * .35, by - r * .35), r * .22, Paint()..color = Colors.white.withValues(alpha: .6 * fade));
+    }
+
+    // plankton twinkling
+    final dot = Paint();
+    final glow = Paint()..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
+    for (var i = 0; i < 34; i++) {
+      final x0 = rnd.nextDouble(), y0 = rnd.nextDouble();
+      final px = rnd.nextDouble();
+      final kt = 1 + rnd.nextInt(3);
+      final tw = math.pow(math.sin(math.pi * ((t * kt + px) % 1.0)), 3).toDouble();
+      final x = x0 * w + math.sin((t + px) * tau) * 12;
+      final y = y0 * h + math.cos((t + px) * tau) * 10;
+      glow.color = _teal.withValues(alpha: .35 * tw);
+      canvas.drawCircle(Offset(x, y), 4, glow);
+      dot.color = const Color(0xFFE0FFF9).withValues(alpha: .15 + .7 * tw);
+      canvas.drawCircle(Offset(x, y), 1.1, dot);
+    }
+  }
+}
+
+// ============================================================================
+// Sakura Glass — falling cherry blossoms
+// ============================================================================
+
+/// Sakura Glass: pétalos de cerezo que caen girando sobre negro tinta, una luna pálida
+/// que respira arriba y una bruma rosa en el suelo.
+class SakuraGlassEffect extends NebulaEffect {
+  const SakuraGlassEffect({super.key, required super.animate});
+
+  @override
+  Duration get duration => const Duration(seconds: 24);
+
+  @override
+  bool get reverse => false;
+
+  @override
+  CustomPainter painter(double t) => _SakuraGlassPainter(t);
+}
+
+class _SakuraGlassPainter extends NebulaEffectPainter {
+  const _SakuraGlassPainter(super.t);
+
+  static const _pink = Color(0xFFFFB3C8);
+  static const _pale = Color(0xFFFFE0EA);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width, h = size.height;
+    final tau = 2 * math.pi;
+    final breath = .5 + .5 * math.sin(t * tau);
+
+    // pale moon glow
+    final moon = Offset(w * .82, h * .14);
+    final mr = math.min(w, h) * .16;
     canvas.drawCircle(
-      center,
-      r * (.12 + .02 * aquilaPulse),
-      Paint()
-        ..shader = RadialGradient(
-          colors: [
-            Color(0x00D4A72A),
-            Color(0x11D4A72A),
-            Color(0x00D4A72A),
-          ],
-          stops: const [0, .5, 1],
-        ).createShader(Rect.fromCircle(center: center, radius: r * .15)),
+      moon,
+      mr * 2.4,
+      Paint()..shader = ui.Gradient.radial(moon, mr * 2.4, [_pale.withValues(alpha: .10 + .05 * breath), _pale.withValues(alpha: 0)]),
     );
+    canvas.drawCircle(moon, mr, Paint()..color = _pale.withValues(alpha: .07 + .03 * breath));
+
+    // mist on the ground
+    final mist = Rect.fromLTWH(0, h * .75, w, h * .25);
+    canvas.drawRect(
+      mist,
+      Paint()..shader = ui.Gradient.linear(Offset(0, h * .75), Offset(0, h), [_pink.withValues(alpha: 0), _pink.withValues(alpha: .07 + .04 * breath)]),
+    );
+
+    // petals falling; each makes whole trips per loop, spinning and fluttering
+    final rnd = math.Random(3939);
+    final paint = Paint();
+    for (var i = 0; i < 30; i++) {
+      final x0 = rnd.nextDouble();
+      final phase = rnd.nextDouble();
+      final sway = rnd.nextDouble() * tau;
+      final trips = 1 + rnd.nextInt(2);
+      final size0 = 3.2 + rnd.nextDouble() * 4.2;
+      final spin = (1 + rnd.nextInt(3)) * tau;
+      final p = (t * trips + phase) % 1.0;
+      final fade = math.min(1.0, math.sin(math.pi * p) * 3);
+      final x = x0 * w + math.sin(p * tau * 2 + sway) * 26 + p * 30;
+      final y = h * (-.05 + p * 1.1);
+      final flip = math.cos(p * spin * 2 + sway).abs();
+      canvas.save();
+      canvas.translate(x, y);
+      canvas.rotate(p * spin + sway);
+      paint.color = (i % 4 == 0 ? _pale : _pink).withValues(alpha: .62 * fade);
+      canvas.drawPath(
+        Path()
+          ..moveTo(0, -size0)
+          ..quadraticBezierTo(size0 * .9 * (.35 + .65 * flip), -size0 * .2, 0, size0)
+          ..quadraticBezierTo(-size0 * .9 * (.35 + .65 * flip), -size0 * .2, 0, -size0)
+          ..close(),
+        paint,
+      );
+      canvas.restore();
+    }
   }
 }
 
@@ -1386,5 +1552,7 @@ NebulaEffect? nebulaEffectFor(NebulaTheme theme, {required bool animate}) => swi
   NebulaTheme.pearlGlass => PearlGlassEffect(animate: animate),
   NebulaTheme.ivoryGlass => IvoryGlassEffect(animate: animate),
   NebulaTheme.imperialGlass => ImperialGlassEffect(animate: animate),
+  NebulaTheme.abyssalGlass => AbyssalGlassEffect(animate: animate),
+  NebulaTheme.sakuraGlass => SakuraGlassEffect(animate: animate),
   _ => null,
 };
