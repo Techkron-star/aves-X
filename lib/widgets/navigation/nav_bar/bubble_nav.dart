@@ -246,7 +246,9 @@ class _BubbleNavState extends State<BubbleNav> with SingleTickerProviderStateMix
         // each bubble starts a little after the previous one, with a soft overshoot
         final start = .08 * i / max(1, n - 1) * 3;
         final t = Curves.easeOutBack.transform(((_controller.value - start) / (1 - start)).clamp(0.0, 1.0));
-        if (_controller.value == 0) return const SizedBox();
+        // Keep the bubble/icon subtrees mounted while the menu is closed.
+        // Returning a SizedBox here disposed every child, so opening the menu
+        // repeatedly reset any stateful icon effects back to frame zero.
         final fade = (_controller.value * 1.6).clamp(0.0, 1.0);
         final offset = (_mainSize - _bubbleSize) / 2;
         final side = _margin + offset + spot.dx * t;
@@ -256,11 +258,13 @@ class _BubbleNavState extends State<BubbleNav> with SingleTickerProviderStateMix
           bottom: bottom + offset + spot.dy * t,
           width: _bubbleSize,
           height: _bubbleSize,
-          child: Opacity(
-            opacity: fade,
-            child: Transform.scale(
-              scale: (.2 + .8 * t.clamp(0.0, 1.2)) * (hovered ? 1.2 : 1),
-              child: Stack(
+          child: IgnorePointer(
+            ignoring: !_open,
+            child: Opacity(
+              opacity: fade,
+              child: Transform.scale(
+                scale: (.2 + .8 * t.clamp(0.0, 1.2)) * (hovered ? 1.2 : 1),
+                child: Stack(
                 clipBehavior: Clip.none,
                 alignment: Alignment.center,
                 children: [
@@ -305,6 +309,7 @@ class _BubbleNavState extends State<BubbleNav> with SingleTickerProviderStateMix
                       ),
                     ),
                 ],
+                ),
               ),
             ),
           ),
