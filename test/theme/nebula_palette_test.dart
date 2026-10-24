@@ -206,7 +206,7 @@ void main() {
 
   group('Fail-Safe tokens of each crystal theme', () {
     final cases = <(NebulaTheme, Color, Color, Color, Color)>{
-      (NebulaTheme.nosferatuGlass, const Color(0xFF24060E), const Color(0xFFFFFBF0), const Color(0xFF14121A), const Color(0xFFE0183E)),
+      (NebulaTheme.nosferatuGlass, const Color(0xFF24060E), const Color(0xFFFFFBF0), const Color(0xFF14121A), const Color(0xFF24060E)),
       (NebulaTheme.obsidianGlass, const Color(0xFF12001A), const Color(0xFF1A002A), const Color(0xFF9B5DE5), const Color(0xFF12001A)),
       (NebulaTheme.aureateGlass, const Color(0xFF1A1409), const Color(0xFFFFF4D6), const Color(0xFF8A6A1F), const Color(0xFF2C2312)),
       (NebulaTheme.forgeGlass, const Color(0xFF1F1735), const Color(0xFF0D0A1A), const Color(0xFF44365F), const Color(0xFF2B2045)),
@@ -218,6 +218,9 @@ void main() {
         final tokens = _theme(theme, locale).nebula;
         expect(tokens.securitySurface, surface);
         expect(tokens.securityInputFieldBg, inputFieldBg);
+        if (theme == NebulaTheme.nosferatuGlass) {
+          expect(tokens.securityInputFieldBorder, nebulaPalettes[theme]!.accent);
+        }
         expect(tokens.securityBubbleSurface, bubbleSurface);
         expect(tokens.securityBubbleBorder, bubbleBorder);
         // the accent is readable on the theme surface
