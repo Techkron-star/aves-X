@@ -10,6 +10,7 @@ import 'package:aves/model/grouping/common.dart';
 import 'package:aves/model/grouping/convert.dart';
 import 'package:aves/model/metadata/address.dart';
 import 'package:aves/model/metadata/catalog.dart';
+import 'package:aves/model/security/auto_delete.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/model/source/media_store_source.dart';
@@ -323,6 +324,9 @@ void main() {
   });
 
   testWidgets('unique album names', (tester) async {
+    // MediaStoreSource starts the app-wide periodic auto-delete timer during load.
+    // Stop it before flutter_test verifies that no fake timers leaked from this test.
+    addTearDown(autoDelete.stop);
     (mediaStoreService as FakeMediaStoreService).entries = {
       FakeMediaStoreService.newImage('${FakeStorageService.primaryPath}Pictures/Elea/Zeno', '1'),
       FakeMediaStoreService.newImage('${FakeStorageService.primaryPath}Pictures/Citium/Zeno', '1'),
