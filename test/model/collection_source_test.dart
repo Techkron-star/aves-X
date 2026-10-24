@@ -10,6 +10,7 @@ import 'package:aves/model/grouping/common.dart';
 import 'package:aves/model/grouping/convert.dart';
 import 'package:aves/model/metadata/address.dart';
 import 'package:aves/model/metadata/catalog.dart';
+import 'package:aves/model/security/auto_delete.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/model/source/media_store_source.dart';
@@ -341,6 +342,9 @@ void main() {
     };
 
     final source = await _initSource();
+    // This test only checks display names; AutoDelete's periodic timer is unrelated.
+    // Stop it before pumping widgets, because flutter_test checks pending timers first.
+    autoDelete.stop();
     await tester.pumpWidget(
       Localizations(
         locale: AppLocalizations.supportedLocales.first,
