@@ -5,7 +5,7 @@ import 'package:aves/widgets/common/behaviour/pop/tv_navigation.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/navigation/tv_rail.dart';
 import 'package:aves/widgets/settings/settings_definition.dart';
-import 'package:aves/widgets/settings/settings_page.dart';
+import 'package:aves/widgets/settings/settings_section_groups.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 
@@ -49,14 +49,46 @@ class SettingsTvPage extends StatelessWidget {
   }
 }
 
-class _Content extends StatefulWidget {
-  const new();
+class _Content extends StatelessWidget {
+  const _Content();
 
   @override
-  State<_Content> createState() => _ContentState();
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return DefaultTabController(
+      length: 2,
+      child: Column(
+        children: [
+          TabBar(
+            tabs: [
+              Tab(icon: const Icon(Icons.tune), text: l10n.settingsTabGeneral),
+              Tab(icon: const Icon(Icons.auto_awesome), text: l10n.settingsTabSpecial),
+            ],
+          ),
+          Expanded(
+            child: TabBarView(
+              children: [
+                _SettingsGroup(sections: SettingsSectionGroups.general),
+                _SettingsGroup(sections: SettingsSectionGroups.avesX),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-class _ContentState extends State<_Content> {
+class _SettingsGroup extends StatefulWidget {
+  final List<SettingsSection> sections;
+
+  const _SettingsGroup({required this.sections});
+
+  @override
+  State<_SettingsGroup> createState() => _SettingsGroupState();
+}
+
+class _SettingsGroupState extends State<_SettingsGroup> {
   final ValueNotifier<int> _indexNotifier = ValueNotifier(0);
 
   @override
@@ -65,13 +97,12 @@ class _ContentState extends State<_Content> {
     super.dispose();
   }
 
-  static final List<SettingsSection> sections = SettingsPage.sections;
-
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<int>(
       valueListenable: _indexNotifier,
       builder: (context, selectedIndex, child) {
+        final sections = widget.sections;
         final rail = NavigationRail(
           extended: true,
           destinations: sections
