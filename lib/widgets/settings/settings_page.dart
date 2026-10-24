@@ -1,21 +1,9 @@
-import 'package:aves/widgets/settings/security/failsafe_section.dart';
-import 'package:aves/widgets/settings/security/security.dart';
-import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/durations.dart';
 import 'package:aves/widgets/common/extensions/media_query.dart';
-import 'package:aves/widgets/settings/accessibility/accessibility.dart';
-import 'package:aves/widgets/settings/display/display.dart';
-import 'package:aves/widgets/settings/language/language.dart';
-import 'package:aves/widgets/settings/nebula/nebula_section.dart';
-import 'package:aves/widgets/settings/avesx/avesx_section.dart';
-import 'package:aves/widgets/settings/navigation/navigation.dart';
-import 'package:aves/widgets/settings/privacy/privacy.dart';
 import 'package:aves/widgets/settings/settings_definition.dart';
+import 'package:aves/widgets/settings/settings_section_groups.dart';
 import 'package:aves/widgets/settings/settings_mobile_page.dart';
 import 'package:aves/widgets/settings/settings_tv_page.dart';
-import 'package:aves/widgets/settings/thumbnails/thumbnails.dart';
-import 'package:aves/widgets/settings/video/video.dart';
-import 'package:aves/widgets/settings/viewer/viewer.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:material_ui/material_ui.dart';
@@ -24,21 +12,8 @@ import 'package:provider/provider.dart';
 class SettingsPage extends StatelessWidget {
   static const routeName = '/settings';
 
-  // Standard gallery controls first; fork-specific systems stay grouped at the end.
-  static final List<SettingsSection> sections = [
-    NavigationSection(),
-    ThumbnailsSection(),
-    ViewerSection(),
-    VideoSection(),
-    LanguageSection(),
-    AccessibilitySection(),
-    DisplaySection(),
-    PrivacySection(),
-    SecuritySection(),
-    FailsafeSection(),
-    NebulaSection(),
-    AvesXSection(),
-  ];
+  // Shared section order for settings search and the TV layout.
+  static final List<SettingsSection> sections = SettingsSectionGroups.all;
 
   const new({super.key});
 
