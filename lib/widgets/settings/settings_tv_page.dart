@@ -5,6 +5,7 @@ import 'package:aves/widgets/common/behaviour/pop/tv_navigation.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/navigation/tv_rail.dart';
 import 'package:aves/widgets/settings/settings_definition.dart';
+import 'package:aves/widgets/settings/settings_page.dart';
 import 'package:aves/widgets/settings/settings_section_groups.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
