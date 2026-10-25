@@ -644,7 +644,7 @@ const Map<NebulaTheme, NebulaPalette> nebulaPalettes = {
       Color(0xFF657A38),
       Color(0xFF20251A),
     ],
-    liquidIcons: false,
+    liquidIcons: true,
     filledButtonBackground: Color(0xFF394728),
     filledButtonBorder: Color(0x99DCE8B0),
   ),
