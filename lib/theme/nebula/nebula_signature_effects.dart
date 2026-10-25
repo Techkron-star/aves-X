@@ -878,13 +878,13 @@ class _EmeraldGlassPainter extends NebulaEffectPainter {
   }
 }
 
-/// Nox Terroris: an aperture watches from the void while bone motes fall inward.
-/// Every orbit and pulse completes a whole number of cycles; particles fade at both ends.
+/// Nox Terroris: a living eye in a sealed ossuary. Everything moves on integer
+/// cycles: no jump at the seam, no flashing, no continuously re-allocated blur.
 class NoxTerrorisEffect extends NebulaEffect {
   const NoxTerrorisEffect({super.key, required super.animate});
 
   @override
-  Duration get duration => const Duration(seconds: 18);
+  Duration get duration => const Duration(seconds: 24);
 
   @override
   bool get reverse => false;
@@ -899,63 +899,125 @@ class _NoxTerrorisPainter extends NebulaEffectPainter {
   static const _bone = Color(0xFFDCE8B0);
   static const _acid = Color(0xFFB7D86B);
   static const _void = Color(0xFF020403);
+  static const _ash = Color(0xFF546447);
 
   @override
   void paint(Canvas canvas, Size size) {
     final w = size.width, h = size.height;
     final m = math.min(w, h).toDouble();
+    if (m <= 0) return;
     final tau = 2 * math.pi;
-    final c = Offset(w * .68, h * .47);
-    final pulse = .5 + .5 * math.sin(t * tau);
-    final eyeW = m * (.18 + .09 * pulse);
-    final eyeH = m * (.018 + .035 * pulse);
+    final c = Offset(w * .66, h * .46);
+    final breath = .5 - .5 * math.cos(t * tau * 2);
 
-    canvas.drawCircle(c, m * .34, Paint()..shader = ui.Gradient.radial(c, m * .34,
-      [_acid.withValues(alpha: .10 + .05 * pulse), _acid.withValues(alpha: 0)]));
-    canvas.drawCircle(c, m * .26, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.0
-      ..color = _bone.withValues(alpha: .12 + .05 * pulse));
-    canvas.drawCircle(c, m * .29, Paint()..style = PaintingStyle.stroke..strokeWidth = .7
-      ..color = _acid.withValues(alpha: .14));
+    // The iris tracks an invisible presence, returning exactly to its origin.
+    final gaze = c + Offset(
+      m * .022 * math.sin(t * tau),
+      m * .010 * math.sin(t * tau * 2 + .45),
+    );
+    // Three short blinks in 24 seconds. Even a frozen frame retains a visible eye.
+    final blink = math.pow(math.max(0.0, math.sin(t * tau * 3 - .3)), 24).toDouble();
+    final open = 1 - .91 * blink;
+    final eyeWidth = m * (.235 + .012 * breath);
+    final eyeHeight = m * (.09 + .045 * breath) * open;
 
-    final eye = Rect.fromCenter(center: c, width: eyeW, height: eyeH * 2.4);
-    canvas.drawOval(eye, Paint()..color = _void.withValues(alpha: .92));
-    canvas.drawOval(eye, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.3
-      ..color = _bone.withValues(alpha: .65));
-    canvas.drawLine(Offset(c.dx, eye.top + eye.height * .12), Offset(c.dx, eye.bottom - eye.height * .12),
-      Paint()..strokeWidth = math.max(1.0, m * .012).toDouble()..color = _acid.withValues(alpha: .65 + .3 * pulse));
-    canvas.drawCircle(c, m * .035, Paint()..color = _acid.withValues(alpha: .15)
-      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 4));
+    // A low-cost atmospheric halo and two independently breathing ossuary seals.
+    canvas.drawCircle(c, m * .42, Paint()
+      ..shader = ui.Gradient.radial(c, m * .42, [
+        _acid.withValues(alpha: .16 + .055 * breath),
+        _ash.withValues(alpha: .055),
+        _void.withValues(alpha: 0),
+      ], [0, .47, 1]));
+    final seal = Paint()..style = PaintingStyle.stroke..strokeWidth = 1;
+    for (var i = 0; i < 2; i++) {
+      seal.color = (i == 0 ? _bone : _acid)
+          .withValues(alpha: (i == 0 ? .15 : .10) + .05 * breath);
+      canvas.drawCircle(c, m * (i == 0 ? .265 : .297), seal);
+    }
 
-    // Thirteen broken halo marks rotate as one complete revolution per loop.
+    // Broken ribs curl toward the eye. The shapes flex but never hard-reset.
+    final rib = Paint()..style = PaintingStyle.stroke
+      ..strokeWidth = 1.15..strokeCap = StrokeCap.round;
+    for (var side = -1; side <= 1; side += 2) {
+      for (var i = 0; i < 4; i++) {
+        final y = c.dy + m * (.095 + i * .065);
+        final sway = math.sin(t * tau + i * .58 + side) * m * .006;
+        final path = Path()
+          ..moveTo(c.dx + side * m * .19, y)
+          ..quadraticBezierTo(c.dx + side * m * (.29 + i * .01) + sway,
+              y + m * .026, c.dx + side * m * (.4 + i * .012), y + m * .004);
+        rib.color = (i.isEven ? _bone : _ash)
+            .withValues(alpha: .11 + .065 * breath);
+        canvas.drawPath(path, rib);
+      }
+    }
+
+    // Bone dust is attracted to the aperture, with full-cycle orbital motion.
+    // Phase and alpha meet at zero at each particle's wraparound.
+    final dust = Paint();
+    for (var i = 0; i < 36; i++) {
+      final phase = (t * (1 + i % 2) + i * .618033988749895) % 1.0;
+      final fade = math.sin(math.pi * phase);
+      final angle = i * 2.399963229728653 + t * tau * (1 + i % 3);
+      final radius = m * (.54 - .44 * phase);
+      final p = c + Offset(math.cos(angle) * radius, math.sin(angle) * radius * .74);
+      dust.color = (i % 5 == 0 ? _bone : _acid)
+          .withValues(alpha: (.10 + .40 * fade) * fade);
+      canvas.drawCircle(p, i % 7 == 0 ? 1.7 : .95, dust);
+    }
+
+    // Thirteen notched marks make one complete, perfectly seamless revolution.
     canvas.save();
     canvas.translate(c.dx, c.dy);
     canvas.rotate(t * tau);
-    final marks = Paint()..style = PaintingStyle.stroke..strokeCap = StrokeCap.round..strokeWidth = 1.1;
+    final marks = Paint()..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round..strokeWidth = 1.1;
     for (var i = 0; i < 13; i++) {
       final a = i * tau / 13;
-      final inner = m * .31, outer = inner + (i % 3 == 0 ? m * .045 : m * .022);
-      marks.color = (i % 3 == 0 ? _bone : _acid).withValues(alpha: i % 3 == 0 ? .42 : .2);
+      final inner = m * .31, outer = inner + (i % 3 == 0 ? m * .046 : m * .02);
+      marks.color = (i % 3 == 0 ? _bone : _acid)
+          .withValues(alpha: i % 3 == 0 ? .46 : .2);
       canvas.drawLine(Offset(math.cos(a) * inner, math.sin(a) * inner),
-        Offset(math.cos(a) * outer, math.sin(a) * outer), marks);
+          Offset(math.cos(a) * outer, math.sin(a) * outer), marks);
     }
     canvas.restore();
 
-    // Bone dust moves inward under a radial pull; alpha reaches zero at wraparound.
-    final rnd = math.Random(61023);
-    final dust = Paint();
-    for (var i = 0; i < 28; i++) {
-      final phase = (t + i / 28) % 1.0;
-      final angle = rnd.nextDouble() * tau;
-      final radius = m * (.48 - .38 * phase);
-      final x = w * .5 + math.cos(angle + t * tau * .08) * radius;
-      final y = h * .5 + math.sin(angle + t * tau * .08) * radius * .72;
-      final fade = math.sin(math.pi * phase);
-      final alpha = (.10 + .42 * fade) * fade;
-      dust.color = (i.isEven ? _bone : _acid).withValues(alpha: alpha);
-      canvas.drawCircle(Offset(x, y), i % 5 == 0 ? 1.7 : 1.0, dust);
+    final eyeRect = Rect.fromCenter(center: c, width: eyeWidth, height: eyeHeight);
+    final aperture = Path()..addOval(eyeRect);
+    // A soft sclera surrounding an abyss; both are clipped inside the eyelids.
+    canvas.drawPath(aperture, Paint()..color = _void.withValues(alpha: .97));
+    canvas.save();
+    canvas.clipPath(aperture);
+    canvas.drawCircle(gaze, m * .077, Paint()
+      ..shader = ui.Gradient.radial(gaze, m * .077, [
+        _acid.withValues(alpha: .86),
+        _ash.withValues(alpha: .48),
+        _void.withValues(alpha: .96),
+      ], [0, .50, 1]));
+    canvas.drawCircle(gaze, m * .036, Paint()..color = _void);
+    canvas.drawLine(gaze + Offset(0, -m * .043), gaze + Offset(0, m * .043),
+      Paint()..color = _acid.withValues(alpha: .75 + .2 * breath)
+        ..strokeWidth = math.max(1.0, m * .010).toDouble()
+        ..strokeCap = StrokeCap.round);
+    canvas.drawCircle(gaze + Offset(-m * .013, -m * .017), m * .006,
+        Paint()..color = _bone.withValues(alpha: .52));
+    canvas.restore();
+
+    // Bone lids visibly close and reopen over the pupil (unlike a simple scale pulse).
+    canvas.drawPath(aperture, Paint()..style = PaintingStyle.stroke
+      ..strokeWidth = 1.6..color = _bone.withValues(alpha: .68 + .17 * breath));
+    final lidPaint = Paint()..style = PaintingStyle.stroke
+      ..strokeWidth = 1..strokeCap = StrokeCap.round
+      ..color = _acid.withValues(alpha: .30 + .18 * breath);
+    for (final side in [-1.0, 1.0]) {
+      final edge = c.dx + side * eyeWidth * .54;
+      canvas.drawLine(Offset(edge, c.dy - eyeHeight * .25),
+          Offset(edge + side * m * .026, c.dy - eyeHeight * .38), lidPaint);
     }
 
-    final crack = Paint()..style = PaintingStyle.stroke..strokeWidth = .7..color = _bone.withValues(alpha: .16);
+    // Shattered ossuary engravings frame the scene, deliberately very faint.
+    final crack = Paint()..style = PaintingStyle.stroke..strokeWidth = .8
+      ..color = _bone.withValues(alpha: .10 + .05 * breath);
     for (var i = 0; i < 4; i++) {
       final x = w * (.06 + i * .29);
       final path = Path()..moveTo(x, h * (i.isEven ? .05 : .95))
