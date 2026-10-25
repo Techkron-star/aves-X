@@ -140,6 +140,7 @@ class NebulaMaterialStyle {
     final crystal = palette.crystalBody;
     final bright = crystal.isNotEmpty ? crystal.first : palette.accent;
     final deep = crystal.isNotEmpty ? crystal.last : palette.surface;
+    final isNox = material == NebulaMaterial.noxTerroris;
     return NebulaMaterialStyle(
       material: material,
       accent: palette.accent,
@@ -147,7 +148,18 @@ class NebulaMaterialStyle {
       surface: palette.surfaceContainerHigh,
       dialogSurface: palette.surfaceContainerHigh.withValues(alpha: .94),
       feedbackSurface: palette.surfaceContainerLowest.withValues(alpha: .94),
-      highlight: LinearGradient(
+      // Nox: an oblique bone reflection over an almost black sealed mirror.
+      highlight: isNox ? LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          palette.crystalEdge.withValues(alpha: .27),
+          palette.surfaceContainerLowest.withValues(alpha: .06),
+          palette.accent.withValues(alpha: .14),
+          palette.surface.withValues(alpha: .22),
+        ],
+        stops: const [0, .36, .72, 1],
+      ) : LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
@@ -159,7 +171,11 @@ class NebulaMaterialStyle {
         ],
         stops: const [0, .2, .48, .76, 1],
       ),
-      lens: [
+      lens: isNox ? [
+        palette.crystalEdge.withValues(alpha: .23),
+        palette.glow.withValues(alpha: .18),
+        palette.surfaceContainerLowest.withValues(alpha: .16),
+      ] : [
         palette.crystalHighlight.withValues(alpha: palette.crystalHighlight.a * .8),
         palette.glow.withValues(alpha: palette.glow.a * .48),
         palette.accent.withValues(alpha: .08),
@@ -169,7 +185,7 @@ class NebulaMaterialStyle {
       liquidDeep: palette.accent,
       buttonFill: palette.filledButtonBackground ?? palette.accent.withValues(alpha: .2),
       buttonBorder: palette.filledButtonBorder ?? palette.crystalEdge,
-      shimmer: palette.crystalHighlight,
+      shimmer: isNox ? palette.crystalEdge : palette.crystalHighlight,
       chain: [palette.accent, deep],
       chainStroke: palette.crystalEdge,
       feedbackGradient: [palette.glow.withValues(alpha: .38), palette.surfaceContainerLowest.withValues(alpha: .96)],
