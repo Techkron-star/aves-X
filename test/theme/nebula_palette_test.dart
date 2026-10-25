@@ -1,9 +1,11 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:aves/theme/nebula/nebula_palette.dart';
 import 'package:aves/theme/nebula/nebula_palettes.dart';
 import 'package:aves/theme/nebula/nebula_material.dart';
 import 'package:aves/theme/nebula/nebula_theme.dart';
+import 'package:aves/theme/nebula/nebula_signature_effects.dart';
 import 'package:aves/theme/nebula/nebula_tokens.dart';
 import 'package:aves/theme/themes.dart';
 import 'package:aves/widgets/settings/language/locales.dart';
@@ -325,6 +327,28 @@ void main() {
       expect(data.nebula.securityAccent, custom.accent);
       expect(data.nebula.securitySurface, custom.surfaceContainerHigh);
       expect(data.nebula.securityBubbleSurface, custom.surfaceContainerLow);
+    });
+  });
+
+  group('Nox Terroris moving material', () {
+    test('retains its identity, liquid highlights and dark palette', () {
+      final palette = nebulaPalettes[NebulaTheme.noxTerroris]!;
+      expect(palette.darkOnly, isTrue);
+      expect(palette.liquidIcons, isTrue);
+      expect(palette.allowDynamicColor, isFalse);
+      expect(nebulaMaterialStyleForPalette(palette)?.material, NebulaMaterial.noxTerroris);
+      expect(nebulaThemeFromId('nox_terroris'), NebulaTheme.noxTerroris);
+    });
+
+    test('painter renders still and seam-adjacent frames without exceptions', () {
+      const effect = NoxTerrorisEffect(animate: false);
+      for (final phase in <double>[0, .1, .25, .5, .75, .999999, 1]) {
+        final recorder = ui.PictureRecorder();
+        final canvas = ui.Canvas(recorder);
+        expect(() => effect.painter(phase).paint(canvas, const ui.Size(360, 240)),
+            returnsNormally);
+        recorder.endRecording().dispose();
+      }
     });
   });
 
